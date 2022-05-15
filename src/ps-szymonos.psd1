@@ -4,7 +4,7 @@
 RootModule = 'ps-szymonos.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.2.2'
+ModuleVersion = '0.2.3'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -25,10 +25,15 @@ Description = 'This module is intended to streamline my workflow with PowerShell
 PowerShellVersion = '7.0'
 
 # Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @('Az.Accounts', 'Az.ResourceGraph')
+RequiredModules = @(
+    'Az.Accounts',
+    'Az.ResourceGraph'
+)
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
-ScriptsToProcess = @('Classes.ps1')
+ScriptsToProcess = @(
+    'Classes/az.ps1'
+)
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
