@@ -25,11 +25,10 @@ if (Test-Path $installPath) {
     if ($CleanUp) {
         Remove-Item "$(Split-Path $installPath)/*" -Recurse -Force
     } else {
-        Remove-Item "$installPath/*" -Recurse -Force
+        Remove-Item $installPath -Recurse -Force
     }
-} else {
-    New-Item -ItemType Directory -Force -Path $installPath | Out-Null
 }
+New-Item -ItemType Directory -Force -Path $installPath | Out-Null
 
 # copy module files
 Copy-Item -Path "$PSScriptRoot/src/*" -Destination $installPath -Recurse
