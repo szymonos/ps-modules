@@ -5,7 +5,11 @@ Install the module.
 ./install.ps1
 #>
 # get module path in user context
-$installPath = Join-Path $env:PSModulePath.Split("$($IsWindows ? ';' : ':')")[0] -ChildPath 'ps-szymonos'
+$installPath = [IO.Path]::Join(
+    $env:PSModulePath.Split("$($IsWindows ? ';' : ':')")[0],
+    'ps-szymonos',
+    (Test-ModuleManifest 'src/ps-szymonos.psd1').Version.ToString()
+)
 
 # create/cleanup destination directory
 if (Test-Path $installPath) {
