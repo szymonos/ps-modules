@@ -1,3 +1,5 @@
+$ErrorActionPreference = 'Stop'
+
 <#
 .SYNOPSIS
 Get index of a value in provided array from selection menu.
@@ -51,7 +53,7 @@ function Invoke-CommandRetry {
     )
     do {
         try {
-            Invoke-Command -ScriptBlock $Script -ErrorAction Stop
+            Invoke-Command -ScriptBlock $Script
             $exit = $true
         } catch [System.Net.Http.HttpRequestException] {
             Write-Verbose 'Retrying...'
