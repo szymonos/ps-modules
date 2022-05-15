@@ -1,9 +1,18 @@
 <#
 .SYNOPSIS
 Install the module.
+.PARAMETER CleanUp
+If set, script will remove all existing module versions.
+
 .EXAMPLE
 ./install.ps1
+./install.ps1 -CleanUp
 #>
+[CmdletBinding()]
+param (
+    [Alias('c')]
+    [switch]$CleanUp
+)
 # get module path in user context
 $installPath = [IO.Path]::Join(
     $env:PSModulePath.Split("$($IsWindows ? ';' : ':')")[0],
@@ -13,10 +22,14 @@ $installPath = [IO.Path]::Join(
 
 # create/cleanup destination directory
 if (Test-Path $installPath) {
-    Remove-Item "$installPath/*" -Recurse -Force
+    if ($CleanUp) {
+        Remove-Item "$(Split-Path $installPath)/*" -Recurse -Force
+    } else {
+        Remove-Item "$installPath/*" -Recurse -Force
+    }
 } else {
     New-Item -ItemType Directory -Force -Path $installPath | Out-Null
 }
 
 # copy module files
-Copy-Item -Path "$PSScriptRoot/src/*" -Destination $installPath -Recurse -Force
+Copy-Item -Path "$PSScriptRoot/src/*" -Destination $installPath -Recurse
