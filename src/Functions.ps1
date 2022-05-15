@@ -17,12 +17,17 @@ function Get-ArrayIndexMenu {
         [string]$Message
     )
 
+    # get array length for indentation calculation
+    $arrayLen = "$($Array.Count)".Length
     # create selection menu
     $msg = (
-        "`n`e[4m$($Message ? $Message : 'Select option')`e[0m`n " +
-        $Array.ForEach({ "[$([array]::IndexOf($Array, $_))] - $_`n" })
-    )
-
+        , "`n`e[4m$($Message ? $Message : 'Select option')`e[0m" +
+        $Array.ForEach({
+                $index = [array]::IndexOf($Array, $_)
+                $indent = ' ' * ($arrayLen - "$index".Length + 1)
+                "$indent[$index] - $_"
+            }) + ''
+    ) -join "`n"
     # get selection
     do {
         $i = Read-Host -Prompt $msg
