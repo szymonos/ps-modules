@@ -9,8 +9,12 @@ Subscription Name or ID.
 function Connect-AzContext {
     param (
         [Alias('s')]
-        [string]$Subscription
+        [string]$Subscription,
+
+        [Alias('t')]
+        [string]$Tenant
     )
+
     $ctx = Get-AzContext
     if ($ctx) {
         if ($Subscription -and $Subscription -notin @($ctx.Subscription.Id, $ctx.Subscription.Name)) {
@@ -19,19 +23,12 @@ function Connect-AzContext {
             }
         }
     } else {
+        $cmd = "Connect-AzAccount$($Subscription ? " -Subscription $Subscription" : '')$($Tenant ? " -Tenant $Tenant" : '')"
         $ctx = Invoke-CommandRetry {
-            if ($Subscription) {
-                try {
-                    (Connect-AzAccount -Subscription $Subscription -WarningAction Stop).Context
-                } catch {
-                    (Connect-AzAccount -Subscription $Subscription -UseDeviceAuthentication).Context
-                }
-            } else {
-                try {
-                    (Connect-AzAccount -WarningAction Stop).Context
-                } catch {
-                    (Connect-AzAccount -UseDeviceAuthentication).Context
-                }
+            try {
+                (Invoke-Expression -Command "$cmd -WarningAction Stop" 3>$null).Context
+            } catch [System.Management.Automation.ActionPreferenceStopException] {
+                (Invoke-Expression -Command "$cmd -UseDeviceAuthentication" -Verbose).Context
             }
         }
     }
