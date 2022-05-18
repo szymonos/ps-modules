@@ -109,7 +109,7 @@ function Get-AzApiRequest {
     }
 
     process {
-        $response = Invoke-CommandLoop {
+        $response = Invoke-CommandRetry {
             Invoke-RestMethod @params -Uri "https://management.azure.com$ResourceId"
         }
         $responseList.Add($response)
