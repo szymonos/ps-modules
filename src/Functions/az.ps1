@@ -5,6 +5,8 @@ $ErrorActionPreference = 'Stop'
 Set Az Context and eventually connect to Azure.
 .PARAMETER Subscription
 Subscription Name or ID.
+.PARAMETER Tenant
+Tenant Name or ID.
 #>
 function Connect-AzContext {
     param (
@@ -42,7 +44,7 @@ Set subscription context from selection menu.
 #>
 function Set-SubscriptionMenu {
     # query graph api for subscriptions
-    $tenantId = (Get-AzContext).Subscription.TenantId
+    $tenantId = (Connect-AzContext).Tenant.Id
     $query = "ResourceContainers | where type =~ 'microsoft.resources/subscriptions' | project name, subscriptionId"
     $subscriptions = Search-AzGraph -Query $query -ManagementGroup $tenantId | Sort-Object name
 
