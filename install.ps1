@@ -2,16 +2,22 @@
 .SYNOPSIS
 Install the module.
 .PARAMETER CleanUp
-If set, script will remove all existing module versions.
+Remove all existing module versions in installed module directory.
+.PARAMETER RemoveRequirements
+Remove RequiredModules from module manifest to speed up loading time.
 
 .EXAMPLE
 ./install.ps1
 ./install.ps1 -CleanUp
+./install.ps1 -CleanUp -RemoveRequirements
 #>
 [CmdletBinding()]
 param (
     [Alias('c')]
-    [switch]$CleanUp
+    [switch]$CleanUp,
+
+    [Alias('r')]
+    [switch]$RemoveRequirements
 )
 # get module path in user context
 $installPath = [IO.Path]::Join(
@@ -22,6 +28,7 @@ $installPath = [IO.Path]::Join(
 
 # create/cleanup destination directory
 if (Test-Path $installPath) {
+    # clean-up old module versions
     if ($CleanUp) {
         Remove-Item "$(Split-Path $installPath)/*" -Recurse -Force
     } else {
@@ -32,3 +39,9 @@ New-Item -ItemType Directory -Force -Path $installPath | Out-Null
 
 # copy module files
 Copy-Item -Path "$PSScriptRoot/src/*" -Destination $installPath -Recurse
+
+# remove requirements from module manifest to speed up module loading time
+if ($RemoveRequirements) {
+    $manifest = "$installPath/ps-szymonos.psd1"
+    (Get-Content $manifest -Raw) -replace '(?s)RequiredModules.*?\)\n' | Set-Content $manifest
+}
