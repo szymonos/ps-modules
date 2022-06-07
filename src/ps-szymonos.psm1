@@ -10,7 +10,7 @@ $exportModuleMemberParams = @{
         # az
         'Connect-AzContext',
         'Set-SubscriptionMenu',
-        'Get-AzAccessToken',
+        'Get-AzCtxAccessToken',
         'Get-AzApiRequest',
         # winget
         'Get-WingetResult',
