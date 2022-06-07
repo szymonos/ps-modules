@@ -61,7 +61,7 @@ Set-Alias -Name ssm -Value Set-SubscriptionMenu
 .SYNOPSIS
 Get Azure token from current context.
 #>
-function Get-AzAccessToken {
+function Get-AzCtxAccessToken {
     # get current context
     $ctx = Connect-AzContext
 
@@ -104,7 +104,7 @@ function Get-AzApiRequest {
         $params = @{
             Method         = 'Get'
             Authentication = 'Bearer'
-            Token          = (Get-AzAccessToken).AccessToken | ConvertTo-SecureString -AsPlainText -Force
+            Token          = (Get-AzCtxAccessToken).AccessToken | ConvertTo-SecureString -AsPlainText -Force
             Headers        = @{ 'Content-Type' = 'application/json' }
             Body           = @{ 'api-version' = $ApiVersion }
         }
