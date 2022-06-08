@@ -70,7 +70,7 @@ Output format.
 function Get-AzApiRequest {
     [CmdletBinding()]
     param (
-        [Alias('r')]
+        [Alias('s')]
         [Parameter(Mandatory, ValueFromPipeline)]
         [string]$Scope,
 
