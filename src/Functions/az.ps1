@@ -59,11 +59,11 @@ Set-Alias -Name ssm -Value Set-SubscriptionMenu
 
 <#
 .SYNOPSIS
-Send Azure API request.
+Send GET request to Azure REST API.
 .PARAMETER Scope
 Request scope.
 .PARAMETER ApiVersion
-API version of the resource to query.
+API version.
 .PARAMETER Output
 Output format.
 #>
@@ -90,13 +90,12 @@ function Get-AzApiRequest {
             Authentication = 'Bearer'
             Token          = (Get-AzAccessToken -ResourceTypeName 'Arm').Token | ConvertTo-SecureString -AsPlainText -Force
             Headers        = @{ 'Content-Type' = 'application/json' }
-            Body           = @{ 'api-version' = $ApiVersion }
         }
     }
 
     process {
         $response = Invoke-CommandRetry {
-            Invoke-RestMethod @params -Uri "https://management.azure.com$Scope"
+            Invoke-RestMethod @params -Uri "https://management.azure.com$($Scope)?api-version=$ApiVersion"
         }
         $responseList.Add($response)
     }
@@ -113,5 +112,54 @@ function Get-AzApiRequest {
                 $responseList | ConvertTo-Json -Depth 10 | jq
             }
         }
+    }
+}
+
+<#
+.SYNOPSIS
+Send PUT request to Azure REST API.
+.PARAMETER Scope
+Request scope.
+.PARAMETER ApiVersion
+API version.
+.PARAMETER Body
+Request payload.
+#>
+function Update-AzApiRequest {
+    [CmdletBinding()]
+    param (
+        [Alias('s')]
+        [Parameter(Mandatory, ValueFromPipeline)]
+        [string]$Scope,
+
+        [Alias('a')]
+        [Parameter(Mandatory)]
+        [string]$ApiVersion,
+
+        [Alias('b')]
+        [Parameter(Mandatory)]
+        [string]$Body
+    )
+
+    begin {
+        $responseList = [Collections.Generic.List[PSCustomObject]]::new()
+        $params = @{
+            Method         = 'Put'
+            Authentication = 'Bearer'
+            Token          = (Get-AzAccessToken -ResourceTypeName 'Arm').Token | ConvertTo-SecureString -AsPlainText -Force
+            Headers        = @{ 'Content-Type' = 'application/json' }
+            Body           = $Body
+        }
+    }
+
+    process {
+        $response = Invoke-CommandRetry {
+            Invoke-RestMethod @params -Uri "https://management.azure.com$($Scope)?api-version=$ApiVersion"
+        }
+        $responseList.Add($response)
+    }
+
+    end {
+        return $responseList
     }
 }
