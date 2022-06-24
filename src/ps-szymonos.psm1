@@ -11,6 +11,7 @@ $exportModuleMemberParams = @{
         'Connect-AzContext',
         'Set-SubscriptionMenu',
         'Get-AzApiRequest',
+        'Update-AzApiRequest',
         # winget
         'Get-WingetResult',
         'Invoke-WingetUpgrade'
