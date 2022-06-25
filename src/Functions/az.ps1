@@ -140,16 +140,13 @@ function Invoke-AzApiRequest {
     end {
         switch ($Output) {
             { $_ -eq 'object' } {
-                $responseList
-                break
+                return $responseList
             }
             { $_ -eq 'json' } {
-                $responseList | ConvertTo-Json -Depth 10
-                break
+                return $responseList | ConvertTo-Json -Depth 10
             }
             { $_ -eq 'jsonc' } {
-                $responseList | ConvertTo-Json -Depth 10 | jq
-                break
+                return $responseList | ConvertTo-Json -Depth 10 | jq
             }
         }
     }
