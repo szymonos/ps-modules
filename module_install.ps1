@@ -3,6 +3,8 @@
 Install the module.
 .PARAMETER Module
 Specify module to install.
+.PARAMETER Scope
+User-installed modules scope. Valid values are: CurrentUser, AllUsers.
 .PARAMETER CleanUp
 Remove all existing module versions in installed module directory.
 .PARAMETER RemoveRequirements
@@ -17,8 +19,11 @@ Remove RequiredModules from module manifest to speed up loading time.
 param (
     [Alias('m')]
     [Parameter(Mandatory)]
-    [ValidateSet('do-common', 'do-az', 'do-win')]
     [string]$Module,
+
+    [Alias('s')]
+    [ValidateSet('CurrentUser', 'AllUsers')]
+    [string]$Scope = 'CurrentUser',
 
     [Alias('c')]
     [switch]$CleanUp,
@@ -27,16 +32,22 @@ param (
     [switch]$RemoveRequirements
 )
 
+$ErrorActionPreference = 'Stop'
+
 # get module path in user context
 $manifest = Test-ModuleManifest "modules/$Module/$Module.psd1"
-$modulePath = [IO.Path]::Join(
-    $env:PSModulePath.Split("$($IsWindows ? ';' : ':')")[0],
-    $Module
-)
-$installPath = [IO.Path]::Join(
-    $modulePath,
-    $manifest.Version.ToString()
-)
+$psModPath = switch ($Scope) {
+    { $_ -eq 'CurrentUser' } {
+        $IsWindows ? "$HOME\Documents\PowerShell\Modules" : "$HOME/.local/share/powershell/Modules"
+        break
+    }
+    { $_ -eq 'AllUsers' } {
+        $IsWindows ? "$env:ProgramFiles\PowerShell\Modules" : "/usr/local/share/powershell/Modules"
+        break
+    }
+}
+$modulePath = [IO.Path]::Join($psModPath, $Module)
+$installPath = [IO.Path]::Join($modulePath, $manifest.Version.ToString())
 
 # create/cleanup destination directory
 if (Test-Path $modulePath) {
