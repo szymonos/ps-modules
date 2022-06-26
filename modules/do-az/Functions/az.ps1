@@ -112,19 +112,17 @@ function Invoke-AzApiRequest {
         [string]$Method = 'Get',
 
         [Alias('b')]
-        [Parameter(Mandatory = $false, ParameterSetName = 'Payload:Body')]
+        [Parameter(ParameterSetName = 'Payload:Body')]
         [ValidateScript({ '' -ne $_ }, ErrorMessage = 'Payload cannot be empty.')]
         [string]$Body,
 
         [Alias('f')]
-        [Parameter(Mandatory = $false, ParameterSetName = 'Payload:File')]
+        [Parameter(ParameterSetName = 'Payload:File')]
         [ValidateScript({ Test-Path $_ -PathType 'Leaf' }, ErrorMessage = "'{0}' is not a valid path.")]
         [string]$InFile,
 
         [Alias('o')]
         [Parameter(ParameterSetName = 'Default')]
-        [Parameter(ParameterSetName = 'Payload:Body')]
-        [Parameter(ParameterSetName = 'Payload:File')]
         [ValidateSet('json', 'jsonc', 'object')]
         [string]$Output = 'object'
     )
