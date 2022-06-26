@@ -46,10 +46,26 @@ function Set-SubscriptionMenu {
     # query graph api for subscriptions
     $tenantId = (Connect-AzContext).Tenant.Id
     $query = "ResourceContainers | where type =~ 'microsoft.resources/subscriptions' | project name, subscriptionId"
-    $subscriptions = Search-AzGraph -Query $query -ManagementGroup $tenantId | Sort-Object name
+    $subscriptions = try {
+        Search-AzGraph -Query $query -ManagementGroup $tenantId | Sort-Object name
+    } catch [Microsoft.Azure.Management.ResourceGraph.Models.ErrorResponseException] {
+        if (($_.ErrorDetails.Message | ConvertFrom-Json).error.details.code -eq 'ManagementGroupsNotFoundInTenant') {
+            Search-AzGraph -Query $query | Sort-Object name
+        } else {
+            Write-Verbose $_.ErrorDetails.Message
+            Write-Error $_
+        }
+    } catch {
+        Write-Verbose $_.Exception.GetType().FullName
+        Write-Error $_
+    }
 
     # select subscription from menu
-    $i = Get-ArrayIndexMenu -Array $subscriptions.name -Message 'Select subscription'
+    if ($subscriptions.Count -gt 1) {
+        $i = Get-ArrayIndexMenu -Array $subscriptions.name -Message 'Select subscription'
+    } else {
+        $i = 0
+    }
     $sub = (Connect-AzContext $subscriptions[$i].subscriptionId).Subscription
 
     return $sub
