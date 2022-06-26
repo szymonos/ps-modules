@@ -38,11 +38,15 @@ $ErrorActionPreference = 'Stop'
 $manifest = Test-ModuleManifest "modules/$Module/$Module.psd1"
 $psModPath = switch ($Scope) {
     { $_ -eq 'CurrentUser' } {
-        $IsWindows ? "$HOME\Documents\PowerShell\Modules" : "$HOME/.local/share/powershell/Modules"
+        if ($IsWindows) {
+            $env:PSModulePath.Split("$($IsWindows ? ';' : ':')").Where({ $_ -match "$($HOME.Replace('\', '\\'))|$($env:OneDrive.Replace('\', '\\'))" })
+        } else {
+            "$HOME/.local/share/powershell/Modules"
+        }
         break
     }
     { $_ -eq 'AllUsers' } {
-        $IsWindows ? "$env:ProgramFiles\PowerShell\Modules" : "/usr/local/share/powershell/Modules"
+        $IsWindows ? "$env:ProgramFiles\PowerShell\Modules" : '/usr/local/share/powershell/Modules'
         break
     }
 }
