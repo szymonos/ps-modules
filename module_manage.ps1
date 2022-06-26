@@ -46,7 +46,11 @@ switch ($Option) {
     {$_ -eq 'delete'} {
         $psModPath = switch ($Scope) {
             { $_ -eq 'CurrentUser' } {
-                $IsWindows ? "$HOME\Documents\PowerShell\Modules" : "$HOME/.local/share/powershell/Modules"
+                if ($IsWindows) {
+                    $env:PSModulePath.Split("$($IsWindows ? ';' : ':')").Where({ $_ -match "$($HOME.Replace('\', '\\'))|$($env:OneDrive.Replace('\', '\\'))" })
+                } else {
+                    "$HOME/.local/share/powershell/Modules"
+                }
                 break
             }
             { $_ -eq 'AllUsers' } {
