@@ -14,7 +14,7 @@ function Get-FileName {
         [ValidateScript({ Test-Path $_ -PathType 'Container' }, ErrorMessage = "'{0}' is not a valid folder path.")]
         [string]$InitialDirectory = '.',
 
-        [ValidateScript({ '' -ne $_ }, ErrorMessage = "FileFilter cannot be empty." )]
+        [ValidateScript({ $_ -ne '' -and $_ -match '.+\|\s*\*\.' }, ErrorMessage = "'{0}' is not a valid file filter." )]
         [string]$FileFilter = 'All types| *.*'
     )
 
@@ -36,12 +36,12 @@ function Get-FolderPath {
     [CmdletBinding()]
     param (
         [ValidateScript({ Test-Path $_ -PathType 'Container' }, ErrorMessage = "'{0}' is not a valid folder path.")]
-        [string]$InitialDirectory
+        [string]$InitialDirectory = '.'
     )
 
     $FolderBrowserDialog = New-Object System.Windows.Forms.FolderBrowserDialog
     if ($InitialDirectory) {
-        $FolderBrowserDialog.SelectedPath = [System.IO.Path]::GetFullPath($InitialDirectory)
+        $FolderBrowserDialog.SelectedPath = Join-Path ([System.IO.Path]::GetFullPath($InitialDirectory)) -ChildPath $null
     }
     [void] $FolderBrowserDialog.ShowDialog((New-Object System.Windows.Forms.Form -Property @{ TopMost = $true }))
 
