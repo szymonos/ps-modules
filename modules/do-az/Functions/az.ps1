@@ -43,21 +43,14 @@ function Connect-AzContext {
 Set subscription context from selection menu.
 #>
 function Set-SubscriptionMenu {
+    [CmdletBinding()]
+    param (
+        [switch]$cli
+    )
     # query graph api for subscriptions
-    $tenantId = (Connect-AzContext).Tenant.Id
     $query = "ResourceContainers | where type =~ 'microsoft.resources/subscriptions' | project name, subscriptionId"
-    $subscriptions = try {
-        Search-AzGraph -Query $query -ManagementGroup $tenantId | Sort-Object name
-    } catch [Microsoft.Azure.Management.ResourceGraph.Models.ErrorResponseException] {
-        if (($_.ErrorDetails.Message | ConvertFrom-Json).error.details.code -eq 'ManagementGroupsNotFoundInTenant') {
-            Search-AzGraph -Query $query | Sort-Object name
-        } else {
-            Write-Verbose $_.ErrorDetails.Message
-            Write-Error $_
-        }
-    } catch {
-        Write-Verbose $_.Exception.GetType().FullName
-        Write-Error $_
+    $subscriptions = Invoke-CommandRetry {
+        Search-AzGraph -Query $query | Sort-Object name
     }
 
     # select subscription from menu
@@ -66,7 +59,12 @@ function Set-SubscriptionMenu {
     } else {
         $i = 0
     }
-    $sub = (Connect-AzContext $subscriptions[$i].subscriptionId).Subscription
+    if ($cli) {
+        az account set --subscription $subscriptions[$i].subscriptionId
+        az account show | ConvertFrom-Json | Select-Object name, id, tenantId, state
+    } else {
+        $sub = (Connect-AzContext $subscriptions[$i].subscriptionId).Subscription
+    }
 
     return $sub
 }
