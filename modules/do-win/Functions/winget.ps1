@@ -94,12 +94,13 @@ function Invoke-WingetUpgrade {
 
     process {
         $packages = (Get-WingetResult -o 'upgrade').Where({ $_.Id -notin $ExcludedItems })
-        foreach ($item in $packages) {
-            [Console]::WriteLine("`e[95m$($item.Name)`e[0m")
-            winget.exe upgrade --id $item.Id
-        }
-        if (-not $packages.Count) {
-            Write-Host 'No packages to upgrade.'
+        if (-not $packages.Id) {
+            return $packages
+        } else {
+            foreach ($item in $packages) {
+                [Console]::WriteLine("`e[95m$($item.Name)`e[0m")
+                winget.exe upgrade --id $item.Id
+            }
         }
     }
 }
