@@ -27,7 +27,8 @@ function Get-WingetResult {
             # return if winget hasn't returned upgradeable packages
             try {
                 if (-not $result[0].StartsWith('Name')) {
-                    return $result[0]
+                    Write-Host "`e[93m$result`e[0m"
+                    return
                 }
             } catch {
                 return
@@ -94,13 +95,9 @@ function Invoke-WingetUpgrade {
 
     process {
         $packages = (Get-WingetResult -o 'upgrade').Where({ $_.Id -notin $ExcludedItems })
-        if (-not $packages.Id) {
-            return $packages
-        } else {
-            foreach ($item in $packages) {
-                [Console]::WriteLine("`e[95m$($item.Name)`e[0m")
-                winget.exe upgrade --id $item.Id
-            }
+        foreach ($item in $packages) {
+            [Console]::WriteLine("`e[95m$($item.Name)`e[0m")
+            winget.exe upgrade --id $item.Id
         }
     }
 }
