@@ -4,7 +4,7 @@
 RootModule = 'do-win.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.1.3'
+ModuleVersion = '0.1.4'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -22,7 +22,7 @@ Copyright = '(c) Szymon Osiecki. All rights reserved.'
 Description = 'Module intended to streamline work on Windows.'
 
 # Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '7.0'
+PowerShellVersion = '5.1'
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @()
