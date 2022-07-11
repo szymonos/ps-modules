@@ -94,7 +94,9 @@ function Invoke-WingetUpgrade {
     }
 
     process {
-        $packages = (Get-WingetResult -o 'upgrade').Where({ $_.Id -notin $ExcludedItems })
+        $packages = (Get-WingetResult -o 'upgrade') | Where-Object {
+            $_.Id -notin $ExcludedItems
+        }
         foreach ($item in $packages) {
             Write-Host $item.Name -ForegroundColor Magenta
             winget.exe upgrade --id $item.Id
