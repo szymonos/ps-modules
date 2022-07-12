@@ -160,21 +160,18 @@ function Invoke-PySetup {
 
         [Alias('p')]
         [ValidateScript({ Test-Path $_ -PathType 'Container' }, ErrorMessage = "'{0}' is not a valid folder path.")]
-        [string]$AppPath = '.'
+        [string]$AppPath
     )
 
     begin {
-        # *Root directory of the application.
-        $APP_DIR = ''
-
         # constants
         $VENV_DIR = '.venv'
         $GITIGNORE = 'https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore'
 
         # calculate script variables
         $req_files = [Collections.Generic.List[string]]::new([string[]]@('requirements.txt'))
-        if ($APP_DIR) {
-            $appReq = [IO.Path]::Combine($APP_DIR, $req_files[0])
+        if ($AppPath) {
+            $appReq = [IO.Path]::Combine($AppPath, 'requirements.txt')
             if (Test-Path $appReq) {
                 $req_files.Add($appReq)
             }
@@ -183,16 +180,19 @@ function Invoke-PySetup {
             name  = $req_files[0]
             value = "black`nflake8`nipykernel`nnotebook`npydocstyle`npylint`npypath-magic`n"
         }
-        $localSettings = [IO.Path]::Combine($APP_DIR, 'local.settings.json')
+        $localSettings = [IO.Path]::Combine($AppPath, 'local.settings.json')
         $activateScript = [IO.Path]::Combine($VENV_DIR, ($IsWindows ? 'Scripts' : 'bin'), 'Activate.ps1')
         $venvCreated = Test-Path $activateScript
         $initScript = [IO.Path]::Combine('.vscode', 'init.ps1')
+
+        # get environment variables from local.settings.json file
         if ($option -in @('setenv', 'getenv')) {
             if (Test-Path $localSettings) {
                 Write-Host "`e[96mUsing variables configured in local.settings.json.`e[0m"
-                $envVars = (Get-Content ([IO.Path]::Combine($APP_DIR, 'local.settings.json')) | ConvertFrom-Json).Values
+                $envVars = (Get-Content ([IO.Path]::Combine($AppPath, 'local.settings.json')) | ConvertFrom-Json).Values
             } else {
                 Write-Warning "File `e[1;3mlocal.settings.json`e[23m not exists!`n`t Set environment variables there."
+                break
             }
         }
     }
@@ -374,7 +374,7 @@ function Invoke-PySetup {
                 }
                 # add project path in virtual environment
                 if ($env:VIRTUAL_ENV -and 'pypath-magic' -in $modules) {
-                    pypath add ([IO.Path]::Combine($PWD, $APP_DIR)) 2>$null
+                    pypath add ([IO.Path]::Combine($PWD, $AppPath)) 2>$null
                     pypath add $PWD 2>$null
                 }
                 break
