@@ -6,6 +6,7 @@ $exportModuleMemberParams = @{
     Function = @(
         # common
         'Format-Duration',
+        'Get-CmdletAlias',
         'New-Password',
         # net
         'Convert-CidrToRange',
@@ -14,7 +15,9 @@ $exportModuleMemberParams = @{
         'Invoke-PySetup'
     )
     Variable = @()
-    Alias  = @()
+    Alias  = @(
+        'gca'
+    )
 }
 
 Export-ModuleMember @exportModuleMemberParams
