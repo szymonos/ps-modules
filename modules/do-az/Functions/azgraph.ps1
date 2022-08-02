@@ -127,7 +127,7 @@ ResourceContainers
 
 <#
 .SYNOPSIS
-Get resources in specified resource group.
+Get resources using AzGraph.
 .PARAMETER SubscriptionId
 Subscription ID.
 .PARAMETER ResourceGroupName
