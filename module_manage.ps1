@@ -51,7 +51,7 @@ begin {
 
     # calculate destination path
     if ($Option -ne 'new') {
-        $manifest = Test-ModuleManifest $srcModuleManifest
+        $manifest = Test-ModuleManifest $srcModuleManifest -ErrorAction SilentlyContinue
 
         # get module path in user context
         $psModPathSplit = $env:PSModulePath.Split("$($IsWindows ? ';' : ':')")
