@@ -40,28 +40,22 @@ function Invoke-CommandRetry {
 
 <#
 .SYNOPSIS
-Get index of a value in provided array from selection menu.
+Get index(es) or a value in provided array from selection menu.
 .PARAMETER Array
 Array of strings to get the selection menu.
 .PARAMETER Message
 Optional menu header to display.
-.PARAMETER Output
-Choose between returning value or index of the array selection.
+.PARAMETER Value
+Flag to return value(s) instead of index(es).
+.PARAMETER List
+Flag to choose from selection list instead of single value.
 #>
 function Get-ArrayIndexMenu {
     [CmdletBinding()]
     param (
-        [Alias('a')]
-        [Parameter(Mandatory)]
-        [string[]]$Array,
-
-        [Alias('m')]
+        [Parameter(Mandatory)][string[]]$Array,
         [string]$Message,
-
-        [Alias('v')]
         [switch]$Value,
-
-        [Alias('l')]
         [switch]$List
     )
 
