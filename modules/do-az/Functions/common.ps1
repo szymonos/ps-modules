@@ -58,27 +58,49 @@ function Get-ArrayIndexMenu {
         [Alias('m')]
         [string]$Message,
 
-        [Alias('o')]
-        [ValidateSet('index', 'value')]
-        [string]$Output = 'index'
+        [Alias('v')]
+        [switch]$Value,
+
+        [Alias('l')]
+        [switch]$List
     )
 
-    # get array length for indentation calculation
-    $arrayLen = "$($Array.Count)".Length
-    # create selection menu
-    $msg = (
-        , "`n`e[4m$($Message ? $Message : 'Select option')`e[0m:`n" +
-        $Array.ForEach({
-                $index = [array]::IndexOf($Array, $_)
-                $indent = ' ' * ($arrayLen - "$index".Length + 1)
-                "$indent[$index] - $_"
-            }) + ''
-    ) -join "`n"
-    # get selection
-    do {
-        $i = Read-Host -Prompt $msg
-    } until ($i -and $i -in 0..($Array.Count - 1))
+    begin {
+        # get array length for indentation calculation
+        $arrayLen = "$($Array.Count)".Length
+        # create selection menu
+        $msg = (
+            , "`n`e[4m$($Message ? $Message : 'Select option')`e[0m:`n" +
+            $Array.ForEach({
+                    $index = [array]::IndexOf($Array, $_)
+                    $indent = ' ' * ($arrayLen - "$index".Length + 1)
+                    "$indent[$index] - $_"
+                }) + ''
+        ) -join "`n"
+    }
 
-    # return array index or value
-    return $Output -eq 'index' ? $i : $Array[$i]
+    process {
+        do {
+            # read input
+            $inp = Read-Host -Prompt $msg
+            # convert input to array
+            $inputArray = Invoke-Expression "Write-Output $inp | Select-Object -Unique"
+            $loop = if (-not $List -and $inputArray.Count -gt 1) {
+                # check if list is expected
+                Write-Output $true
+            } else {
+                # check if input contains valid numbers
+                foreach ($i in $inputArray) {
+                    if ($i -notin 0..($Array.Count - 1)) {
+                        Write-Output $true
+                        continue
+                    }
+                }
+            }
+        } while ($loop)
+    }
+
+    end {
+        return $Value ? $inputArray.ForEach{ $Array[$_] } : $inputArray
+    }
 }
