@@ -69,8 +69,9 @@ function Get-ArrayIndexMenu {
         # get array length for indentation calculation
         $arrayLen = "$($Array.Count)".Length
         # create selection menu
+        $defMsg = $List ? 'Enter comma/space separated selection list' : 'Enter selection'
         $msg = (
-            , "`n`e[4m$($Message ? $Message : 'Select option')`e[0m:`n" +
+            , "`n`e[4m$($Message ? $Message : $defMsg)`e[0m:`n" +
             $Array.ForEach({
                     $index = [array]::IndexOf($Array, $_)
                     $indent = ' ' * ($arrayLen - "$index".Length + 1)
@@ -82,9 +83,7 @@ function Get-ArrayIndexMenu {
     process {
         do {
             # read input
-            $inp = (Read-Host -Prompt $msg) -replace (',+', ',')
-            # convert input to array
-            $inputArray = Invoke-Expression "Write-Output $inp | Select-Object -Unique"
+            $inputArray = (Read-Host -Prompt $msg).Split([char[]]@(' ', ','), [StringSplitOptions]::RemoveEmptyEntries) | Select-Object -Unique
             $loop = if (-not $List -and $inputArray.Count -gt 1) {
                 # check if list is expected
                 Write-Output $true
