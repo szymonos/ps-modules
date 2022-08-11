@@ -53,9 +53,13 @@ Flag to choose from selection list instead of single value.
 function Get-ArrayIndexMenu {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory)][string[]]$Array,
+        [Parameter(Mandatory)]
+        [string[]]$Array,
+
         [string]$Message,
+
         [switch]$Value,
+
         [switch]$List
     )
 
