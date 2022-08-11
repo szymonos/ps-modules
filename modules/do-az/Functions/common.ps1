@@ -82,7 +82,7 @@ function Get-ArrayIndexMenu {
     process {
         do {
             # read input
-            $inp = Read-Host -Prompt $msg
+            $inp = (Read-Host -Prompt $msg) -replace (',+', ',')
             # convert input to array
             $inputArray = Invoke-Expression "Write-Output $inp | Select-Object -Unique"
             $loop = if (-not $List -and $inputArray.Count -gt 1) {
