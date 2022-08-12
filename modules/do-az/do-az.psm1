@@ -11,6 +11,7 @@ $exportModuleMemberParams = @{
         'Connect-AzContext',
         'Set-SubscriptionMenu',
         'Invoke-AzApiRequest'
+        'Get-AzResourceByNameType'
         # azgraph
         'Invoke-AzGraph',
         'Get-AzGraphSubscriptions',
