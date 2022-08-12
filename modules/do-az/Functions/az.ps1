@@ -99,7 +99,7 @@ API version.
 .PARAMETER Method
 Request method. Allowed values: Get, Patch, Put, Delete. Default: Get.
 .PARAMETER Body
-Request payload provided as string.
+Request payload provided as string or hashtable.
 .PARAMETER InFile
 Request payload provided as path to file.
 .PARAMETER Output
@@ -130,7 +130,7 @@ function Invoke-AzApiRequest {
         [Alias('b')]
         [Parameter(ParameterSetName = 'Payload:Body')]
         [ValidateScript({ '' -ne $_ }, ErrorMessage = 'Payload cannot be empty.')]
-        [string]$Body,
+        [object]$Body,
 
         [Alias('f')]
         [Parameter(ParameterSetName = 'Payload:File')]
@@ -139,6 +139,8 @@ function Invoke-AzApiRequest {
 
         [Alias('o')]
         [Parameter(ParameterSetName = 'Default')]
+        [Parameter(ParameterSetName = 'Payload:Body')]
+        [Parameter(ParameterSetName = 'Payload:File')]
         [ValidateSet('json', 'jsonc', 'object')]
         [string]$Output = 'object'
     )
@@ -154,7 +156,11 @@ function Invoke-AzApiRequest {
 
         # add payload
         if ($Body) {
-            $params.Body = $Body
+            $params.Body = if ($Body.GetType().Name -eq 'Hashtable') {
+                $Body | ConvertTo-Json -Depth 10
+            } else {
+                $Body
+            }
         } elseif ($InFile) {
             $params.InFile = $InFile
         }
@@ -201,11 +207,11 @@ function Get-AzResourceByNameType {
     )
 
     $resource = Get-AzGraphResources -ResourceType $ResourceType -Condition "name =~ '$ResourceName'" | Sort-Object subscription, resourceGroup
-        if ($resource.Count -gt 1) {
-            Write-Warning 'Found more than one resource matching the criteria'
-            $selection = Get-ArrayIndexMenu -Array "$($resource.subscription)  /  $($resource.resourceGroup)" -Message 'Select from provided Subscription / Resource Group'
-            $resource[$selection]
-        } else {
-            $resource
-        }
+    if ($resource.Count -gt 1) {
+        Write-Warning 'Found more than one resource matching the criteria'
+        $selection = Get-ArrayIndexMenu -Array "$($resource.subscription)  /  $($resource.resourceGroup)" -Message 'Select from provided Subscription / Resource Group'
+        $resource[$selection]
+    } else {
+        $resource
+    }
 }
