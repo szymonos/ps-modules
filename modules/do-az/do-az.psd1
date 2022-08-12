@@ -4,7 +4,7 @@
 RootModule = 'do-az.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.3.4'
+ModuleVersion = '1.4.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -44,6 +44,7 @@ FunctionsToExport = @(
     'Connect-AzContext',
     'Set-SubscriptionMenu',
     'Invoke-AzApiRequest'
+    'Get-AzResourceByNameType'
     # azgraph
     'Invoke-AzGraph',
     'Get-AzGraphSubscriptions',
