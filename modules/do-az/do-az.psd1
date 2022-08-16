@@ -4,7 +4,7 @@
 RootModule = 'do-az.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.4.1'
+ModuleVersion = '1.5.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -38,18 +38,18 @@ ScriptsToProcess = @(
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
     # common
-    'Get-ArrayIndexMenu',
-    'Invoke-CommandRetry',
+    'Get-ArrayIndexMenu'
+    'Invoke-CommandRetry'
     # az
-    'Connect-AzContext',
-    'Set-SubscriptionMenu',
+    'Connect-AzContext'
+    'Set-SubscriptionMenu'
     'Invoke-AzApiRequest'
-    'Get-AzResourceByNameType'
     # azgraph
-    'Invoke-AzGraph',
-    'Get-AzGraphSubscriptions',
-    'Get-AzGraphResourceGroups',
+    'Invoke-AzGraph'
+    'Get-AzGraphSubscriptions'
+    'Get-AzGraphResourceGroups'
     'Get-AzGraphResources'
+    'Get-AzGraphResourceByName'
 )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
