@@ -1,5 +1,3 @@
-#!/usr/bin/pwsh
-#Requires -PSEdition Core
 <#
 .SYNOPSIS
 Manage conda environments.
@@ -7,21 +5,6 @@ Manage conda environments.
 Select script action.
 .PARAMETER CondaFile
 Specify conda file to use.
-
-.EXAMPLE
-Invoke-CondaScript                     # *Create/update environment
-Invoke-CondaScript -o 'activate'       # *Activate environment
-Invoke-CondaScript -o 'deactivate'     # *Deactivate environment
-Invoke-CondaScript -o 'packages'       # *List packages
-Invoke-CondaScript -o 'environments'   # *List environments
-Invoke-CondaScript -o 'update'         # *Update conda
-Invoke-CondaScript -o 'clean'          # *Clean conda
-Invoke-CondaScript -o 'remove'         # !Remove environment
-
-$CondaFile = '.tmp/env.yml'
-Invoke-CondaScript -f $CondaFile               # *Create/update environment
-Invoke-CondaScript -f $CondaFile -o 'activate' # *Activate environment
-Invoke-CondaScript -f $CondaFile -o 'remove'   # !Remove environment
 #>
 function Invoke-CondaScript {
     [CmdletBinding()]
@@ -134,21 +117,10 @@ function Invoke-CondaScript {
 <#
 .SYNOPSIS
 Setup Python virtual environment in the project and much more...
-.EXAMPLE
-. modules/do-common/Functions/python.ps1
-Invoke-PySetup -o 'venv'         # *Setup python virtual environment
-Invoke-PySetup -o 'delvenv'      # *Delete python virtual environment
-Invoke-PySetup -o 'cleanup'      # *Delete all cache folders
-Invoke-PySetup -o 'purgecache'   # *Purge pip cache
-Invoke-PySetup -o 'reqs'         # *Install requirements
-Invoke-PySetup -o 'upgrade'      # *Upgrade installed python modules
-Invoke-PySetup -o 'sshkey'       # *Generate key pairs for SSH
-Invoke-PySetup -o 'ssltrust'     # *Trust SSL connection to pypi.org
-Invoke-PySetup -o 'setenv'       # *Set environment variables
-Invoke-PySetup -o 'getenv'       # *Get environment variables
-Invoke-PySetup -o 'list'         # *List installed modules
-Invoke-PySetup -o 'activate'     # *Activate virtual environment
-Invoke-PySetup -o 'deactivate'   # *Deactivate virtual environment
+.PARAMETER Option
+Select script action.
+.PARAMETER AppPath
+Specify application path to be added by pypath.
 #>
 function Invoke-PySetup {
     [CmdletBinding()]
