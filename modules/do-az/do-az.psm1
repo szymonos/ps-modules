@@ -5,18 +5,18 @@
 $exportModuleMemberParams = @{
     Function = @(
         # common
-        'Invoke-CommandRetry',
-        'Get-ArrayIndexMenu',
+        'Invoke-CommandRetry'
+        'Get-ArrayIndexMenu'
         # az
-        'Connect-AzContext',
-        'Set-SubscriptionMenu',
+        'Connect-AzContext'
+        'Set-SubscriptionMenu'
         'Invoke-AzApiRequest'
-        'Get-AzResourceByNameType'
         # azgraph
-        'Invoke-AzGraph',
-        'Get-AzGraphSubscriptions',
-        'Get-AzGraphResourceGroups',
+        'Invoke-AzGraph'
+        'Get-AzGraphSubscriptions'
+        'Get-AzGraphResourceGroups'
         'Get-AzGraphResources'
+        'Get-AzGraphResourceByName'
     )
     Variable = @()
     Alias    = @(

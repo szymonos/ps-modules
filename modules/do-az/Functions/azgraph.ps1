@@ -138,7 +138,6 @@ function Get-AzGraphResources {
     [CmdletBinding(DefaultParameterSetName = 'Id')]
     param (
         [Alias('s')]
-        [Parameter(Mandatory, ParameterSetName = 'Condition')]
         [Parameter(Mandatory, ParameterSetName = 'Group')]
         [Parameter(ParameterSetName = 'Type')]
         [Parameter(Mandatory, ParameterSetName = 'GroupType')]
@@ -156,10 +155,11 @@ function Get-AzGraphResources {
         [Alias('t')]
         [Parameter(Mandatory, ParameterSetName = 'Type')]
         [Parameter(Mandatory, ParameterSetName = 'GroupType')]
+        [ValidateScript({ $_ -match '\w+\.\w+/\w+' }, ErrorMessage = "`e[1;4m{0}`e[22;24m is not valid type")]
         [string]$ResourceType,
 
         [Alias('c')]
-        [Parameter(ParameterSetName = 'Condition')]
+        [Parameter(Mandatory, ParameterSetName = 'Condition')]
         [Parameter(ParameterSetName = 'Group')]
         [Parameter(ParameterSetName = 'Type')]
         [string]$Condition
@@ -196,4 +196,62 @@ Resources
     }
 
     return Invoke-AzGraph @param
+}
+
+<#
+.SYNOPSIS
+Get Azure resource object by name and type.
+.PARAMETER ResourceName
+Azure Resource Name
+.PARAMETER ResourceType
+Azure Resource Type
+#>
+function Get-AzGraphResourceByName {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory, ParameterSetName = 'ByName')]
+        [Parameter(Mandatory, ParameterSetName = 'ByType')]
+        [Parameter(Mandatory, ParameterSetName = 'ByCondition')]
+        [string]$ResourceName,
+
+        [Parameter(Mandatory, ParameterSetName = 'ByType')]
+        [string]$ResourceType,
+
+        [Parameter(Mandatory, ParameterSetName = 'ByCondition')]
+        [ValidateScript({ $false -notin $_.ForEach{ $_ -match '\w+\.\w+/\w+' } }, ErrorMessage = "`e[1;4m{0}`e[22;24m is not valid type")]
+        [string[]]$ExcludeTypes
+    )
+
+    begin {
+        $param = @{
+            Condition = "name =~ '$ResourceName'"
+        }
+        if ($ResourceType) {
+            $param.ResourceType = $ResourceType
+        }
+        if ($ExcludeTypes) {
+            $typesList = $ExcludeTypes.ForEach{ "`"$_`"" } -join ', '
+            $param.Condition += " and type !in~ ($typesList)"
+        }
+    }
+
+    process {
+        $resource = Get-AzGraphResources @param | Sort-Object subscription, resourceGroup, type
+        # select resource if query returned more than one result
+        if ($resource.Count -gt 1) {
+            Write-Warning 'Found more than one resource matching the criteria'
+            $Array = if ($ResourceType) {
+                $resource.ForEach{ "$($_.resourceGroup) | $($_.subscription)" }
+            } else {
+                $resource.ForEach{ "$($_.type)  |  $($_.resourceGroup)  |  $($_.subscription)" }
+            }
+            $Message = "Select-Object from provided 'Resource $($ResourceType ? '' : 'Type | ')Group | Subscription'"
+            $selection = Get-ArrayIndexMenu -Array $Array -Message $Message
+            $resource = $resource[$selection]
+        }
+    }
+
+    end {
+        return $resource
+    }
 }

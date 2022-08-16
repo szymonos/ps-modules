@@ -187,31 +187,3 @@ function Invoke-AzApiRequest {
         }
     }
 }
-
-<#
-.SYNOPSIS
-Get Azure resource object by name and type.
-.PARAMETER ResourceName
-Azure Resource Name
-.PARAMETER ResourceType
-Azure Resource Type
-#>
-function Get-AzResourceByNameType {
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory)]
-        [string]$ResourceName,
-
-        [Parameter(Mandatory)]
-        [string]$ResourceType
-    )
-
-    $resource = Get-AzGraphResources -ResourceType $ResourceType -Condition "name =~ '$ResourceName'" | Sort-Object subscription, resourceGroup
-    if ($resource.Count -gt 1) {
-        Write-Warning 'Found more than one resource matching the criteria'
-        $selection = Get-ArrayIndexMenu -Array "$($resource.subscription)  /  $($resource.resourceGroup)" -Message 'Select from provided Subscription / Resource Group'
-        $resource[$selection]
-    } else {
-        $resource
-    }
-}
