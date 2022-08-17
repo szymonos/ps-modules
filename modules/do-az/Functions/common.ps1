@@ -54,7 +54,7 @@ function Get-ArrayIndexMenu {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)]
-        [string[]]$Array,
+        [object[]]$Array,
 
         [string]$Message,
 
@@ -64,18 +64,21 @@ function Get-ArrayIndexMenu {
     )
 
     begin {
-        # get array length for indentation calculation
-        $arrayLen = "$($Array.Count)".Length
-        # create selection menu
-        $defMsg = $List ? 'Enter comma/space separated selection list' : 'Enter selection'
-        $msg = (
-            , "`n`e[4m$($Message ? $Message : $defMsg)`e[0m:`n" +
-            $Array.ForEach({
-                    $index = [array]::IndexOf($Array, $_)
-                    $indent = ' ' * ($arrayLen - "$index".Length + 1)
-                    "$indent[$index] - $_"
-                }) + ''
-        ) -join "`n"
+        # convert objects in array to strings
+        if ($Array[0].GetType().FullName -ne 'System.String') {
+            $Array = $Array | Format-Table -AutoSize -HideTableHeaders | Out-String -Stream | Where-Object { $_ }
+        }
+        # create selection message
+        $menu = for ($i = 0; $i -lt $Array.Count; $i++) {
+            [PSCustomObject]@{ I = "[$i]"; H = '-'; Value = $Array[$i] }
+        }
+        $selMsg = $menu | Format-Table -Property @{ Name = 'I'; Expression = { $_.I }; Alignment = 'right'}, H, Value -AutoSize -HideTableHeaders | Out-String
+
+        # create prompt message
+        if (-not $Message) {
+            $Message = $List ? 'Enter comma/space separated selection list' : 'Enter selection'
+        }
+        $msg = "`n`e[4m$Message`e[0m:`n$selMsg"
     }
 
     process {

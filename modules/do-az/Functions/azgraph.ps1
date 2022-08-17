@@ -136,6 +136,7 @@ Resource group name.
 Optional query condition.#>
 function Get-AzGraphResources {
     [CmdletBinding(DefaultParameterSetName = 'Id')]
+    [OutputType([AzGraphResource[]])]
     param (
         [Alias('s')]
         [Parameter(Mandatory, ParameterSetName = 'Group')]
@@ -165,23 +166,24 @@ function Get-AzGraphResources {
         [string]$Condition
     )
 
-    # initialize parameter splat
-    $param = @{}
+    begin {
+        # initialize parameter splat
+        $param = @{}
 
-    # build filter
-    if ($PSBoundParameters.ResourceId) {
-        $filter = $PSBoundParameters.ResourceId ? "id =~ '$ResourceId'" : ''
-        $param.Subscription = ([AzResource]$PSBoundParameters.ResourceId).SubscriptionId
-    } else {
-        $filter = $PSBoundParameters.ResourceGroupName ? "resourceGroup =~ '$ResourceGroupName'" : ''
-        $filter += ($PSBoundParameters.ResourceGroupName -and $PSBoundParameters.ResourceType) ? "`n`tand " : ''
-        $filter += $PSBoundParameters.ResourceType ? "type =~ '$ResourceType'" : ''
-        $filter += ($PSBoundParameters.ResourceGroupName -or $PSBoundParameters.ResourceType) -and $PSBoundParameters.Condition ? "`n`tand " : ''
-        $filter += $PSBoundParameters.Condition ? $Condition : ''
-    }
+        # build filter
+        if ($PSBoundParameters.ResourceId) {
+            $filter = $PSBoundParameters.ResourceId ? "id =~ '$ResourceId'" : ''
+            $param.Subscription = ([AzResource]$PSBoundParameters.ResourceId).SubscriptionId
+        } else {
+            $filter = $PSBoundParameters.ResourceGroupName ? "resourceGroup =~ '$ResourceGroupName'" : ''
+            $filter += ($PSBoundParameters.ResourceGroupName -and $PSBoundParameters.ResourceType) ? "`n`tand " : ''
+            $filter += $PSBoundParameters.ResourceType ? "type =~ '$ResourceType'" : ''
+            $filter += ($PSBoundParameters.ResourceGroupName -or $PSBoundParameters.ResourceType) -and $PSBoundParameters.Condition ? "`n`tand " : ''
+            $filter += $PSBoundParameters.Condition ? $Condition : ''
+        }
 
-    # splat parameters
-    $param.Query = @"
+        # splat parameters
+        $param.Query = @"
 Resources
 | where $filter
 | join kind=leftouter (
@@ -189,13 +191,20 @@ Resources
     | where type =~ "microsoft.resources/subscriptions"
     | project subscription=name, subscriptionId
     ) on subscriptionId
-| project id, name, type, tenantId, location, resourceGroup, subscriptionId, subscription, sku, properties, tags, identity
+| project id, name, type, tenantId, kind, location, resourceGroup, subscriptionId, subscription, sku, properties, tags, identity
 "@
-    if ($PSBoundParameters.SubscriptionId) {
-        $param.Subscription = $SubscriptionId
+        if ($PSBoundParameters.SubscriptionId) {
+            $param.Subscription = $SubscriptionId
+        }
     }
 
-    return Invoke-AzGraph @param
+    process {
+        $obj = [AzGraphResource[]](Invoke-AzGraph @param)
+    }
+
+    end {
+        return $obj
+    }
 }
 
 <#
@@ -208,6 +217,7 @@ Azure Resource Type
 #>
 function Get-AzGraphResourceByName {
     [CmdletBinding()]
+    [OutputType([AzGraphResource])]
     param (
         [Parameter(Mandatory, ParameterSetName = 'ByName')]
         [Parameter(Mandatory, ParameterSetName = 'ByType')]
@@ -240,14 +250,14 @@ function Get-AzGraphResourceByName {
         # select resource if query returned more than one result
         if ($resource.Count -gt 1) {
             Write-Warning 'Found more than one resource matching the criteria'
-            $Array = if ($ResourceType) {
-                $resource.ForEach{ "$($_.resourceGroup) | $($_.subscription)" }
+            $array = if ($ResourceType) {
+                $resource | Select-Object resourceGroup, subscription
             } else {
-                $resource.ForEach{ "$($_.type)  |  $($_.resourceGroup)  |  $($_.subscription)" }
+                $resource | Select-Object type, resourceGroup, subscription
             }
-            $Message = "Select-Object from provided 'Resource $($ResourceType ? '' : 'Type | ')Group | Subscription'"
-            $selection = Get-ArrayIndexMenu -Array $Array -Message $Message
-            $resource = $resource[$selection]
+            $Message = "Select object from provided 'Resource $($ResourceType ? '' : 'Type | ')Group | Subscription'"
+            $i = Get-ArrayIndexMenu -Array $array -Message $Message
+            $resource = $resource[$i]
         }
     }
 
