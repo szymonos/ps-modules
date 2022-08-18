@@ -6,7 +6,7 @@ class AzResource {
     [string]$ResourceId
     [string]$Name
     [string]$ResourceGroupName
-    [string]$SubscriptionId
+    [guid]$SubscriptionId
     [string]$SubscriptionName
     [string]$ResourceType
     [string]$Location
