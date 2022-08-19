@@ -1,5 +1,120 @@
 <#
 .SYNOPSIS
+Class of AzGraph compatible Azure objects.
+#>
+class AzGraphSubscription {
+    [string]$id
+    [string]$name
+    [string]$type
+    [guid]$subscriptionId
+    [string]$subscription
+    [guid]$tenantId
+    [psobject]$properties
+    [string]$ResourceId
+
+    # constructors
+    AzGraphSubscription () { }
+
+    AzGraphSubscription ([PSCustomObject]$obj) {
+        $this.id = $obj.id
+        $this.name = $obj.name
+        $this.type = $obj.type
+        $this.subscriptionId = $obj.subscriptionId
+        $this.subscription = $this.name
+        $this.tenantId = $obj.tenantId
+        $this.properties = $obj.properties
+        $this.ResourceId = $this.id
+    }
+}
+# Specify AzGraphResource DefaultDisplayPropertySet
+Update-TypeData -TypeName 'AzGraphSubscription' -DefaultDisplayPropertySet 'name', 'type', 'subscriptionId', 'id' -ErrorAction SilentlyContinue
+
+class AzGraphResourceGroup : AzGraphSubscription {
+    [string]$location
+    [string]$resourceGroup
+    [string]$subscription
+    [psobject]$tags
+
+    # constructors
+    AzGraphResourceGroup () { }
+
+    AzGraphResourceGroup ([PSCustomObject]$obj) {
+        $this.id = $obj.id
+        $this.location = $obj.location
+        $this.name = $obj.name
+        $this.resourceGroup = $obj.resourceGroup
+        $this.type = $obj.type
+        $this.subscriptionId = $obj.subscriptionId
+        $this.subscription = $obj.subscription
+        $this.tenantId = $obj.tenantId
+        $this.properties = $obj.properties
+        $this.tags = $obj.tags
+        $this.ResourceId = $this.id
+    }
+}
+Update-TypeData -TypeName 'AzGraphResourceGroup' -DefaultDisplayPropertySet 'name', 'type', 'subscriptionId', 'subscription', 'id' -ErrorAction SilentlyContinue
+
+class AzGraphResource : AzGraphResourceGroup {
+    [string]$kind
+    [psobject]$sku
+    [psobject]$identity
+
+    # constructors
+    AzGraphResource () { }
+
+    AzGraphResource ([string]$id) {
+        if ($id) {
+            $idSplit = $id.Split('/')
+            if ($idSplit.Count -eq 9) {
+                $this.id = $id
+                $this.name = $idSplit[8]
+                $this.resourceGroup = $idSplit[4]
+                $this.type = "$($idSplit[6])/$($idSplit[7])"
+                $this.subscriptionId = $idSplit[2]
+                $this.ResourceId = $this.id
+            } else {
+                throw("Wrong ResourceId provided!`n$id")
+            }
+        }
+    }
+
+    AzGraphResource ([guid]$SubscriptionId, [string]$ResourceGroup, [string]$Type, [string]$Name) {
+        $this.id = "/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroup/providers/$Type/$Name"
+        $this.name = $Name
+        $this.resourceGroup = $ResourceGroup
+        $this.type = $Type
+        $this.subscriptionId = $SubscriptionId
+        $this.ResourceId = $this.id
+    }
+
+    AzGraphResource ([PSCustomObject]$obj) {
+        $this.id = $obj.id
+        $this.kind = $obj.kind
+        $this.location = $obj.location
+        $this.name = $obj.name
+        $this.resourceGroup = $obj.resourceGroup
+        $this.type = $obj.type
+        $this.subscriptionId = $obj.subscriptionId
+        $this.subscription = $obj.subscription
+        $this.tenantId = $obj.tenantId
+        $this.sku = $obj.sku
+        $this.properties = $obj.properties
+        $this.tags = $obj.tags
+        $this.identity = $obj.identity
+        $this.ResourceId = $this.id
+    }
+
+    [string] GetSubscriptionName () {
+        $this.subscription = (Get-AzGraphSubscriptions -SubscriptionId $this.subscriptionId).name
+
+        return $this.subscription
+    }
+}
+# Specify AzGraphResource DefaultDisplayPropertySet
+Update-TypeData -TypeName 'AzGraphResource' -DefaultDisplayPropertySet 'name', 'resourceGroup', 'type', 'subscriptionId', 'id' -ErrorAction SilentlyContinue
+
+<#
+.SYNOPSIS
 Class of Az module compatible Azure object.
 #>
 class AzResource {
@@ -77,77 +192,3 @@ class AzResource {
 }
 # Specify AzResource DefaultDisplayPropertySet
 Update-TypeData -TypeName 'AzResource' -DefaultDisplayPropertySet 'Name', 'ResourceGroupName', 'ResourceType', 'SubscriptionId', 'ResourceId' -ErrorAction SilentlyContinue
-
-<#
-.SYNOPSIS
-Class of Az.ResourceGraph compatible Azure object.
-#>
-class AzGraphResource {
-    [string]$id
-    [string]$kind
-    [string]$location
-    [string]$name
-    [string]$resourceGroup
-    [string]$type
-    [guid]$subscriptionId
-    [string]$subscription
-    [guid]$tenantId
-    [psobject]$sku
-    [psobject]$properties
-    [psobject]$tags
-    [psobject]$identity
-    [string]$ResourceId
-
-    # constructors
-    AzGraphResource () { }
-
-    AzGraphResource ([string]$id) {
-        if ($id) {
-            $idSplit = $id.Split('/')
-            if ($idSplit.Count -eq 9) {
-                $this.id = $id
-                $this.name = $idSplit[8]
-                $this.resourceGroup = $idSplit[4]
-                $this.type = "$($idSplit[6])/$($idSplit[7])"
-                $this.subscriptionId = $idSplit[2]
-                $this.ResourceId = $this.id
-            } else {
-                throw("Wrong ResourceId provided!`n$id")
-            }
-        }
-    }
-
-    AzGraphResource ([guid]$SubscriptionId, [string]$ResourceGroup, [string]$Type, [string]$Name) {
-        $this.id = "/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroup/providers/$Type/$Name"
-        $this.name = $Name
-        $this.resourceGroup = $ResourceGroup
-        $this.type = $Type
-        $this.subscriptionId = $SubscriptionId
-        $this.ResourceId = $this.id
-    }
-
-    AzGraphResource ([PSCustomObject]$obj) {
-        $this.id = $obj.id
-        $this.kind = $obj.kind
-        $this.location = $obj.location
-        $this.name = $obj.name
-        $this.resourceGroup = $obj.resourceGroup
-        $this.type = $obj.type
-        $this.subscriptionId = $obj.subscriptionId
-        $this.subscription = $obj.subscription
-        $this.tenantId = $obj.tenantId
-        $this.sku = $obj.sku
-        $this.properties = $obj.properties
-        $this.tags = $obj.tags
-        $this.identity = $obj.identity
-        $this.ResourceId = $this.id
-    }
-
-    [string] GetSubscriptionName () {
-        $this.subscription = (Get-AzGraphSubscriptions -SubscriptionId $this.subscriptionId).name
-
-        return $this.subscription
-    }
-}
-# Specify AzGraphResource DefaultDisplayPropertySet
-Update-TypeData -TypeName 'AzGraphResource' -DefaultDisplayPropertySet 'name', 'resourceGroup', 'type', 'subscriptionId', 'id' -ErrorAction SilentlyContinue
