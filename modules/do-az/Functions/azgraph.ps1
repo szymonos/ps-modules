@@ -53,6 +53,7 @@ Optional query condition.
 #>
 function Get-AzGraphSubscriptions {
     [CmdletBinding()]
+    [OutputType([AzGraphSubscription[]])]
     param (
         [Alias('s')]
         [string]$SubscriptionId,
@@ -76,7 +77,9 @@ ResourceContainers
         $param.Subscription = $SubscriptionId
     }
 
-    return Invoke-AzGraph @param
+    $response = Invoke-AzGraph @param
+
+    return [AzGraphSubscription[]]$response
 }
 
 <#
@@ -90,6 +93,7 @@ Optional resource group name.
 Optional query condition.#>
 function Get-AzGraphResourceGroups {
     [CmdletBinding()]
+    [OutputType([AzGraphResourceGroup[]])]
     param (
         [Alias('s')]
         [string]$SubscriptionId,
@@ -122,7 +126,9 @@ ResourceContainers
         $param.Subscription = $SubscriptionId
     }
 
-    return Invoke-AzGraph @param
+    $response = Invoke-AzGraph @param
+
+    return [AzGraphResourceGroup[]]$response
 }
 
 <#
@@ -166,24 +172,23 @@ function Get-AzGraphResources {
         [string]$Condition
     )
 
-    begin {
-        # initialize parameter splat
-        $param = @{}
+    # initialize parameter splat
+    $param = @{}
 
-        # build filter
-        if ($PSBoundParameters.ResourceId) {
-            $filter = $PSBoundParameters.ResourceId ? "id =~ '$ResourceId'" : ''
-            $param.Subscription = ([AzResource]$PSBoundParameters.ResourceId).SubscriptionId
-        } else {
-            $filter = $PSBoundParameters.ResourceGroupName ? "resourceGroup =~ '$ResourceGroupName'" : ''
-            $filter += ($PSBoundParameters.ResourceGroupName -and $PSBoundParameters.ResourceType) ? "`n`tand " : ''
-            $filter += $PSBoundParameters.ResourceType ? "type =~ '$ResourceType'" : ''
-            $filter += ($PSBoundParameters.ResourceGroupName -or $PSBoundParameters.ResourceType) -and $PSBoundParameters.Condition ? "`n`tand " : ''
-            $filter += $PSBoundParameters.Condition ? $Condition : ''
-        }
+    # build filter
+    if ($PSBoundParameters.ResourceId) {
+        $filter = $PSBoundParameters.ResourceId ? "id =~ '$ResourceId'" : ''
+        $param.Subscription = ([AzResource]$PSBoundParameters.ResourceId).SubscriptionId
+    } else {
+        $filter = $PSBoundParameters.ResourceGroupName ? "resourceGroup =~ '$ResourceGroupName'" : ''
+        $filter += ($PSBoundParameters.ResourceGroupName -and $PSBoundParameters.ResourceType) ? "`n`tand " : ''
+        $filter += $PSBoundParameters.ResourceType ? "type =~ '$ResourceType'" : ''
+        $filter += ($PSBoundParameters.ResourceGroupName -or $PSBoundParameters.ResourceType) -and $PSBoundParameters.Condition ? "`n`tand " : ''
+        $filter += $PSBoundParameters.Condition ? $Condition : ''
+    }
 
-        # splat parameters
-        $param.Query = @"
+    # splat parameters
+    $param.Query = @"
 Resources
 | where $filter
 | join kind=leftouter (
@@ -193,18 +198,13 @@ Resources
     ) on subscriptionId
 | project id, name, type, tenantId, kind, location, resourceGroup, subscriptionId, subscription, sku, properties, tags, identity
 "@
-        if ($PSBoundParameters.SubscriptionId) {
-            $param.Subscription = $SubscriptionId
-        }
+    if ($PSBoundParameters.SubscriptionId) {
+        $param.Subscription = $SubscriptionId
     }
 
-    process {
-        $obj = [AzGraphResource[]](Invoke-AzGraph @param)
-    }
+    $response = Invoke-AzGraph @param
 
-    end {
-        return $obj
-    }
+    return [AzGraphResource[]]$response
 }
 
 <#
