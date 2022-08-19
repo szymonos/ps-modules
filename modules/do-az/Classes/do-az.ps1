@@ -4,16 +4,19 @@ Class of Az module compatible Azure object.
 #>
 class AzResource {
     [string]$ResourceId
+    [string]$Id
+    [string]$Kind
+    [string]$Location
+    [string]$ResourceName
     [string]$Name
     [string]$ResourceGroupName
+    [string]$ResourceType
+    [string]$Type
     [guid]$SubscriptionId
     [string]$SubscriptionName
-    [string]$ResourceType
-    [string]$Location
-    [string]$Kind
     [psobject]$Sku
-    [psobject]$Tags
     [psobject]$Properties
+    [psobject]$Tags
     [psobject]$Identity
 
     # constructors
@@ -24,10 +27,13 @@ class AzResource {
             $idSplit = $id.Split('/')
             if ($idSplit.Count -eq 9) {
                 $this.ResourceId = $id
-                $this.Name = $idSplit[8]
+                $this.Id = $this.ResourceId
+                $this.ResourceName = $idSplit[8]
+                $this.Name = $this.ResourceName
                 $this.ResourceGroupName = $idSplit[4]
-                $this.SubscriptionId = $idSplit[2]
                 $this.ResourceType = "$($idSplit[6])/$($idSplit[7])"
+                $this.Type = $this.ResourceType
+                $this.SubscriptionId = $idSplit[2]
             } else {
                 throw("Wrong ResourceId provided!`n$id")
             }
@@ -36,24 +42,30 @@ class AzResource {
 
     AzResource ([guid]$subscriptionId, [string]$resourceGroupName, [string]$resourceType, [string]$name) {
         $this.ResourceId = "/subscriptions/$subscriptionId/resourceGroups/$resourceGroupName/providers/$resourceType/$name"
-        $this.Name = $name
+        $this.Id = $this.ResourceId
+        $this.ResourceName = $name
+        $this.Name = $this.ResourceName
         $this.ResourceGroupName = $resourceGroupName
-        $this.SubscriptionId = $subscriptionId
         $this.ResourceType = $resourceType
+        $this.Type = $this.ResourceType
+        $this.SubscriptionId = $subscriptionId
     }
 
     AzResource ([AzGraphResource]$obj) {
         $this.ResourceId = $obj.id
-        $this.Name = $obj.name
+        $this.Id = $this.ResourceId
+        $this.Kind = $obj.kind
+        $this.Location = $obj.location
+        $this.ResourceName = $obj.name
+        $this.Name = $this.ResourceName
         $this.ResourceGroupName = $obj.resourceGroup
+        $this.ResourceType = $obj.type
+        $this.Type = $this.ResourceType
         $this.SubscriptionId = $obj.subscriptionId
         $this.SubscriptionName = $obj.subscription
-        $this.ResourceType = $obj.type
-        $this.Location = $obj.location
-        $this.Kind = $obj.kind
         $this.Sku = $obj.sku
-        $this.Tags = $obj.tags
         $this.Properties = $obj.properties
+        $this.Tags = $obj.tags
         $this.Identity = $obj.identity
     }
 
@@ -63,6 +75,8 @@ class AzResource {
         return $this.SubscriptionName
     }
 }
+# Specify AzResource DefaultDisplayPropertySet
+Update-TypeData -TypeName 'AzResource' -DefaultDisplayPropertySet 'Name', 'ResourceGroupName', 'ResourceType', 'SubscriptionId', 'ResourceId'
 
 <#
 .SYNOPSIS
@@ -70,18 +84,19 @@ Class of Az.ResourceGraph compatible Azure object.
 #>
 class AzGraphResource {
     [string]$id
+    [string]$kind
+    [string]$location
     [string]$name
     [string]$resourceGroup
+    [string]$type
     [guid]$subscriptionId
     [string]$subscription
-    [string]$type
-    [string]$location
     [guid]$tenantId
-    [string]$kind
     [psobject]$sku
-    [psobject]$tags
     [psobject]$properties
+    [psobject]$tags
     [psobject]$identity
+    [string]$ResourceId
 
     # constructors
     AzGraphResource () { }
@@ -93,8 +108,9 @@ class AzGraphResource {
                 $this.id = $id
                 $this.name = $idSplit[8]
                 $this.resourceGroup = $idSplit[4]
-                $this.subscriptionId = $idSplit[2]
                 $this.type = "$($idSplit[6])/$($idSplit[7])"
+                $this.subscriptionId = $idSplit[2]
+                $this.ResourceId = $this.id
             } else {
                 throw("Wrong ResourceId provided!`n$id")
             }
@@ -105,24 +121,26 @@ class AzGraphResource {
         $this.id = "/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroup/providers/$Type/$Name"
         $this.name = $Name
         $this.resourceGroup = $ResourceGroup
-        $this.subscriptionId = $SubscriptionId
         $this.type = $Type
+        $this.subscriptionId = $SubscriptionId
+        $this.ResourceId = $this.id
     }
 
     AzGraphResource ([PSCustomObject]$obj) {
         $this.id = $obj.id
+        $this.kind = $obj.kind
+        $this.location = $obj.location
         $this.name = $obj.name
         $this.resourceGroup = $obj.resourceGroup
+        $this.type = $obj.type
         $this.subscriptionId = $obj.subscriptionId
         $this.subscription = $obj.subscription
-        $this.type = $obj.type
-        $this.location = $obj.location
         $this.tenantId = $obj.tenantId
-        $this.kind = $obj.kind
         $this.sku = $obj.sku
-        $this.tags = $obj.tags
         $this.properties = $obj.properties
+        $this.tags = $obj.tags
         $this.identity = $obj.identity
+        $this.ResourceId = $this.id
     }
 
     [string] GetSubscriptionName () {
@@ -131,3 +149,5 @@ class AzGraphResource {
         return $this.subscription
     }
 }
+# Specify AzGraphResource DefaultDisplayPropertySet
+Update-TypeData -TypeName 'AzGraphResource' -DefaultDisplayPropertySet 'name', 'resourceGroup', 'type', 'subscriptionId', 'id'
