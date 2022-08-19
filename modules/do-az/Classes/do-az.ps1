@@ -76,7 +76,7 @@ class AzResource {
     }
 }
 # Specify AzResource DefaultDisplayPropertySet
-Update-TypeData -TypeName 'AzResource' -DefaultDisplayPropertySet 'Name', 'ResourceGroupName', 'ResourceType', 'SubscriptionId', 'ResourceId'
+Update-TypeData -TypeName 'AzResource' -DefaultDisplayPropertySet 'Name', 'ResourceGroupName', 'ResourceType', 'SubscriptionId', 'ResourceId' -ErrorAction SilentlyContinue
 
 <#
 .SYNOPSIS
@@ -150,4 +150,4 @@ class AzGraphResource {
     }
 }
 # Specify AzGraphResource DefaultDisplayPropertySet
-Update-TypeData -TypeName 'AzGraphResource' -DefaultDisplayPropertySet 'name', 'resourceGroup', 'type', 'subscriptionId', 'id'
+Update-TypeData -TypeName 'AzGraphResource' -DefaultDisplayPropertySet 'name', 'resourceGroup', 'type', 'subscriptionId', 'id' -ErrorAction SilentlyContinue
