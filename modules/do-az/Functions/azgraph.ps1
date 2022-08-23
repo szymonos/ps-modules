@@ -106,7 +106,7 @@ function Get-AzGraphResourceGroups {
         [Alias('s')]
         [guid]$SubscriptionId,
 
-        [Alias('g')]
+        [Alias('n')]
         [string]$ResourceGroupName,
 
         [Alias('c')]
@@ -149,6 +149,7 @@ function Get-AzGraphResourceGroupByName {
     [CmdletBinding()]
     [OutputType([AzGraphResourceGroup])]
     param (
+        [Alias('n')]
         [Parameter(Mandatory)]
         [string]$ResourceGroupName
     )
@@ -253,11 +254,13 @@ function Get-AzGraphResourceByName {
     [CmdletBinding()]
     [OutputType([AzGraphResource])]
     param (
+        [Alias('n')]
         [Parameter(Mandatory, ParameterSetName = 'ByName')]
         [Parameter(Mandatory, ParameterSetName = 'ByType')]
         [Parameter(Mandatory, ParameterSetName = 'ByCondition')]
         [string]$ResourceName,
 
+        [Alias('t')]
         [Parameter(Mandatory, ParameterSetName = 'ByType')]
         [string]$ResourceType,
 
