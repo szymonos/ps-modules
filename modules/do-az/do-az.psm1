@@ -15,6 +15,7 @@ $exportModuleMemberParams = @{
         'Invoke-AzGraph'
         'Get-AzGraphSubscriptions'
         'Get-AzGraphResourceGroups'
+        'Get-AzGraphResourceGroupByName'
         'Get-AzGraphResources'
         'Get-AzGraphResourceByName'
     )

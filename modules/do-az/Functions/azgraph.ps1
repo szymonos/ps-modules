@@ -133,6 +133,32 @@ ResourceContainers
 
 <#
 .SYNOPSIS
+Get Azure resource group by name.
+.PARAMETER ResourceGroupName
+Resource group name.
+#>
+function Get-AzGraphResourceGroupByName {
+    [CmdletBinding()]
+    [OutputType([AzGraphResourceGroup])]
+    param (
+        [Parameter(Mandatory)]
+        [string]$ResourceGroupName
+    )
+
+    $rg = Get-AzGraphResourceGroups -ResourceGroupName $ResourceGroupName | Sort-Object subscription
+    # select resource if query returned more than one result
+    if ($rg.Count -gt 1) {
+        Write-Warning 'Found more than one resource group matching the criteria!'
+        $Message = 'Select resource group from provided subscriptions'
+        $i = Get-ArrayIndexMenu -Array $rg.subscription -Message $Message
+        $rg = $rg[$i]
+    }
+
+    return $rg
+}
+
+<#
+.SYNOPSIS
 Get resources using AzGraph.
 .PARAMETER SubscriptionId
 Subscription ID.
@@ -249,7 +275,7 @@ function Get-AzGraphResourceByName {
         $resource = Get-AzGraphResources @param | Sort-Object subscription, resourceGroup, type
         # select resource if query returned more than one result
         if ($resource.Count -gt 1) {
-            Write-Warning 'Found more than one resource matching the criteria'
+            Write-Warning 'Found more than one resource matching the criteria!'
             $array = if ($ResourceType) {
                 $resource | Select-Object resourceGroup, subscription
             } else {
