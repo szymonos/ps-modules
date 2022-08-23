@@ -52,30 +52,38 @@ Subscription ID.
 Optional query condition.
 #>
 function Get-AzGraphSubscriptions {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParametersetName = 'default')]
     [OutputType([AzGraphSubscription[]])]
     param (
-        [Alias('s')]
-        [string]$SubscriptionId,
+        [Alias('i')]
+        [Parameter(ParameterSetName = 'ById')]
+        [guid]$SubscriptionId,
+
+        [Alias('n')]
+        [Parameter(ParameterSetName = 'ByName')]
+        [string]$SubscriptionName,
 
         [Alias('c')]
+        [Parameter(ParameterSetName = 'ByCondition')]
         [string]$Condition
     )
 
+    $param = @{}
     # build filter
-    $filter = $PSBoundParameters.Condition ? "`n`tand $Condition" : ''
+    if ($PSBoundParameters.SubscriptionId) {
+        $param.SubscriptionId = $SubscriptionId
+    } elseif ($PSBoundParameters.SubscriptionName) {
+        $filter = "`n`tand name =~ '$SubscriptionName'"
+    } elseif ($PSBoundParameters.Condition) {
+        $filter = "`n`tand $Condition"
+    }
 
     # splat parameters
-    $param = @{
-        Query = @"
+    $param.Query = @"
 ResourceContainers
 | where type == 'microsoft.resources/subscriptions'$filter
 | project id, name, type, tenantId, subscriptionId, properties
 "@
-    }
-    if ($PSBoundParameters.SubscriptionId) {
-        $param.Subscription = $SubscriptionId
-    }
 
     $response = Invoke-AzGraph @param
 
@@ -96,7 +104,7 @@ function Get-AzGraphResourceGroups {
     [OutputType([AzGraphResourceGroup[]])]
     param (
         [Alias('s')]
-        [string]$SubscriptionId,
+        [guid]$SubscriptionId,
 
         [Alias('g')]
         [string]$ResourceGroupName,
@@ -174,7 +182,7 @@ function Get-AzGraphResources {
         [Parameter(Mandatory, ParameterSetName = 'Group')]
         [Parameter(ParameterSetName = 'Type')]
         [Parameter(Mandatory, ParameterSetName = 'GroupType')]
-        [string]$SubscriptionId,
+        [guid]$SubscriptionId,
 
         [Alias('i')]
         [Parameter(Mandatory, ParameterSetName = 'Id')]
