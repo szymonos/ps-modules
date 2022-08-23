@@ -4,7 +4,7 @@
 RootModule = 'do-az.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.6.4'
+ModuleVersion = '1.7.2'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -48,6 +48,7 @@ FunctionsToExport = @(
     'Invoke-AzGraph'
     'Get-AzGraphSubscriptions'
     'Get-AzGraphResourceGroups'
+    'Get-AzGraphResourceGroupByName'
     'Get-AzGraphResources'
     'Get-AzGraphResourceByName'
 )
