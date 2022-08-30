@@ -129,7 +129,7 @@ function Invoke-AzApiRequest {
 
         [Alias('b')]
         [Parameter(ParameterSetName = 'Payload:Body')]
-        [ValidateScript({ '' -ne $_ }, ErrorMessage = 'Payload cannot be empty.')]
+        [ValidateNotNullorEmpty()]
         [object]$Body,
 
         [Alias('f')]
@@ -155,14 +155,16 @@ function Invoke-AzApiRequest {
         }
 
         # add payload
-        if ($Body) {
-            $params.Body = if ($Body.GetType().Name -eq 'Hashtable') {
-                $Body | ConvertTo-Json -Depth 10
-            } else {
-                $Body
+        if ($Method -in @('Patch', 'Put')) {
+            if ($Body) {
+                $params.Body = if ($Body.GetType().Name -eq 'Hashtable') {
+                    $Body | ConvertTo-Json -Depth 99
+                } else {
+                    $Body
+                }
+            } elseif ($InFile) {
+                $params.InFile = $InFile
             }
-        } elseif ($InFile) {
-            $params.InFile = $InFile
         }
     }
 
