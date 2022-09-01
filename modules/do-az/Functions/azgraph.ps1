@@ -174,7 +174,8 @@ Subscription ID.
 .PARAMETER ResourceGroupName
 Resource group name.
 .PARAMETER Condition
-Optional query condition.#>
+Query condition.
+#>
 function Get-AzGraphResources {
     [CmdletBinding(DefaultParameterSetName = 'Id')]
     [OutputType([AzGraphResource[]])]
