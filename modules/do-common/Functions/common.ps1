@@ -71,3 +71,25 @@ function New-Password {
         $Chars += $AllTokens | Get-Random
     } -join ($Chars | Sort-Object { Get-Random })
 }
+
+<#
+.SYNOPSIS
+Check if PowerShell runs elevated.
+#>
+function Test-IsAdmin {
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param ()
+
+    process {
+        $isAdmin = if ($IsWindows) {
+            ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')
+        } else {
+            ((id -u) -eq 0) ? $true : $false
+        }
+    }
+
+    end {
+        return $isAdmin
+    }
+}
