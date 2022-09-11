@@ -28,7 +28,6 @@ Get the aliases for any cmdlet.
 function Get-CmdletAlias {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory)]
         [string]$CmdletName
     )
 
