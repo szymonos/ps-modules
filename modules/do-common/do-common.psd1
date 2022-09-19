@@ -4,7 +4,7 @@
 RootModule = 'do-common.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.4.1'
+ModuleVersion = '0.4.2'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -36,6 +36,7 @@ FunctionsToExport = @(
     'Format-Duration',
     'Get-CmdletAlias',
     'New-Password',
+    'Test-IsAdmin',
     # net
     'Convert-CidrToRange',
     # python
