@@ -8,6 +8,7 @@ $exportModuleMemberParams = @{
         'Format-Duration',
         'Get-CmdletAlias',
         'New-Password',
+        'Test-IsAdmin',
         # net
         'Convert-CidrToRange',
         # python
