@@ -17,6 +17,7 @@ $Module = 'do-common'
 $Module = 'do-win'
 # *install
 ./module_manage.ps1 -CleanUp -Module $Module
+./module_manage.ps1 -CleanUp -Module $Module -Scope 'AllUsers'
 ./module_manage.ps1 -CleanUp -Module $Module -RemoveRequirements
 # *delete module
 ./module_manage.ps1 -m $Module -o 'delete'
