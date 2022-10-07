@@ -4,7 +4,7 @@
 RootModule = 'do-common.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.4.2'
+ModuleVersion = '0.5.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -33,14 +33,16 @@ ScriptsToProcess = @()
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
     # common
-    'Format-Duration',
-    'Get-CmdletAlias',
-    'New-Password',
-    'Test-IsAdmin',
+    'Invoke-CommandRetry'
+    'Get-ArrayIndexMenu'
+    'Format-Duration'
+    'Get-CmdletAlias'
+    'New-Password'
+    'Test-IsAdmin'
     # net
-    'Convert-CidrToRange',
+    'Convert-CidrToRange'
     # python
-    'Invoke-CondaScript',
+    'Invoke-CondaScript'
     'Invoke-PySetup'
 )
 
@@ -52,7 +54,7 @@ VariablesToExport = '*'
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
 AliasesToExport = @(
-    'gca'
+    'alias'
 )
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
