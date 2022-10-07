@@ -5,19 +5,21 @@
 $exportModuleMemberParams = @{
     Function = @(
         # common
-        'Format-Duration',
-        'Get-CmdletAlias',
-        'New-Password',
-        'Test-IsAdmin',
+        'Invoke-CommandRetry'
+        'Get-ArrayIndexMenu'
+        'Format-Duration'
+        'Get-CmdletAlias'
+        'New-Password'
+        'Test-IsAdmin'
         # net
-        'Convert-CidrToRange',
+        'Convert-CidrToRange'
         # python
-        'Invoke-CondaScript',
+        'Invoke-CondaScript'
         'Invoke-PySetup'
     )
     Variable = @()
     Alias  = @(
-        'gca'
+        'alias'
     )
 }
 
