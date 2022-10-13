@@ -63,7 +63,6 @@ function Get-ArrayIndexMenu {
         [Parameter(ParameterSetName = 'val')]
         [string]$Message,
 
-        [Parameter(ParameterSetName = 'idx')]
         [Parameter(Mandatory, ParameterSetName = 'val')]
         [switch]$Value,
 
@@ -162,9 +161,11 @@ Generate a random string.
 function New-Password {
     [CmdletBinding()]
     [OutputType([string])]
-    param (                            # Version 01.01.00, by iRon
+    param (
         [Int]$Size = 8,
+
         [Char[]]$Complexity = 'ULNS',
+
         [Char[]]$Exclude
     )
     $AllTokens = @();
@@ -198,7 +199,7 @@ function Test-IsAdmin {
 
     process {
         $isAdmin = if ($IsWindows) {
-            ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')
+            ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')
         } else {
             ((id -u) -eq 0) ? $true : $false
         }
