@@ -4,7 +4,7 @@
 RootModule = 'do-common.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.5.2'
+ModuleVersion = '0.5.3'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -40,7 +40,7 @@ FunctionsToExport = @(
     'New-Password'
     'Test-IsAdmin'
     # net
-    'Convert-CidrToRange'
+    'ConvertFrom-CIDR'
     # python
     'Invoke-CondaScript'
     'Invoke-PySetup'
