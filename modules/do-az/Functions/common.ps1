@@ -51,15 +51,23 @@ Flag to return value(s) instead of index(es).
 Flag to choose from selection list instead of single value.
 #>
 function Get-ArrayIndexMenu {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'idx')]
+    [OutputType([int], ParameterSetName = 'idx')]
+    [OutputType([string], ParameterSetName = 'val')]
     param (
-        [Parameter(Mandatory)]
+        [Parameter(Position = 0, Mandatory, ParameterSetName = 'idx')]
+        [Parameter(Position = 0, Mandatory, ParameterSetName = 'val')]
         [object[]]$Array,
 
+        [Parameter(ParameterSetName = 'idx')]
+        [Parameter(ParameterSetName = 'val')]
         [string]$Message,
 
+        [Parameter(Mandatory, ParameterSetName = 'val')]
         [switch]$Value,
 
+        [Parameter(ParameterSetName = 'idx')]
+        [Parameter(ParameterSetName = 'val')]
         [switch]$List
     )
 
