@@ -12,7 +12,7 @@ $exportModuleMemberParams = @{
         'New-Password'
         'Test-IsAdmin'
         # net
-        'Convert-CidrToRange'
+        'ConvertFrom-CIDR'
         # python
         'Invoke-CondaScript'
         'Invoke-PySetup'

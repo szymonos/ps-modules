@@ -2,7 +2,7 @@
 .SYNOPSIS
 Function resolving CIDR notation range.
 #>
-function Convert-CidrToRange {
+function ConvertFrom-CIDR {
     [CmdletBinding()]
     [OutputType([Collections.Generic.List[PSCustomObject]])]
     param (
