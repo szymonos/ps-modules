@@ -1,36 +1,53 @@
-function Convert-CidrToRange {
+<#
+.SYNOPSIS
+Function resolving CIDR notation range.
+#>
+function ConvertFrom-CIDR {
+    [CmdletBinding()]
+    [OutputType([Collections.Generic.List[PSCustomObject]])]
     param (
-        [Parameter(Mandatory)]
-        [string]$cidrNotation
+        [Parameter(Mandatory, ValueFromPipeline, Position = 0)]
+        [string[]]${InputObject}
     )
 
-    $addr, $maskLength = $cidrNotation -split '/'
-    [int]$maskLen = 0
-    if (-not [int32]::TryParse($maskLength, [ref] $maskLen)) {
-        throw "Cannot parse CIDR mask length string: '$maskLen'"
-    }
-    if (0 -gt $maskLen -or $maskLen -gt 32) {
-        throw 'CIDR mask length must be between 0 and 32'
-    }
-    $ipAddr = [Net.IPAddress]::Parse($addr)
-    if ($ipAddr -eq $null) {
-        throw "Cannot parse IP address: $addr"
-    }
-    if ($ipAddr.AddressFamily -ne [Net.Sockets.AddressFamily]::InterNetwork) {
-        throw 'Can only process CIDR for IPv4'
+    begin {
+        $ranges = [Collections.Generic.List[PSCustomObject]]::new()
     }
 
-    $shiftCnt = 32 - $maskLen
-    $mask = -bnot ((1 -shl $shiftCnt) - 1)
-    $ipNum = [Net.IPAddress]::NetworkToHostOrder([BitConverter]::ToInt32($ipAddr.GetAddressBytes(), 0))
-    $ipStart = ($ipNum -band $mask)
-    $ipEnd = ($ipNum -bor (-bnot $mask))
+    process {
+        $addr, $maskLength = $InputObject -split '/'
+        [int]$maskLen = 0
+        if (-not [int32]::TryParse($maskLength, [ref] $maskLen)) {
+            throw "Cannot parse CIDR mask length string: '$maskLen'"
+        }
+        if (0 -gt $maskLen -or $maskLen -gt 32) {
+            throw 'CIDR mask length must be between 0 and 32'
+        }
+        $ipAddr = [Net.IPAddress]::Parse($addr)
+        if ($ipAddr -eq $null) {
+            throw "Cannot parse IP address: $addr"
+        }
+        if ($ipAddr.AddressFamily -ne [Net.Sockets.AddressFamily]::InterNetwork) {
+            throw 'Can only process CIDR for IPv4'
+        }
 
-    # return as tuple of strings:
-    return [PSCustomObject]@{
-        CidrRange  = $cidrNotation
-        FirstIP    = [BitConverter]::GetBytes([Net.IPAddress]::HostToNetworkOrder($ipStart)) -join '.'
-        LastIP     = [BitConverter]::GetBytes([Net.IPAddress]::HostToNetworkOrder($ipEnd)) -join '.'
-        TotalHosts = $ipEnd - $ipStart + 1
+        $shiftCnt = 32 - $maskLen
+        $mask = -bnot ((1 -shl $shiftCnt) - 1)
+        $ipNum = [Net.IPAddress]::NetworkToHostOrder([BitConverter]::ToInt32($ipAddr.GetAddressBytes(), 0))
+        $ipStart = ($ipNum -band $mask)
+        $ipEnd = ($ipNum -bor (-bnot $mask))
+
+        # return as tuple of strings:
+        $ranges.Add([PSCustomObject]@{
+                CidrRange  = $InputObject[0]
+                StartIP    = [BitConverter]::GetBytes([Net.IPAddress]::HostToNetworkOrder($ipStart)) -join '.'
+                EndIP      = [BitConverter]::GetBytes([Net.IPAddress]::HostToNetworkOrder($ipEnd)) -join '.'
+                TotalHosts = $ipEnd - $ipStart + 1
+            }
+        )
+    }
+
+    end {
+        return $ranges
     }
 }
