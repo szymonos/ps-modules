@@ -7,6 +7,7 @@ $exportModuleMemberParams = @{
         # common
         'Invoke-CommandRetry'
         'Get-ArrayIndexMenu'
+        'ConvertFrom-CIDR'
         # az
         'Connect-AzContext'
         'Set-SubscriptionMenu'
