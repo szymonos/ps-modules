@@ -55,12 +55,11 @@ function Get-ArrayIndexMenu {
     [OutputType([int], ParameterSetName = 'idx')]
     [OutputType([string], ParameterSetName = 'val')]
     param (
-        [Parameter(Position = 0, Mandatory, ParameterSetName = 'idx')]
-        [Parameter(Position = 0, Mandatory, ParameterSetName = 'val')]
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'idx')]
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'val')]
         [object[]]$Array,
 
-        [Parameter(ParameterSetName = 'idx')]
-        [Parameter(ParameterSetName = 'val')]
+        [Parameter(Position = 1)]
         [string]$Message,
 
         [Parameter(Mandatory, ParameterSetName = 'val')]
@@ -93,22 +92,64 @@ function Get-ArrayIndexMenu {
         do {
             # read input
             $inputArray = (Read-Host -Prompt $msg).Split([char[]]@(' ', ','), [StringSplitOptions]::RemoveEmptyEntries) | Select-Object -Unique
-            $loop = if (-not $List -and $inputArray.Count -gt 1) {
-                # check if list is expected
-                Write-Output $true
-            } else {
-                # check if input contains valid numbers
-                foreach ($i in $inputArray) {
-                    if ($i -notin 0..($Array.Count - 1)) {
-                        Write-Output $true
-                        continue
-                    }
-                }
-            }
-        } while ($loop)
+        } while ($inputArray.ForEach({ $_ -in 0..($Array.Count - 1) }) -contains $false)
     }
 
     end {
         return $Value ? $inputArray.ForEach{ $Array[$_] } : $inputArray
+    }
+}
+
+<#
+.SYNOPSIS
+Function resolving CIDR notation range.
+#>
+function ConvertFrom-CIDR {
+    [CmdletBinding()]
+    [OutputType([Collections.Generic.List[PSCustomObject]])]
+    param (
+        [Parameter(Mandatory, ValueFromPipeline, Position = 0)]
+        [string[]]${InputObject}
+    )
+
+    begin {
+        $ranges = [Collections.Generic.List[PSCustomObject]]::new()
+    }
+
+    process {
+        $addr, $maskLength = $InputObject -split '/'
+        [int]$maskLen = 0
+        if (-not [int32]::TryParse($maskLength, [ref] $maskLen)) {
+            throw "Cannot parse CIDR mask length string: '$maskLen'"
+        }
+        if (0 -gt $maskLen -or $maskLen -gt 32) {
+            throw 'CIDR mask length must be between 0 and 32'
+        }
+        $ipAddr = [Net.IPAddress]::Parse($addr)
+        if ($ipAddr -eq $null) {
+            throw "Cannot parse IP address: $addr"
+        }
+        if ($ipAddr.AddressFamily -ne [Net.Sockets.AddressFamily]::InterNetwork) {
+            throw 'Can only process CIDR for IPv4'
+        }
+
+        $shiftCnt = 32 - $maskLen
+        $mask = -bnot ((1 -shl $shiftCnt) - 1)
+        $ipNum = [Net.IPAddress]::NetworkToHostOrder([BitConverter]::ToInt32($ipAddr.GetAddressBytes(), 0))
+        $ipStart = ($ipNum -band $mask)
+        $ipEnd = ($ipNum -bor (-bnot $mask))
+
+        # return as tuple of strings:
+        $ranges.Add([PSCustomObject]@{
+                CidrRange  = $InputObject[0]
+                StartIP    = [BitConverter]::GetBytes([Net.IPAddress]::HostToNetworkOrder($ipStart)) -join '.'
+                EndIP      = [BitConverter]::GetBytes([Net.IPAddress]::HostToNetworkOrder($ipEnd)) -join '.'
+                TotalHosts = $ipEnd - $ipStart + 1
+            }
+        )
+    }
+
+    end {
+        return $ranges
     }
 }
