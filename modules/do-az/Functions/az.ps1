@@ -109,44 +109,43 @@ function Invoke-AzApiRequest {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
         [Alias('s')]
-        [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = 'Default')]
-        [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = 'Payload:Body')]
-        [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = 'Payload:File')]
+        [Parameter(Mandatory, Position = 0, ValueFromPipeline, ParameterSetName = 'Default')]
+        [Parameter(Mandatory, Position = 0, ValueFromPipeline, ParameterSetName = 'Payload:Body')]
+        [Parameter(Mandatory, Position = 0, ValueFromPipeline, ParameterSetName = 'Payload:File')]
         [string]$Scope,
 
         [Alias('a')]
-        [Parameter(Mandatory, ParameterSetName = 'Default')]
-        [Parameter(Mandatory, ParameterSetName = 'Payload:Body')]
-        [Parameter(Mandatory, ParameterSetName = 'Payload:File')]
+        [Parameter(Mandatory, Position = 1, ParameterSetName = 'Default')]
+        [Parameter(Mandatory, Position = 1, ParameterSetName = 'Payload:Body')]
+        [Parameter(Mandatory, Position = 1, ParameterSetName = 'Payload:File')]
         [string]$ApiVersion,
 
-        [Alias('m')]
         [Parameter(ParameterSetName = 'Default')]
-        [Parameter(ParameterSetName = 'Payload:Body')]
-        [Parameter(ParameterSetName = 'Payload:File')]
+        [string]$Filter,
+
+        [Parameter(ParameterSetName = 'Default')]
+        [string[]]$Select,
+
+        [Alias('m')]
         [ValidateSet('Get', 'Patch', 'Put', 'Delete')]
         [string]$Method = 'Get',
 
         [Alias('b')]
-        [Parameter(ParameterSetName = 'Payload:Body')]
+        [Parameter(Mandatory, ParameterSetName = 'Payload:Body')]
         [ValidateNotNullorEmpty()]
         [object]$Body,
 
         [Alias('f')]
-        [Parameter(ParameterSetName = 'Payload:File')]
+        [Parameter(Mandatory, ParameterSetName = 'Payload:File')]
         [ValidateScript({ Test-Path $_ -PathType 'Leaf' }, ErrorMessage = "'{0}' is not a valid path.")]
         [string]$InFile,
 
         [Alias('o')]
-        [Parameter(ParameterSetName = 'Default')]
-        [Parameter(ParameterSetName = 'Payload:Body')]
-        [Parameter(ParameterSetName = 'Payload:File')]
         [ValidateSet('json', 'jsonc', 'object')]
         [string]$Output = 'object'
     )
 
     begin {
-        $responseList = [Collections.Generic.List[PSCustomObject]]::new()
         $params = @{
             Method         = $Method
             Authentication = 'Bearer'
@@ -166,13 +165,34 @@ function Invoke-AzApiRequest {
                 $params.InFile = $InFile
             }
         }
+
+        # build uri
+        $uri = "https://management.azure.com$($Scope)?api-version=$ApiVersion"
+        if ($PSBoundParameters.Filter) {
+            $uri += "&`$filter=$($Filter.Replace(' ', '%20'))"
+        }
+        if ($PSBoundParameters.Select) {
+            $uri += "&`$select=$(($Select -replace ' +') -join ',')"
+        }
+
+        $response = $null
+        $responseList = [Collections.Generic.List[PSCustomObject]]::new()
     }
 
     process {
-        $response = Invoke-CommandRetry {
-            Invoke-RestMethod @params -Uri "https://management.azure.com$($Scope)?api-version=$ApiVersion"
-        }
-        $responseList.Add($response)
+        do {
+            $response = Invoke-CommandRetry {
+                Invoke-RestMethod @params -Uri $uri -Verbose
+            }
+            if ($response.value) {
+                $response.value.ForEach({ $responseList.Add($_) })
+            } else {
+                $response.ForEach({ $responseList.Add($_) })
+            }
+            if ($response.nextLink) {
+                $uri = $response.nextLink
+            }
+        } while ($response.nextLink)
     }
 
     end {
