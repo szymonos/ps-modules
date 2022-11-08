@@ -51,23 +51,19 @@ Flag to return value(s) instead of index(es).
 Flag to choose from selection list instead of single value.
 #>
 function Get-ArrayIndexMenu {
-    [CmdletBinding(DefaultParameterSetName = 'idx')]
-    [OutputType([int], ParameterSetName = 'idx')]
-    [OutputType([string], ParameterSetName = 'val')]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
+    [OutputType([int], ParameterSetName = 'Index')]
+    [OutputType([string], ParameterSetName = 'Value')]
     param (
-        [Parameter(Position = 0, Mandatory, ParameterSetName = 'idx')]
-        [Parameter(Position = 0, Mandatory, ParameterSetName = 'val')]
+        [Parameter(Mandatory, Position = 0)]
         [object[]]$Array,
 
-        [Parameter(ParameterSetName = 'idx')]
-        [Parameter(ParameterSetName = 'val')]
+        [Parameter(Position = 1)]
         [string]$Message,
 
-        [Parameter(Mandatory, ParameterSetName = 'val')]
+        [Parameter(Mandatory, ParameterSetName = 'Value')]
         [switch]$Value,
 
-        [Parameter(ParameterSetName = 'idx')]
-        [Parameter(ParameterSetName = 'val')]
         [switch]$List
     )
 
@@ -90,22 +86,10 @@ function Get-ArrayIndexMenu {
     }
 
     process {
+        # read and validate input
         do {
-            # read input
-            $inputArray = (Read-Host -Prompt $msg).Split([char[]]@(' ', ','), [StringSplitOptions]::RemoveEmptyEntries) | Select-Object -Unique
-            $loop = if (-not $List -and $inputArray.Count -gt 1) {
-                # check if list is expected
-                Write-Output $true
-            } else {
-                # check if input contains valid numbers
-                foreach ($i in $inputArray) {
-                    if ($i -notin 0..($Array.Count - 1)) {
-                        Write-Output $true
-                        continue
-                    }
-                }
-            }
-        } while ($loop)
+            [array]$inputArray = (Read-Host -Prompt $msg).Split([char[]]@(' ', ','), [StringSplitOptions]::RemoveEmptyEntries) | Select-Object -Unique
+        } while (($inputArray.ForEach({ $_ -in 0..($Array.Count - 1) }) -contains $false) -or (-not $List -and $inputArray.Count -gt 1))
     }
 
     end {
