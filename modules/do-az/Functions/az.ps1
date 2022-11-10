@@ -109,15 +109,11 @@ function Invoke-AzApiRequest {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
         [Alias('s')]
-        [Parameter(Mandatory, Position = 0, ValueFromPipeline, ParameterSetName = 'Default')]
-        [Parameter(Mandatory, Position = 0, ValueFromPipeline, ParameterSetName = 'Payload:Body')]
-        [Parameter(Mandatory, Position = 0, ValueFromPipeline, ParameterSetName = 'Payload:File')]
+        [Parameter(Mandatory, Position = 0)]
         [string]$Scope,
 
         [Alias('a')]
-        [Parameter(Mandatory, Position = 1, ParameterSetName = 'Default')]
-        [Parameter(Mandatory, Position = 1, ParameterSetName = 'Payload:Body')]
-        [Parameter(Mandatory, Position = 1, ParameterSetName = 'Payload:File')]
+        [Parameter(Mandatory, Position = 1)]
         [string]$ApiVersion,
 
         [Parameter(ParameterSetName = 'Default')]
