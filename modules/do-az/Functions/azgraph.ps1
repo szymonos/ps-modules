@@ -11,11 +11,9 @@ Optional subscription id.
 function Invoke-AzGraph {
     [CmdletBinding()]
     param (
-        [Alias('q')]
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory, Position = 0)]
         [string]$Query,
 
-        [Alias('s')]
         [string]$SubscriptionId
     )
 
@@ -52,19 +50,19 @@ Subscription ID.
 Optional query condition.
 #>
 function Get-AzGraphSubscriptions {
-    [CmdletBinding(DefaultParametersetName = 'default')]
+    [CmdletBinding(DefaultParametersetName = 'Default')]
     [OutputType([AzGraphSubscription[]])]
     param (
         [Alias('i')]
-        [Parameter(ParameterSetName = 'ById')]
+        [Parameter(Mandatory, ParameterSetName = 'ById')]
         [guid]$SubscriptionId,
 
         [Alias('n')]
-        [Parameter(ParameterSetName = 'ByName')]
+        [Parameter(Mandatory, ParameterSetName = 'ByName')]
         [string]$SubscriptionName,
 
         [Alias('c')]
-        [Parameter(ParameterSetName = 'ByCondition')]
+        [Parameter(Mandatory, ParameterSetName = 'ByCondition')]
         [string]$Condition
     )
 
@@ -104,12 +102,17 @@ function Get-AzGraphResourceGroups {
     [OutputType([AzGraphResourceGroup[]])]
     param (
         [Alias('s')]
+        [Parameter(Mandatory, ParameterSetName = 'InSubscription')]
         [guid]$SubscriptionId,
 
         [Alias('n')]
+        [Parameter(Mandatory, ParameterSetName = 'ByName')]
+        [Parameter(ParameterSetName = 'InSubscription')]
         [string]$ResourceGroupName,
 
         [Alias('c')]
+        [Parameter(Mandatory, ParameterSetName = 'ByCondition')]
+        [Parameter(ParameterSetName = 'InSubscription')]
         [string]$Condition
     )
 
@@ -150,7 +153,7 @@ function Get-AzGraphResourceGroupByName {
     [OutputType([AzGraphResourceGroup])]
     param (
         [Alias('n')]
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory, Position = 0)]
         [string]$ResourceGroupName
     )
 
@@ -174,21 +177,20 @@ Subscription ID.
 .PARAMETER ResourceGroupName
 Resource group name.
 .PARAMETER Condition
-Query condition.
-#>
+Optional query condition.#>
 function Get-AzGraphResources {
     [CmdletBinding(DefaultParameterSetName = 'Id')]
     [OutputType([AzGraphResource[]])]
     param (
+        [Alias('i')]
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'Id')]
+        [string]$ResourceId,
+
         [Alias('s')]
         [Parameter(Mandatory, ParameterSetName = 'Group')]
-        [Parameter(ParameterSetName = 'Type')]
         [Parameter(Mandatory, ParameterSetName = 'GroupType')]
+        [Parameter(ParameterSetName = 'Type')]
         [guid]$SubscriptionId,
-
-        [Alias('i')]
-        [Parameter(Mandatory, ParameterSetName = 'Id')]
-        [string]$ResourceId,
 
         [Alias('g')]
         [Parameter(Mandatory, ParameterSetName = 'Group')]
@@ -252,19 +254,18 @@ Azure Resource Name
 Azure Resource Type
 #>
 function Get-AzGraphResourceByName {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'ByName')]
     [OutputType([AzGraphResource])]
     param (
         [Alias('n')]
-        [Parameter(Mandatory, ParameterSetName = 'ByName')]
-        [Parameter(Mandatory, ParameterSetName = 'ByType')]
-        [Parameter(Mandatory, ParameterSetName = 'ByCondition')]
+        [Parameter(Mandatory, Position = 0)]
         [string]$ResourceName,
 
         [Alias('t')]
         [Parameter(Mandatory, ParameterSetName = 'ByType')]
         [string]$ResourceType,
 
+        [Alias('e')]
         [Parameter(Mandatory, ParameterSetName = 'ByCondition')]
         [ValidateScript({ $false -notin $_.ForEach{ $_ -match '\w+\.\w+/\w+' } }, ErrorMessage = "`e[1;4m{0}`e[22;24m is not valid type")]
         [string[]]$ExcludeTypes
