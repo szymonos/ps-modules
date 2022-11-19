@@ -29,7 +29,7 @@ function Invoke-CondaScript {
                 Exit-CondaEnvironment
             } else {
                 Write-Warning "File `e[4m$CondaFile`e[24m not found"
-                return
+                exit
             }
         }
     }
@@ -164,7 +164,7 @@ function Invoke-PySetup {
                 $envVars = (Get-Content ([IO.Path]::Combine($AppPath, 'local.settings.json')) | ConvertFrom-Json).Values
             } else {
                 Write-Warning "File `e[1;3mlocal.settings.json`e[23m not exists!`n`t Set environment variables there."
-                return
+                exit
             }
         }
     }
