@@ -38,6 +38,22 @@ class AzGraphResourceGroup : AzGraphSubscription {
     # constructors
     AzGraphResourceGroup () { }
 
+    AzGraphResourceGroup ([string]$id) {
+        if ($id) {
+            $idSplit = $id.Split('/')
+            if ($idSplit.Count -eq 5 -and $idSplit[1] -eq 'subscriptions' -and $idSplit[3] -eq 'resourceGroups') {
+                $this.id = $id
+                $this.name = $idSplit[4]
+                $this.resourceGroup = $this.name.ToLower()
+                $this.type = "microsoft.resources/subscriptions/resourcegroups"
+                $this.subscriptionId = $idSplit[2]
+                $this.ResourceId = $this.id
+            } else {
+                throw("Wrong ResourceId provided!`n$id")
+            }
+        }
+    }
+
     AzGraphResourceGroup ([PSCustomObject]$obj) {
         $this.id = $obj.id
         $this.location = $obj.location
@@ -65,7 +81,7 @@ class AzGraphResource : AzGraphResourceGroup {
     AzGraphResource ([string]$id) {
         if ($id) {
             $idSplit = $id.Split('/')
-            if ($idSplit.Count -eq 9) {
+            if ($idSplit.Count -eq 9 -and $idSplit[1] -eq 'subscriptions' -and $idSplit[3] -eq 'resourceGroups' -and $idSplit[5] -eq 'providers') {
                 $this.id = $id
                 $this.name = $idSplit[8]
                 $this.resourceGroup = $idSplit[4]
@@ -140,7 +156,7 @@ class AzResource {
     AzResource ([string]$id) {
         if ($id) {
             $idSplit = $id.Split('/')
-            if ($idSplit.Count -eq 9) {
+            if ($idSplit.Count -eq 9 -and $idSplit[1] -eq 'subscriptions' -and $idSplit[3] -eq 'resourceGroups' -and $idSplit[5] -eq 'providers') {
                 $this.ResourceId = $id
                 $this.Id = $this.ResourceId
                 $this.ResourceName = $idSplit[8]

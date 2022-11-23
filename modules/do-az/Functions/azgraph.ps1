@@ -6,21 +6,33 @@ Generic Search-AzGraph request.
 .PARAMETER Query
 Kusto query.
 .PARAMETER SubscriptionId
-Optional subscription id.
+Optional SubscriptionId to run query against.
+.PARAMETER ManagementGroup
+Optional ManagementGroup to run query against.
 #>
 function Invoke-AzGraph {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParametersetName = 'Default')]
     param (
         [Parameter(Mandatory, Position = 0)]
         [string]$Query,
 
-        [string]$SubscriptionId
+        [Parameter(Mandatory, ParameterSetName = 'InSubscription')]
+        [guid]$SubscriptionId,
+
+        [Parameter(Mandatory, ParameterSetName = 'InMngmtGroup')]
+        [guid]$ManagementGroup
     )
 
     begin {
-        $param = @{ First = 100 }
+        $param = @{
+            First = 100
+        }
         if ($PSBoundParameters.SubscriptionId) {
             $param.Subscription = $SubscriptionId
+        } elseif ($PSBoundParameters.ManagementGroup) {
+            $param.ManagementGroup = $ManagementGroup
+        } else {
+            $param.ManagementGroup = (Connect-AzContext).Tenant.Id
         }
 
         $result = [Collections.Generic.List[PSCustomObject]]::new()
@@ -45,16 +57,24 @@ function Invoke-AzGraph {
 .SYNOPSIS
 Get Azure Subscriptions using AzGraph.
 .PARAMETER SubscriptionId
-Subscription ID.
+Specifies the ID of the subscription to get.
+.PARAMETER SubscriptionName
+Specifies the name of the subscription to get.
+.PARAMETER ManagementGroup
+Specifies the ID of the ManagementGroup that contains subscriptions to get.
 .PARAMETER Condition
 Optional query condition.
 #>
 function Get-AzGraphSubscriptions {
-    [CmdletBinding(DefaultParametersetName = 'Default')]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     [OutputType([AzGraphSubscription[]])]
     param (
+        [Alias('m')]
+        [Parameter(Mandatory, ParameterSetName = 'InMngmtGroup')]
+        [guid]$ManagementGroup,
+
         [Alias('i')]
-        [Parameter(Mandatory, ParameterSetName = 'ById')]
+        [Parameter(Mandatory, ParameterSetName = 'InSubscription')]
         [guid]$SubscriptionId,
 
         [Alias('n')]
@@ -63,25 +83,31 @@ function Get-AzGraphSubscriptions {
 
         [Alias('c')]
         [Parameter(Mandatory, ParameterSetName = 'ByCondition')]
+        [Parameter(ParameterSetName = 'InMngmtGroup')]
         [string]$Condition
     )
 
-    $param = @{}
     # build filter
-    if ($PSBoundParameters.SubscriptionId) {
-        $param.SubscriptionId = $SubscriptionId
-    } elseif ($PSBoundParameters.SubscriptionName) {
-        $filter = "`n`tand name =~ '$SubscriptionName'"
+    $filter = if ($PSBoundParameters.SubscriptionName) {
+        " and name =~ '$($PSBoundParameters.SubscriptionName)'"
     } elseif ($PSBoundParameters.Condition) {
-        $filter = "`n`tand $Condition"
+        " and $($PSBoundParameters.Condition)"
     }
 
     # splat parameters
-    $param.Query = @"
+    $param = @{
+        Query = @"
 ResourceContainers
 | where type == 'microsoft.resources/subscriptions'$filter
 | project id, name, type, tenantId, subscriptionId, properties
 "@
+    }
+
+    if ($PSBoundParameters.ManagementGroup) {
+        $param.ManagementGroup = $ManagementGroup
+    } elseif ($PSBoundParameters.SubscriptionId) {
+        $param.SubscriptionId = $SubscriptionId
+    }
 
     $response = Invoke-AzGraph @param
 
@@ -92,17 +118,29 @@ ResourceContainers
 .SYNOPSIS
 Get resources group(s) in specified subscription.
 .PARAMETER SubscriptionId
-Subscription ID.
+Specifies the ID of the subscription that contains resource groups to get.
+.PARAMETER ManagementGroup
+Specifies the ID of the ManagementGroup that contains resource groups to get.
 .PARAMETER ResourceGroupName
-Optional resource group name.
+Specifies the name of the resource group to get.
 .PARAMETER Condition
-Optional query condition.#>
+Optional query condition.
+#>
 function Get-AzGraphResourceGroups {
     [CmdletBinding()]
     [OutputType([AzGraphResourceGroup[]])]
     param (
+        [Alias('i')]
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'Id')]
+        [string]$ResourceId,
+
+        [Alias('m')]
+        [Parameter(Mandatory, ParameterSetName = 'InMngmtGroup')]
+        [guid]$ManagementGroup,
+
         [Alias('s')]
         [Parameter(Mandatory, ParameterSetName = 'InSubscription')]
+        [Parameter(ParameterSetName = 'ByCondition')]
         [guid]$SubscriptionId,
 
         [Alias('n')]
@@ -112,19 +150,30 @@ function Get-AzGraphResourceGroups {
 
         [Alias('c')]
         [Parameter(Mandatory, ParameterSetName = 'ByCondition')]
-        [Parameter(ParameterSetName = 'InSubscription')]
+        [Parameter(Mandatory, ParameterSetName = 'InMngmtGroup')]
         [string]$Condition
     )
 
+    # initialize parameter splat
+    $param = @{}
+
     # build filter
-    $filter = $PSBoundParameters.ResourceGroupName ? "`n`tand name =~ '$ResourceGroupName'" : ''
-    $filter += $PSBoundParameters.Condition ? "`n`tand $Condition" : ''
+    if ($PSBoundParameters.ResourceId) {
+        $filter = $PSBoundParameters.ResourceId ? "id =~ '$ResourceId'" : ''
+        $param.Subscription = ([AzGraphResourceGroup]$PSBoundParameters.ResourceId).SubscriptionId
+    } else {
+        $filter = "type == 'microsoft.resources/subscriptions/resourcegroups'"
+        $filter += if ($PSBoundParameters.ResourceGroupName) {
+            " and name =~ '$($PSBoundParameters.ResourceGroupName)'"
+        } elseif ($PSBoundParameters.Condition) {
+            " and $($PSBoundParameters.Condition)"
+        }
+    }
 
     # splat parameters
-    $param = @{
-        Query = @"
+    $param.Query = @"
 ResourceContainers
-| where type == 'microsoft.resources/subscriptions/resourcegroups'$filter
+| where $filter
 | join kind=leftouter (
     ResourceContainers
     | where type =~ "microsoft.resources/subscriptions"
@@ -132,9 +181,11 @@ ResourceContainers
     ) on subscriptionId
 | project id, name, type, tenantId, location, resourceGroup, subscriptionId, subscription, properties, tags
 "@
-    }
-    if ($PSBoundParameters.SubscriptionId) {
-        $param.Subscription = $SubscriptionId
+
+    if ($PSBoundParameters.ManagementGroup) {
+        $param.ManagementGroup = $ManagementGroup
+    } elseif ($PSBoundParameters.SubscriptionId) {
+        $param.SubscriptionId = $SubscriptionId
     }
 
     $response = Invoke-AzGraph @param
@@ -173,11 +224,18 @@ function Get-AzGraphResourceGroupByName {
 .SYNOPSIS
 Get resources using AzGraph.
 .PARAMETER SubscriptionId
-Subscription ID.
+Specifies the ID of the subscription that contains resources to get.
+.PARAMETER ManagementGroup
+Specifies the ID of the ManagementGroup that contains resources groups to get.
 .PARAMETER ResourceGroupName
-Resource group name.
+The resource group the resource that is retrieved belongs in.
+.PARAMETER ResourceType
+The resource type of the resource to be retrieved.
+.PARAMETER ResourceName
+The name of the resource to be retrieved.
 .PARAMETER Condition
-Optional query condition.#>
+Optional query condition.
+#>
 function Get-AzGraphResources {
     [CmdletBinding(DefaultParameterSetName = 'Id')]
     [OutputType([AzGraphResource[]])]
@@ -187,24 +245,41 @@ function Get-AzGraphResources {
         [string]$ResourceId,
 
         [Alias('s')]
-        [Parameter(Mandatory, ParameterSetName = 'Group')]
-        [Parameter(Mandatory, ParameterSetName = 'GroupType')]
-        [Parameter(ParameterSetName = 'Type')]
+        [Parameter(Mandatory, ParameterSetName = 'InSubscription')]
         [guid]$SubscriptionId,
+
+        [Alias('m')]
+        [Parameter(Mandatory, ParameterSetName = 'InMngmtGroup')]
+        [guid]$ManagementGroup,
 
         [Alias('g')]
         [Parameter(Mandatory, ParameterSetName = 'Group')]
         [Parameter(Mandatory, ParameterSetName = 'GroupType')]
+        [Parameter(ParameterSetName = 'InSubscription')]
+        [Parameter(ParameterSetName = 'InMngmtGroup')]
         [string]$ResourceGroupName,
 
         [Alias('t')]
         [Parameter(Mandatory, ParameterSetName = 'Type')]
         [Parameter(Mandatory, ParameterSetName = 'GroupType')]
+        [Parameter(ParameterSetName = 'InSubscription')]
+        [Parameter(ParameterSetName = 'InMngmtGroup')]
         [ValidateScript({ $_ -match '\w+\.\w+/\w+' }, ErrorMessage = "`e[1;4m{0}`e[22;24m is not valid type")]
         [string]$ResourceType,
 
+        [Alias('n')]
+        [Parameter(Mandatory, ParameterSetName = 'ByName')]
+        [Parameter(ParameterSetName = 'InSubscription')]
+        [Parameter(ParameterSetName = 'InMngmtGroup')]
+        [Parameter(ParameterSetName = 'Group')]
+        [Parameter(ParameterSetName = 'Type')]
+        [Parameter(ParameterSetName = 'Condition')]
+        [string]$ResourceName,
+
         [Alias('c')]
         [Parameter(Mandatory, ParameterSetName = 'Condition')]
+        [Parameter(ParameterSetName = 'InSubscription')]
+        [Parameter(ParameterSetName = 'InMngmtGroup')]
         [Parameter(ParameterSetName = 'Group')]
         [Parameter(ParameterSetName = 'Type')]
         [string]$Condition
@@ -218,11 +293,10 @@ function Get-AzGraphResources {
         $filter = $PSBoundParameters.ResourceId ? "id =~ '$ResourceId'" : ''
         $param.Subscription = ([AzResource]$PSBoundParameters.ResourceId).SubscriptionId
     } else {
-        $filter = $PSBoundParameters.ResourceGroupName ? "resourceGroup =~ '$ResourceGroupName'" : ''
-        $filter += ($PSBoundParameters.ResourceGroupName -and $PSBoundParameters.ResourceType) ? "`n`tand " : ''
-        $filter += $PSBoundParameters.ResourceType ? "type =~ '$ResourceType'" : ''
-        $filter += ($PSBoundParameters.ResourceGroupName -or $PSBoundParameters.ResourceType) -and $PSBoundParameters.Condition ? "`n`tand " : ''
-        $filter += $PSBoundParameters.Condition ? $Condition : ''
+        $filter = $PSBoundParameters.ResourceGroupName ? "resourceGroup =~ '$($PSBoundParameters.ResourceGroupName)'" : ''
+        $filter += $PSBoundParameters.ResourceType ? ($filter ? ' and ' : '') + "type =~ '$($PSBoundParameters.ResourceType)'" : ''
+        $filter += $PSBoundParameters.ResourceName ? ($filter ? ' and ' : '') + "name =~ '$($PSBoundParameters.ResourceName)'" : ''
+        $filter += $PSBoundParameters.Condition ? ($filter ? ' and ' : '') + $PSBoundParameters.Condition : ''
     }
 
     # splat parameters
@@ -236,8 +310,11 @@ Resources
     ) on subscriptionId
 | project id, name, type, tenantId, kind, location, resourceGroup, subscriptionId, subscription, sku, properties, tags, identity
 "@
+
     if ($PSBoundParameters.SubscriptionId) {
-        $param.Subscription = $SubscriptionId
+        $param.SubscriptionId = $SubscriptionId
+    } elseif ($PSBoundParameters.ManagementGroup) {
+        $param.ManagementGroup = $ManagementGroup
     }
 
     $response = Invoke-AzGraph @param
@@ -249,9 +326,9 @@ Resources
 .SYNOPSIS
 Get Azure resource object by name and type.
 .PARAMETER ResourceName
-Azure Resource Name
+The name of the resource to be retrieved.
 .PARAMETER ResourceType
-Azure Resource Type
+The resource type of the resource to be retrieved.
 #>
 function Get-AzGraphResourceByName {
     [CmdletBinding(DefaultParameterSetName = 'ByName')]
@@ -273,14 +350,13 @@ function Get-AzGraphResourceByName {
 
     begin {
         $param = @{
-            Condition = "name =~ '$ResourceName'"
+            ResourceName = $PSBoundParameters.ResourceName
         }
-        if ($ResourceType) {
-            $param.ResourceType = $ResourceType
-        }
-        if ($ExcludeTypes) {
-            $typesList = $ExcludeTypes.ForEach{ "`"$_`"" } -join ', '
-            $param.Condition += " and type !in~ ($typesList)"
+        if ($PSBoundParameters.ResourceType) {
+            $param.ResourceType = $PSBoundParameters.ResourceType
+        } elseif ($PSBoundParameters.ExcludeTypes) {
+            $typesList = $PSBoundParameters.ExcludeTypes.ForEach{ "`"$_`"" } -join ', '
+            $param.Condition = "type !in~ ($typesList)"
         }
     }
 
