@@ -176,9 +176,10 @@ function Invoke-AzApiRequest {
     }
 
     process {
+        Write-Verbose "$($params.Method.ToUpper()) $uri"
         do {
             $response = Invoke-CommandRetry {
-                Invoke-RestMethod @params -Uri $uri -Verbose
+                Invoke-RestMethod @params -Uri $uri
             }
             if ($response.value) {
                 $response.value.ForEach({ $responseList.Add($_) })
