@@ -94,7 +94,7 @@ function Get-ArrayIndexMenu {
         # read and validate input
         do {
             [array]$inputArray = (Read-Host -Prompt $msg).Split([char[]]@(' ', ','), [StringSplitOptions]::RemoveEmptyEntries) | Select-Object -Unique
-        } while (($inputArray.ForEach({ $_ -in 0..($Array.Count - 1) }) -contains $false) -or (-not $List -and $inputArray.Count -gt 1))
+        } while (($inputArray.ForEach({ $_ -in 0..($Array.Count - 1) }) -contains $false) -or (-not $List -and $inputArray.Count -gt 1) -or (-not $inputArray))
     }
 
     end {
