@@ -14,6 +14,7 @@ Whether to create new module manifest or delete installed module. Valid values a
 # *module
 $Module = 'do-az'
 $Module = 'do-common'
+$Module = 'do-linux'
 $Module = 'do-win'
 # *install
 ./module_manage.ps1 -CleanUp -Module $Module
