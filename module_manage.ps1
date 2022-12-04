@@ -57,6 +57,12 @@ begin {
     # source paths
     $srcModulePath = Join-Path 'modules' -ChildPath $Module
     $srcModuleManifest = Join-Path $srcModulePath -ChildPath "$Module.psd1"
+    # set location to workspace folder
+    if ($PWD.Path -ne $PSScriptRoot) {
+        $startWorkingDirectory = $PWD.Path
+        Write-Verbose "Correcting script working directory to '$PSScriptRoot'."
+        Set-Location $PSScriptRoot
+    }
 }
 
 process {
@@ -120,4 +126,9 @@ process {
             continue
         }
     }
+}
+
+end {
+    # revert to starting work directory
+    Set-Location $startWorkingDirectory
 }
