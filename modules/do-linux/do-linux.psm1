@@ -3,10 +3,14 @@
 $exportModuleMemberParams = @{
     Function = @(
         # common
+        'Invoke-Sudo'
+        'Invoke-SudoPS'
         'Invoke-FixExecutableBit'
     )
     Variable = @()
     Alias  = @(
+        '_'
+        'sps'
         'feb'
     )
 }
