@@ -58,8 +58,8 @@ begin {
     $srcModulePath = [IO.Path]::Combine('modules', $Module)
     $srcModuleManifest = [IO.Path]::Combine($srcModulePath, "$Module.psd1")
     # set location to workspace folder
-    if ($PWD.Path -ne $PSScriptRoot) {
-        $startWorkingDirectory = $PWD.Path
+    if ($PSScriptRoot -ne $PWD.Path) {
+        $startWorkingDirectory = $PWD
         Write-Verbose "Setting working directory to '$($PSScriptRoot.Replace($HOME, '~'))'."
         Set-Location $PSScriptRoot
     }
@@ -111,8 +111,12 @@ process {
 
         'Delete' {
             # *delete modules
-            Remove-Item -Path $dstModulePath -Force -Recurse -ErrorAction SilentlyContinue
-            Write-Verbose "Deleted module location $($dstModulePath.Replace($HOME, '~'))"
+            if (Test-Path $dstModulePath) {
+                Remove-Item -Path $dstModulePath -Force -Recurse -ErrorAction SilentlyContinue
+                Write-Verbose "Deleted module location $($dstModulePath.Replace($HOME, '~'))"
+            } else {
+                Write-Verbose "Module do not exists in location $($dstModulePath.Replace($HOME, '~'))"
+            }
             continue
         }
 
