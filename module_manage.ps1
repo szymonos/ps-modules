@@ -24,12 +24,12 @@ $Module = 'do-common'
 $Module = 'do-linux'
 $Module = 'do-win'
 # *install
-./module_manage.ps1 $Module -CleanUp
-./module_manage.ps1 $Module -CleanUp -RemoveRequirements
+./module_manage.ps1 $Module -CleanUp -Verbose
+./module_manage.ps1 $Module -CleanUp -RemoveRequirements -Verbose
 # *delete module
-./module_manage.ps1 $Module -Delete
+./module_manage.ps1 $Module -Delete -Verbose
 # *scaffold module manifest
-./module_manage.ps1 -Module 'do-test' -Create
+./module_manage.ps1 -Module 'do-test' -Create -Verbose
 #>
 [CmdletBinding(DefaultParameterSetName = 'Install')]
 param (
@@ -55,12 +55,12 @@ param (
 
 begin {
     # source paths
-    $srcModulePath = Join-Path 'modules' -ChildPath $Module
-    $srcModuleManifest = Join-Path $srcModulePath -ChildPath "$Module.psd1"
+    $srcModulePath = [IO.Path]::Combine('modules', $Module)
+    $srcModuleManifest = [IO.Path]::Combine($srcModulePath, "$Module.psd1")
     # set location to workspace folder
     if ($PWD.Path -ne $PSScriptRoot) {
         $startWorkingDirectory = $PWD.Path
-        Write-Verbose "Correcting script working directory to '$PSScriptRoot'."
+        Write-Verbose "Setting working directory to '$($PSScriptRoot.Replace($HOME, '~'))'."
         Set-Location $PSScriptRoot
     }
 }
@@ -81,32 +81,30 @@ process {
             }
             $psModPathSplit = $env:PSModulePath.Split([IO.Path]::PathSeparator)
             $psModPath = $isAdmin ? $psModPathSplit[1] : $psModPathSplit[0]
-            $dstModulePath = Join-Path $psModPath -ChildPath $Module
+            $dstModulePath = [IO.Path]::Combine($psModPath, $Module)
         }
 
         'Install' {
             # *install modules
             $manifest = Test-ModuleManifest $srcModuleManifest
-            $installPath = Join-Path $dstModulePath -ChildPath $manifest.Version.ToString()
-
+            $installPath = [IO.Path]::Combine($dstModulePath, $manifest.Version)
             # create/cleanup destination directory
-            if (Test-Path $dstModulePath -PathType Container) {
+            if (Test-Path $installPath -PathType Container) {
+                Write-Verbose "Current module version already installed ($Module v$($manifest.Version))."
+            } else {
                 # clean-up old module versions
-                if ($CleanUp) {
-                    Remove-Item $dstModulePath -Recurse -Force
-                } else {
-                    Remove-Item $installPath -Recurse -Force
+                if ($CleanUp -and (Test-Path $dstModulePath -PathType Container)) {
+                    Remove-Item ([IO.Path]::Combine($dstModulePath, '*')) -Recurse -Force
                 }
-            }
-            New-Item -ItemType Directory -Force -Path $installPath | Out-Null
-
-            # copy module files
-            Copy-Item -Path (Join-Path $manifest.ModuleBase -ChildPath '*') -Destination $installPath -Recurse
-
-            # remove requirements from module manifest to speed up module loading time
-            if ($RemoveRequirements) {
-                $dstModuleManifest = Join-Path $installPath -ChildPath "$Module.psd1"
-            (Get-Content $dstModuleManifest -Raw) -replace '(?s)RequiredModules.*?\)\n' | Set-Content $dstModuleManifest
+                New-Item -ItemType Directory -Force -Path $installPath | Out-Null
+                # copy module files
+                Copy-Item -Path ([IO.Path]::Combine($manifest.ModuleBase, '*')) -Destination $installPath -Recurse
+                # remove requirements from module manifest to speed up module loading time
+                if ($RemoveRequirements) {
+                    $dstModuleManifest = [IO.Path]::Combine($installPath, "$Module.psd1")
+                    [IO.File]::WriteAllText($dstModuleManifest, [IO.File]::ReadAllText($dstModuleManifest) -replace '(?s)RequiredModules.*?\)\n')
+                }
+                Write-Verbose "Module installed in $($dstModulePath.Replace($HOME, '~'))"
             }
             continue
         }
@@ -114,6 +112,7 @@ process {
         'Delete' {
             # *delete modules
             Remove-Item -Path $dstModulePath -Force -Recurse -ErrorAction SilentlyContinue
+            Write-Verbose "Deleted module location $($dstModulePath.Replace($HOME, '~'))"
             continue
         }
 
@@ -123,12 +122,14 @@ process {
                 New-Item -Path $srcModulePath -ItemType Directory | Out-Null
             }
             New-ModuleManifest -Path $srcModuleManifest
+            Write-Verbose "Created module manifest in $($srcModuleManifest.Replace($HOME, '~'))"
             continue
         }
     }
 }
 
 end {
-    # revert to starting work directory
-    Set-Location $startWorkingDirectory
+    if ($startWorkingDirectory) {
+        Set-Location $startWorkingDirectory
+    }
 }
