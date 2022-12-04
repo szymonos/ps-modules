@@ -6,7 +6,7 @@ Repository for my *DevOps* PowerShell modules.
 
 You can manage modules in the repository with [module_manage.ps1](./module_manage.ps1) script.  
 It allows to install the module, delete module, or scaffold new module manifest in the repository.  
-Script automatically detects the `CurrentUser`/`AllUsers` scope depending if it runs elevated.
+Script automatically detects the `CurrentUser`/`AllUsers` scope, depending if it runs elevated.
 
 ``` PowerShell
 <# install module #>
@@ -28,7 +28,7 @@ Script automatically detects the `CurrentUser`/`AllUsers` scope depending if it 
 ### **do-common**
 
 Common module, not depending on other modules, working on all systems.  
-It is recommended to install the module in `AllUsers` scope, by running the script elevated.
+On Linux, it is recommended to install the module in the `AllUsers` scope, by running the script as root.
 
 ``` PowerShell
 ./module_manage.ps1 'do-common' -CleanUp
@@ -37,7 +37,7 @@ It is recommended to install the module in `AllUsers` scope, by running the scri
 ### **do-az**
 
 Module intended to streamline work with Microsoft Azure Cloud.  
-Required modules: `do-common`, `Az.Accounts`, `Az.ResourceGraph`
+Required modules to be installed beforehand: `do-common`, `Az.Accounts`, `Az.ResourceGraph`
 
 ``` PowerShell
 ./module_manage.ps1 'do-az' -CleanUp -RemoveRequirements
