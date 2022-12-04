@@ -28,7 +28,7 @@ Script automatically detects the `CurrentUser`/`AllUsers` scope depending if it 
 ### **do-common**
 
 Common module, not depending on other modules, working on all systems.  
-It is recommended to install the module in `AllUsers` scope.
+It is recommended to install the module in `AllUsers` scope, by running the script elevated.
 
 ``` PowerShell
 ./module_manage.ps1 'do-common' -CleanUp
@@ -36,7 +36,8 @@ It is recommended to install the module in `AllUsers` scope.
 
 ### **do-az**
 
-Module intended to streamline work with Microsoft Azure Cloud.
+Module intended to streamline work with Microsoft Azure Cloud.  
+Required modules: `do-common`, `Az.Accounts`, `Az.ResourceGraph`
 
 ``` PowerShell
 ./module_manage.ps1 'do-az' -CleanUp -RemoveRequirements
