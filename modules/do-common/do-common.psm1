@@ -11,7 +11,6 @@ $exportModuleMemberParams = @{
         'Get-CmdletAlias'
         'New-Password'
         'Test-IsAdmin'
-        'Invoke-FixExecutableBit'
         # net
         'ConvertFrom-CIDR'
         # python
@@ -21,7 +20,6 @@ $exportModuleMemberParams = @{
     Variable = @()
     Alias  = @(
         'alias'
-        'feb'
     )
 }
 
