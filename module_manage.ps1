@@ -3,12 +3,19 @@
 <#
 .SYNOPSIS
 Manage PowerShell modules.
+.DESCRIPTION
+Script for installing, removing or scaffolding new PowerShell modules.
+If script is running elevated, it automatically install/delete module in AllUsers scope.
 .PARAMETER Module
 Module name.
-.PARAMETER Scope
-User-installed modules scope. Valid values are: CurrentUser, AllUsers.
-.PARAMETER Option
-Whether to create new module manifest or delete installed module. Valid values are: create, delete.
+.PARAMETER CleanUp
+Switch, whether to clean up module previous versions in destination folder.
+.PARAMETER RemoveRequirements
+Switch, whether to remove requirements from the manifest file to speed up module loading.
+.PARAMETER Delete
+Switch, whether to delete an existing module.
+.PARAMETER Create
+Switch, whether to scaffold a new module manifest.
 
 .EXAMPLE
 # *module
@@ -17,55 +24,63 @@ $Module = 'do-common'
 $Module = 'do-linux'
 $Module = 'do-win'
 # *install
-./module_manage.ps1 -CleanUp -Module $Module
-./module_manage.ps1 -CleanUp -Module $Module -Scope 'AllUsers'
-./module_manage.ps1 -CleanUp -Module $Module -RemoveRequirements
+./module_manage.ps1 $Module -CleanUp
+./module_manage.ps1 $Module -CleanUp -RemoveRequirements
 # *delete module
-./module_manage.ps1 -m $Module -o 'delete'
+./module_manage.ps1 $Module -Delete
 # *scaffold module manifest
-./module_manage.ps1 -m 'do-test' -o 'new'
+./module_manage.ps1 -Module 'do-test' -Create
 #>
-[CmdletBinding()]
+[CmdletBinding(DefaultParameterSetName = 'Install')]
 param (
-    [Alias('m')]
-    [Parameter(Mandatory)]
+    [Parameter(Mandatory, Position = 0)]
     [string]$Module,
 
-    [Alias('s')]
+    [Parameter(ParameterSetName = 'Install')]
     [ValidateSet('CurrentUser', 'AllUsers')]
     [string]$Scope = 'CurrentUser',
 
-    [Alias('o')]
-    [ValidateSet('install', 'delete', 'new')]
-    [string]$Option = 'install',
-
-    [Alias('c')]
+    [Parameter(ParameterSetName = 'Install')]
     [switch]$CleanUp,
 
-    [Alias('r')]
-    [switch]$RemoveRequirements
+    [Parameter(ParameterSetName = 'Install')]
+    [switch]$RemoveRequirements,
+
+    [Parameter(ParameterSetName = 'Delete')]
+    [switch]$Delete,
+
+    [Parameter(ParameterSetName = 'Create')]
+    [switch]$Create
 )
 
 begin {
     # source paths
     $srcModulePath = Join-Path 'modules' -ChildPath $Module
     $srcModuleManifest = Join-Path $srcModulePath -ChildPath "$Module.psd1"
-
-    # calculate destination path
-    if ($Option -ne 'new') {
-        $manifest = Test-ModuleManifest $srcModuleManifest -ErrorAction SilentlyContinue
-
-        # get module path in user context
-        $psModPathSplit = $env:PSModulePath.Split("$($IsWindows ? ';' : ':')")
-        $psModPath = $Scope -eq 'CurrentUser' ? $psModPathSplit[0] : $psModPathSplit[1]
-        $dstModulePath = Join-Path $psModPath -ChildPath $Module
-    }
 }
 
 process {
-    switch ($Option) {
-        # *install modules
-        'install' {
+    switch -Regex ($PsCmdlet.ParameterSetName) {
+        'Install|Delete' {
+            # check if module exists
+            if (-not (Test-Path $srcModuleManifest)) {
+                Write-Warning "Module doesn't exist ($Module)."
+                exit
+            }
+            # *calculate destination path
+            $isAdmin = if ($IsWindows) {
+                ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')
+            } else {
+                ((id -u) -eq 0) ? $true : $false
+            }
+            $psModPathSplit = $env:PSModulePath.Split([IO.Path]::PathSeparator)
+            $psModPath = $isAdmin ? $psModPathSplit[1] : $psModPathSplit[0]
+            $dstModulePath = Join-Path $psModPath -ChildPath $Module
+        }
+
+        'Install' {
+            # *install modules
+            $manifest = Test-ModuleManifest $srcModuleManifest
             $installPath = Join-Path $dstModulePath -ChildPath $manifest.Version.ToString()
 
             # create/cleanup destination directory
@@ -87,20 +102,22 @@ process {
                 $dstModuleManifest = Join-Path $installPath -ChildPath "$Module.psd1"
             (Get-Content $dstModuleManifest -Raw) -replace '(?s)RequiredModules.*?\)\n' | Set-Content $dstModuleManifest
             }
-            break
+            continue
         }
-        # *delete modules
-        'delete' {
+
+        'Delete' {
+            # *delete modules
             Remove-Item -Path $dstModulePath -Force -Recurse -ErrorAction SilentlyContinue
-            break
+            continue
         }
-        # *scaffold new module manifest
-        'new' {
+
+        'Create' {
+            # *scaffold new module manifest
             if (-not (Test-Path -Path $srcModulePath -PathType Container)) {
                 New-Item -Path $srcModulePath -ItemType Directory | Out-Null
             }
             New-ModuleManifest -Path $srcModuleManifest
-            break
+            continue
         }
     }
 }
