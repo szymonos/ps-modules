@@ -4,7 +4,7 @@
 RootModule = 'do-az.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.9.2'
+ModuleVersion = '1.10.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -26,7 +26,8 @@ PowerShellVersion = '7.0'
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(
-    'Az.Accounts',
+    'do-common'
+    'Az.Accounts'
     'Az.ResourceGraph'
 )
 
@@ -37,10 +38,6 @@ ScriptsToProcess = @(
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
-    # common
-    'Get-ArrayIndexMenu'
-    'Invoke-CommandRetry'
-    'ConvertFrom-CIDR'
     # az
     'Connect-AzContext'
     'Set-SubscriptionMenu'
@@ -83,7 +80,7 @@ PrivateData = @{
         # ReleaseNotes = ''
 
         # Prerelease string of this module
-        Prerelease = 'beta'
+        # Prerelease = 'beta'
 
     } # End of PSData hashtable
 
