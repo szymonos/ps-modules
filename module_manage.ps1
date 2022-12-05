@@ -26,6 +26,7 @@ $Module = 'do-win'
 # *install
 ./module_manage.ps1 $Module -CleanUp -Verbose
 ./module_manage.ps1 $Module -CleanUp -RemoveRequirements -Verbose
+@('do-common', 'do-win') | ./module_manage.ps1 -CleanUp -Verbose
 # *delete module
 ./module_manage.ps1 $Module -Delete -Verbose
 # *scaffold module manifest
