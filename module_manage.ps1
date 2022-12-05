@@ -26,6 +26,7 @@ $Module = 'do-win'
 # *install
 ./module_manage.ps1 $Module -CleanUp -Verbose
 ./module_manage.ps1 $Module -CleanUp -RemoveRequirements -Verbose
+@('do-common', 'do-win') | ./module_manage.ps1 -CleanUp -Verbose
 # *delete module
 ./module_manage.ps1 $Module -Delete -Verbose
 # *scaffold module manifest
@@ -33,7 +34,7 @@ $Module = 'do-win'
 #>
 [CmdletBinding(DefaultParameterSetName = 'Install')]
 param (
-    [Parameter(Mandatory, Position = 0)]
+    [Parameter(Mandatory, ValueFromPipeline, Position = 0)]
     [string]$Module,
 
     [Parameter(ParameterSetName = 'Install')]
@@ -54,9 +55,6 @@ param (
 )
 
 begin {
-    # source paths
-    $srcModulePath = [IO.Path]::Combine('modules', $Module)
-    $srcModuleManifest = [IO.Path]::Combine($srcModulePath, "$Module.psd1")
     # set location to workspace folder
     if ($PSScriptRoot -ne $PWD.Path) {
         $startWorkingDirectory = $PWD
@@ -67,13 +65,19 @@ begin {
 
 process {
     switch -Regex ($PsCmdlet.ParameterSetName) {
+        'Install|Delete|Create' {
+            # calculate source paths
+            $srcModulePath = [IO.Path]::Combine('modules', $Module)
+            $srcModuleManifest = [IO.Path]::Combine($srcModulePath, "$Module.psd1")
+        }
+
         'Install|Delete' {
             # check if module exists
             if (-not (Test-Path $srcModuleManifest)) {
                 Write-Warning "Module doesn't exist ($Module)."
                 exit
             }
-            # *calculate destination path
+            # calculate destination path
             $isAdmin = if ($IsWindows) {
                 ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')
             } else {
@@ -86,25 +90,29 @@ process {
 
         'Install' {
             # *install modules
-            $manifest = Test-ModuleManifest $srcModuleManifest
-            $installPath = [IO.Path]::Combine($dstModulePath, $manifest.Version)
-            # create/cleanup destination directory
-            if (Test-Path $installPath -PathType Container) {
-                Write-Verbose "Current module version already installed ($Module v$($manifest.Version))."
-            } else {
-                # clean-up old module versions
-                if ($CleanUp -and (Test-Path $dstModulePath -PathType Container)) {
-                    Remove-Item ([IO.Path]::Combine($dstModulePath, '*')) -Recurse -Force
+            try {
+                $manifest = Test-ModuleManifest $srcModuleManifest -ErrorAction Stop
+                $installPath = [IO.Path]::Combine($dstModulePath, $manifest.Version)
+                # create/cleanup destination directory
+                if (Test-Path $installPath -PathType Container) {
+                    Write-Verbose "Current module version already installed ($Module v$($manifest.Version))."
+                } else {
+                    # clean-up old module versions
+                    if ($CleanUp -and (Test-Path $dstModulePath -PathType Container)) {
+                        Remove-Item ([IO.Path]::Combine($dstModulePath, '*')) -Recurse -Force
+                    }
+                    New-Item -ItemType Directory -Force -Path $installPath | Out-Null
+                    # copy module files
+                    Copy-Item -Path ([IO.Path]::Combine($manifest.ModuleBase, '*')) -Destination $installPath -Recurse
+                    # remove requirements from module manifest to speed up module loading time
+                    if ($RemoveRequirements) {
+                        $dstModuleManifest = [IO.Path]::Combine($installPath, "$Module.psd1")
+                        [IO.File]::WriteAllText($dstModuleManifest, [IO.File]::ReadAllText($dstModuleManifest) -replace '(?s)RequiredModules.*?\)\n')
+                    }
+                    Write-Verbose "Module installed in $($dstModulePath.Replace($HOME, '~'))"
                 }
-                New-Item -ItemType Directory -Force -Path $installPath | Out-Null
-                # copy module files
-                Copy-Item -Path ([IO.Path]::Combine($manifest.ModuleBase, '*')) -Destination $installPath -Recurse
-                # remove requirements from module manifest to speed up module loading time
-                if ($RemoveRequirements) {
-                    $dstModuleManifest = [IO.Path]::Combine($installPath, "$Module.psd1")
-                    [IO.File]::WriteAllText($dstModuleManifest, [IO.File]::ReadAllText($dstModuleManifest) -replace '(?s)RequiredModules.*?\)\n')
-                }
-                Write-Verbose "Module installed in $($dstModulePath.Replace($HOME, '~'))"
+            } catch {
+                Write-Warning $_
             }
             continue
         }
