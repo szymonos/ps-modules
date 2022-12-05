@@ -45,7 +45,7 @@ class AzGraphResourceGroup : AzGraphSubscription {
                 $this.id = $id
                 $this.name = $idSplit[4]
                 $this.resourceGroup = $this.name.ToLower()
-                $this.type = "microsoft.resources/subscriptions/resourcegroups"
+                $this.type = 'microsoft.resources/subscriptions/resourcegroups'
                 $this.subscriptionId = $idSplit[2]
                 $this.ResourceId = $this.id
             } else {
@@ -68,6 +68,7 @@ class AzGraphResourceGroup : AzGraphSubscription {
         $this.ResourceId = $this.id
     }
 }
+# Specify AzGraphResourceGroup DefaultDisplayPropertySet
 Update-TypeData -TypeName 'AzGraphResourceGroup' -DefaultDisplayPropertySet 'name', 'type', 'subscriptionId', 'subscription', 'id' -ErrorAction SilentlyContinue
 
 class AzGraphResource : AzGraphResourceGroup {
