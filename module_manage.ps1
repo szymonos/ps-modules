@@ -33,7 +33,7 @@ $Module = 'do-win'
 #>
 [CmdletBinding(DefaultParameterSetName = 'Install')]
 param (
-    [Parameter(Mandatory, Position = 0)]
+    [Parameter(Mandatory, ValueFromPipeline, Position = 0)]
     [string]$Module,
 
     [Parameter(ParameterSetName = 'Install')]
@@ -54,9 +54,6 @@ param (
 )
 
 begin {
-    # source paths
-    $srcModulePath = [IO.Path]::Combine('modules', $Module)
-    $srcModuleManifest = [IO.Path]::Combine($srcModulePath, "$Module.psd1")
     # set location to workspace folder
     if ($PSScriptRoot -ne $PWD.Path) {
         $startWorkingDirectory = $PWD
@@ -67,13 +64,19 @@ begin {
 
 process {
     switch -Regex ($PsCmdlet.ParameterSetName) {
+        'Install|Delete|Create' {
+            # calculate source paths
+            $srcModulePath = [IO.Path]::Combine('modules', $Module)
+            $srcModuleManifest = [IO.Path]::Combine($srcModulePath, "$Module.psd1")
+        }
+
         'Install|Delete' {
             # check if module exists
             if (-not (Test-Path $srcModuleManifest)) {
                 Write-Warning "Module doesn't exist ($Module)."
                 exit
             }
-            # *calculate destination path
+            # calculate destination path
             $isAdmin = if ($IsWindows) {
                 ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')
             } else {
