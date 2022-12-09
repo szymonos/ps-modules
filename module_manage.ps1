@@ -88,7 +88,7 @@ process {
             $dstModulePath = [IO.Path]::Combine($psModPath, $Module)
         }
 
-        'Install' {
+        Install {
             # *install modules
             try {
                 $manifest = Test-ModuleManifest $srcModuleManifest -ErrorAction Stop
@@ -117,7 +117,7 @@ process {
             continue
         }
 
-        'Delete' {
+        Delete {
             # *delete modules
             if (Test-Path $dstModulePath) {
                 Remove-Item -Path $dstModulePath -Force -Recurse -ErrorAction SilentlyContinue
@@ -128,7 +128,7 @@ process {
             continue
         }
 
-        'Create' {
+        Create {
             # *scaffold new module manifest
             if (-not (Test-Path -Path $srcModulePath -PathType Container)) {
                 New-Item -Path $srcModulePath -ItemType Directory | Out-Null
