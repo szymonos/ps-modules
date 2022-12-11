@@ -1,4 +1,4 @@
-# ps-szymonos
+# ps-modules
 
 Repository for my *DevOps* PowerShell modules.
 
