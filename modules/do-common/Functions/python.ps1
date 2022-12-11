@@ -6,11 +6,11 @@ Select script action.
 .PARAMETER CondaFile
 Specify conda file to use.
 #>
-function Invoke-CondaScript {
+function Invoke-CondaSetup {
     [CmdletBinding()]
     param (
         [Parameter(Position = 0)]
-        [ValidateSet('create', 'activate', 'deactivate', 'packages', 'environments', 'clean', 'update', 'remove')]
+        [ValidateSet('create', 'activate', 'deactivate', 'list', 'envs', 'clean', 'update', 'remove')]
         [string]$Option = 'create',
 
         [Alias('f')]
@@ -87,13 +87,13 @@ function Invoke-CondaScript {
                 break
             }
 
-            packages {
+            list {
                 # *List packages
                 Invoke-Conda list
                 break
             }
 
-            environments {
+            envs {
                 # *List environments
                 Invoke-Conda env list
                 break
@@ -114,7 +114,7 @@ function Invoke-CondaScript {
     }
 }
 
-Set-Alias -Name ics -Value Invoke-CondaScript
+Set-Alias -Name ics -Value Invoke-CondaSetup
 
 <#
 .SYNOPSIS
@@ -128,7 +128,7 @@ function Invoke-PySetup {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory, Position = 0)]
-        [ValidateSet('venv', 'delvenv', 'cleanup', 'purgecache', 'reqs', 'upgrade', 'sshkey', 'ssltrust', 'setenv', 'getenv', 'list', 'activate', 'deactivate')]
+        [ValidateSet('venv', 'delvenv', 'clean', 'purge', 'reqs', 'update', 'sshkey', 'ssltrust', 'setenv', 'getenv', 'list', 'activate', 'deactivate')]
         [string]$Option,
 
         [Alias('p')]
@@ -173,7 +173,7 @@ function Invoke-PySetup {
     process {
         switch ($Option) {
             # *Activate virtual environment.
-            { $_ -in @('activate', 'upgrade', 'venv') -and -not $env:VIRTUAL_ENV -and $venvCreated } {
+            { $_ -in @('activate', 'update', 'venv') -and -not $env:VIRTUAL_ENV -and $venvCreated } {
                 & $activateScript
                 if ($Option -eq 'activate') {
                     break
@@ -201,7 +201,7 @@ function Invoke-PySetup {
             }
 
             # *Delete all cache folders
-            cleanup {
+            clean {
                 $dirs = Get-ChildItem -Directory -Exclude '.venv'
                 foreach ($d in $dirs) {
                     if ($d.Name -match '_cache$|__pycache__') {
@@ -217,7 +217,7 @@ function Invoke-PySetup {
             }
 
             # *Purge pip cache.
-            purgecache {
+            purge {
                 pip cache purge
                 break
             }
@@ -326,9 +326,9 @@ function Invoke-PySetup {
                 }
             }
 
-            # *Upgrade pip, wheel and setuptools.
-            { $_ -in @('reqs', 'venv', 'upgrade') } {
-                Write-Host "`e[95mupgrade pip, wheel and setuptools`e[0m"
+            # *Update pip, wheel and setuptools.
+            { $_ -in @('reqs', 'venv', 'update') } {
+                Write-Host "`e[95mupdate pip, wheel and setuptools`e[0m"
                 python -m pip install -U pip wheel setuptools
             }
 
@@ -353,11 +353,11 @@ function Invoke-PySetup {
                 break
             }
 
-            # *Upgrade all modules.
-            upgrade {
+            # *Update all modules.
+            update {
                 $modules = (python -m pip list --format=json | ConvertFrom-Json).name
                 if ($modules) {
-                    Write-Host "`e[95mupgrade all modules`e[0m"
+                    Write-Host "`e[95mupdate all modules`e[0m"
                     $reqs_temp = 'reqs_temp.txt'
                     Set-Content -Path $reqs_temp -Value $modules
                     python -m pip install -U -r $reqs_temp

@@ -14,7 +14,7 @@ $exportModuleMemberParams = @{
         # net
         'ConvertFrom-CIDR'
         # python
-        'Invoke-CondaScript'
+        'Invoke-CondaSetup'
         'Invoke-PySetup'
     )
     Variable = @()
