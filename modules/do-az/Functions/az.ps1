@@ -197,13 +197,13 @@ function Invoke-AzApiRequest {
 
     end {
         switch ($Output) {
-            'object' {
+            object {
                 return $responseList
             }
-            'json' {
+            json {
                 return $responseList | ConvertTo-Json -Depth 10
             }
-            'jsonc' {
+            jsonc {
                 return $responseList | ConvertTo-Json -Depth 10 | jq
             }
         }
