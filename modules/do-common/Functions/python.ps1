@@ -9,7 +9,7 @@ Specify conda file to use.
 function Invoke-CondaScript {
     [CmdletBinding()]
     param (
-        [Alias('o')]
+        [Parameter(Position = 0)]
         [ValidateSet('create', 'activate', 'deactivate', 'packages', 'environments', 'clean', 'update', 'remove')]
         [string]$Option = 'create',
 
@@ -37,7 +37,7 @@ function Invoke-CondaScript {
     # *Execute option
     process {
         switch ($Option) {
-            'create' {
+            create {
                 # check libmamba solver installation
                 if (-not (Get-ChildItem -Path "$env:_CONDA_ROOT/pkgs/" -Filter 'conda-libmamba-solver*' -Directory)) {
                     Write-Host 'conda-libmamba-solver not found, installing...'
@@ -58,7 +58,7 @@ function Invoke-CondaScript {
                 break
             }
 
-            'activate' {
+            activate {
                 # *Activate environment
                 if ($envExists) {
                     Enter-CondaEnvironment $envName
@@ -66,9 +66,9 @@ function Invoke-CondaScript {
                     Write-Host "`e[1;4m$envName`e[22;24m environment doesn't exist!"
                 }
                 break
-
             }
-            'remove' {
+
+            remove {
                 # *Remove environment
                 if ($envName -eq 'base') {
                     Write-Host "Cannot remove `e[1;4mbase`e[22;24m environment!"
@@ -81,31 +81,31 @@ function Invoke-CondaScript {
                 break
             }
 
-            'deactivate' {
+            deactivate {
                 # *Clean conda
                 Exit-CondaEnvironment
                 break
             }
 
-            'packages' {
+            packages {
                 # *List packages
                 Invoke-Conda list
                 break
             }
 
-            'environments' {
+            environments {
                 # *List environments
                 Invoke-Conda env list
                 break
             }
 
-            'update' {
+            update {
                 # *Update conda
                 conda update -y --name base --channel pkgs/main --update-all
                 break
             }
 
-            'clean' {
+            clean {
                 # *Clean conda
                 conda clean -y --all
                 break
@@ -113,6 +113,8 @@ function Invoke-CondaScript {
         }
     }
 }
+
+Set-Alias -Name ics -Value Invoke-CondaScript
 
 <#
 .SYNOPSIS
@@ -125,8 +127,7 @@ Specify application path to be added by pypath.
 function Invoke-PySetup {
     [CmdletBinding()]
     param (
-        [Alias('o')]
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory, Position = 0)]
         [ValidateSet('venv', 'delvenv', 'cleanup', 'purgecache', 'reqs', 'upgrade', 'sshkey', 'ssltrust', 'setenv', 'getenv', 'list', 'activate', 'deactivate')]
         [string]$Option,
 
@@ -186,7 +187,7 @@ function Invoke-PySetup {
             }
 
             # *Delete python virtual environment.
-            'delvenv' {
+            delvenv {
                 if ($env:VIRTUAL_ENV) {
                     deactivate
                 }
@@ -200,7 +201,7 @@ function Invoke-PySetup {
             }
 
             # *Delete all cache folders
-            'cleanup' {
+            cleanup {
                 $dirs = Get-ChildItem -Directory -Exclude '.venv'
                 foreach ($d in $dirs) {
                     if ($d.Name -match '_cache$|__pycache__') {
@@ -216,13 +217,13 @@ function Invoke-PySetup {
             }
 
             # *Purge pip cache.
-            'purgecache' {
+            purgecache {
                 pip cache purge
                 break
             }
 
             # *Generate key pairs for SSH authentication in remote repository.
-            'sshkey' {
+            sshkey {
                 if ($IsLinux) {
                     if (!(Test-Path '~/.ssh/id_rsa.pub')) {
                         # create new authentication key pairs for SSH if not exist
@@ -237,7 +238,7 @@ function Invoke-PySetup {
             }
 
             # *Trust SSL connection to pypi.org.
-            'ssltrust' {
+            ssltrust {
                 if ($IsWindows) {
                     $pipLocation = "$env:APPDATA\pip\pip.ini"
                 } elseif ($IsLinux -or $IsMacOS) {
@@ -250,7 +251,7 @@ function Invoke-PySetup {
             }
 
             # *Set project environment variables.
-            'setenv' {
+            setenv {
                 # set environment targed depending on host system
                 foreach ($prop in $envVars.PSObject.Properties) {
                     if ($IsWindows) {
@@ -271,7 +272,7 @@ function Invoke-PySetup {
             }
 
             # *Get project environment variables.
-            'getenv' {
+            getenv {
                 foreach ($prop in $envVars.PSObject.Properties) {
                     [PSCustomObject]@{
                         Variable = $prop.Name;
@@ -282,7 +283,7 @@ function Invoke-PySetup {
             }
 
             # *List installed modules.
-            'list' {
+            list {
                 python -m pip list --format=json | ConvertFrom-Json | Tee-Object -Variable modules | Format-Table
                 $pipPath = (python -m pip -V) -replace '^.*from |pip \(.*$'
                 Write-Host "`e[96m$(python -V) `e[0m|`e[96m $($modules.Count) modules installed in `e[1;34m$pipPath`e[0m"
@@ -290,7 +291,7 @@ function Invoke-PySetup {
             }
 
             # *Setup python virtual environment.
-            'venv' {
+            venv {
                 # create virtual environment
                 if ($null -eq $env:VIRTUAL_ENV) {
                     Write-Host "`e[96mSet up Python environment.`e[0m"
@@ -353,7 +354,7 @@ function Invoke-PySetup {
             }
 
             # *Upgrade all modules.
-            'upgrade' {
+            upgrade {
                 $modules = (python -m pip list --format=json | ConvertFrom-Json).name
                 if ($modules) {
                     Write-Host "`e[95mupgrade all modules`e[0m"
@@ -367,3 +368,5 @@ function Invoke-PySetup {
         }
     }
 }
+
+Set-Alias -Name ips -Value Invoke-PySetup

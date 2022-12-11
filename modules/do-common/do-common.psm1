@@ -20,6 +20,8 @@ $exportModuleMemberParams = @{
     Variable = @()
     Alias  = @(
         'alias'
+        'ics'
+        'ips'
     )
 }
 
