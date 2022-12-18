@@ -92,3 +92,19 @@ function Invoke-FixExecutableBit {
 }
 
 Set-Alias -Name feb -Value Invoke-FixExecutableBit
+
+<#
+.SYNOPSIS
+Remove Windows paths from PATH environment variable in WSL to speed up file search.
+#>
+function Remove-WindowsPathInWSL {
+    [Environment]::SetEnvironmentVariable(
+        'PATH',
+        [string]::Join(
+            [IO.Path]::PathSeparator,
+            ($env:PATH.Split([IO.Path]::PathSeparator) -notmatch '^/mnt/c' | Select-Object -Unique)
+        )
+    )
+}
+
+Set-Alias -Name wslp -Value Remove-WindowsPathInWSL

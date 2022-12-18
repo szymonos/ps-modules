@@ -12,7 +12,7 @@
 RootModule = 'do-linux.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.1.0'
+ModuleVersion = '0.2.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -74,6 +74,7 @@ FunctionsToExport = @(
     'Invoke-Sudo'
     'Invoke-SudoPS'
     'Invoke-FixExecutableBit'
+    'Remove-WindowsPathInWSL'
 )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -87,6 +88,7 @@ AliasesToExport = @(
     '_'
     'sps'
     'feb'
+    'wslp'
 )
 
 # DSC resources to export from this module
