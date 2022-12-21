@@ -89,7 +89,7 @@ function Invoke-WingetUpgrade {
     begin {
         if ([System.Environment]::OSVersion.Platform -ne 'Win32NT') {
             Write-Warning 'Function can be executed on Windows only!'
-            exit
+            break
         }
     }
 
