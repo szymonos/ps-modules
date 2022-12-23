@@ -65,18 +65,13 @@ begin {
 
 process {
     switch -Regex ($PsCmdlet.ParameterSetName) {
-        'Install|Delete|Create' {
+        'Install|Create' {
             # calculate source paths
             $srcModulePath = [IO.Path]::Combine('modules', $Module)
             $srcModuleManifest = [IO.Path]::Combine($srcModulePath, "$Module.psd1")
         }
 
         'Install|Delete' {
-            # check if module exists
-            if (-not (Test-Path $srcModuleManifest)) {
-                Write-Warning "Module doesn't exist ($Module)."
-                exit
-            }
             # calculate destination path
             $isAdmin = if ($IsWindows) {
                 ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')
@@ -90,6 +85,11 @@ process {
 
         Install {
             # *install modules
+            # check if module exists
+            if (-not (Test-Path $srcModuleManifest)) {
+                Write-Warning "Module doesn't exist ($Module)."
+                exit
+            }
             try {
                 $manifest = Test-ModuleManifest $srcModuleManifest -ErrorAction Stop
                 $installPath = [IO.Path]::Combine($dstModulePath, $manifest.Version)
