@@ -10,7 +10,6 @@ function Invoke-CondaSetup {
     [CmdletBinding()]
     param (
         [Parameter(Position = 0)]
-        [ValidateSet('create', 'activate', 'deactivate', 'list', 'envs', 'clean', 'update', 'remove')]
         [string]$Option = 'create',
 
         [Alias('f')]
@@ -18,9 +17,20 @@ function Invoke-CondaSetup {
         [string]$CondaFile = 'conda.yaml'
     )
 
-    # *Check for conda file
     begin {
-        if ($Option -in @('create', 'activate', 'remove')) {
+        # evaluate Option parameter abbreviations
+        $optSet = @('create', 'activate', 'deactivate', 'list', 'envs', 'clean', 'update', 'remove')
+        $opt = $optSet -match "^$Option"
+        if ($opt.Count -eq 0) {
+            Write-Warning "Option parameter name '$Option' is invalid. Valid Option values are:`n`t $($optSet -join ', ')"
+            break
+        } elseif ($opt.Count -gt 1) {
+            Write-Warning "Option parameter name '$Option' is ambiguous. Possible matches include: $($opt -join ', ')."
+            break
+        }
+
+        # check for conda file
+        if ($opt -in @('create', 'activate', 'remove')) {
             if (Test-Path $CondaFile) {
                 # get environment name
                 $envName = (Select-String -Pattern '^name: +(\S+)' -Path $CondaFile).Matches.Groups[1].Value
@@ -29,14 +39,14 @@ function Invoke-CondaSetup {
                 Exit-CondaEnvironment
             } else {
                 Write-Warning "File `e[4m$CondaFile`e[24m not found"
-                exit
+                break
             }
         }
     }
 
     # *Execute option
     process {
-        switch ($Option) {
+        switch ($opt) {
             create {
                 # check libmamba solver installation
                 if (-not (Get-ChildItem -Path "$env:_CONDA_ROOT/pkgs/" -Filter 'conda-libmamba-solver*' -Directory)) {
@@ -128,7 +138,6 @@ function Invoke-PySetup {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory, Position = 0)]
-        [ValidateSet('venv', 'delvenv', 'clean', 'purge', 'reqs', 'update', 'sshkey', 'ssltrust', 'setenv', 'getenv', 'list', 'activate', 'deactivate')]
         [string]$Option,
 
         [Alias('p')]
@@ -137,6 +146,17 @@ function Invoke-PySetup {
     )
 
     begin {
+        # evaluate Option parameter abbreviations
+        $optSet = @('venv', 'delvenv', 'clean', 'purge', 'reqs', 'update', 'sshkey', 'ssltrust', 'setenv', 'getenv', 'list', 'activate', 'deactivate')
+        $opt = $optSet -match "^$Option"
+        if ($opt.Count -eq 0) {
+            Write-Warning "Option parameter name '$Option' is invalid. Valid Option values are:`n`t $($optSet -join ', ')"
+            break
+        } elseif ($opt.Count -gt 1) {
+            Write-Warning "Option parameter name '$Option' is ambiguous. Possible matches include: $($opt -join ', ')."
+            break
+        }
+
         # constants
         $VENV_DIR = '.venv'
         $GITIGNORE = 'https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore'
@@ -159,23 +179,23 @@ function Invoke-PySetup {
         $initScript = [IO.Path]::Combine('.vscode', 'init.ps1')
 
         # get environment variables from local.settings.json file
-        if ($option -in @('setenv', 'getenv')) {
+        if ($opt -in @('setenv', 'getenv')) {
             if (Test-Path $localSettings) {
                 Write-Host "`e[96mUsing variables configured in local.settings.json.`e[0m"
                 $envVars = (Get-Content ([IO.Path]::Combine($AppPath, 'local.settings.json')) | ConvertFrom-Json).Values
             } else {
                 Write-Warning "File `e[1;3mlocal.settings.json`e[23m not exists!`n`t Set environment variables there."
-                exit
+                break
             }
         }
     }
 
     process {
-        switch ($Option) {
+        switch ($opt) {
             # *Activate virtual environment.
             { $_ -in @('activate', 'update', 'venv') -and -not $env:VIRTUAL_ENV -and $venvCreated } {
                 & $activateScript
-                if ($Option -eq 'activate') {
+                if ($opt -eq 'activate') {
                     break
                 }
             }
@@ -275,7 +295,7 @@ function Invoke-PySetup {
             getenv {
                 foreach ($prop in $envVars.PSObject.Properties) {
                     [PSCustomObject]@{
-                        Variable = $prop.Name;
+                        Variable = $prop.Name
                         Value    = [Environment]::GetEnvironmentVariable($prop.Value)
                     }
                 }
