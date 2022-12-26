@@ -38,10 +38,6 @@ param (
     [string]$Module,
 
     [Parameter(ParameterSetName = 'Install')]
-    [ValidateSet('CurrentUser', 'AllUsers')]
-    [string]$Scope = 'CurrentUser',
-
-    [Parameter(ParameterSetName = 'Install')]
     [switch]$CleanUp,
 
     [Parameter(ParameterSetName = 'Install')]
@@ -71,7 +67,8 @@ process {
             $srcModuleManifest = [IO.Path]::Combine($srcModulePath, "$Module.psd1")
         }
 
-        'Install|Delete' {
+        Install {
+            # *install modules
             # calculate destination path
             $isAdmin = if ($IsWindows) {
                 ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')
@@ -81,10 +78,6 @@ process {
             $psModPathSplit = $env:PSModulePath.Split([IO.Path]::PathSeparator)
             $psModPath = $isAdmin ? $psModPathSplit[1] : $psModPathSplit[0]
             $dstModulePath = [IO.Path]::Combine($psModPath, $Module)
-        }
-
-        Install {
-            # *install modules
             # check if module exists
             if (-not (Test-Path $srcModuleManifest)) {
                 Write-Warning "Module doesn't exist ($Module)."
@@ -119,13 +112,16 @@ process {
 
         Delete {
             # *delete modules
-            if (Test-Path $dstModulePath) {
-                Remove-Item -Path $dstModulePath -Force -Recurse -ErrorAction SilentlyContinue
-                Write-Verbose "Deleted module location $($dstModulePath.Replace($HOME, '~'))"
+            $modules = Get-Module $Module -ListAvailable
+            if ($modules) {
+                Write-Verbose "uninstalling module ($Module)"
+                foreach ($mod in $modules) {
+                    Write-Verbose " - $($mod.Version)"
+                    Remove-Item -Path $mod.ModuleBase -Force -Recurse -ErrorAction SilentlyContinue
+                }
             } else {
-                Write-Verbose "Module do not exists in location $($dstModulePath.Replace($HOME, '~'))"
+                Write-Verbose "Module do not exists ($Module)."
             }
-            continue
         }
 
         Create {
