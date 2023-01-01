@@ -11,6 +11,7 @@ $exportModuleMemberParams = @{
         'Get-CmdletAlias'
         'New-Password'
         'Test-IsAdmin'
+        'Set-DotnetLocation'
         # net
         'ConvertFrom-CIDR'
         # python
@@ -22,6 +23,7 @@ $exportModuleMemberParams = @{
         'alias'
         'ics'
         'ips'
+        'cds'
     )
 }
 

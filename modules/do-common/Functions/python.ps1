@@ -10,7 +10,7 @@ function Invoke-CondaSetup {
     [CmdletBinding()]
     param (
         [Parameter(Position = 0)]
-        [string]$Option = 'create',
+        [string]$Option = 'setup',
 
         [Alias('f')]
         [ValidateNotNullorEmpty()]
@@ -19,7 +19,7 @@ function Invoke-CondaSetup {
 
     begin {
         # evaluate Option parameter abbreviations
-        $optSet = @('create', 'activate', 'deactivate', 'list', 'envs', 'clean', 'update', 'remove')
+        $optSet = @('setup', 'activate', 'deactivate', 'list', 'envs', 'clean', 'update', 'remove')
         $opt = $optSet -match "^$Option"
         if ($opt.Count -eq 0) {
             Write-Warning "Option parameter name '$Option' is invalid. Valid Option values are:`n`t $($optSet -join ', ')"
@@ -30,7 +30,7 @@ function Invoke-CondaSetup {
         }
 
         # check for conda file
-        if ($opt -in @('create', 'activate', 'remove')) {
+        if ($opt -in @('setup', 'activate', 'remove')) {
             if (Test-Path $CondaFile) {
                 # get environment name
                 $envName = (Select-String -Pattern '^name: +(\S+)' -Path $CondaFile).Matches.Groups[1].Value
@@ -47,7 +47,7 @@ function Invoke-CondaSetup {
     # *Execute option
     process {
         switch ($opt) {
-            create {
+            setup {
                 # check libmamba solver installation
                 if (-not (Get-ChildItem -Path "$env:_CONDA_ROOT/pkgs/" -Filter 'conda-libmamba-solver*' -Directory)) {
                     Write-Host 'conda-libmamba-solver not found, installing...'
