@@ -81,7 +81,7 @@ function Get-ArrayIndexMenu {
         $menu = for ($i = 0; $i -lt $Array.Count; $i++) {
             [PSCustomObject]@{ I = "[$i]"; H = '-'; Value = $Array[$i] }
         }
-        $selMsg = $menu | Format-Table -Property @{ Name = 'I'; Expression = { $_.I }; Alignment = 'right'}, H, Value -AutoSize -HideTableHeaders | Out-String
+        $selMsg = $menu | Format-Table -Property @{ Name = 'I'; Expression = { $_.I }; Alignment = 'right' }, H, Value -AutoSize -HideTableHeaders | Out-String
 
         # create prompt message
         if (-not $Message) {
@@ -198,3 +198,13 @@ function Test-IsAdmin {
         return $isAdmin
     }
 }
+
+<#
+.SYNOPSIS
+Set location to dotnet current directory.
+#>
+function Set-DotnetLocation {
+    Set-Location ([IO.Path]::GetFullPath('.'))
+}
+
+Set-Alias -Name cds -Value Set-DotnetLocation
