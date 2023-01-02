@@ -1,4 +1,5 @@
 . $PSScriptRoot/Functions/common.ps1
+. $PSScriptRoot/Functions/dotnet.ps1
 . $PSScriptRoot/Functions/net.ps1
 . $PSScriptRoot/Functions/python.ps1
 
@@ -11,6 +12,9 @@ $exportModuleMemberParams = @{
         'Get-CmdletAlias'
         'New-Password'
         'Test-IsAdmin'
+        # dotnet
+        'Get-DotnetCurrentDirectory'
+        'Set-DotnetCurrentDirectory'
         'Set-DotnetLocation'
         # net
         'ConvertFrom-CIDR'
@@ -23,7 +27,9 @@ $exportModuleMemberParams = @{
         'alias'
         'ics'
         'ips'
-        'cds'
+        'gcd'
+        'scd'
+        'cdd'
     )
 }
 
