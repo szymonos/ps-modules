@@ -198,13 +198,3 @@ function Test-IsAdmin {
         return $isAdmin
     }
 }
-
-<#
-.SYNOPSIS
-Set location to dotnet current directory.
-#>
-function Set-DotnetLocation {
-    Set-Location ([IO.Path]::GetFullPath('.'))
-}
-
-Set-Alias -Name cds -Value Set-DotnetLocation

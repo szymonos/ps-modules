@@ -6,14 +6,12 @@ $exportModuleMemberParams = @{
         'Invoke-Sudo'
         'Invoke-SudoPS'
         'Invoke-FixExecutableBit'
-        'Remove-WindowsPathInWSL'
     )
     Variable = @()
     Alias  = @(
         '_'
         'sps'
         'feb'
-        'wslp'
     )
 }
 

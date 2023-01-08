@@ -17,6 +17,23 @@ function Invoke-CondaSetup {
         [string]$CondaFile = 'conda.yaml'
     )
 
+    dynamicparam {
+        if ('activate' -match "^$Option" -and -not $PSBoundParameters.CondaFile) {
+            $parameterAttribute = [Management.Automation.ParameterAttribute]@{ Position = 1 }
+
+            $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
+            $attributeCollection.Add($parameterAttribute)
+
+            $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new(
+                'Environment', [string], $attributeCollection
+            )
+
+            $paramDict = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
+            $paramDict.Add('Environment', $dynParam)
+            return $paramDict
+        }
+    }
+
     begin {
         # evaluate Option parameter abbreviations
         $optSet = @('setup', 'activate', 'deactivate', 'list', 'envs', 'clean', 'update', 'remove')
@@ -31,7 +48,10 @@ function Invoke-CondaSetup {
 
         # check for conda file
         if ($opt -in @('setup', 'activate', 'remove')) {
-            if (Test-Path $CondaFile) {
+            if ($PSBoundParameters.Environment) {
+                $envName = $PSBoundParameters.Environment
+                $envExists = $true
+            } elseif (Test-Path $CondaFile) {
                 # get environment name
                 $envName = (Select-String -Pattern '^name: +(\S+)' -Path $CondaFile).Matches.Groups[1].Value
                 $envExists = $envName -in (Get-CondaEnvironment).Name

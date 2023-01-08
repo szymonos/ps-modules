@@ -4,7 +4,7 @@
 RootModule = 'do-common.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.7.0'
+ModuleVersion = '0.8.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -39,6 +39,9 @@ FunctionsToExport = @(
     'Get-CmdletAlias'
     'New-Password'
     'Test-IsAdmin'
+    # dotnet
+    'Get-DotnetCurrentDirectory'
+    'Set-DotnetCurrentDirectory'
     'Set-DotnetLocation'
     # net
     'ConvertFrom-CIDR'
@@ -58,7 +61,9 @@ AliasesToExport = @(
     'alias'
     'ics'
     'ips'
-    'cds'
+    'gcd'
+    'scd'
+    'cdd'
 )
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
