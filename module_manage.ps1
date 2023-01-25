@@ -12,6 +12,8 @@ Module name.
 Switch, whether to clean up module previous versions in destination folder.
 .PARAMETER RemoveRequirements
 Switch, whether to remove requirements from the manifest file to speed up module loading.
+.PARAMETER Force
+Force reinstalling module even if current version is already installed.
 .PARAMETER Delete
 Switch, whether to delete an existing module.
 .PARAMETER Create
@@ -25,6 +27,7 @@ $Module = 'do-linux'
 $Module = 'do-win'
 # *install
 ./module_manage.ps1 $Module -CleanUp -Verbose
+./module_manage.ps1 $Module -CleanUp -Verbose -Force
 ./module_manage.ps1 $Module -CleanUp -RemoveRequirements -Verbose
 @('do-common', 'do-win') | ./module_manage.ps1 -CleanUp -Verbose
 # *delete module
@@ -42,6 +45,9 @@ param (
 
     [Parameter(ParameterSetName = 'Install')]
     [switch]$RemoveRequirements,
+
+    [Parameter(ParameterSetName = 'Install')]
+    [switch]$Force,
 
     [Parameter(ParameterSetName = 'Delete')]
     [switch]$Delete,
@@ -83,7 +89,7 @@ process {
                 $manifest = Test-ModuleManifest $srcModuleManifest -ErrorAction Stop
                 $installPath = [IO.Path]::Combine($dstModulePath, $manifest.Version)
                 # create/cleanup destination directory
-                if (Test-Path $installPath -PathType Container) {
+                if (-not $Force -and ($manifest.Version -eq (Get-Module $Module -ListAvailable).Version)) {
                     Write-Verbose "Current module version already installed ($Module v$($manifest.Version))."
                 } else {
                     # clean-up old module versions
@@ -98,7 +104,7 @@ process {
                         $dstModuleManifest = [IO.Path]::Combine($installPath, "$Module.psd1")
                         [IO.File]::WriteAllText($dstModuleManifest, [IO.File]::ReadAllText($dstModuleManifest) -replace '(?s)RequiredModules.*?\)\n')
                     }
-                    Write-Verbose "Module installed in $($dstModulePath.Replace($HOME, '~'))"
+                    Write-Verbose "Module installed in $($installPath.Replace($HOME, '~'))"
                 }
             } catch {
                 Write-Warning $_
