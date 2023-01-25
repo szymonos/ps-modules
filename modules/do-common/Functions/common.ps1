@@ -74,14 +74,14 @@ function Get-ArrayIndexMenu {
 
     begin {
         # create selection menu
-        $menu = if ($Array[0] -is [string]) {
-            $Array.ForEach({ [PSCustomObject]@{ '#' = $Array.IndexOf($_); ' ' = '-'; 'V' = $_ } }) `
-            | Format-Table -AutoSize -HideTableHeaders `
-            | Out-String
-        } else {
+        $menu = if ($Array[0].PSObject.Properties.Name.Count -gt 1) {
             $Array `
             | Select-Object @{ N = '#'; E = { $Array.IndexOf($_) } }, @{ N = ' '; E = { '-' } }, * `
             | Format-Table -AutoSize `
+            | Out-String
+        } else {
+            $Array.ForEach({ [PSCustomObject]@{ '#' = $Array.IndexOf($_); ' ' = '-'; 'V' = $_ } }) `
+            | Format-Table -AutoSize -HideTableHeaders `
             | Out-String
         }
         # create prompt message
