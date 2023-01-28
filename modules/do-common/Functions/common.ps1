@@ -45,7 +45,7 @@ function Invoke-CommandRetry {
 
 <#
 .SYNOPSIS
-Get index(es) or a value in provided array from selection menu.
+Get index(es) or a value(s) in provided array from selection menu.
 .PARAMETER Array
 Array of strings to get the selection menu.
 .PARAMETER Message
@@ -73,21 +73,22 @@ function Get-ArrayIndexMenu {
     )
 
     begin {
-        # convert objects in array to strings
-        if ($Array[0].GetType().FullName -ne 'System.String') {
-            $Array = $Array | Format-Table -AutoSize -HideTableHeaders | Out-String -Stream | Where-Object { $_ }
+        # create selection menu
+        $menu = if ($Array[0].PSObject.Properties.Name.Count -gt 1) {
+            $Array `
+            | Select-Object @{ N = '#'; E = { $Array.IndexOf($_) } }, @{ N = ' '; E = { '-' } }, * `
+            | Format-Table -AutoSize `
+            | Out-String
+        } else {
+            $Array.ForEach({ [PSCustomObject]@{ '#' = $Array.IndexOf($_); ' ' = '-'; 'V' = $_ } }) `
+            | Format-Table -AutoSize -HideTableHeaders `
+            | Out-String
         }
-        # create selection message
-        $menu = for ($i = 0; $i -lt $Array.Count; $i++) {
-            [PSCustomObject]@{ I = "[$i]"; H = '-'; Value = $Array[$i] }
-        }
-        $selMsg = $menu | Format-Table -Property @{ Name = 'I'; Expression = { $_.I }; Alignment = 'right' }, H, Value -AutoSize -HideTableHeaders | Out-String
-
         # create prompt message
         if (-not $Message) {
             $Message = $List ? 'Enter comma/space separated selection list' : 'Enter selection'
         }
-        $msg = "`n`e[4m$Message`e[0m:`n$selMsg"
+        $msg = "`n`e[4m$Message`e[0m:`n$menu"
     }
 
     process {

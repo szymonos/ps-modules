@@ -212,8 +212,7 @@ function Get-AzGraphResourceGroupByName {
     # select resource if query returned more than one result
     if ($rg.Count -gt 1) {
         Write-Warning 'Found more than one resource group matching the criteria!'
-        $Message = 'Select resource group from provided subscriptions'
-        $i = Get-ArrayIndexMenu -Array $rg.subscription -Message $Message
+        $i = Get-ArrayIndexMenu -Array $rg.subscription -Message 'Select subscription of the resource group'
         $rg = $rg[$i]
     }
 
@@ -370,8 +369,7 @@ function Get-AzGraphResourceByName {
             } else {
                 $resource | Select-Object type, resourceGroup, subscription
             }
-            $Message = "Select object from provided 'Resource $($ResourceType ? '' : 'Type | ')Group | Subscription'"
-            $i = Get-ArrayIndexMenu -Array $array -Message $Message
+            $i = Get-ArrayIndexMenu -Array $array -Message 'Select resource'
             $resource = $resource[$i]
         }
     }

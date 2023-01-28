@@ -10,7 +10,7 @@ function Invoke-CondaSetup {
     [CmdletBinding()]
     param (
         [Parameter(Position = 0)]
-        [string]$Option = 'setup',
+        [string]$Option,
 
         [Alias('f')]
         [ValidateNotNullorEmpty()]
@@ -35,6 +35,20 @@ function Invoke-CondaSetup {
     }
 
     begin {
+        if (-not $Option) {
+            [Console]::WriteLine("Invoke-CondaSetup | ics cmdlet manages conda environments.`n")
+            [Console]::WriteLine("usage: Invoke-CondaSetup | ics [[-Option] <string>] [[-Environment] <string>] [-CondaFile <string>]`n")
+            [Console]::WriteLine('The following options are available:')
+            [Console]::WriteLine("  `e[1;97mactivate`e[0m    Activate environment")
+            [Console]::WriteLine("  `e[1;97mclean`e[0m       Clean conda environment")
+            [Console]::WriteLine("  `e[1;97mdeactivate`e[0m  Deactivate environment")
+            [Console]::WriteLine("  `e[1;97menvs`e[0m        List environments")
+            [Console]::WriteLine("  `e[1;97mlist`e[0m        List packages")
+            [Console]::WriteLine("  `e[1;97mremove`e[0m      Remove environment")
+            [Console]::WriteLine("  `e[1;97msetup`e[0m       Create/update environment")
+            [Console]::WriteLine("  `e[1;97mupdate`e[0m      Update conda")
+            break
+        }
         # evaluate Option parameter abbreviations
         $optSet = @('setup', 'activate', 'deactivate', 'list', 'envs', 'clean', 'update', 'remove')
         $opt = $optSet -match "^$Option"
@@ -157,7 +171,7 @@ Specify application path to be added by pypath.
 function Invoke-PySetup {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory, Position = 0)]
+        [Parameter(Position = 0)]
         [string]$Option,
 
         [Alias('p')]
@@ -166,6 +180,25 @@ function Invoke-PySetup {
     )
 
     begin {
+        if (-not $Option) {
+            [Console]::WriteLine("Invoke-PySetup | ips cmdlet manages Python virtual environments.`n")
+            [Console]::WriteLine("usage: Invoke-PySetup | ips [-Option] <String> [-AppPath <String>]`n")
+            [Console]::WriteLine('The following options are available:')
+            [Console]::WriteLine("  `e[1;97mactivate`e[0m    Activate virtual environment")
+            [Console]::WriteLine("  `e[1;97mclean`e[0m       Delete all cache folders")
+            [Console]::WriteLine("  `e[1;97mdeactivate`e[0m  Deactivate virtual environment")
+            [Console]::WriteLine("  `e[1;97mdelvenv`e[0m     Delete python virtual environment")
+            [Console]::WriteLine("  `e[1;97mgetenv`e[0m      Get environment variables")
+            [Console]::WriteLine("  `e[1;97mlist`e[0m        List installed modules")
+            [Console]::WriteLine("  `e[1;97mpurge`e[0m       Purge pip cache")
+            [Console]::WriteLine("  `e[1;97mreqs`e[0m        Install requirements")
+            [Console]::WriteLine("  `e[1;97msetenv`e[0m      Set environment variables")
+            [Console]::WriteLine("  `e[1;97msshkey`e[0m      Generate key pairs for SSH")
+            [Console]::WriteLine("  `e[1;97mssltrust`e[0m    Trust SSL connection to pypi.org")
+            [Console]::WriteLine("  `e[1;97mupdate`e[0m      Update installed python modules")
+            [Console]::WriteLine("  `e[1;97mvenv`e[0m        Setup python virtual environment")
+            break
+        }
         # evaluate Option parameter abbreviations
         $optSet = @('venv', 'delvenv', 'clean', 'purge', 'reqs', 'update', 'sshkey', 'ssltrust', 'setenv', 'getenv', 'list', 'activate', 'deactivate')
         $opt = $optSet -match "^$Option"
