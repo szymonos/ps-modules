@@ -85,29 +85,40 @@ process {
                 Write-Warning "Module doesn't exist ($Module)."
                 exit
             }
+            # get module manifest
             try {
                 $manifest = Test-ModuleManifest $srcModuleManifest -ErrorAction Stop
-                $installPath = [IO.Path]::Combine($dstModulePath, $manifest.Version)
-                # create/cleanup destination directory
-                if (-not $Force -and ($manifest.Version -eq (Get-Module $Module -ListAvailable).Version)) {
-                    Write-Verbose "Current module version already installed ($Module v$($manifest.Version))."
-                } else {
-                    # clean-up old module versions
-                    if ($CleanUp -and (Test-Path $dstModulePath -PathType Container)) {
-                        Remove-Item ([IO.Path]::Combine($dstModulePath, '*')) -Recurse -Force
+            } catch [IO.DirectoryNotFoundException] {
+                # install missing required modules
+                $manifest = Test-ModuleManifest $srcModuleManifest -ErrorAction SilentlyContinue
+                foreach ($mod in $manifest.RequiredModules.Name) {
+                    if (-not (Get-Module -ListAvailable $mod)) {
+                        Install-PSResource $mod
                     }
-                    New-Item -ItemType Directory -Force -Path $installPath | Out-Null
-                    # copy module files
-                    Copy-Item -Path ([IO.Path]::Combine($manifest.ModuleBase, '*')) -Destination $installPath -Recurse
-                    # remove requirements from module manifest to speed up module loading time
-                    if ($RemoveRequirements) {
-                        $dstModuleManifest = [IO.Path]::Combine($installPath, "$Module.psd1")
-                        [IO.File]::WriteAllText($dstModuleManifest, [IO.File]::ReadAllText($dstModuleManifest) -replace '(?s)RequiredModules.*?\)\n')
-                    }
-                    Write-Verbose "Module installed in $($installPath.Replace($HOME, '~'))"
                 }
             } catch {
-                Write-Warning $_
+                Write-Verbose $_.Exception.GetType().FullName
+                Write-Error $_
+                break
+            }
+            $installPath = [IO.Path]::Combine($dstModulePath, $manifest.Version)
+            # create/cleanup destination directory
+            if (-not $Force -and ($manifest.Version -eq (Get-Module $Module -ListAvailable).Version)) {
+                Write-Verbose "Current module version already installed ($Module v$($manifest.Version))."
+            } else {
+                # clean-up old module versions
+                if ($CleanUp -and (Test-Path $dstModulePath -PathType Container)) {
+                    Remove-Item ([IO.Path]::Combine($dstModulePath, '*')) -Recurse -Force
+                }
+                New-Item -ItemType Directory -Force -Path $installPath | Out-Null
+                # copy module files
+                Copy-Item -Path ([IO.Path]::Combine($manifest.ModuleBase, '*')) -Destination $installPath -Recurse
+                # remove requirements from module manifest to speed up module loading time
+                if ($RemoveRequirements) {
+                    $dstModuleManifest = [IO.Path]::Combine($installPath, "$Module.psd1")
+                    [IO.File]::WriteAllText($dstModuleManifest, [IO.File]::ReadAllText($dstModuleManifest) -replace '(?s)RequiredModules.*?\)\n')
+                }
+                Write-Verbose "Module installed in $($installPath.Replace($HOME, '~'))"
             }
             continue
         }
