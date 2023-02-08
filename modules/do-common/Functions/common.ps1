@@ -2,49 +2,6 @@ $ErrorActionPreference = 'Stop'
 
 <#
 .SYNOPSIS
-Retry executing command if fails on HttpRequestException.
-.PARAMETER Script
-Script block of commands to execute.
-#>
-function Invoke-CommandRetry {
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory)]
-        [scriptblock]$Script
-    )
-    do {
-        try {
-            Invoke-Command -ScriptBlock $Script
-            $exit = $true
-        } catch [System.Net.Http.HttpRequestException] {
-            if ($_.Exception.TargetSite.Name -eq 'MoveNext') {
-                if ($_.ErrorDetails) {
-                    Write-Verbose $_.ErrorDetails.Message
-                } else {
-                    Write-Verbose $_.Exception.Message
-                }
-                Write-Host 'Retrying...'
-            } else {
-                Write-Verbose $_.Exception.GetType().FullName
-                Write-Error $_
-            }
-        } catch [System.AggregateException] {
-            if ($_.Exception.InnerException.GetType().Name -eq 'HttpRequestException') {
-                Write-Verbose $_.Exception.InnerException.Message
-                Write-Host 'Retrying...'
-            } else {
-                Write-Verbose $_.Exception.InnerException.GetType().FullName
-                Write-Error $_
-            }
-        } catch {
-            Write-Verbose $_.Exception.GetType().FullName
-            Write-Error $_
-        }
-    } until ($exit)
-}
-
-<#
-.SYNOPSIS
 Get index(es) or a value(s) in provided array from selection menu.
 .PARAMETER Array
 Array of strings to get the selection menu.
@@ -105,6 +62,43 @@ function Get-ArrayIndexMenu {
 
 <#
 .SYNOPSIS
+Get the aliases for any cmdlet.
+#>
+function Get-CmdletAlias {
+    [CmdletBinding()]
+    param (
+        [string]$CmdletName
+    )
+
+    Get-Alias | `
+        Where-Object -FilterScript { $_.Definition -match $CmdletName } | `
+        Sort-Object -Property Definition, Name | `
+        Select-Object -Property Definition, Name
+}
+
+Set-Alias -Name alias -Value Get-CmdletAlias
+
+<#
+.SYNOPSIS
+Parse semantic version and return Major, Minor, Patch numbers.
+#>
+function Get-SemanticVersion {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory, Position = 0)]
+        [ValidateScript({ [regex]::IsMatch($_, '^v?\d+\.\d+\.\d+$') }, ErrorMessage = "`e[1;4m{0}`e[22;24m is not valid version")]
+        [string]$Version
+    )
+
+    return [PSCustomObject]@{
+        Major = [int]$($Version -replace 'v?(\d+)\..+', '$1')
+        Minor = [int]$($Version -replace 'v?\d+\.(\d+).*', '$1')
+        Patch = [int]$($Version -replace '.*?(\d+)$', '$1')
+    }
+}
+
+<#
+.SYNOPSIS
 Print timespan in human readable format.
 #>
 function Format-Duration {
@@ -128,21 +122,46 @@ function Format-Duration {
 
 <#
 .SYNOPSIS
-Get the aliases for any cmdlet.
+Retry executing command if fails on HttpRequestException.
+.PARAMETER Script
+Script block of commands to execute.
 #>
-function Get-CmdletAlias {
+function Invoke-CommandRetry {
     [CmdletBinding()]
     param (
-        [string]$CmdletName
+        [Parameter(Mandatory)]
+        [scriptblock]$Script
     )
-
-    Get-Alias | `
-        Where-Object -FilterScript { $_.Definition -match $CmdletName } | `
-        Sort-Object -Property Definition, Name | `
-        Select-Object -Property Definition, Name
+    do {
+        try {
+            Invoke-Command -ScriptBlock $Script
+            $exit = $true
+        } catch [System.Net.Http.HttpRequestException] {
+            if ($_.Exception.TargetSite.Name -eq 'MoveNext') {
+                if ($_.ErrorDetails) {
+                    Write-Verbose $_.ErrorDetails.Message
+                } else {
+                    Write-Verbose $_.Exception.Message
+                }
+                Write-Host 'Retrying...'
+            } else {
+                Write-Verbose $_.Exception.GetType().FullName
+                Write-Error $_
+            }
+        } catch [System.AggregateException] {
+            if ($_.Exception.InnerException.GetType().Name -eq 'HttpRequestException') {
+                Write-Verbose $_.Exception.InnerException.Message
+                Write-Host 'Retrying...'
+            } else {
+                Write-Verbose $_.Exception.InnerException.GetType().FullName
+                Write-Error $_
+            }
+        } catch {
+            Write-Verbose $_.Exception.GetType().FullName
+            Write-Error $_
+        }
+    } until ($exit)
 }
-
-Set-Alias -Name alias -Value Get-CmdletAlias
 
 <#
 .SYNOPSIS

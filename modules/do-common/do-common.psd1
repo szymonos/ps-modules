@@ -4,7 +4,7 @@
 RootModule = 'do-common.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.8.5'
+ModuleVersion = '0.9.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -33,10 +33,11 @@ ScriptsToProcess = @()
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
     # common
-    'Invoke-CommandRetry'
     'Get-ArrayIndexMenu'
-    'Format-Duration'
     'Get-CmdletAlias'
+    'Get-SemanticVersion'
+    'Format-Duration'
+    'Invoke-CommandRetry'
     'New-Password'
     'Test-IsAdmin'
     # dotnet
