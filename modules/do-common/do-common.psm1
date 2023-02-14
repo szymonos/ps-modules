@@ -6,10 +6,11 @@
 $exportModuleMemberParams = @{
     Function = @(
         # common
-        'Invoke-CommandRetry'
         'Get-ArrayIndexMenu'
-        'Format-Duration'
         'Get-CmdletAlias'
+        'Get-SemanticVersion'
+        'Format-Duration'
+        'Invoke-CommandRetry'
         'New-Password'
         'Test-IsAdmin'
         # dotnet

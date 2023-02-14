@@ -82,21 +82,16 @@ function Invoke-CondaSetup {
     process {
         switch ($opt) {
             setup {
-                # check libmamba solver installation
-                if (-not (Get-ChildItem -Path "$env:_CONDA_ROOT/pkgs/" -Filter 'conda-libmamba-solver*' -Directory)) {
-                    Write-Host 'conda-libmamba-solver not found, installing...'
-                    Invoke-Conda install -y --name base --channel pkgs/main 'conda-libmamba-solver'
-                }
                 if ($envExists) {
                     # *Create environment
                     Write-Host "`nEnvironment `e[1;4m$envName`e[22;24m already exist. Updating..."
-                    $cmd = "conda env update --file $CondaFile --prune$($envName -eq 'base' ? '' : ' --experimental-solver=libmamba')"
+                    $cmd = "conda env update --file $CondaFile --prune"
                     Invoke-Expression $cmd
                     Enter-CondaEnvironment $envName
                 } else {
                     # *Update environment
                     Write-Host "Creating `e[1;4m$envName`e[22;24m environment."
-                    conda env create --file $CondaFile --experimental-solver=libmamba
+                    conda env create --file $CondaFile
                     Enter-CondaEnvironment $envName
                 }
                 break
