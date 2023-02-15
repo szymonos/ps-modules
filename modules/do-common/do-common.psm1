@@ -6,6 +6,7 @@
 $exportModuleMemberParams = @{
     Function = @(
         # common
+        'ConvertTo-UTF8LF'
         'Get-ArrayIndexMenu'
         'Get-CmdletAlias'
         'Get-SemanticVersion'

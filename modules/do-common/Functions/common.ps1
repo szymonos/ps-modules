@@ -2,6 +2,40 @@ $ErrorActionPreference = 'Stop'
 
 <#
 .SYNOPSIS
+Convert all files in a directory to UTF8 and change EOLs from CRLF to LF.
+.PARAMETER $Path
+Directory to convert all files from.
+#>
+function ConvertTo-UTF8LF {
+    [CmdletBinding()]
+    param (
+        [Parameter(Position = 0)]
+        [ValidateScript({ Test-Path $_ -PathType 'Container' }, ErrorMessage = "'{0}' is not a valid folder path.")]
+        [string]$Path = '.'
+    )
+
+    begin {
+        $ErrorActionPreference = 'Stop'
+        $encoding = [Text.UTF8Encoding]::new($false)
+    }
+
+    process {
+        # get list of files to process, excluding .git subdirectory
+        $files = (Get-ChildItem $Path -File -Force -Recurse).Where({ $_.DirectoryName -notmatch '(/|\\)\.git\b' })
+        # convert files
+        foreach ($file in $files) {
+            $content = [IO.File]::ReadAllText($file).Replace("`r`n", "`n")
+            [IO.File]::WriteAllText($file, $content, $encoding)
+        }
+    }
+
+    end {
+        Write-Host 'Done.' -ForegroundColor Green
+    }
+}
+
+<#
+.SYNOPSIS
 Get index(es) or a value(s) in provided array from selection menu.
 .PARAMETER Array
 Array of strings to get the selection menu.
