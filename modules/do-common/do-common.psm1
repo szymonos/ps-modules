@@ -6,6 +6,7 @@
 $exportModuleMemberParams = @{
     Function = @(
         # common
+        'ConvertTo-PEM'
         'ConvertTo-UTF8LF'
         'Get-ArrayIndexMenu'
         'Get-CmdletAlias'
@@ -25,7 +26,7 @@ $exportModuleMemberParams = @{
         'Invoke-PySetup'
     )
     Variable = @()
-    Alias  = @(
+    Alias    = @(
         'alias'
         'ics'
         'ips'

@@ -2,12 +2,52 @@ $ErrorActionPreference = 'Stop'
 
 <#
 .SYNOPSIS
+Create PEM encoded certificate from X509Certificate2 object.
+.PARAMETER Certificate
+X509Certificate2 certificate
+#>
+function ConvertTo-PEM {
+    [CmdletBinding()]
+    [OutputType([System.Collections.Generic.List[PSCustomObject]])]
+    param (
+        [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
+        [Security.Cryptography.X509Certificates.X509Certificate2]$Certificate
+    )
+    begin {
+        $ErrorActionPreference = 'Stop'
+
+        $pems = [System.Collections.Generic.List[PSCustomObject]]::new()
+    }
+
+    process {
+        # build PEM encoded X.509 certificate
+        $pem = [Text.StringBuilder]::new()
+        $pem.AppendLine('-----BEGIN CERTIFICATE-----') | Out-Null
+        $pem.AppendLine([System.Convert]::ToBase64String($Certificate.RawData, 'InsertLineBreaks')) | Out-Null
+        $pem.AppendLine('-----END CERTIFICATE-----') | Out-Null
+        # create object with parsed common name and PEM encoded certificate
+        $pems.Add(
+            [PSCustomObject]@{
+                CN  = [regex]::Match($Certificate.Subject, '(?<=CN=)(.)+?(?=,|$)').Value.Replace(' ', '_').Trim('"')
+                PEM = $pem.ToString()
+            }
+        )
+    }
+
+    end {
+        return $pems
+    }
+}
+
+<#
+.SYNOPSIS
 Convert all files in a directory to UTF8 and change EOLs from CRLF to LF.
 .PARAMETER $Path
 Directory to convert all files from.
 #>
 function ConvertTo-UTF8LF {
     [CmdletBinding()]
+    [OutputType([System.Void])]
     param (
         [Parameter(Position = 0, ValueFromPipeline)]
         [ValidateScript({ Test-Path $_ -PathType 'Container' }, ErrorMessage = "'{0}' is not a valid folder path.")]
