@@ -9,7 +9,7 @@ Directory to convert all files from.
 function ConvertTo-UTF8LF {
     [CmdletBinding()]
     param (
-        [Parameter(Position = 0)]
+        [Parameter(Position = 0, ValueFromPipeline)]
         [ValidateScript({ Test-Path $_ -PathType 'Container' }, ErrorMessage = "'{0}' is not a valid folder path.")]
         [string]$Path = '.'
     )
@@ -17,6 +17,7 @@ function ConvertTo-UTF8LF {
     begin {
         $ErrorActionPreference = 'Stop'
         $encoding = [Text.UTF8Encoding]::new($false)
+        $fileCnt = 0
     }
 
     process {
@@ -27,10 +28,11 @@ function ConvertTo-UTF8LF {
             $content = [IO.File]::ReadAllText($file).Replace("`r`n", "`n")
             [IO.File]::WriteAllText($file, $content, $encoding)
         }
+        $fileCnt += $files.Count
     }
 
     end {
-        Write-Host 'Done.' -ForegroundColor Green
+        Write-Host "Converted $fileCnt file(s)."
     }
 }
 
