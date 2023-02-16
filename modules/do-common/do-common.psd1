@@ -4,7 +4,7 @@
 RootModule = 'do-common.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.9.0'
+ModuleVersion = '0.11.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -33,6 +33,8 @@ ScriptsToProcess = @()
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
     # common
+    'ConvertTo-PEM'
+    'ConvertTo-UTF8LF'
     'Get-ArrayIndexMenu'
     'Get-CmdletAlias'
     'Get-SemanticVersion'
