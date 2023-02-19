@@ -29,7 +29,7 @@ function ConvertTo-PEM {
         $pems.Add(
             [PSCustomObject]@{
                 CN  = [regex]::Match($Certificate.Subject, '(?<=CN=)(.)+?(?=,|$)').Value.Replace(' ', '_').Trim('"')
-                PEM = $pem.ToString()
+                PEM = $pem.ToString().Replace("`r`n", "`n")
             }
         )
     }
