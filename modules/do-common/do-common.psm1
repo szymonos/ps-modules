@@ -9,6 +9,7 @@ $exportModuleMemberParams = @{
         'ConvertTo-PEM'
         'ConvertTo-UTF8LF'
         'Get-ArrayIndexMenu'
+        'Get-Certificate'
         'Get-CmdletAlias'
         'Get-SemanticVersion'
         'Format-Duration'

@@ -4,7 +4,7 @@ $ErrorActionPreference = 'Stop'
 .SYNOPSIS
 Create PEM encoded certificate from X509Certificate2 object.
 .PARAMETER Certificate
-X509Certificate2 certificate
+X509Certificate2 certificate.
 #>
 function ConvertTo-PEM {
     [CmdletBinding()]
@@ -13,6 +13,7 @@ function ConvertTo-PEM {
         [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
         [Security.Cryptography.X509Certificates.X509Certificate2]$Certificate
     )
+
     begin {
         $ErrorActionPreference = 'Stop'
 
@@ -21,7 +22,7 @@ function ConvertTo-PEM {
 
     process {
         # build PEM encoded X.509 certificate
-        $pem = [Text.StringBuilder]::new()
+        $pem = [System.Text.StringBuilder]::new()
         $pem.AppendLine('-----BEGIN CERTIFICATE-----') | Out-Null
         $pem.AppendLine([System.Convert]::ToBase64String($Certificate.RawData, 'InsertLineBreaks')) | Out-Null
         $pem.AppendLine('-----END CERTIFICATE-----') | Out-Null
@@ -56,7 +57,7 @@ function ConvertTo-UTF8LF {
 
     begin {
         $ErrorActionPreference = 'Stop'
-        $encoding = [Text.UTF8Encoding]::new($false)
+        $encoding = [System.Text.UTF8Encoding]::new($false)
         $fileCnt = 0
     }
 
@@ -65,8 +66,8 @@ function ConvertTo-UTF8LF {
         $files = (Get-ChildItem $Path -File -Force -Recurse).Where({ $_.DirectoryName -notmatch '(/|\\)\.git\b' })
         # convert files
         foreach ($file in $files) {
-            $content = [IO.File]::ReadAllText($file).Replace("`r`n", "`n")
-            [IO.File]::WriteAllText($file, $content, $encoding)
+            $content = [System.IO.File]::ReadAllText($file).Replace("`r`n", "`n")
+            [System.IO.File]::WriteAllText($file, $content, $encoding)
         }
         $fileCnt += $files.Count
     }
@@ -133,6 +134,57 @@ function Get-ArrayIndexMenu {
 
     end {
         return $Value ? $inputArray.ForEach{ $Array[$_] } : $inputArray
+    }
+}
+
+<#
+.SYNOPSIS
+Get certificate(s) from specified Uri.
+
+.PARAMETER Uri
+Uri used for intercepting certificate.
+.PARAMETER BuildChain
+Flag whether to build full certificate chain.
+#>
+function Get-Certificate {
+    [CmdletBinding()]
+    [OutputType([System.Security.Cryptography.X509Certificates.X509Certificate2[]])]
+    param (
+        [Parameter(Mandatory, Position = 0)]
+        [string]$Uri,
+
+        [switch]$BuildChain
+    )
+
+    begin {
+        $ErrorActionPreference = 'Stop'
+    }
+
+    process {
+        $tcpClient = [System.Net.Sockets.TcpClient]::new($Uri, 443)
+        $sslStream = [System.Net.Security.SslStream]::new($tcpClient.GetStream())
+
+        try {
+            $sslStream.AuthenticateAsClient($Uri)
+            $certificate = $sslStream.RemoteCertificate
+        } finally {
+            $sslStream.Close()
+        }
+
+        if ($BuildChain) {
+            $chain = [System.Security.Cryptography.X509Certificates.X509Chain]::new()
+            $isChainValid = $chain.Build($certificate)
+        }
+
+        if ($isChainValid) {
+            $certificate = $chain.ChainElements.Certificate
+        } else {
+            Write-Warning 'SSL certificate chain validation failed.'
+        }
+    }
+
+    end {
+        return $certificate
     }
 }
 
