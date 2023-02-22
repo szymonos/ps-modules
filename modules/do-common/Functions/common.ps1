@@ -8,7 +8,7 @@ X509Certificate2 certificate.
 #>
 function ConvertTo-PEM {
     [CmdletBinding()]
-    [OutputType([System.Collections.Generic.List[PSCustomObject]])]
+    [OutputType([System.Collections.Generic.List[string]])]
     param (
         [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
         [Security.Cryptography.X509Certificates.X509Certificate2]$Certificate
@@ -17,7 +17,7 @@ function ConvertTo-PEM {
     begin {
         $ErrorActionPreference = 'Stop'
 
-        $pems = [System.Collections.Generic.List[PSCustomObject]]::new()
+        $pems = [System.Collections.Generic.List[string]]::new()
     }
 
     process {
@@ -27,12 +27,7 @@ function ConvertTo-PEM {
         $pem.AppendLine([System.Convert]::ToBase64String($Certificate.RawData, 'InsertLineBreaks')) | Out-Null
         $pem.AppendLine('-----END CERTIFICATE-----') | Out-Null
         # create object with parsed common name and PEM encoded certificate
-        $pems.Add(
-            [PSCustomObject]@{
-                CN  = [regex]::Match($Certificate.Subject, '(?<=CN=)(.)+?(?=,|$)').Value.Replace(' ', '_').Trim('"')
-                PEM = $pem.ToString().Replace("`r`n", "`n")
-            }
-        )
+        $pems.Add($pem.ToString().Replace("`r`n", "`n"))
     }
 
     end {
