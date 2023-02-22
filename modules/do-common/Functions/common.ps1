@@ -5,13 +5,17 @@ $ErrorActionPreference = 'Stop'
 Create PEM encoded certificate from X509Certificate2 object.
 .PARAMETER Certificate
 X509Certificate2 certificate.
+.PARAMETER AddHeader
+Add certificate header with Issuer, Subject, Label, Serial and Fingerprint info.
 #>
 function ConvertTo-PEM {
     [CmdletBinding()]
     [OutputType([System.Collections.Generic.List[string]])]
     param (
         [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
-        [System.Security.Cryptography.X509Certificates.X509Certificate2]$Certificate
+        [System.Security.Cryptography.X509Certificates.X509Certificate2]$Certificate,
+
+        [switch]$AddHeader
     )
 
     begin {
@@ -25,6 +29,13 @@ function ConvertTo-PEM {
         $base64 = [System.Convert]::ToBase64String($Certificate.RawData)
         # build PEM encoded X.509 certificate
         $builder = [System.Text.StringBuilder]::new()
+        if ($AddHeader) {
+            $builder.AppendLine("# Issuer: $($Certificate.Issuer)") | Out-Null
+            $builder.AppendLine("# Subject: $($Certificate.Subject)") | Out-Null
+            $builder.AppendLine("# Label: $([regex]::Match($Certificate.Subject, '(?<=CN=)(.)+?(?=,|$)').Value.Trim('"') )") | Out-Null
+            $builder.AppendLine("# Serial: $($Certificate.SerialNumber)") | Out-Null
+            $builder.AppendLine("# SHA1 Fingerprint: $($Certificate.Thumbprint)") | Out-Null
+        }
         $builder.AppendLine('-----BEGIN CERTIFICATE-----') | Out-Null
         for ($i = 0; $i -lt $base64.Length; $i += 64) {
             $length = [System.Math]::Min(64, $base64.Length - $i)
