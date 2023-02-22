@@ -169,12 +169,11 @@ function Get-Certificate {
         if ($BuildChain) {
             $chain = [System.Security.Cryptography.X509Certificates.X509Chain]::new()
             $isChainValid = $chain.Build($certificate)
-        }
-
-        if ($isChainValid) {
-            $certificate = $chain.ChainElements.Certificate
-        } else {
-            Write-Warning 'SSL certificate chain validation failed.'
+            if ($isChainValid) {
+                $certificate = $chain.ChainElements.Certificate
+            } else {
+                Write-Warning 'SSL certificate chain validation failed.'
+            }
         }
     }
 
