@@ -11,23 +11,28 @@ function ConvertTo-PEM {
     [OutputType([System.Collections.Generic.List[string]])]
     param (
         [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
-        [Security.Cryptography.X509Certificates.X509Certificate2]$Certificate
+        [System.Security.Cryptography.X509Certificates.X509Certificate2]$Certificate
     )
 
     begin {
         $ErrorActionPreference = 'Stop'
-
+        # instantiate list for storing PEM encoded certificates
         $pems = [System.Collections.Generic.List[string]]::new()
     }
 
     process {
+        # convert certificate to base64
+        $base64 = [System.Convert]::ToBase64String($Certificate.RawData)
         # build PEM encoded X.509 certificate
-        $pem = [System.Text.StringBuilder]::new()
-        $pem.AppendLine('-----BEGIN CERTIFICATE-----') | Out-Null
-        $pem.AppendLine([System.Convert]::ToBase64String($Certificate.RawData, 'InsertLineBreaks')) | Out-Null
-        $pem.AppendLine('-----END CERTIFICATE-----') | Out-Null
+        $builder = [System.Text.StringBuilder]::new()
+        $builder.AppendLine('-----BEGIN CERTIFICATE-----') | Out-Null
+        for ($i = 0; $i -lt $base64.Length; $i += 64) {
+            $length = [System.Math]::Min(64, $base64.Length - $i)
+            $builder.AppendLine($base64.Substring($i, $length)) | Out-Null
+        }
+        $builder.AppendLine('-----END CERTIFICATE-----') | Out-Null
         # create object with parsed common name and PEM encoded certificate
-        $pems.Add($pem.ToString().Replace("`r`n", "`n"))
+        $pems.Add($builder.ToString())
     }
 
     end {
