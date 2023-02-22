@@ -4,34 +4,46 @@ $ErrorActionPreference = 'Stop'
 .SYNOPSIS
 Create PEM encoded certificate from X509Certificate2 object.
 .PARAMETER Certificate
-X509Certificate2 certificate
+X509Certificate2 certificate.
+.PARAMETER AddHeader
+Add certificate header with Issuer, Subject, Label, Serial and Fingerprint info.
 #>
 function ConvertTo-PEM {
     [CmdletBinding()]
-    [OutputType([System.Collections.Generic.List[PSCustomObject]])]
+    [OutputType([System.Collections.Generic.List[string]])]
     param (
         [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
-        [Security.Cryptography.X509Certificates.X509Certificate2]$Certificate
+        [System.Security.Cryptography.X509Certificates.X509Certificate2]$Certificate,
+
+        [switch]$AddHeader
     )
+
     begin {
         $ErrorActionPreference = 'Stop'
-
-        $pems = [System.Collections.Generic.List[PSCustomObject]]::new()
+        # instantiate list for storing PEM encoded certificates
+        $pems = [System.Collections.Generic.List[string]]::new()
     }
 
     process {
+        # convert certificate to base64
+        $base64 = [System.Convert]::ToBase64String($Certificate.RawData)
         # build PEM encoded X.509 certificate
-        $pem = [Text.StringBuilder]::new()
-        $pem.AppendLine('-----BEGIN CERTIFICATE-----') | Out-Null
-        $pem.AppendLine([System.Convert]::ToBase64String($Certificate.RawData, 'InsertLineBreaks')) | Out-Null
-        $pem.AppendLine('-----END CERTIFICATE-----') | Out-Null
+        $builder = [System.Text.StringBuilder]::new()
+        if ($AddHeader) {
+            $builder.AppendLine("# Issuer: $($Certificate.Issuer)") | Out-Null
+            $builder.AppendLine("# Subject: $($Certificate.Subject)") | Out-Null
+            $builder.AppendLine("# Label: $([regex]::Match($Certificate.Subject, '(?<=CN=)(.)+?(?=,|$)').Value.Trim('"') )") | Out-Null
+            $builder.AppendLine("# Serial: $($Certificate.SerialNumber)") | Out-Null
+            $builder.AppendLine("# SHA1 Fingerprint: $($Certificate.Thumbprint)") | Out-Null
+        }
+        $builder.AppendLine('-----BEGIN CERTIFICATE-----') | Out-Null
+        for ($i = 0; $i -lt $base64.Length; $i += 64) {
+            $length = [System.Math]::Min(64, $base64.Length - $i)
+            $builder.AppendLine($base64.Substring($i, $length)) | Out-Null
+        }
+        $builder.AppendLine('-----END CERTIFICATE-----') | Out-Null
         # create object with parsed common name and PEM encoded certificate
-        $pems.Add(
-            [PSCustomObject]@{
-                CN  = [regex]::Match($Certificate.Subject, '(?<=CN=)(.)+?(?=,|$)').Value.Replace(' ', '_').Trim('"')
-                PEM = $pem.ToString()
-            }
-        )
+        $pems.Add($builder.ToString())
     }
 
     end {
@@ -56,7 +68,7 @@ function ConvertTo-UTF8LF {
 
     begin {
         $ErrorActionPreference = 'Stop'
-        $encoding = [Text.UTF8Encoding]::new($false)
+        $encoding = [System.Text.UTF8Encoding]::new($false)
         $fileCnt = 0
     }
 
@@ -65,8 +77,8 @@ function ConvertTo-UTF8LF {
         $files = (Get-ChildItem $Path -File -Force -Recurse).Where({ $_.DirectoryName -notmatch '(/|\\)\.git\b' })
         # convert files
         foreach ($file in $files) {
-            $content = [IO.File]::ReadAllText($file).Replace("`r`n", "`n")
-            [IO.File]::WriteAllText($file, $content, $encoding)
+            $content = [System.IO.File]::ReadAllText($file).Replace("`r`n", "`n")
+            [System.IO.File]::WriteAllText($file, $content, $encoding)
         }
         $fileCnt += $files.Count
     }
@@ -133,6 +145,56 @@ function Get-ArrayIndexMenu {
 
     end {
         return $Value ? $inputArray.ForEach{ $Array[$_] } : $inputArray
+    }
+}
+
+<#
+.SYNOPSIS
+Get certificate(s) from specified Uri.
+
+.PARAMETER Uri
+Uri used for intercepting certificate.
+.PARAMETER BuildChain
+Flag whether to build full certificate chain.
+#>
+function Get-Certificate {
+    [CmdletBinding()]
+    [OutputType([System.Security.Cryptography.X509Certificates.X509Certificate2[]])]
+    param (
+        [Parameter(Mandatory, Position = 0)]
+        [string]$Uri,
+
+        [switch]$BuildChain
+    )
+
+    begin {
+        $ErrorActionPreference = 'Stop'
+    }
+
+    process {
+        $tcpClient = [System.Net.Sockets.TcpClient]::new($Uri, 443)
+        $sslStream = [System.Net.Security.SslStream]::new($tcpClient.GetStream())
+
+        try {
+            $sslStream.AuthenticateAsClient($Uri)
+            $certificate = $sslStream.RemoteCertificate
+        } finally {
+            $sslStream.Close()
+        }
+
+        if ($BuildChain) {
+            $chain = [System.Security.Cryptography.X509Certificates.X509Chain]::new()
+            $isChainValid = $chain.Build($certificate)
+            if ($isChainValid) {
+                $certificate = $chain.ChainElements.Certificate
+            } else {
+                Write-Warning 'SSL certificate chain validation failed.'
+            }
+        }
+    }
+
+    end {
+        return $certificate
     }
 }
 

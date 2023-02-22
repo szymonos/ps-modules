@@ -4,7 +4,7 @@
 RootModule = 'do-common.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.11.0'
+ModuleVersion = '0.12.4'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -36,6 +36,7 @@ FunctionsToExport = @(
     'ConvertTo-PEM'
     'ConvertTo-UTF8LF'
     'Get-ArrayIndexMenu'
+    'Get-Certificate'
     'Get-CmdletAlias'
     'Get-SemanticVersion'
     'Format-Duration'
