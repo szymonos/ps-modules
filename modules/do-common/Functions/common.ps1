@@ -1,5 +1,3 @@
-$ErrorActionPreference = 'Stop'
-
 <#
 .SYNOPSIS
 Create PEM encoded certificate from X509Certificate2 object.
@@ -19,7 +17,6 @@ function ConvertTo-PEM {
     )
 
     begin {
-        $ErrorActionPreference = 'Stop'
         # instantiate list for storing PEM encoded certificates
         $pems = [System.Collections.Generic.List[string]]::new()
     }
@@ -67,7 +64,6 @@ function ConvertTo-UTF8LF {
     )
 
     begin {
-        $ErrorActionPreference = 'Stop'
         $encoding = [System.Text.UTF8Encoding]::new($false)
         $fileCnt = 0
     }
@@ -267,28 +263,35 @@ Script block of commands to execute.
 function Invoke-CommandRetry {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory)]
-        [scriptblock]$Script
+        [Parameter(Mandatory, Position = 0, HelpMessage = 'The command to be invoked.')]
+        [scriptblock]$Command,
+
+        [Parameter(HelpMessage = 'The number of retries the command should be invoked.')]
+        [int]$MaxRetries = 10
     )
+
+    $retryCount = 0
     do {
         try {
-            Invoke-Command -ScriptBlock $Script
+            Invoke-Command -ScriptBlock $Command @PSBoundParameters
             $exit = $true
         } catch [System.Net.Http.HttpRequestException] {
-            if ($_.Exception.TargetSite.Name -eq 'MoveNext') {
+            if ($_.Exception.TargetSite.Name -eq 'MoveNext' -and $retryCount -lt $MaxRetries) {
                 if ($_.ErrorDetails) {
                     Write-Verbose $_.ErrorDetails.Message
                 } else {
                     Write-Verbose $_.Exception.Message
                 }
+                $retryCount++
                 Write-Host 'Retrying...'
             } else {
                 Write-Verbose $_.Exception.GetType().FullName
                 Write-Error $_
             }
         } catch [System.AggregateException] {
-            if ($_.Exception.InnerException.GetType().Name -eq 'HttpRequestException') {
+            if ($_.Exception.InnerException.GetType().Name -eq 'HttpRequestException' -and $retryCount -lt $MaxRetries) {
                 Write-Verbose $_.Exception.InnerException.Message
+                $retryCount++
                 Write-Host 'Retrying...'
             } else {
                 Write-Verbose $_.Exception.InnerException.GetType().FullName
