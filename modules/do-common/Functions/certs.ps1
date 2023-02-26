@@ -1,5 +1,50 @@
 <#
 .SYNOPSIS
+Add CommonName, SubjectAlternativeName, SubjectKeyIdentifier and AuthorityKeyIdentifier properties to X509 certificate.
+
+.PARAMETER Certificate
+X509Certificate2 certificate.
+#>
+function Add-CertificateProperties {
+    [CmdletBinding()]
+    [OutputType([System.Security.Cryptography.X509Certificates.X509Certificate2[]])]
+    param (
+        [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
+        [System.Security.Cryptography.X509Certificates.X509Certificate2]$Certificate
+    )
+
+    begin {
+        # instantiate list for storing X509 certificates
+        $certs = [System.Collections.Generic.List[System.Security.Cryptography.X509Certificates.X509Certificate2]]::new()
+    }
+
+    process {
+        if ($cn = [regex]::Match($Certificate.Subject, '(?<=CN=)(.)+?(?=,|$)').Value.Trim('"')) {
+            $Certificate | Add-Member -MemberType NoteProperty -Name 'CommonName' -Value $cn -PassThru `
+            | Add-Member -MemberType AliasProperty -Name 'CN' -Value CommonName
+        }
+        if ($san = $Certificate.Extensions.Where({ $_.Oid.FriendlyName -match 'Subject Alternative Name' })) {
+            $Certificate | Add-Member -MemberType NoteProperty -Name 'SubjectAlternativeName' -Value $san.Format(1).Trim() -PassThru `
+            | Add-Member -MemberType AliasProperty -Name 'SAN' -Value SubjectAlternativeName
+        }
+        if ($ski = $Certificate.Extensions.Where({ $_.Oid.FriendlyName -match 'Subject Key Identifier' })) {
+            $Certificate | Add-Member -MemberType NoteProperty -Name 'SubjectKeyIdentifier' -Value $ski.Format(1).Trim() -PassThru `
+            | Add-Member -MemberType AliasProperty -Name 'SKI' -Value SubjectKeyIdentifier
+        }
+        if ($aki = $Certificate.Extensions.Where({ $_.Oid.FriendlyName -match 'Authority Key Identifier' })) {
+            $Certificate | Add-Member -MemberType NoteProperty -Name 'AuthorityKeyIdentifier' -Value $aki.Format(1).Trim() -PassThru `
+            | Add-Member -MemberType AliasProperty -Name 'AKI' -Value AuthorityKeyIdentifier
+        }
+        $certs.Add($Certificate)
+    }
+
+    end {
+        return $certs
+    }
+}
+
+<#
+.SYNOPSIS
 Create PEM encoded certificate from X509Certificate2 object.
 
 .PARAMETER Certificate

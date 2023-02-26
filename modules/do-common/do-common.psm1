@@ -7,6 +7,7 @@
 $exportModuleMemberParams = @{
     Function = @(
         # certs
+        'Add-CertificateProperties'
         'ConvertTo-PEM'
         'ConvertTo-X509Certificate'
         'Get-Certificate'
