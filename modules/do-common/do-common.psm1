@@ -1,3 +1,4 @@
+. $PSScriptRoot/Functions/certs.ps1
 . $PSScriptRoot/Functions/common.ps1
 . $PSScriptRoot/Functions/dotnet.ps1
 . $PSScriptRoot/Functions/net.ps1
@@ -5,11 +6,13 @@
 
 $exportModuleMemberParams = @{
     Function = @(
-        # common
+        # certs
         'ConvertTo-PEM'
+        'ConvertTo-X509Certificate'
+        'Get-Certificate'
+        # common
         'ConvertTo-UTF8LF'
         'Get-ArrayIndexMenu'
-        'Get-Certificate'
         'Get-CmdletAlias'
         'Get-SemanticVersion'
         'Format-Duration'
