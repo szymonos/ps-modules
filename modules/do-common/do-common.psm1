@@ -26,6 +26,7 @@ $exportModuleMemberParams = @{
         'Set-DotnetLocation'
         # net
         'ConvertFrom-CIDR'
+        'Invoke-DownloadFile'
         # python
         'Invoke-CondaSetup'
         'Invoke-PySetup'
@@ -38,6 +39,7 @@ $exportModuleMemberParams = @{
         'gcd'
         'scd'
         'cdd'
+        'idf'
     )
 }
 

@@ -4,7 +4,7 @@
 RootModule = 'do-common.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.14.1'
+ModuleVersion = '0.15.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -52,6 +52,7 @@ FunctionsToExport = @(
     'Set-DotnetLocation'
     # net
     'ConvertFrom-CIDR'
+    'Invoke-DownloadFile'
     # python
     'Invoke-CondaSetup'
     'Invoke-PySetup'
@@ -71,6 +72,7 @@ AliasesToExport = @(
     'gcd'
     'scd'
     'cdd'
+    'idf'
 )
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
