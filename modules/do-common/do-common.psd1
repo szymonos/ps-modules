@@ -4,7 +4,7 @@
 RootModule = 'do-common.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.15.1'
+ModuleVersion = '0.16.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -22,6 +22,7 @@ Copyright = '(c) Szymon Osiecki. All rights reserved.'
 Description = 'This module is intended to streamline my workflow with PowerShell.'
 
 # Minimum version of the PowerShell engine required by this module
+CompatiblePSEditions = @('Core')
 PowerShellVersion = '7.0'
 
 # Modules that must be imported into the global environment prior to importing this module
