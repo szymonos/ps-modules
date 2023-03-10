@@ -142,8 +142,6 @@ Get certificate(s) from specified Uri.
 Uri used for intercepting certificate.
 .PARAMETER BuildChain
 Flag whether to build full certificate chain.
-.PARAMETER OpenSSL
-Use OpenSSL to build chain.
 #>
 function Get-Certificate {
     [CmdletBinding()]
@@ -154,43 +152,38 @@ function Get-Certificate {
 
         [switch]$BuildChain,
 
-        [switch]$OpenSSL
+        [switch]$IgnoreValidation
     )
 
     begin {
-        if ($OpenSSL) {
-            # check if openssl is installed
-            if (-not (Get-Command openssl -CommandType Application)) {
-                Write-Warning 'Openssl not found. Script execution halted.'
-                exit
+        $tcpClient = [System.Net.Sockets.TcpClient]::new($Uri, 443)
+        if ($BuildChain) {
+            $chain = [System.Security.Cryptography.X509Certificates.X509Chain]::new()
+        }
+        if ($IgnoreValidation) {
+            $sslStream = [System.Net.Security.SslStream]::new($tcpClient.GetStream(), $false, { $true })
+            if ($BuildChain) {
+                $chain.ChainPolicy.VerificationFlags = [System.Security.Cryptography.X509Certificates.X509VerificationFlags]::AllFlags
             }
-            $cmd = "Out-Null | openssl s_client$($BuildChain ? ' -showcerts' : '') -connect ${Uri}:443"
+        } else {
+            $sslStream = [System.Net.Security.SslStream]::new($tcpClient.GetStream())
         }
     }
 
     process {
-        if ($OpenSSL) {
-            $chain = [string]::Join("`n", (Invoke-Expression $cmd 2>$null))
-            $certificate = $chain | ConvertTo-X509Certificate
-        } else {
-            $tcpClient = [System.Net.Sockets.TcpClient]::new($Uri, 443)
-            $sslStream = [System.Net.Security.SslStream]::new($tcpClient.GetStream())
+        try {
+            $sslStream.AuthenticateAsClient($Uri)
+            $certificate = $sslStream.RemoteCertificate
+        } finally {
+            $sslStream.Close()
+        }
 
-            try {
-                $sslStream.AuthenticateAsClient($Uri)
-                $certificate = $sslStream.RemoteCertificate
-            } finally {
-                $sslStream.Close()
-            }
-
-            if ($BuildChain) {
-                $chain = [System.Security.Cryptography.X509Certificates.X509Chain]::new()
-                $isChainValid = $chain.Build($certificate)
-                if ($isChainValid) {
-                    $certificate = $chain.ChainElements.Certificate
-                } else {
-                    Write-Warning 'SSL certificate chain validation failed.'
-                }
+        if ($BuildChain) {
+            $isChainValid = $chain.Build($certificate)
+            if ($isChainValid) {
+                $certificate = $chain.ChainElements.Certificate
+            } else {
+                Write-Warning 'SSL certificate chain validation failed.'
             }
         }
     }
