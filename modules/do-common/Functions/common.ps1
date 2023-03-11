@@ -1,5 +1,45 @@
 <#
 .SYNOPSIS
+Convert text from Base64 string.
+.PARAMETER InputObject
+Base64 encoded string to be converted.
+#>
+function ConvertFrom-Base64 {
+    [CmdletBinding()]
+    [OutputType([string])]
+    param (
+        [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
+        [string]$InputObject
+    )
+
+    process {
+        $bytes = [System.Convert]::FromBase64String($InputObject)
+        [System.Text.Encoding]::UTF8.GetString($bytes)
+    }
+}
+
+<#
+.SYNOPSIS
+Convert text to Base64 string.
+.PARAMETER InputObject
+Text to be converted to Base64 string.
+#>
+function ConvertTo-Base64 {
+    [CmdletBinding()]
+    [OutputType([string])]
+    param (
+        [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
+        [string]$InputObject
+    )
+
+    process {
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes($InputObject)
+        [System.Convert]::ToBase64String($bytes)
+    }
+}
+
+<#
+.SYNOPSIS
 Convert all files in a directory to UTF8 and change EOLs from CRLF to LF.
 .PARAMETER $Path
 Directory to convert all files from.

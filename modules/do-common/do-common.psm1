@@ -12,6 +12,8 @@ $exportModuleMemberParams = @{
         'ConvertTo-X509Certificate'
         'Get-Certificate'
         # common
+        'ConvertFrom-Base64'
+        'ConvertTo-Base64'
         'ConvertTo-UTF8LF'
         'Get-ArrayIndexMenu'
         'Get-CmdletAlias'
