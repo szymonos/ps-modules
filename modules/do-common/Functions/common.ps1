@@ -124,10 +124,12 @@ function Get-SemanticVersion {
         [string]$Version
     )
 
+    $major, $minor, $patch = [int[]]$Version.Replace('v', '').Split('.')
+
     return [PSCustomObject]@{
-        Major = [int]$($Version -replace 'v?(\d+)\..+', '$1')
-        Minor = [int]$($Version -replace 'v?\d+\.(\d+).*', '$1')
-        Patch = [int]$($Version -replace '.*?(\d+)$', '$1')
+        Major = $major
+        Minor = $minor
+        Patch = $patch
     }
 }
 
