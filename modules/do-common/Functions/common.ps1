@@ -1,53 +1,40 @@
-$ErrorActionPreference = 'Stop'
+<#
+.SYNOPSIS
+Convert text from Base64 string.
+.PARAMETER InputObject
+Base64 encoded string to be converted.
+#>
+function ConvertFrom-Base64 {
+    [CmdletBinding()]
+    [OutputType([string])]
+    param (
+        [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
+        [string]$InputObject
+    )
+
+    process {
+        $bytes = [System.Convert]::FromBase64String($InputObject)
+        [System.Text.Encoding]::UTF8.GetString($bytes)
+    }
+}
 
 <#
 .SYNOPSIS
-Create PEM encoded certificate from X509Certificate2 object.
-.PARAMETER Certificate
-X509Certificate2 certificate.
-.PARAMETER AddHeader
-Add certificate header with Issuer, Subject, Label, Serial and Fingerprint info.
+Convert text to Base64 string.
+.PARAMETER InputObject
+Text to be converted to Base64 string.
 #>
-function ConvertTo-PEM {
+function ConvertTo-Base64 {
     [CmdletBinding()]
-    [OutputType([System.Collections.Generic.List[string]])]
+    [OutputType([string])]
     param (
         [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
-        [System.Security.Cryptography.X509Certificates.X509Certificate2]$Certificate,
-
-        [switch]$AddHeader
+        [string]$InputObject
     )
 
-    begin {
-        $ErrorActionPreference = 'Stop'
-        # instantiate list for storing PEM encoded certificates
-        $pems = [System.Collections.Generic.List[string]]::new()
-    }
-
     process {
-        # convert certificate to base64
-        $base64 = [System.Convert]::ToBase64String($Certificate.RawData)
-        # build PEM encoded X.509 certificate
-        $builder = [System.Text.StringBuilder]::new()
-        if ($AddHeader) {
-            $builder.AppendLine("# Issuer: $($Certificate.Issuer)") | Out-Null
-            $builder.AppendLine("# Subject: $($Certificate.Subject)") | Out-Null
-            $builder.AppendLine("# Label: $([regex]::Match($Certificate.Subject, '(?<=CN=)(.)+?(?=,|$)').Value.Trim('"') )") | Out-Null
-            $builder.AppendLine("# Serial: $($Certificate.SerialNumber)") | Out-Null
-            $builder.AppendLine("# SHA1 Fingerprint: $($Certificate.Thumbprint)") | Out-Null
-        }
-        $builder.AppendLine('-----BEGIN CERTIFICATE-----') | Out-Null
-        for ($i = 0; $i -lt $base64.Length; $i += 64) {
-            $length = [System.Math]::Min(64, $base64.Length - $i)
-            $builder.AppendLine($base64.Substring($i, $length)) | Out-Null
-        }
-        $builder.AppendLine('-----END CERTIFICATE-----') | Out-Null
-        # create object with parsed common name and PEM encoded certificate
-        $pems.Add($builder.ToString())
-    }
-
-    end {
-        return $pems
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes($InputObject)
+        [System.Convert]::ToBase64String($bytes)
     }
 }
 
@@ -67,7 +54,6 @@ function ConvertTo-UTF8LF {
     )
 
     begin {
-        $ErrorActionPreference = 'Stop'
         $encoding = [System.Text.UTF8Encoding]::new($false)
         $fileCnt = 0
     }
@@ -150,56 +136,6 @@ function Get-ArrayIndexMenu {
 
 <#
 .SYNOPSIS
-Get certificate(s) from specified Uri.
-
-.PARAMETER Uri
-Uri used for intercepting certificate.
-.PARAMETER BuildChain
-Flag whether to build full certificate chain.
-#>
-function Get-Certificate {
-    [CmdletBinding()]
-    [OutputType([System.Security.Cryptography.X509Certificates.X509Certificate2[]])]
-    param (
-        [Parameter(Mandatory, Position = 0)]
-        [string]$Uri,
-
-        [switch]$BuildChain
-    )
-
-    begin {
-        $ErrorActionPreference = 'Stop'
-    }
-
-    process {
-        $tcpClient = [System.Net.Sockets.TcpClient]::new($Uri, 443)
-        $sslStream = [System.Net.Security.SslStream]::new($tcpClient.GetStream())
-
-        try {
-            $sslStream.AuthenticateAsClient($Uri)
-            $certificate = $sslStream.RemoteCertificate
-        } finally {
-            $sslStream.Close()
-        }
-
-        if ($BuildChain) {
-            $chain = [System.Security.Cryptography.X509Certificates.X509Chain]::new()
-            $isChainValid = $chain.Build($certificate)
-            if ($isChainValid) {
-                $certificate = $chain.ChainElements.Certificate
-            } else {
-                Write-Warning 'SSL certificate chain validation failed.'
-            }
-        }
-    }
-
-    end {
-        return $certificate
-    }
-}
-
-<#
-.SYNOPSIS
 Get the aliases for any cmdlet.
 #>
 function Get-CmdletAlias {
@@ -228,10 +164,12 @@ function Get-SemanticVersion {
         [string]$Version
     )
 
+    $major, $minor, $patch = [int[]]$Version.Replace('v', '').Split('.')
+
     return [PSCustomObject]@{
-        Major = [int]$($Version -replace 'v?(\d+)\..+', '$1')
-        Minor = [int]$($Version -replace 'v?\d+\.(\d+).*', '$1')
-        Patch = [int]$($Version -replace '.*?(\d+)$', '$1')
+        Major = $major
+        Minor = $minor
+        Patch = $patch
     }
 }
 
@@ -267,28 +205,35 @@ Script block of commands to execute.
 function Invoke-CommandRetry {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory)]
-        [scriptblock]$Script
+        [Parameter(Mandatory, Position = 0, HelpMessage = 'The command to be invoked.')]
+        [scriptblock]$Command,
+
+        [Parameter(HelpMessage = 'The number of retries the command should be invoked.')]
+        [int]$MaxRetries = 10
     )
+
+    $retryCount = 0
     do {
         try {
-            Invoke-Command -ScriptBlock $Script
+            Invoke-Command -ScriptBlock $Command @PSBoundParameters
             $exit = $true
         } catch [System.Net.Http.HttpRequestException] {
-            if ($_.Exception.TargetSite.Name -eq 'MoveNext') {
+            if ($_.Exception.TargetSite.Name -eq 'MoveNext' -and $retryCount -lt $MaxRetries) {
                 if ($_.ErrorDetails) {
                     Write-Verbose $_.ErrorDetails.Message
                 } else {
                     Write-Verbose $_.Exception.Message
                 }
+                $retryCount++
                 Write-Host 'Retrying...'
             } else {
                 Write-Verbose $_.Exception.GetType().FullName
                 Write-Error $_
             }
         } catch [System.AggregateException] {
-            if ($_.Exception.InnerException.GetType().Name -eq 'HttpRequestException') {
+            if ($_.Exception.InnerException.GetType().Name -eq 'HttpRequestException' -and $retryCount -lt $MaxRetries) {
                 Write-Verbose $_.Exception.InnerException.Message
+                $retryCount++
                 Write-Host 'Retrying...'
             } else {
                 Write-Verbose $_.Exception.InnerException.GetType().FullName

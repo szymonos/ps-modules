@@ -1,3 +1,4 @@
+. $PSScriptRoot/Functions/certs.ps1
 . $PSScriptRoot/Functions/common.ps1
 . $PSScriptRoot/Functions/dotnet.ps1
 . $PSScriptRoot/Functions/net.ps1
@@ -5,11 +6,16 @@
 
 $exportModuleMemberParams = @{
     Function = @(
-        # common
+        # certs
+        'Add-CertificateProperties'
         'ConvertTo-PEM'
+        'ConvertTo-X509Certificate'
+        'Get-Certificate'
+        # common
+        'ConvertFrom-Base64'
+        'ConvertTo-Base64'
         'ConvertTo-UTF8LF'
         'Get-ArrayIndexMenu'
-        'Get-Certificate'
         'Get-CmdletAlias'
         'Get-SemanticVersion'
         'Format-Duration'
@@ -22,6 +28,7 @@ $exportModuleMemberParams = @{
         'Set-DotnetLocation'
         # net
         'ConvertFrom-CIDR'
+        'Invoke-DownloadFile'
         # python
         'Invoke-CondaSetup'
         'Invoke-PySetup'
@@ -34,6 +41,7 @@ $exportModuleMemberParams = @{
         'gcd'
         'scd'
         'cdd'
+        'idf'
     )
 }
 

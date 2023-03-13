@@ -12,7 +12,7 @@
 RootModule = 'do-linux.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.2.1'
+ModuleVersion = '0.3.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -33,6 +33,7 @@ Copyright = '(c) szymono. All rights reserved.'
 Description = 'This module is intended to streamline my workflow with PowerShell on Linux.'
 
 # Minimum version of the PowerShell engine required by this module
+CompatiblePSEditions = @('Core')
 PowerShellVersion = '7.0'
 
 # Name of the PowerShell host required by this module

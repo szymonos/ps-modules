@@ -51,3 +51,50 @@ function ConvertFrom-CIDR {
         return $ranges
     }
 }
+
+<#
+.SYNOPSIS
+Download file from the specified Uri
+
+.PARAMETER Uri
+Uri to download the file from.
+.PARAMETER Destination
+Destination folder do save the file to
+#>
+function Invoke-DownloadFile {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$Uri,
+
+        [ValidateScript( { Test-Path $_ -PathType 'Container' }, ErrorMessage = "'{0}' is not a valid folder path.")]
+        [string]$Destination = '.'
+    )
+
+    $client = [Net.Http.HttpClient]::new()
+    $client.DefaultRequestHeaders.UserAgent.ParseAdd('PowerShell')
+
+    $response = $client.GetAsync($Uri).Result
+
+    if ($response.IsSuccessStatusCode) {
+        $contentDisposition = $response.Content.Headers.ContentDisposition
+        $fileName = if ($null -ne $contentDisposition) {
+            $contentDisposition.FileName
+        } else {
+            [IO.Path]::GetFileName($Uri)
+        }
+    } else {
+        throw "Failed to download file. Status code: $($response.StatusCode)"
+    }
+
+    $folderPath = [IO.Path]::GetFullPath($Destination)
+    $destinationPath = [IO.Path]::Combine($folderPath, $fileName)
+
+    $stream = [IO.FileStream]::new($destinationPath, [IO.FileMode]::Create)
+    $response.Content.CopyToAsync($stream).Wait()
+    $stream.Close()
+
+    Write-Host "File downloaded to: $destinationPath"
+}
+
+Set-Alias -Name idf -Value Invoke-DownloadFile

@@ -4,7 +4,7 @@
 RootModule = 'do-common.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.12.4'
+ModuleVersion = '0.17.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -22,6 +22,7 @@ Copyright = '(c) Szymon Osiecki. All rights reserved.'
 Description = 'This module is intended to streamline my workflow with PowerShell.'
 
 # Minimum version of the PowerShell engine required by this module
+CompatiblePSEditions = @('Core')
 PowerShellVersion = '7.0'
 
 # Modules that must be imported into the global environment prior to importing this module
@@ -32,11 +33,16 @@ ScriptsToProcess = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
-    # common
+    # certs
+    'Add-CertificateProperties'
     'ConvertTo-PEM'
+    'ConvertTo-X509Certificate'
+    'Get-Certificate'
+    # common
+    'ConvertFrom-Base64'
+    'ConvertTo-Base64'
     'ConvertTo-UTF8LF'
     'Get-ArrayIndexMenu'
-    'Get-Certificate'
     'Get-CmdletAlias'
     'Get-SemanticVersion'
     'Format-Duration'
@@ -49,6 +55,7 @@ FunctionsToExport = @(
     'Set-DotnetLocation'
     # net
     'ConvertFrom-CIDR'
+    'Invoke-DownloadFile'
     # python
     'Invoke-CondaSetup'
     'Invoke-PySetup'
@@ -68,6 +75,7 @@ AliasesToExport = @(
     'gcd'
     'scd'
     'cdd'
+    'idf'
 )
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
