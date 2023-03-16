@@ -4,7 +4,7 @@
 RootModule = 'do-common.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.18.0'
+ModuleVersion = '0.18.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -38,6 +38,7 @@ FunctionsToExport = @(
     'ConvertTo-PEM'
     'ConvertTo-X509Certificate'
     'Get-Certificate'
+    'Get-CertificateOpenSSL'
     # common
     'ConvertFrom-Base64'
     'ConvertTo-Base64'

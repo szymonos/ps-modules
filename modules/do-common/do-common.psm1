@@ -11,6 +11,7 @@ $exportModuleMemberParams = @{
         'ConvertTo-PEM'
         'ConvertTo-X509Certificate'
         'Get-Certificate'
+        'Get-CertificateOpenSSL'
         # common
         'ConvertFrom-Base64'
         'ConvertTo-Base64'
