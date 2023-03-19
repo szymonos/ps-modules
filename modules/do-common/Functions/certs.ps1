@@ -127,7 +127,7 @@ function ConvertTo-X509Certificate {
             $InputObject.Replace("`r`n", "`n"),
             '(?<=-{5}BEGIN CERTIFICATE-{5}\n)[\S\n]+(?=\n-{5}END CERTIFICATE-{5})'
         ).Value
-
+        # convert PEM encoded certificates to X509 certificate objects
         foreach ($pem in $pems) {
             [Security.Cryptography.X509Certificates.X509Certificate2]::new([Convert]::FromBase64String($pem))
         }
@@ -142,6 +142,8 @@ Get certificate(s) from specified Uri.
 Uri used for intercepting certificate.
 .PARAMETER BuildChain
 Flag whether to build full certificate chain.
+.PARAMETER IgnoreValidation
+Ignore validation errors for getting certificate/building chain.
 #>
 function Get-Certificate {
     [CmdletBinding()]
@@ -190,5 +192,49 @@ function Get-Certificate {
 
     end {
         return $certificate
+    }
+}
+
+<#
+.SYNOPSIS
+Get certificate(s) from specified Uri using OpenSSL application.
+
+.PARAMETER Uri
+Uri used for intercepting certificate.
+.PARAMETER BuildChain
+Flag whether to build full certificate chain.
+#>
+function Get-CertificateOpenSSL {
+    [CmdletBinding()]
+    [OutputType([System.Security.Cryptography.X509Certificates.X509Certificate2[]])]
+    param (
+        [Parameter(Mandatory, Position = 0)]
+        [string]$Uri,
+
+        [switch]$BuildChain
+    )
+
+    begin {
+        $ErrorActionPreference = 'Stop'
+        # check if openssl is installed
+        if (-not (Get-Command openssl -CommandType Application)) {
+            Write-Error 'Openssl not found. Script execution halted.'
+        }
+        # build openssl command
+        $cmd = "Out-Null | openssl s_client$($BuildChain ? ' -showcerts' : '') -connect ${Uri}:443"
+    }
+
+    process {
+        # run openssl command
+        $chain = Invoke-Expression $cmd 2>$null
+        # parse pem encoded certificates from openssl output
+        $pems = [regex]::Matches(
+            [string]::Join("`n", $chain.Replace("`r`n", "`n")),
+            '(?<=-{5}BEGIN CERTIFICATE-{5}\n)[\S\n]+(?=\n-{5}END CERTIFICATE-{5})'
+        ).Value
+        # convert PEM encoded certificates to X509 certificate objects
+        foreach ($pem in $pems) {
+            [Security.Cryptography.X509Certificates.X509Certificate2]::new([Convert]::FromBase64String($pem))
+        }
     }
 }
