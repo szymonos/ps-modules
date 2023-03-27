@@ -36,17 +36,21 @@ function Invoke-CondaSetup {
 
     begin {
         if (-not $Option) {
-            [Console]::WriteLine("Invoke-CondaSetup | ics cmdlet manages conda environments.`n")
-            [Console]::WriteLine("usage: Invoke-CondaSetup | ics [[-Option] <string>] [[-Environment] <string>] [-CondaFile <string>]`n")
-            [Console]::WriteLine('The following options are available:')
-            [Console]::WriteLine("  `e[1;97mactivate`e[0m    Activate environment")
-            [Console]::WriteLine("  `e[1;97mclean`e[0m       Clean conda environment")
-            [Console]::WriteLine("  `e[1;97mdeactivate`e[0m  Deactivate environment")
-            [Console]::WriteLine("  `e[1;97menvs`e[0m        List environments")
-            [Console]::WriteLine("  `e[1;97mlist`e[0m        List packages")
-            [Console]::WriteLine("  `e[1;97mremove`e[0m      Remove environment")
-            [Console]::WriteLine("  `e[1;97msetup`e[0m       Create/update environment")
-            [Console]::WriteLine("  `e[1;97mupdate`e[0m      Update conda")
+            [Console]::WriteLine(
+                [string]::Join("`n",
+                    "Invoke-CondaSetup cmdlet manages conda environments.`n",
+                    "usage: Invoke-CondaSetup [-Option] <string> [[-Environment] <string>] [-CondaFile <string>]`n",
+                    'The following options are available:',
+                    "  `e[1;97mactivate`e[0m    Activate environment",
+                    "  `e[1;97mclean`e[0m       Clean conda environment",
+                    "  `e[1;97mdeactivate`e[0m  Deactivate environment",
+                    "  `e[1;97menvs`e[0m        List environments",
+                    "  `e[1;97mlist`e[0m        List packages",
+                    "  `e[1;97mremove`e[0m      Remove environment",
+                    "  `e[1;97msetup`e[0m       Create/update environment",
+                    "  `e[1;97mupdate`e[0m      Update conda`n"
+                )
+            )
             return
         }
         # evaluate Option parameter abbreviations
@@ -178,22 +182,26 @@ function Invoke-PySetup {
 
     begin {
         if (-not $Option) {
-            [Console]::WriteLine("Invoke-PySetup | ips cmdlet manages Python virtual environments.`n")
-            [Console]::WriteLine("usage: Invoke-PySetup | ips [-Option] <String> [-AppPath <String>]`n")
-            [Console]::WriteLine('The following options are available:')
-            [Console]::WriteLine("  `e[1;97mactivate`e[0m    Activate virtual environment")
-            [Console]::WriteLine("  `e[1;97mclean`e[0m       Delete all cache folders")
-            [Console]::WriteLine("  `e[1;97mdeactivate`e[0m  Deactivate virtual environment")
-            [Console]::WriteLine("  `e[1;97mdelvenv`e[0m     Delete python virtual environment")
-            [Console]::WriteLine("  `e[1;97mgetenv`e[0m      Get environment variables")
-            [Console]::WriteLine("  `e[1;97mlist`e[0m        List installed modules")
-            [Console]::WriteLine("  `e[1;97mpurge`e[0m       Purge pip cache")
-            [Console]::WriteLine("  `e[1;97mreqs`e[0m        Install requirements")
-            [Console]::WriteLine("  `e[1;97msetenv`e[0m      Set environment variables")
-            [Console]::WriteLine("  `e[1;97msshkey`e[0m      Generate key pairs for SSH")
-            [Console]::WriteLine("  `e[1;97mssltrust`e[0m    Trust SSL connection to pypi.org")
-            [Console]::WriteLine("  `e[1;97mupdate`e[0m      Update installed python modules")
-            [Console]::WriteLine("  `e[1;97mvenv`e[0m        Setup python virtual environment")
+            [Console]::WriteLine(
+                [string]::Join("`n",
+                    "Invoke-PySetup cmdlet manages Python virtual environments.`n",
+                    "usage: Invoke-PySetup [-Option] <string> [-AppPath <string>]`n",
+                    'The following options are available:',
+                    "  `e[1;97mactivate`e[0m    Activate virtual environment",
+                    "  `e[1;97mclean`e[0m       Delete all cache folders",
+                    "  `e[1;97mdeactivate`e[0m  Deactivate virtual environment",
+                    "  `e[1;97mdelvenv`e[0m     Delete python virtual environment",
+                    "  `e[1;97mgetenv`e[0m      Get environment variables",
+                    "  `e[1;97mlist`e[0m        List installed modules",
+                    "  `e[1;97mpurge`e[0m       Purge pip cache",
+                    "  `e[1;97mreqs`e[0m        Install requirements",
+                    "  `e[1;97msetenv`e[0m      Set environment variables",
+                    "  `e[1;97msshkey`e[0m      Generate key pairs for SSH",
+                    "  `e[1;97mssltrust`e[0m    Trust SSL connection to pypi.org",
+                    "  `e[1;97mupdate`e[0m      Update installed python modules",
+                    "  `e[1;97mvenv`e[0m        Setup python virtual environment`n"
+                )
+            )
             return
         }
         # evaluate Option parameter abbreviations
