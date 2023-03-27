@@ -18,7 +18,7 @@ function Invoke-CondaSetup {
     )
 
     dynamicparam {
-        if ('activate' -match "^$Option" -and -not $PSBoundParameters.CondaFile) {
+        if (@('activate', 'remove') -match "^$Option" -and -not $PSBoundParameters.CondaFile) {
             $parameterAttribute = [Management.Automation.ParameterAttribute]@{ Position = 1 }
 
             $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
@@ -36,21 +36,25 @@ function Invoke-CondaSetup {
 
     begin {
         if (-not $Option) {
-            [Console]::WriteLine("Invoke-CondaSetup | ics cmdlet manages conda environments.`n")
-            [Console]::WriteLine("usage: Invoke-CondaSetup | ics [[-Option] <string>] [[-Environment] <string>] [-CondaFile <string>]`n")
-            [Console]::WriteLine('The following options are available:')
-            [Console]::WriteLine("  `e[1;97mactivate`e[0m    Activate environment")
-            [Console]::WriteLine("  `e[1;97mclean`e[0m       Clean conda environment")
-            [Console]::WriteLine("  `e[1;97mdeactivate`e[0m  Deactivate environment")
-            [Console]::WriteLine("  `e[1;97menvs`e[0m        List environments")
-            [Console]::WriteLine("  `e[1;97mlist`e[0m        List packages")
-            [Console]::WriteLine("  `e[1;97mremove`e[0m      Remove environment")
-            [Console]::WriteLine("  `e[1;97msetup`e[0m       Create/update environment")
-            [Console]::WriteLine("  `e[1;97mupdate`e[0m      Update conda")
-            break
+            [Console]::WriteLine(
+                [string]::Join("`n",
+                    "Invoke-CondaSetup cmdlet manages conda environments.`n",
+                    "usage: Invoke-CondaSetup [-Option] <string> [[-Environment] <string>] [-CondaFile <string>]`n",
+                    'The following options are available:',
+                    "  `e[1;97mactivate`e[0m    Activate environment",
+                    "  `e[1;97mclean`e[0m       Clean conda environment",
+                    "  `e[1;97mdeactivate`e[0m  Deactivate environment",
+                    "  `e[1;97menvs`e[0m        List environments",
+                    "  `e[1;97mlist`e[0m        List packages",
+                    "  `e[1;97mremove`e[0m      Remove environment",
+                    "  `e[1;97msetup`e[0m       Create/update environment",
+                    "  `e[1;97mupdate`e[0m      Update conda`n"
+                )
+            )
+            return
         }
         # evaluate Option parameter abbreviations
-        $optSet = @('setup', 'activate', 'deactivate', 'list', 'envs', 'clean', 'update', 'remove')
+        $optSet = @('activate', 'clean', 'deactivate', 'envs', 'list', 'remove', 'setup', 'update')
         $opt = $optSet -match "^$Option"
         if ($opt.Count -eq 0) {
             Write-Warning "Option parameter name '$Option' is invalid. Valid Option values are:`n`t $($optSet -join ', ')"
@@ -61,19 +65,21 @@ function Invoke-CondaSetup {
         }
 
         # check for conda file
-        if ($opt -in @('setup', 'activate', 'remove')) {
+        if ($opt -in @('activate', 'remove', 'setup')) {
             if ($PSBoundParameters.Environment) {
                 $envName = $PSBoundParameters.Environment
                 $envExists = $true
             } elseif (Test-Path $CondaFile) {
                 # get environment name
-                $envName = (Select-String -Pattern '^name: +(\S+)' -Path $CondaFile).Matches.Groups[1].Value
+                $envName = (Select-String -Pattern '^name: +(\S+)' -Path $CondaFile).Matches.Groups.Where({ $_.Name -eq '1' }).Value
                 $envExists = $envName -in (Get-CondaEnvironment).Name
-                # exit environment before proceeding
-                Exit-CondaEnvironment
             } else {
                 Write-Warning "File `e[4m$CondaFile`e[24m not found"
                 break
+            }
+            if ($envName) {
+                # exit environment before proceeding
+                Exit-CondaEnvironment
             }
         }
     }
@@ -81,22 +87,6 @@ function Invoke-CondaSetup {
     # *Execute option
     process {
         switch ($opt) {
-            setup {
-                if ($envExists) {
-                    # *Create environment
-                    Write-Host "`nEnvironment `e[1;4m$envName`e[22;24m already exist. Updating..."
-                    $cmd = "conda env update --file $CondaFile --prune"
-                    Invoke-Expression $cmd
-                    Enter-CondaEnvironment $envName
-                } else {
-                    # *Update environment
-                    Write-Host "Creating `e[1;4m$envName`e[22;24m environment."
-                    conda env create --file $CondaFile
-                    Enter-CondaEnvironment $envName
-                }
-                break
-            }
-
             activate {
                 # *Activate environment
                 if ($envExists) {
@@ -104,6 +94,30 @@ function Invoke-CondaSetup {
                 } else {
                     Write-Host "`e[1;4m$envName`e[22;24m environment doesn't exist!"
                 }
+                break
+            }
+
+            clean {
+                # *Clean conda
+                Invoke-Conda clean -y --all
+                break
+            }
+
+            deactivate {
+                # *Clean conda
+                Exit-CondaEnvironment
+                break
+            }
+
+            envs {
+                # *List environments
+                Invoke-Conda env list
+                break
+            }
+
+            list {
+                # *List packages
+                Invoke-Conda list
                 break
             }
 
@@ -120,35 +134,27 @@ function Invoke-CondaSetup {
                 break
             }
 
-            deactivate {
-                # *Clean conda
-                Exit-CondaEnvironment
-                break
-            }
-
-            list {
-                # *List packages
-                Invoke-Conda list
-                break
-            }
-
-            envs {
-                # *List environments
-                Invoke-Conda env list
+            setup {
+                if ($envExists) {
+                    # *Create environment
+                    Write-Host "`nEnvironment `e[1;4m$envName`e[22;24m already exist. Updating..."
+                    Invoke-Conda env update --file $CondaFile --prune
+                    Enter-CondaEnvironment $envName
+                } else {
+                    # *Update environment
+                    Write-Host "Creating `e[1;4m$envName`e[22;24m environment."
+                    Invoke-Conda env create --file $CondaFile
+                    Enter-CondaEnvironment $envName
+                }
                 break
             }
 
             update {
                 # *Update conda
-                conda update -y --name base --channel pkgs/main --update-all
+                Invoke-Conda update -y --name base --channel pkgs/main --update-all
                 break
             }
 
-            clean {
-                # *Clean conda
-                conda clean -y --all
-                break
-            }
         }
     }
 }
@@ -176,23 +182,27 @@ function Invoke-PySetup {
 
     begin {
         if (-not $Option) {
-            [Console]::WriteLine("Invoke-PySetup | ips cmdlet manages Python virtual environments.`n")
-            [Console]::WriteLine("usage: Invoke-PySetup | ips [-Option] <String> [-AppPath <String>]`n")
-            [Console]::WriteLine('The following options are available:')
-            [Console]::WriteLine("  `e[1;97mactivate`e[0m    Activate virtual environment")
-            [Console]::WriteLine("  `e[1;97mclean`e[0m       Delete all cache folders")
-            [Console]::WriteLine("  `e[1;97mdeactivate`e[0m  Deactivate virtual environment")
-            [Console]::WriteLine("  `e[1;97mdelvenv`e[0m     Delete python virtual environment")
-            [Console]::WriteLine("  `e[1;97mgetenv`e[0m      Get environment variables")
-            [Console]::WriteLine("  `e[1;97mlist`e[0m        List installed modules")
-            [Console]::WriteLine("  `e[1;97mpurge`e[0m       Purge pip cache")
-            [Console]::WriteLine("  `e[1;97mreqs`e[0m        Install requirements")
-            [Console]::WriteLine("  `e[1;97msetenv`e[0m      Set environment variables")
-            [Console]::WriteLine("  `e[1;97msshkey`e[0m      Generate key pairs for SSH")
-            [Console]::WriteLine("  `e[1;97mssltrust`e[0m    Trust SSL connection to pypi.org")
-            [Console]::WriteLine("  `e[1;97mupdate`e[0m      Update installed python modules")
-            [Console]::WriteLine("  `e[1;97mvenv`e[0m        Setup python virtual environment")
-            break
+            [Console]::WriteLine(
+                [string]::Join("`n",
+                    "Invoke-PySetup cmdlet manages Python virtual environments.`n",
+                    "usage: Invoke-PySetup [-Option] <string> [-AppPath <string>]`n",
+                    'The following options are available:',
+                    "  `e[1;97mactivate`e[0m    Activate virtual environment",
+                    "  `e[1;97mclean`e[0m       Delete all cache folders",
+                    "  `e[1;97mdeactivate`e[0m  Deactivate virtual environment",
+                    "  `e[1;97mdelvenv`e[0m     Delete python virtual environment",
+                    "  `e[1;97mgetenv`e[0m      Get environment variables",
+                    "  `e[1;97mlist`e[0m        List installed modules",
+                    "  `e[1;97mpurge`e[0m       Purge pip cache",
+                    "  `e[1;97mreqs`e[0m        Install requirements",
+                    "  `e[1;97msetenv`e[0m      Set environment variables",
+                    "  `e[1;97msshkey`e[0m      Generate key pairs for SSH",
+                    "  `e[1;97mssltrust`e[0m    Trust SSL connection to pypi.org",
+                    "  `e[1;97mupdate`e[0m      Update installed python modules",
+                    "  `e[1;97mvenv`e[0m        Setup python virtual environment`n"
+                )
+            )
+            return
         }
         # evaluate Option parameter abbreviations
         $optSet = @('venv', 'delvenv', 'clean', 'purge', 'reqs', 'update', 'sshkey', 'ssltrust', 'setenv', 'getenv', 'list', 'activate', 'deactivate')
@@ -232,7 +242,7 @@ function Invoke-PySetup {
                 Write-Host "`e[96mUsing variables configured in local.settings.json.`e[0m"
                 $envVars = (Get-Content ([IO.Path]::Combine($AppPath, 'local.settings.json')) | ConvertFrom-Json).Values
             } else {
-                Write-Warning "File `e[1;3mlocal.settings.json`e[23m not exists!`n`t Set environment variables there."
+                Write-Warning "File `e[3mlocal.settings.json`e[23m do not exist."
                 break
             }
         }
