@@ -47,7 +47,7 @@ function Invoke-CondaSetup {
             [Console]::WriteLine("  `e[1;97mremove`e[0m      Remove environment")
             [Console]::WriteLine("  `e[1;97msetup`e[0m       Create/update environment")
             [Console]::WriteLine("  `e[1;97mupdate`e[0m      Update conda")
-            break
+            return
         }
         # evaluate Option parameter abbreviations
         $optSet = @('activate', 'clean', 'deactivate', 'envs', 'list', 'remove', 'setup', 'update')
@@ -194,7 +194,7 @@ function Invoke-PySetup {
             [Console]::WriteLine("  `e[1;97mssltrust`e[0m    Trust SSL connection to pypi.org")
             [Console]::WriteLine("  `e[1;97mupdate`e[0m      Update installed python modules")
             [Console]::WriteLine("  `e[1;97mvenv`e[0m        Setup python virtual environment")
-            break
+            return
         }
         # evaluate Option parameter abbreviations
         $optSet = @('venv', 'delvenv', 'clean', 'purge', 'reqs', 'update', 'sshkey', 'ssltrust', 'setenv', 'getenv', 'list', 'activate', 'deactivate')
@@ -234,7 +234,7 @@ function Invoke-PySetup {
                 Write-Host "`e[96mUsing variables configured in local.settings.json.`e[0m"
                 $envVars = (Get-Content ([IO.Path]::Combine($AppPath, 'local.settings.json')) | ConvertFrom-Json).Values
             } else {
-                Write-Warning "File `e[1;3mlocal.settings.json`e[23m not exists!`n`t Set environment variables there."
+                Write-Warning "File `e[3mlocal.settings.json`e[23m do not exist."
                 break
             }
         }
