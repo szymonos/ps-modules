@@ -18,7 +18,7 @@ function Invoke-CondaSetup {
     )
 
     dynamicparam {
-        if ('activate' -match "^$Option" -and -not $PSBoundParameters.CondaFile) {
+        if (@('activate', 'remove') -match "^$Option" -and -not $PSBoundParameters.CondaFile) {
             $parameterAttribute = [Management.Automation.ParameterAttribute]@{ Position = 1 }
 
             $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
@@ -50,7 +50,7 @@ function Invoke-CondaSetup {
             break
         }
         # evaluate Option parameter abbreviations
-        $optSet = @('setup', 'activate', 'deactivate', 'list', 'envs', 'clean', 'update', 'remove')
+        $optSet = @('activate', 'clean', 'deactivate', 'envs', 'list', 'remove', 'setup', 'update')
         $opt = $optSet -match "^$Option"
         if ($opt.Count -eq 0) {
             Write-Warning "Option parameter name '$Option' is invalid. Valid Option values are:`n`t $($optSet -join ', ')"
@@ -61,19 +61,21 @@ function Invoke-CondaSetup {
         }
 
         # check for conda file
-        if ($opt -in @('setup', 'activate', 'remove')) {
+        if ($opt -in @('activate', 'remove', 'setup')) {
             if ($PSBoundParameters.Environment) {
                 $envName = $PSBoundParameters.Environment
                 $envExists = $true
             } elseif (Test-Path $CondaFile) {
                 # get environment name
-                $envName = (Select-String -Pattern '^name: +(\S+)' -Path $CondaFile).Matches.Groups[1].Value
+                $envName = (Select-String -Pattern '^name: +(\S+)' -Path $CondaFile).Matches.Groups.Where({ $_.Name -eq '1' }).Value
                 $envExists = $envName -in (Get-CondaEnvironment).Name
-                # exit environment before proceeding
-                Exit-CondaEnvironment
             } else {
                 Write-Warning "File `e[4m$CondaFile`e[24m not found"
                 break
+            }
+            if ($envName) {
+                # exit environment before proceeding
+                Exit-CondaEnvironment
             }
         }
     }
@@ -81,22 +83,6 @@ function Invoke-CondaSetup {
     # *Execute option
     process {
         switch ($opt) {
-            setup {
-                if ($envExists) {
-                    # *Create environment
-                    Write-Host "`nEnvironment `e[1;4m$envName`e[22;24m already exist. Updating..."
-                    $cmd = "conda env update --file $CondaFile --prune"
-                    Invoke-Expression $cmd
-                    Enter-CondaEnvironment $envName
-                } else {
-                    # *Update environment
-                    Write-Host "Creating `e[1;4m$envName`e[22;24m environment."
-                    conda env create --file $CondaFile
-                    Enter-CondaEnvironment $envName
-                }
-                break
-            }
-
             activate {
                 # *Activate environment
                 if ($envExists) {
@@ -104,6 +90,30 @@ function Invoke-CondaSetup {
                 } else {
                     Write-Host "`e[1;4m$envName`e[22;24m environment doesn't exist!"
                 }
+                break
+            }
+
+            clean {
+                # *Clean conda
+                Invoke-Conda clean -y --all
+                break
+            }
+
+            deactivate {
+                # *Clean conda
+                Exit-CondaEnvironment
+                break
+            }
+
+            envs {
+                # *List environments
+                Invoke-Conda env list
+                break
+            }
+
+            list {
+                # *List packages
+                Invoke-Conda list
                 break
             }
 
@@ -120,35 +130,27 @@ function Invoke-CondaSetup {
                 break
             }
 
-            deactivate {
-                # *Clean conda
-                Exit-CondaEnvironment
-                break
-            }
-
-            list {
-                # *List packages
-                Invoke-Conda list
-                break
-            }
-
-            envs {
-                # *List environments
-                Invoke-Conda env list
+            setup {
+                if ($envExists) {
+                    # *Create environment
+                    Write-Host "`nEnvironment `e[1;4m$envName`e[22;24m already exist. Updating..."
+                    Invoke-Conda env update --file $CondaFile --prune
+                    Enter-CondaEnvironment $envName
+                } else {
+                    # *Update environment
+                    Write-Host "Creating `e[1;4m$envName`e[22;24m environment."
+                    Invoke-Conda env create --file $CondaFile
+                    Enter-CondaEnvironment $envName
+                }
                 break
             }
 
             update {
                 # *Update conda
-                conda update -y --name base --channel pkgs/main --update-all
+                Invoke-Conda update -y --name base --channel pkgs/main --update-all
                 break
             }
 
-            clean {
-                # *Clean conda
-                conda clean -y --all
-                break
-            }
         }
     }
 }
