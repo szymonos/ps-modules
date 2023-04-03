@@ -36,13 +36,17 @@ $exportModuleMemberParams = @{
     )
     Variable = @()
     Alias    = @(
+        # common
         'alias'
+        # dotnet
+        'swd'
+        'sswd'
+        'cds'
+        # net
+        'idf'
+        # python
         'ics'
         'ips'
-        'gcd'
-        'scd'
-        'cdd'
-        'idf'
     )
 }
 

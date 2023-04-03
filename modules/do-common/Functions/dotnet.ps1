@@ -3,10 +3,10 @@
 Get dotnet current directory.
 #>
 function Get-DotnetCurrentDirectory {
-    [IO.Path]::GetFullPath('.')
+    Resolve-Path $([IO.Path]::GetFullPath('.'))
 }
 
-Set-Alias -Name gcd -Value Get-DotnetCurrentDirectory
+Set-Alias -Name swd -Value Get-DotnetCurrentDirectory
 
 <#
 .SYNOPSIS
@@ -23,14 +23,14 @@ function Set-DotnetCurrentDirectory {
     [IO.Directory]::SetCurrentDirectory($Path)
 }
 
-Set-Alias -Name scd -Value Set-DotnetCurrentDirectory
+Set-Alias -Name sswd -Value Set-DotnetCurrentDirectory
 
 <#
 .SYNOPSIS
 Set location to dotnet current directory.
 #>
 function Set-DotnetLocation {
-    Set-Location ([IO.Path]::GetFullPath('.'))
+    Set-Location $(Get-DotnetCurrentDirectory)
 }
 
-Set-Alias -Name cdd -Value Set-DotnetLocation
+Set-Alias -Name cds -Value Set-DotnetLocation
