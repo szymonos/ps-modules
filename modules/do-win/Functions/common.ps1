@@ -10,16 +10,6 @@ Set-Alias -Name which -Value Get-CommandSource
 
 <#
 .SYNOPSIS
-Create a new file.
-#>
-function New-File {
-    New-Item @args -ItemType File | Out-Null
-}
-
-Set-Alias -Name touch -Value New-File
-
-<#
-.SYNOPSIS
 Get summary size of files inside folders.
 #>
 function Get-DiskUsage {
@@ -100,3 +90,13 @@ function Get-DiskUsage {
 }
 
 Set-Alias -Name du -Value Get-DiskUsage
+
+<#
+.SYNOPSIS
+Create a new file.
+#>
+function New-File {
+    New-Item @args -ItemType File | Out-Null
+}
+
+Set-Alias -Name touch -Value New-File
