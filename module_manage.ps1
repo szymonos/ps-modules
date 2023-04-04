@@ -22,6 +22,8 @@ Switch, whether to scaffold a new module manifest.
 
 .EXAMPLE
 # *module
+$Module = 'aliases-git'
+$Module = 'aliases-kubectl'
 $Module = 'do-az'
 $Module = 'do-common'
 $Module = 'do-linux'
@@ -30,7 +32,7 @@ $Module = 'do-win'
 ./module_manage.ps1 $Module -CleanUp -Verbose
 ./module_manage.ps1 $Module -CleanUp -Verbose -Force
 ./module_manage.ps1 $Module -CleanUp -RemoveRequirements -Verbose
-@('do-common', 'do-win') | ./module_manage.ps1 -CleanUp -Verbose
+@('aliases-git', 'aliases-kubectl') | ./module_manage.ps1 -CleanUp -Verbose
 # *delete module
 ./module_manage.ps1 $Module -Delete -Verbose
 # *scaffold module manifest

@@ -5,19 +5,21 @@
 $exportModuleMemberParams = @{
     Function = @(
         # common
-        'Get-CommandSource',
-        'Get-DiskUsage',
+        'Get-CommandSource'
+        'Get-DiskUsage'
+        'New-File'
         # forms
-        'Get-FileName',
+        'Get-FileName'
         'Get-FolderPath'
         # winget
-        'Get-WingetResult',
+        'Get-WingetResult'
         'Invoke-WingetUpgrade'
     )
     Variable = @()
     Alias  = @(
-        'which',
         'du'
+        'touch'
+        'which'
     )
 }
 

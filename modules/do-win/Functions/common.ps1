@@ -3,7 +3,7 @@
 Get the source directory for command.
 #>
 function Get-CommandSource {
-    Invoke-Expression "(Get-Command $args -ErrorAction 'SilentlyContinue').Source"
+    (Get-Command @args -ErrorAction SilentlyContinue).Where({ $_.Source }).Source
 }
 
 Set-Alias -Name which -Value Get-CommandSource
@@ -15,20 +15,15 @@ Get summary size of files inside folders.
 function Get-DiskUsage {
     [CmdletBinding()]
     param (
-        [Alias('p')]
         [Parameter(Position = 0, ValueFromPipeline)]
         [string]$Path = '.',
 
-        [Alias('h')]
         [switch]$HumanReadable,
 
-        [Alias('r')]
         [switch]$Recurse,
 
-        [Alias('a')]
         [switch]$All,
 
-        [Alias('s')]
         [ValidateSet('size', 'count', 'name')]
         [string]$Sort
     )
@@ -95,3 +90,13 @@ function Get-DiskUsage {
 }
 
 Set-Alias -Name du -Value Get-DiskUsage
+
+<#
+.SYNOPSIS
+Create a new file.
+#>
+function New-File {
+    New-Item @args -ItemType File | Out-Null
+}
+
+Set-Alias -Name touch -Value New-File
