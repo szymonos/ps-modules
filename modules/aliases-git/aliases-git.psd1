@@ -12,7 +12,7 @@
 RootModule = 'aliases-git.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.1.0'
+ModuleVersion = '0.1.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -33,8 +33,8 @@ Copyright = '(c) Szymon Osiecki. All rights reserved.'
 Description = 'This module contains git alias functions.'
 
 # Minimum version of the PowerShell engine required by this module
-# CompatiblePSEditions = @('Core')
-# PowerShellVersion = '7.0'
+CompatiblePSEditions = @('Core')
+PowerShellVersion = '7.0'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
