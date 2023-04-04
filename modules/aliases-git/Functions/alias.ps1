@@ -43,8 +43,8 @@ function gcfg { Invoke-WriteExecCmd -Command 'git config --global' -Arguments $a
 function gcfge { Invoke-WriteExecCmd -Command 'git config --global --edit' -Arguments $args }
 function gcfgl { Invoke-WriteExecCmd -Command 'git config --global --list' -Arguments $args }
 function gcfl { Invoke-WriteExecCmd -Command 'git config --local' -Arguments $args }
-function gcfll { Invoke-WriteExecCmd -Command 'git config --local --list' -Arguments $args }
 function gcfle { Invoke-WriteExecCmd -Command 'git config --local --edit' -Arguments $args }
+function gcfll { Invoke-WriteExecCmd -Command 'git config --local --list' -Arguments $args }
 function gcl { Invoke-WriteExecCmd -Command 'git clone --recursive' -Arguments $args }
 function gclean { Invoke-WriteExecCmd -Command 'git clean --force -d' -Arguments $args }
 function gclean! { Invoke-WriteExecCmd 'git reset --hard' -Parameters $args; gclean @args }
@@ -100,6 +100,7 @@ function gpushd { Invoke-WriteExecCmd -Command 'git push --dry-run' -Arguments $
 function gpushoat { Invoke-WriteExecCmd -Command 'git push origin --all && git push origin --tags' -Parameters $args }
 function gpushsup { Invoke-WriteExecCmd -Command "git push --set-upstream origin $(Get-GitCurrentBranch)" -Arguments $args }
 function gpushu { Invoke-WriteExecCmd -Command 'git push upstream' -Arguments $args }
+function gpushv { Invoke-WriteExecCmd -Command 'git push --verbose' -Arguments $args }
 function grb { Invoke-WriteExecCmd -Command 'git rebase' -Arguments $args }
 function grba { Invoke-WriteExecCmd -Command 'git rebase --abort' -Arguments $args }
 function grbc { Invoke-WriteExecCmd -Command 'git rebase --continue' -Arguments $args }
@@ -109,8 +110,8 @@ function grbs { Invoke-WriteExecCmd -Command 'git rebase --skip' -Arguments $arg
 function gr { Invoke-WriteExecCmd -Command 'git reset' -Arguments $args }
 function grh { Invoke-WriteExecCmd -Command 'git reset --hard' -Arguments $args }
 function grho { Invoke-WriteExecCmd "git fetch && git reset --hard origin/$(Get-GitCurrentBranch)" -Arguments $args }
+function grmb { Invoke-WriteExecCmd -Command "git reset `$(git merge-base origin/$(Get-GitResolvedBranch $args) HEAD)" -Parameters $args }
 function grs { Invoke-WriteExecCmd -Command 'git reset --soft' -Arguments $args }
-function grsmb { Invoke-WriteExecCmd -Command "git reset `$(git merge-base origin/$(Get-GitResolvedBranch $args) HEAD)" -Parameters $args }
 function grmc { Invoke-WriteExecCmd -Command 'git rm --cached' -Arguments $args }
 function grm! { Invoke-WriteExecCmd -Command 'git rm --force' -Arguments $args }
 function grmrc { Invoke-WriteExecCmd -Command 'git rm -r --cached' -Arguments $args }
@@ -132,12 +133,12 @@ function gsd { Invoke-WriteExecCmd -Command 'git switch --detach' -Arguments $ar
 function gsmi { Invoke-WriteExecCmd -Command 'git submodule init' -Arguments $args }
 function gsmu { Invoke-WriteExecCmd -Command 'git submodule update' -Arguments $args }
 function gsps { Invoke-WriteExecCmd -Command 'git show --pretty=short --show-signature' -Arguments $args }
-function gstas { Invoke-WriteExecCmd -Command 'git stash save' -Arguments $args }
 function gstaa { Invoke-WriteExecCmd -Command 'git stash apply' -Arguments $args }
 function gstac { Invoke-WriteExecCmd -Command 'git stash clear' -Arguments $args }
 function gstad { Invoke-WriteExecCmd -Command 'git stash drop' -Arguments $args }
 function gstal { Invoke-WriteExecCmd -Command 'git stash list' -Arguments $args }
 function gstap { Invoke-WriteExecCmd -Command 'git stash pop' -Arguments $args }
+function gstas { Invoke-WriteExecCmd -Command 'git stash save' -Arguments $args }
 function gstast { Invoke-WriteExecCmd -Command 'git stash show --text' -Arguments $args }
 function gst { Invoke-WriteExecCmd -Command 'git status' -Arguments $args }
 function gstb { Invoke-WriteExecCmd -Command 'git status --short --branch' -Arguments $args }

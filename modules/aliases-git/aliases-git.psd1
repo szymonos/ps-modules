@@ -12,7 +12,7 @@
 RootModule = 'aliases-git.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.1.1'
+ModuleVersion = '0.1.2'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -120,8 +120,8 @@ FunctionsToExport = @(
     'gcfge'
     'gcfgl'
     'gcfl'
-    'gcfll'
     'gcfle'
+    'gcfll'
     'gcl'
     'gclean'
     'gclean!'
@@ -177,6 +177,7 @@ FunctionsToExport = @(
     'gpushoat'
     'gpushsup'
     'gpushu'
+    'gpushv'
     'grb'
     'grba'
     'grbc'
@@ -187,7 +188,7 @@ FunctionsToExport = @(
     'grh'
     'grho'
     'grs'
-    'grsmb'
+    'grmb'
     'grmc'
     'grm!'
     'grmrc'
@@ -209,12 +210,12 @@ FunctionsToExport = @(
     'gsmi'
     'gsmu'
     'gsps'
-    'gstas'
     'gstaa'
     'gstac'
     'gstad'
     'gstal'
     'gstap'
+    'gstas'
     'gstast'
     'gst'
     'gstb'
