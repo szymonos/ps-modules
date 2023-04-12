@@ -126,10 +126,10 @@ function grtsu { Invoke-WriteExecCmd -Command 'git remote set-url' -Arguments $a
 function grtup { Invoke-WriteExecCmd -Command 'git remote update origin' -Arguments $args }
 function grtupp { Invoke-WriteExecCmd -Command 'git remote update origin --prune' -Arguments $args }
 function grtv { Invoke-WriteExecCmd -Command 'git remote --verbose' -Arguments $args }
-function gs { Invoke-WriteExecCmd -Command "git switch $(Get-GitResolvedBranch $args)" -Parameters $args }
-function gs! { Invoke-WriteExecCmd -Command "git switch $(Get-GitResolvedBranch $args) --force" -Parameters $args }
-function gsc { Invoke-WriteExecCmd -Command 'git switch --create' -Arguments $args }
-function gsd { Invoke-WriteExecCmd -Command 'git switch --detach' -Arguments $args }
+function gsw { Invoke-WriteExecCmd -Command "git switch $(Get-GitResolvedBranch $args)" -Parameters $args }
+function gsw! { Invoke-WriteExecCmd -Command "git switch $(Get-GitResolvedBranch $args) --force" -Parameters $args }
+function gswc { Invoke-WriteExecCmd -Command 'git switch --create' -Arguments $args }
+function gswd { Invoke-WriteExecCmd -Command 'git switch --detach' -Arguments $args }
 function gsmi { Invoke-WriteExecCmd -Command 'git submodule init' -Arguments $args }
 function gsmu { Invoke-WriteExecCmd -Command 'git submodule update' -Arguments $args }
 function gsps { Invoke-WriteExecCmd -Command 'git show --pretty=short --show-signature' -Arguments $args }
