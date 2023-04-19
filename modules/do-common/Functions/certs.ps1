@@ -10,7 +10,10 @@ function Add-CertificateProperties {
     [OutputType([System.Security.Cryptography.X509Certificates.X509Certificate2[]])]
     param (
         [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
-        [System.Security.Cryptography.X509Certificates.X509Certificate2]$Certificate
+        [System.Security.Cryptography.X509Certificates.X509Certificate2]$Certificate,
+
+        [ValidateSet('object', 'compact', 'all')]
+        [string]$Output = 'object'
     )
 
     begin {
@@ -39,7 +42,30 @@ function Add-CertificateProperties {
     }
 
     end {
-        return $certs
+        switch ($Output) {
+            all {
+                $certs | Select-Object *
+                continue
+            }
+
+            compact {
+                $certs | Select-Object CommonName `
+                    , SubjectAlternativeName `
+                    , SubjectKeyIdentifier `
+                    , AuthorityKeyIdentifier `
+                    , NotAfter `
+                    , NotBefore `
+                    , SerialNumber `
+                    , Thumbprint `
+                    , Issuer `
+                    , Subject
+                continue
+            }
+
+            Default {
+                return $certs
+            }
+        }
     }
 }
 
