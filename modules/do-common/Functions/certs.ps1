@@ -49,17 +49,21 @@ function Add-CertificateProperties {
             }
 
             compact {
-                $certs | Select-Object CommonName `
-                    , SubjectAlternativeName `
-                    , SubjectKeyIdentifier `
-                    , AuthorityKeyIdentifier `
-                    , NotAfter `
-                    , NotBefore `
-                    , SerialNumber `
-                    , Thumbprint `
-                    , Issuer `
-                    , Subject
-                continue
+                $certs | ForEach-Object {
+                    [string[]]$prop = $_.PSObject.Properties | Where-Object {
+                        $_.Value -and $_.Name -in @(
+                            'CN'
+                            'SAN'
+                            'NotAfter'
+                            'NotBefore'
+                            'SerialNumber'
+                            'Thumbprint'
+                            'Issuer'
+                            'Subject'
+                        )
+                    } | Select-Object -ExpandProperty Name
+                    $_ | Select-Object $prop
+                }
             }
 
             Default {
