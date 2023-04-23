@@ -282,6 +282,44 @@ function New-Password {
 
 <#
 .SYNOPSIS
+Show specified properties of the object.
+
+.PARAMETER Object
+Object to be showed.
+.PARAMETER TypeName
+Array of properties system types to be shown (System.String, System.Datetime, ...).
+.PARAMETER MemberType
+Array of properties member types to be shown (Property, AliasProperty, ...).
+.PARAMETER Strip
+Flag whether to strip properties without value.
+#>
+function Show-Object {
+    [CmdletBinding()]
+    [OutputType([System.Collections.Generic.List[object]])]
+    param (
+        [Parameter(Mandatory, ValueFromPipeline, Position = 0)]
+        [object]$Object,
+
+        [string[]]$TypeName,
+
+        [string[]]$MemberType,
+
+        [switch]$Strip
+    )
+
+    process {
+        [string[]]$prop = $Object.PSObject.Properties.Where({
+                ($TypeName ? $_.TypeNameOfValue -in $TypeName : $true) -and
+                ($MemberType ? $_.MemberType -in $MemberType : $true) -and
+                ($Strip ? -not [string]::IsNullOrEmpty($_.Value) : $true)
+            }
+        ).Name
+        $Object | Select-Object $prop
+    }
+}
+
+<#
+.SYNOPSIS
 Check if PowerShell runs elevated.
 #>
 function Test-IsAdmin {

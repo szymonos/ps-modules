@@ -13,6 +13,7 @@ $exportModuleMemberParams = @{
         'Get-Certificate'
         'Get-CertificateOpenSSL'
         'Show-CertificateChain'
+        'Show-Certificate'
         # common
         'ConvertFrom-Base64'
         'ConvertTo-Base64'
@@ -23,6 +24,7 @@ $exportModuleMemberParams = @{
         'Format-Duration'
         'Invoke-CommandRetry'
         'New-Password'
+        'Show-Object'
         'Test-IsAdmin'
         # dotnet
         'Get-DotnetCurrentDirectory'

@@ -158,6 +158,8 @@ function Get-Certificate {
     )
 
     begin {
+        $ErrorActionPreference = 'Stop'
+
         $tcpClient = [System.Net.Sockets.TcpClient]::new($Uri, 443)
         if ($BuildChain) {
             $chain = [System.Security.Cryptography.X509Certificates.X509Chain]::new()
@@ -227,6 +229,9 @@ function Get-CertificateOpenSSL {
     process {
         # run openssl command
         $chain = Invoke-Expression $cmd 2>$null
+        if (-not $chain) {
+            Write-Error "Name or service not known ($Uri)."
+        }
         # parse pem encoded certificates from openssl output
         $pems = [regex]::Matches(
             [string]::Join("`n", $chain.Replace("`r`n", "`n")),
@@ -246,6 +251,71 @@ Show certificate chain for a specified Uri.
 .PARAMETER Uri
 Uri used for intercepting certificate chain.
 #>
+function Show-Certificate {
+    [CmdletBinding(DefaultParameterSetName = 'Compact')]
+    [OutputType([System.Security.Cryptography.X509Certificates.X509Certificate2[]])]
+    param (
+        [Parameter(Mandatory, Position = 0)]
+        [string]$Uri,
+
+        [switch]$BuildChain,
+
+        [Parameter(Mandatory, ParameterSetName = 'Extended')]
+        [switch]$Extended,
+
+        [Parameter(Mandatory, ParameterSetName = 'All')]
+        [switch]$All
+    )
+
+    begin {
+        $ErrorActionPreference = 'Stop'
+        $WarningPreference = 'Stop'
+
+        # build properties for Show-Object function
+        $showCertProp = switch ($PsCmdlet.ParameterSetName) {
+            Compact {
+                @{
+                    TypeName   = @('System.DateTime', 'System.String')
+                    MemberType = @('AliasProperty', 'Property')
+                    Strip      = $true
+                }
+            }
+            Extended {
+                @{
+                    TypeName   = @('System.Boolean', 'System.DateTime', 'System.Int32', 'System.String')
+                    MemberType = @('AliasProperty', 'Property')
+                    Strip      = $true
+                }
+            }
+            All { @{} }
+        }
+
+        # clean PSBoundParameters for Get-Certificate function
+        $PSBoundParameters.Remove('Extended') | Out-Null
+        $PSBoundParameters.Remove('All') | Out-Null
+    }
+
+    process {
+        $chain = try {
+            Get-Certificate @PSBoundParameters | Add-CertificateProperties
+        } catch {
+            Write-Verbose 'Switching to OpenSSL for intercepting the certificate chain.'
+            Get-CertificateOpenSSL @PSBoundParameters | Add-CertificateProperties
+        }
+    }
+
+    end {
+        $chain | Show-Object @showCertProp
+    }
+}
+
+<#
+.SYNOPSIS
+Show certificate chain for a specified Uri.
+
+.PARAMETER Uri
+Uri used for intercepting certificate chain.
+#>
 function Show-CertificateChain {
     [CmdletBinding(DefaultParameterSetName = 'Compact')]
     [OutputType([System.Security.Cryptography.X509Certificates.X509Certificate2[]])]
@@ -253,53 +323,18 @@ function Show-CertificateChain {
         [Parameter(Mandatory, Position = 0)]
         [string]$Uri,
 
-        [Parameter(Mandatory, ParameterSetName = 'Strip')]
-        [switch]$Strip,
+        [Parameter(Mandatory, ParameterSetName = 'Extended')]
+        [switch]$Extended,
 
         [Parameter(Mandatory, ParameterSetName = 'All')]
         [switch]$All
     )
 
     begin {
-        $WarningPreference = 'Stop'
+        $PSBoundParameters.Add('BuildChain', $true)
     }
 
     process {
-        $chain = try {
-            Get-Certificate $Uri -BuildChain | Add-CertificateProperties
-        } catch {
-            Write-Verbose 'Switching to OpenSSL for intercepting the certificate chain.'
-            Get-CertificateOpenSSL $Uri -BuildChain | Add-CertificateProperties
-        }
-    }
-
-    end {
-        switch ($PsCmdlet.ParameterSetName) {
-            Compact {
-                $chain | ForEach-Object {
-                    [string[]]$prop = $_.PSObject.Properties | Where-Object {
-                        $_.TypeNameOfValue -in @('System.DateTime', 'System.String') -and
-                        $_.MemberType -In @('AliasProperty', 'Property') -and
-                        $_.Value
-                    } | Select-Object -ExpandProperty Name
-                    $_ | Select-Object $prop
-                }
-            }
-
-            Strip {
-                $chain | ForEach-Object {
-                    [string[]]$prop = $_.PSObject.Properties | Where-Object {
-                        $_.TypeNameOfValue -in @('System.Boolean', 'System.DateTime', 'System.Int32', 'System.String') -and
-                        $_.MemberType -In @('AliasProperty', 'Property') -and
-                        "$($_.Value)" -ne ''
-                    } | Select-Object -ExpandProperty Name
-                    $_ | Select-Object $prop
-                }
-            }
-
-            All {
-                return $chain
-            }
-        }
+        Show-Certificate @PSBoundParameters
     }
 }

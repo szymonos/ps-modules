@@ -4,7 +4,7 @@
 RootModule = 'do-common.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.19.0'
+ModuleVersion = '0.20.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -39,6 +39,7 @@ FunctionsToExport = @(
     'ConvertTo-X509Certificate'
     'Get-Certificate'
     'Get-CertificateOpenSSL'
+    'Show-Certificate'
     'Show-CertificateChain'
     # common
     'ConvertFrom-Base64'
@@ -51,6 +52,7 @@ FunctionsToExport = @(
     'Invoke-CommandRetry'
     'New-Password'
     'Test-IsAdmin'
+    'Show-Object'
     # dotnet
     'Get-DotnetCurrentDirectory'
     'Set-DotnetCurrentDirectory'
