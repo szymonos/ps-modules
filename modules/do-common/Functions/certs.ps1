@@ -19,20 +19,35 @@ function Add-CertificateProperties {
     }
 
     process {
-        if ($cn = [regex]::Match($Certificate.Subject, '(?<=CN=)(.)+?(?=,|$)').Value.Trim('"')) {
+        # Common Name
+        $cn = [regex]::Match($Certificate.Subject, '(?<=CN=)(.)+?(?=,|$)')
+        if ($cn) {
+            $cn = $cn.Value.Trim().Trim('"')
             $Certificate | Add-Member -MemberType NoteProperty -Name 'CommonName' -Value $cn -PassThru `
             | Add-Member -MemberType AliasProperty -Name 'CN' -Value CommonName
         }
-        if ($san = $Certificate.Extensions.Where({ $_.Oid.FriendlyName -match 'Subject Alternative Name' })) {
-            $Certificate | Add-Member -MemberType NoteProperty -Name 'SubjectAlternativeName' -Value $san.Format(1).Trim() -PassThru `
+        # Subject Alternative Name
+        $san = $Certificate.Extensions.Where({ $_.Oid.FriendlyName -match 'Subject Alternative Name' })
+        if ($san) {
+            $san = $san.Format(1).Trim()
+            $Certificate `
+            | Add-Member -MemberType NoteProperty -Name 'SubjectAlternativeName' -Value $san -PassThru `
             | Add-Member -MemberType AliasProperty -Name 'SAN' -Value SubjectAlternativeName
         }
-        if ($ski = $Certificate.Extensions.Where({ $_.Oid.FriendlyName -match 'Subject Key Identifier' })) {
-            $Certificate | Add-Member -MemberType NoteProperty -Name 'SubjectKeyIdentifier' -Value $ski.Format(1).Trim() -PassThru `
+        # Subject Key Identifier
+        $ski = $Certificate.Extensions.Where({ $_.Oid.FriendlyName -match 'Subject Key Identifier' })
+        if ($ski) {
+            $ski = $ski.Format(1).Trim().Replace(':', '').ToUpper()
+            $Certificate `
+            | Add-Member -MemberType NoteProperty -Name 'SubjectKeyIdentifier' -Value $ski -PassThru `
             | Add-Member -MemberType AliasProperty -Name 'SKI' -Value SubjectKeyIdentifier
         }
-        if ($aki = $Certificate.Extensions.Where({ $_.Oid.FriendlyName -match 'Authority Key Identifier' })) {
-            $Certificate | Add-Member -MemberType NoteProperty -Name 'AuthorityKeyIdentifier' -Value $aki.Format(1).Trim() -PassThru `
+        # Authority Key Identifier
+        $aki = $Certificate.Extensions.Where({ $_.Oid.FriendlyName -match 'Authority Key Identifier' })
+        if ($aki) {
+            $aki = $aki.Format(1).Trim().Replace(':', '').Replace('KeyID=', '').ToUpper()
+            $Certificate `
+            | Add-Member -MemberType NoteProperty -Name 'AuthorityKeyIdentifier' -Value $aki -PassThru `
             | Add-Member -MemberType AliasProperty -Name 'AKI' -Value AuthorityKeyIdentifier
         }
         $certs.Add($Certificate)
