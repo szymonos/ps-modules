@@ -19,20 +19,35 @@ function Add-CertificateProperties {
     }
 
     process {
-        if ($cn = [regex]::Match($Certificate.Subject, '(?<=CN=)(.)+?(?=,|$)').Value.Trim('"')) {
+        # Common Name
+        $cn = [regex]::Match($Certificate.Subject, '(?<=CN=)(.)+?(?=,|$)')
+        if ($cn) {
+            $cn = $cn.Value.Trim().Trim('"')
             $Certificate | Add-Member -MemberType NoteProperty -Name 'CommonName' -Value $cn -PassThru `
             | Add-Member -MemberType AliasProperty -Name 'CN' -Value CommonName
         }
-        if ($san = $Certificate.Extensions.Where({ $_.Oid.FriendlyName -match 'Subject Alternative Name' })) {
-            $Certificate | Add-Member -MemberType NoteProperty -Name 'SubjectAlternativeName' -Value $san.Format(1).Trim() -PassThru `
+        # Subject Alternative Name
+        $san = $Certificate.Extensions.Where({ $_.Oid.FriendlyName -match 'Subject Alternative Name' })
+        if ($san) {
+            $san = $san.Format(1).Trim()
+            $Certificate `
+            | Add-Member -MemberType NoteProperty -Name 'SubjectAlternativeName' -Value $san -PassThru `
             | Add-Member -MemberType AliasProperty -Name 'SAN' -Value SubjectAlternativeName
         }
-        if ($ski = $Certificate.Extensions.Where({ $_.Oid.FriendlyName -match 'Subject Key Identifier' })) {
-            $Certificate | Add-Member -MemberType NoteProperty -Name 'SubjectKeyIdentifier' -Value $ski.Format(1).Trim() -PassThru `
+        # Subject Key Identifier
+        $ski = $Certificate.Extensions.Where({ $_.Oid.FriendlyName -match 'Subject Key Identifier' })
+        if ($ski) {
+            $ski = $ski.Format(1).Trim().Replace(':', '').ToUpper()
+            $Certificate `
+            | Add-Member -MemberType NoteProperty -Name 'SubjectKeyIdentifier' -Value $ski -PassThru `
             | Add-Member -MemberType AliasProperty -Name 'SKI' -Value SubjectKeyIdentifier
         }
-        if ($aki = $Certificate.Extensions.Where({ $_.Oid.FriendlyName -match 'Authority Key Identifier' })) {
-            $Certificate | Add-Member -MemberType NoteProperty -Name 'AuthorityKeyIdentifier' -Value $aki.Format(1).Trim() -PassThru `
+        # Authority Key Identifier
+        $aki = $Certificate.Extensions.Where({ $_.Oid.FriendlyName -match 'Authority Key Identifier' })
+        if ($aki) {
+            $aki = $aki.Format(1).Trim().Replace(':', '').Replace('KeyID=', '').ToUpper()
+            $Certificate `
+            | Add-Member -MemberType NoteProperty -Name 'AuthorityKeyIdentifier' -Value $aki -PassThru `
             | Add-Member -MemberType AliasProperty -Name 'AKI' -Value AuthorityKeyIdentifier
         }
         $certs.Add($Certificate)
@@ -158,6 +173,8 @@ function Get-Certificate {
     )
 
     begin {
+        $ErrorActionPreference = 'Stop'
+
         $tcpClient = [System.Net.Sockets.TcpClient]::new($Uri, 443)
         if ($BuildChain) {
             $chain = [System.Security.Cryptography.X509Certificates.X509Chain]::new()
@@ -227,6 +244,9 @@ function Get-CertificateOpenSSL {
     process {
         # run openssl command
         $chain = Invoke-Expression $cmd 2>$null
+        if (-not $chain) {
+            Write-Error "Name or service not known ($Uri)."
+        }
         # parse pem encoded certificates from openssl output
         $pems = [regex]::Matches(
             [string]::Join("`n", $chain.Replace("`r`n", "`n")),
@@ -236,5 +256,100 @@ function Get-CertificateOpenSSL {
         foreach ($pem in $pems) {
             [Security.Cryptography.X509Certificates.X509Certificate2]::new([Convert]::FromBase64String($pem))
         }
+    }
+}
+
+<#
+.SYNOPSIS
+Show certificate chain for a specified Uri.
+
+.PARAMETER Uri
+Uri used for intercepting certificate chain.
+#>
+function Show-Certificate {
+    [CmdletBinding(DefaultParameterSetName = 'Compact')]
+    [OutputType([System.Security.Cryptography.X509Certificates.X509Certificate2[]])]
+    param (
+        [Parameter(Mandatory, Position = 0)]
+        [string]$Uri,
+
+        [switch]$BuildChain,
+
+        [Parameter(Mandatory, ParameterSetName = 'Extended')]
+        [switch]$Extended,
+
+        [Parameter(Mandatory, ParameterSetName = 'All')]
+        [switch]$All
+    )
+
+    begin {
+        $ErrorActionPreference = 'Stop'
+        $WarningPreference = 'Stop'
+
+        # build properties for Show-Object function
+        $showCertProp = switch ($PsCmdlet.ParameterSetName) {
+            Compact {
+                @{
+                    TypeName   = @('System.DateTime', 'System.String')
+                    MemberType = @('AliasProperty', 'Property')
+                    Strip      = $true
+                }
+            }
+            Extended {
+                @{
+                    TypeName   = @('System.Boolean', 'System.DateTime', 'System.Int32', 'System.String')
+                    MemberType = @('AliasProperty', 'Property')
+                    Strip      = $true
+                }
+            }
+            All { @{} }
+        }
+
+        # clean PSBoundParameters for Get-Certificate function
+        $PSBoundParameters.Remove('Extended') | Out-Null
+        $PSBoundParameters.Remove('All') | Out-Null
+    }
+
+    process {
+        $chain = try {
+            Get-Certificate @PSBoundParameters | Add-CertificateProperties
+        } catch {
+            Write-Verbose 'Switching to OpenSSL for intercepting the certificate chain.'
+            Get-CertificateOpenSSL @PSBoundParameters | Add-CertificateProperties
+        }
+    }
+
+    end {
+        $chain | Show-Object @showCertProp
+    }
+}
+
+<#
+.SYNOPSIS
+Show certificate chain for a specified Uri.
+
+.PARAMETER Uri
+Uri used for intercepting certificate chain.
+#>
+function Show-CertificateChain {
+    [CmdletBinding(DefaultParameterSetName = 'Compact')]
+    [OutputType([System.Security.Cryptography.X509Certificates.X509Certificate2[]])]
+    param (
+        [Parameter(Mandatory, Position = 0)]
+        [string]$Uri,
+
+        [Parameter(Mandatory, ParameterSetName = 'Extended')]
+        [switch]$Extended,
+
+        [Parameter(Mandatory, ParameterSetName = 'All')]
+        [switch]$All
+    )
+
+    begin {
+        $PSBoundParameters.Add('BuildChain', $true)
+    }
+
+    process {
+        Show-Certificate @PSBoundParameters
     }
 }

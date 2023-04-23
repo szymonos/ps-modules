@@ -81,11 +81,12 @@ function Get-GitResolvedBranch {
     }
 
     process {
-        $branches = $(git branch -a --format='%(refname:short)').Replace('origin/', '') `
-        | Where-Object { $_ -ne 'HEAD' } `
-        | Sort-Object -Unique
+        [string[]]$branches = (git branch -a --format='%(refname:short)').Where({ $_ -ne 'origin/HEAD' })
         if ($branches) {
-            $branch = $branches | Select-String $branchMatch -Raw | Select-Object -First 1
+            $branch = $branches.Replace('origin/', '') `
+            | Sort-Object -Unique `
+            | Select-String $branchMatch -Raw `
+            | Select-Object -First 1
         }
         if (-not $branch) {
             if ($BranchName) {

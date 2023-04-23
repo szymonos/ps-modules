@@ -12,7 +12,7 @@
 RootModule = 'aliases-git.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.1.2'
+ModuleVersion = '1.0.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -203,10 +203,10 @@ FunctionsToExport = @(
     'grtup'
     'grtupp'
     'grtv'
-    'gs'
-    'gs!'
-    'gsc'
-    'gsd'
+    'gsw'
+    'gsw!'
+    'gswc'
+    'gswd'
     'gsmi'
     'gsmu'
     'gsps'
