@@ -32,9 +32,9 @@ function Get-DiskUsage {
         # filter for size formatting
         filter formatSize {
             switch ($_) {
-                { $_ -ge 1KB -and $_ -lt 1MB } { '{0:0.0}K' -f ($_ / 1KB) }
-                { $_ -ge 1MB -and $_ -lt 1GB } { '{0:0.0}M' -f ($_ / 1MB) }
-                { $_ -ge 1GB -and $_ -lt 1TB } { '{0:0.0}G' -f ($_ / 1GB) }
+                { $_ -ge 1KB -and $_ -lt 1MB } { '{0:0.0}K' -f ($_ / 1KB); continue }
+                { $_ -ge 1MB -and $_ -lt 1GB } { '{0:0.0}M' -f ($_ / 1MB); continue }
+                { $_ -ge 1GB -and $_ -lt 1TB } { '{0:0.0}G' -f ($_ / 1GB); continue }
                 { $_ -ge 1TB } { '{0:0.0}T' -f ($_ / 1TB) }
                 Default { "$_.0B" }
             }
