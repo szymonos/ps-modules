@@ -10,10 +10,7 @@ function Add-CertificateProperties {
     [OutputType([System.Security.Cryptography.X509Certificates.X509Certificate2[]])]
     param (
         [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
-        [System.Security.Cryptography.X509Certificates.X509Certificate2]$Certificate,
-
-        [ValidateSet('object', 'compact', 'all')]
-        [string]$Output = 'object'
+        [System.Security.Cryptography.X509Certificates.X509Certificate2]$Certificate
     )
 
     begin {
@@ -42,34 +39,7 @@ function Add-CertificateProperties {
     }
 
     end {
-        switch ($Output) {
-            all {
-                $certs | Select-Object *
-                continue
-            }
-
-            compact {
-                $certs | ForEach-Object {
-                    [string[]]$prop = $_.PSObject.Properties | Where-Object {
-                        $_.Value -and $_.Name -in @(
-                            'CN'
-                            'SAN'
-                            'NotAfter'
-                            'NotBefore'
-                            'SerialNumber'
-                            'Thumbprint'
-                            'Issuer'
-                            'Subject'
-                        )
-                    } | Select-Object -ExpandProperty Name
-                    $_ | Select-Object $prop
-                }
-            }
-
-            Default {
-                return $certs
-            }
-        }
+        return $certs
     }
 }
 
@@ -265,6 +235,71 @@ function Get-CertificateOpenSSL {
         # convert PEM encoded certificates to X509 certificate objects
         foreach ($pem in $pems) {
             [Security.Cryptography.X509Certificates.X509Certificate2]::new([Convert]::FromBase64String($pem))
+        }
+    }
+}
+
+<#
+.SYNOPSIS
+Show certificate chain for a specified Uri.
+
+.PARAMETER Uri
+Uri used for intercepting certificate chain.
+#>
+function Show-CertificateChain {
+    [CmdletBinding(DefaultParameterSetName = 'Compact')]
+    [OutputType([System.Security.Cryptography.X509Certificates.X509Certificate2[]])]
+    param (
+        [Parameter(Mandatory, Position = 0)]
+        [string]$Uri,
+
+        [Parameter(Mandatory, ParameterSetName = 'Strip')]
+        [switch]$Strip,
+
+        [Parameter(Mandatory, ParameterSetName = 'All')]
+        [switch]$All
+    )
+
+    begin {
+        $WarningPreference = 'Stop'
+    }
+
+    process {
+        $chain = try {
+            Get-Certificate $Uri -BuildChain | Add-CertificateProperties
+        } catch {
+            Write-Verbose 'Switching to OpenSSL for intercepting the certificate chain.'
+            Get-CertificateOpenSSL $Uri -BuildChain | Add-CertificateProperties
+        }
+    }
+
+    end {
+        switch ($PsCmdlet.ParameterSetName) {
+            Compact {
+                $chain | ForEach-Object {
+                    [string[]]$prop = $_.PSObject.Properties | Where-Object {
+                        $_.TypeNameOfValue -in @('System.DateTime', 'System.String') -and
+                        $_.MemberType -In @('AliasProperty', 'Property') -and
+                        $_.Value
+                    } | Select-Object -ExpandProperty Name
+                    $_ | Select-Object $prop
+                }
+            }
+
+            Strip {
+                $chain | ForEach-Object {
+                    [string[]]$prop = $_.PSObject.Properties | Where-Object {
+                        $_.TypeNameOfValue -in @('System.Boolean', 'System.DateTime', 'System.Int32', 'System.String') -and
+                        $_.MemberType -In @('AliasProperty', 'Property') -and
+                        "$($_.Value)" -ne ''
+                    } | Select-Object -ExpandProperty Name
+                    $_ | Select-Object $prop
+                }
+            }
+
+            All {
+                return $chain
+            }
         }
     }
 }
