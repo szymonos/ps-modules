@@ -156,7 +156,7 @@ Get certificate(s) from specified Uri.
 .PARAMETER Uri
 Uri used for intercepting certificate.
 .PARAMETER BuildChain
-Flag whether to build full certificate chain.
+Switch whether to build full certificate chain.
 .PARAMETER IgnoreValidation
 Ignore validation errors for getting certificate/building chain.
 #>
@@ -219,7 +219,7 @@ Get certificate(s) from specified Uri using OpenSSL application.
 .PARAMETER Uri
 Uri used for intercepting certificate.
 .PARAMETER BuildChain
-Flag whether to build full certificate chain.
+Switch whether to build full certificate chain.
 #>
 function Get-CertificateOpenSSL {
     [CmdletBinding()]
@@ -294,6 +294,7 @@ function Show-Certificate {
                     MemberType = @('AliasProperty', 'Property')
                     Strip      = $true
                 }
+                continue
             }
             Extended {
                 @{
@@ -301,6 +302,7 @@ function Show-Certificate {
                     MemberType = @('AliasProperty', 'Property')
                     Strip      = $true
                 }
+                continue
             }
             All { @{} }
         }
@@ -311,7 +313,7 @@ function Show-Certificate {
     }
 
     process {
-        $chain = try {
+        $cert = try {
             Get-Certificate @PSBoundParameters | Add-CertificateProperties
         } catch {
             Write-Verbose 'Switching to OpenSSL for intercepting the certificate chain.'
@@ -320,7 +322,7 @@ function Show-Certificate {
     }
 
     end {
-        $chain | Show-Object @showCertProp
+        $cert | Show-Object @showCertProp
     }
 }
 

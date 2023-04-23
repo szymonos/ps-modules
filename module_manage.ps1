@@ -126,6 +126,16 @@ process {
             continue
         }
 
+        Create {
+            # *scaffold new module manifest
+            if (-not (Test-Path -Path $srcModulePath -PathType Container)) {
+                New-Item -Path $srcModulePath -ItemType Directory | Out-Null
+            }
+            New-ModuleManifest -Path $srcModuleManifest
+            Write-Verbose "Created module manifest in $($srcModuleManifest.Replace($HOME, '~'))"
+            continue
+        }
+
         Delete {
             # *delete modules
             $modules = Get-Module $Module -ListAvailable
@@ -138,15 +148,6 @@ process {
             } else {
                 Write-Verbose "Module do not exists ($Module)."
             }
-        }
-
-        Create {
-            # *scaffold new module manifest
-            if (-not (Test-Path -Path $srcModulePath -PathType Container)) {
-                New-Item -Path $srcModulePath -ItemType Directory | Out-Null
-            }
-            New-ModuleManifest -Path $srcModuleManifest
-            Write-Verbose "Created module manifest in $($srcModuleManifest.Replace($HOME, '~'))"
             continue
         }
     }
