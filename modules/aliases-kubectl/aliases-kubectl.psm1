@@ -9,14 +9,14 @@ $exportModuleMemberParams = @{
         'Get-KubectlServerVersion'
         'Get-KubectlVersion'
         'Set-KubectlLocal'
-        'Set-KubectlUseContext'
+        'Get-KubectlContext'
+        'Set-KubectlContext'
         # alias
         'ktop'
         'ktopcntr'
         'kinf'
         'kav'
         'kcv'
-        'kcgctx'
         'kcsctxcns'
         'ksys'
         'ka'
@@ -824,6 +824,7 @@ $exportModuleMemberParams = @{
         'kv'
         'kvc'
         'kvs'
+        'kcgctx'
         'kcuctx'
     )
 }

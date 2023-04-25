@@ -3,7 +3,6 @@ function ktopcntr { Invoke-WriteExecCmd -Command 'kubectl top pod --use-protocol
 function kinf { Invoke-WriteExecCmd -Command 'kubectl cluster-info' -Arguments $args }
 function kav { Invoke-WriteExecCmd -Command 'kubectl api-versions' -Arguments $args }
 function kcv { Invoke-WriteExecCmd -Command 'kubectl config view' -Arguments $args }
-function kcgctx { Invoke-WriteExecCmd -Command 'kubectl config get-contexts' -Arguments $args }
 function kcsctxcns { Invoke-WriteExecCmd -Command 'kubectl config set-context --current --namespace' -Arguments $args }
 function ksys { Invoke-WriteExecCmd -Command 'kubectl --namespace=kube-system' -Arguments $args }
 function ka { Invoke-WriteExecCmd -Command 'kubectl apply --recursive -f' -Arguments $args }

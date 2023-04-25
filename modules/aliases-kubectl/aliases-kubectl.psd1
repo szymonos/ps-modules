@@ -12,7 +12,7 @@
 RootModule = 'aliases-kubectl.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.1.1'
+ModuleVersion = '0.2.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -76,14 +76,14 @@ FunctionsToExport = @(
     'Get-KubectlServerVersion'
     'Get-KubectlVersion'
     'Set-KubectlLocal'
-    'Set-KubectlUseContext'
+    'Get-KubectlContext'
+    'Set-KubectlContext'
     # alias
     'ktop'
     'ktopcntr'
     'kinf'
     'kav'
     'kcv'
-    'kcgctx'
     'kcsctxcns'
     'ksys'
     'ka'
@@ -898,6 +898,7 @@ AliasesToExport = @(
     'kv'
     'kvc'
     'kvs'
+    'kcgctx'
     'kcuctx'
 )
 
