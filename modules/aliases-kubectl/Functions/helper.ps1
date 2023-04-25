@@ -63,7 +63,7 @@ function Set-KubectlLocal {
 
     $serverVersion = Get-KubectlServerVersion
     if (-not $serverVersion) {
-        Write-Warning "Server not available."
+        Write-Warning 'Server not available.'
         break
     }
     $kctlVer = [IO.Path]::Combine($KUBECTL_DIR, $serverVersion, $KUBECTL)
@@ -98,8 +98,9 @@ function Set-KubectlLocal {
 Get list of available kubernetes contexts.
 #>
 function Get-KubectlContext {
-    Write-Host "kubectl config get-contexts" -ForegroundColor Magenta
-    (kubectl config get-contexts) -replace '\s+', "`t" | ConvertFrom-Csv -Delimiter "`t" | Select-Object NAME, CLUSTER, NAMESPACE
+    (kubectl config get-contexts) -replace '\s+', "`f" `
+    | ConvertFrom-Csv -Delimiter "`f" `
+    | Format-Table @{ N = '@'; E = { $_.CURRENT } }, NAME, CLUSTER, NAMESPACE
 }
 
 <#
