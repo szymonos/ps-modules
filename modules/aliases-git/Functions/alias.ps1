@@ -64,6 +64,8 @@ function gf { Invoke-WriteExecCmd -Command 'git fetch' -Arguments $args }
 function gfa { Invoke-WriteExecCmd -Command 'git fetch --all --prune' -Arguments $args }
 function gfo { Invoke-WriteExecCmd -Command 'git fetch origin' -Arguments $args }
 function gg { Invoke-WriteExecCmd -Command 'git grep --ignore-case' -Arguments $args }
+function ggc { Invoke-WriteExecCmd -Command 'git gc' -Arguments $args }
+function ggca { Invoke-WriteExecCmd -Command 'git gc --aggressive' -Arguments $args }
 function gge { Invoke-WriteExecCmd -Command 'git grep --ignore-case --extended-regexp' -Arguments $args }
 function ggp { Invoke-WriteExecCmd -Command 'git grep --ignore-case --perl-regexp' -Arguments $args }
 function ghh { Invoke-WriteExecCmd -Command 'git help' -Arguments $args }
@@ -109,7 +111,7 @@ function grbm { Invoke-WriteExecCmd -Command 'git rebase master' -Arguments $arg
 function grbs { Invoke-WriteExecCmd -Command 'git rebase --skip' -Arguments $args }
 function gr { Invoke-WriteExecCmd -Command 'git reset' -Arguments $args }
 function grh { Invoke-WriteExecCmd -Command 'git reset --hard' -Arguments $args }
-function grho { Invoke-WriteExecCmd "git fetch && git reset --hard origin/$(Get-GitCurrentBranch)" -Arguments $args }
+function grho { gfa; Invoke-WriteExecCmd "git reset --hard origin/$(Get-GitCurrentBranch)" -Arguments $args }
 function grmb { Invoke-WriteExecCmd -Command "git reset `$(git merge-base origin/$(Get-GitResolvedBranch $args) HEAD)" -Parameters $args }
 function grs { Invoke-WriteExecCmd -Command 'git reset --soft' -Arguments $args }
 function grmc { Invoke-WriteExecCmd -Command 'git rm --cached' -Arguments $args }

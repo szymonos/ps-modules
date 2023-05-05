@@ -100,7 +100,7 @@ Get list of available kubernetes contexts.
 function Get-KubectlContext {
     (kubectl config get-contexts) -replace '\s+', "`f" `
     | ConvertFrom-Csv -Delimiter "`f" `
-    | Format-Table @{ N = '@'; E = { $_.CURRENT } }, NAME, CLUSTER, NAMESPACE
+    | Format-Table @{ N = '@'; E = { $_.CURRENT } }, NAME, CLUSTER, NAMESPACE, AUTHINFO
 }
 
 <#
