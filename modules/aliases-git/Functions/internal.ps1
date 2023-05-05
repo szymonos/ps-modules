@@ -1,5 +1,41 @@
 <#
 .SYNOPSIS
+Get git log object.
+
+.PARAMETER All
+Switch whether to get commits from all branches.
+.PARAMETER Start
+Switch whether to get all commits, otherwise only last 50 will be shown.
+.PARAMETER Quiet
+Switch whether to write command.
+#>
+function Get-GitLogObject {
+    param (
+        [switch]$All,
+
+        [switch]$Start,
+
+        [switch]$Quiet
+    )
+    $cmd = "git log --pretty=format:`"%h`f%ai`f%D`f%s`f%an <%ae>`"$($All ? ' --all' : '')$($Start ? '' : ' -50')"
+    if (-not $Quiet) {
+        Write-Host $cmd.Replace("`f", '`t') -ForegroundColor Magenta
+    }
+    [string[]]$commit = Invoke-Expression $cmd
+    if ($commit) {
+        @("Commit`fDate`fReference`fSubject`fAuthor", $commit) `
+        | ConvertFrom-Csv -Delimiter "`f" `
+        | Select-Object Commit `
+            , @{ Name = 'DateUTC'; Expression = { [TimeZoneInfo]::ConvertTimeToUtc($_.Date).ToString('s') } } `
+            , @{ Name = 'Reference'; Expression = { $_.Reference.Replace('origin/', '').Split(',')[0] } } `
+            , Subject `
+            , Author `
+        | Sort-Object DateUTC
+    }
+}
+
+<#
+.SYNOPSIS
 Write provided command with its arguments and then execute it.
 You can suppress writing the command by providing -Quiet as one of the arguments.
 You can suppress executing the command by providing -WhatIf as one of the arguments.
