@@ -17,19 +17,20 @@ function Get-GitLogObject {
 
         [switch]$Quiet
     )
-    $cmd = "git log --pretty=format:`"%h`f%ai`f%D`f%s`f%an <%ae>`"$($All ? ' --all' : '')$($Start ? '' : ' -50')"
+    $cmd = "git log --pretty=format:`"%h`f%ai`f%D`f%s`f%an`f%ae`"$($All ? ' --all' : '')$($Start ? '' : ' -50')"
     if (-not $Quiet) {
         Write-Host $cmd.Replace("`f", '`t') -ForegroundColor Magenta
     }
     [string[]]$commit = Invoke-Expression $cmd
     if ($commit) {
-        @("Commit`fDate`fReference`fSubject`fAuthor", $commit) `
+        @("Commit`fDate`fReference`fSubject`fAuthor`fEmail", $commit) `
         | ConvertFrom-Csv -Delimiter "`f" `
         | Select-Object Commit `
             , @{ Name = 'DateUTC'; Expression = { [TimeZoneInfo]::ConvertTimeToUtc($_.Date).ToString('s') } } `
             , @{ Name = 'Reference'; Expression = { $_.Reference.Replace('origin/', '').Split(',')[0] } } `
             , Subject `
             , Author `
+            , Email `
         | Sort-Object DateUTC
     }
 }
