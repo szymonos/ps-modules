@@ -364,7 +364,7 @@ function Invoke-PySetup {
             list {
                 python3 -m pip list --format=json | ConvertFrom-Json | Tee-Object -Variable modules | Format-Table
                 $pipPath = (python3 -m pip -V) -replace '^.*from |pip \(.*$'
-                Write-Host "`e[96m$(python -V) `e[0m|`e[96m $($modules.Count) modules installed in `e[1;34m$pipPath`e[0m"
+                Write-Host "`e[96m$(python3 -V) `e[0m|`e[96m $($modules.Count) modules installed in `e[1;34m$pipPath`e[0m"
                 break
             }
 
