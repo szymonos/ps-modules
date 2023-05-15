@@ -7,7 +7,7 @@ function Get-SysInfo {
     $sysProp = [ordered]@{}
     $osRel.ForEach({
             $key, $value = $_.Split('=')
-            if ($key -match 'NAME|ID|VERSION') {
+            if ($key -notmatch '^#' -and $key -match 'NAME|ID|VERSION') {
                 $sysProp[$key] = $value.Trim("'|`"")
             }
         }
