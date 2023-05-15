@@ -362,9 +362,9 @@ function Invoke-PySetup {
 
             # *List installed modules.
             list {
-                python -m pip list --format=json | ConvertFrom-Json | Tee-Object -Variable modules | Format-Table
-                $pipPath = (python -m pip -V) -replace '^.*from |pip \(.*$'
-                Write-Host "`e[96m$(python -V) `e[0m|`e[96m $($modules.Count) modules installed in `e[1;34m$pipPath`e[0m"
+                python3 -m pip list --format=json | ConvertFrom-Json | Tee-Object -Variable modules | Format-Table
+                $pipPath = (python3 -m pip -V) -replace '^.*from |pip \(.*$'
+                Write-Host "`e[96m$(python3 -V) `e[0m|`e[96m $($modules.Count) modules installed in `e[1;34m$pipPath`e[0m"
                 break
             }
 
@@ -374,7 +374,7 @@ function Invoke-PySetup {
                 if ($null -eq $env:VIRTUAL_ENV) {
                     Write-Host "`e[96mSet up Python environment.`e[0m"
                     if (-not $venvCreated) {
-                        python -m venv $VENV_DIR
+                        python3 -m venv $VENV_DIR
                     }
                     # activate virtual environment
                     & $activateScript
@@ -407,7 +407,7 @@ function Invoke-PySetup {
             # *Update pip, wheel and setuptools.
             { $_ -in @('reqs', 'venv', 'update') } {
                 Write-Host "`e[95mupdate pip, wheel and setuptools`e[0m"
-                python -m pip install -U pip wheel setuptools
+                python3 -m pip install -U pip wheel setuptools
             }
 
             # *Install requirements.
@@ -420,7 +420,7 @@ function Invoke-PySetup {
                     Write-Host "`e[95install requirements`e[0m"
                     $reqs_temp = 'reqs_temp.txt'
                     Set-Content -Path $reqs_temp -Value $modules
-                    python -m pip install -U -r $reqs_temp
+                    python3 -m pip install -U -r $reqs_temp
                     Remove-Item $reqs_temp
                 }
                 # add project path in virtual environment
@@ -433,12 +433,12 @@ function Invoke-PySetup {
 
             # *Update all modules.
             update {
-                $modules = (python -m pip list --format=json | ConvertFrom-Json).name
+                $modules = (python3 -m pip list --format=json | ConvertFrom-Json).name
                 if ($modules) {
                     Write-Host "`e[95mupdate all modules`e[0m"
                     $reqs_temp = 'reqs_temp.txt'
                     Set-Content -Path $reqs_temp -Value $modules
-                    python -m pip install -U -r $reqs_temp
+                    python3 -m pip install -U -r $reqs_temp
                     Remove-Item $reqs_temp
                 }
                 break

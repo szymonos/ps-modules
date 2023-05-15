@@ -93,6 +93,28 @@ Set-Alias -Name du -Value Get-DiskUsage
 
 <#
 .SYNOPSIS
+Returns system information from /etc/os-release.
+#>
+function Get-SysInfo {
+    $gcim = Get-CimInstance -ClassName Win32_OperatingSystem
+    $cv = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\'
+
+    $sysProp = [ordered]@{
+        Edition      = $gcim.Caption.Replace('Microsoft ', '')
+        Version      = $cv.DisplayVersion
+        Build        = "$($cv.CurrentBuild).$($cv.UBR)"
+        Architecture = $gcim.OSArchitecture
+        Installed    = $gcim.InstallDate.ToString('yyyy-MM-d')
+        Device       = $env:COMPUTERNAME
+    }
+
+    return [PSCustomObject]$sysProp
+}
+
+New-Alias -Name gsys -Value Get-SysInfo
+
+<#
+.SYNOPSIS
 Create a new file.
 #>
 function New-File {

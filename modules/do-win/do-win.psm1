@@ -7,6 +7,7 @@ $exportModuleMemberParams = @{
         # common
         'Get-CommandSource'
         'Get-DiskUsage'
+        'Get-SysInfo'
         'New-File'
         # forms
         'Get-FileName'
@@ -16,8 +17,10 @@ $exportModuleMemberParams = @{
         'Invoke-WingetUpgrade'
     )
     Variable = @()
-    Alias  = @(
+    Alias    = @(
+        # common
         'du'
+        'gsys'
         'touch'
         'which'
     )

@@ -1,5 +1,32 @@
 <#
 .SYNOPSIS
+Returns system information from /etc/os-release.
+#>
+function Get-SysInfo {
+    $osRel = [System.IO.File]::ReadLines('/etc/os-release')
+    $sysProp = [ordered]@{}
+    $osRel.ForEach({
+            $key, $value = $_.Split('=')
+            if ($key -notmatch '^#' -and $key -match 'NAME|ID|VERSION') {
+                $sysProp[$key] = $value.Trim("'|`"")
+            }
+        }
+    )
+    $sysProp['DEVICE'] = $env:HOSTNAME ?? $env:NAME
+    if ($env:WSL_DISTRO_NAME) {
+        $sysProp['WSL_DISTRO_NAME'] = $env:WSL_DISTRO_NAME
+    }
+    if ($env:CONTAINER_ID) {
+        $sysProp['CONTAINER_ID'] = $env:CONTAINER_ID
+    }
+
+    return [PSCustomObject]$sysProp
+}
+
+New-Alias -Name gsys -Value Get-SysInfo
+
+<#
+.SYNOPSIS
 Run commands as root in PowerShell.
 .DESCRIPTION
 Wrapper for sudo command to handle defined aliases and one-liner functions.

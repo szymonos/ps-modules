@@ -22,30 +22,34 @@ Get-GitLogObject function colored aliases.
 function ggloc {
     Get-GitLogObject -Quiet | Format-Table @{ Name = 'Commit'; Expression = { "`e[33m$($_.Commit)`e[0m" } } `
         , @{ Name = 'DateUTC'; Expression = { "`e[32m$($_.DateUTC)`e[0m" } } `
-        , @{ Name = 'Reference'; Expression = { "`e[31m$($_.Reference.Replace('origin/', '').Split(',')[0])`e[0m" } } `
-        , @{ Name = 'Subject'; Expression = { $_.Subject.Length -gt 50 ? $_.Subject.Substring(0, 49) : $_.Subject } } `
-        , @{ Name = 'Author'; Expression = { "`e[34;1m$($_.Author)`e[0m" } }
+        , @{ Name = 'Reference'; Expression = { $ref = $_.Reference.Replace('origin/', '').Split(',')[0]; "`e[31m$($ref.Substring(0, [Math]::Min(25, $ref.Length)))`e[0m" } } `
+        , @{ Name = 'Subject'; Expression = { $_.Subject.Substring(0, [Math]::Min(49, $_.Subject.Length)) } } `
+        , @{ Name = 'Author'; Expression = { "`e[34;1m$($_.Author)`e[0m" } } `
+        , @{ Name = 'Email'; Expression = { "`e[36;3m$($_.Email)`e[0m" } }
 }
 function ggloca {
     Get-GitLogObject -Quiet -All | Format-Table @{ Name = 'Commit'; Expression = { "`e[33m$($_.Commit)`e[0m" } } `
         , @{ Name = 'DateUTC'; Expression = { "`e[32m$($_.DateUTC)`e[0m" } } `
-        , @{ Name = 'Reference'; Expression = { "`e[31m$($_.Reference.Replace('origin/', '').Split(',')[0])`e[0m" } } `
-        , @{ Name = 'Subject'; Expression = { $_.Subject.Length -gt 50 ? $_.Subject.Substring(0, 49) : $_.Subject } } `
-        , @{ Name = 'Author'; Expression = { "`e[34;1m$($_.Author)`e[0m" } }
+        , @{ Name = 'Reference'; Expression = { $ref = $_.Reference.Replace('origin/', '').Split(',')[0]; "`e[31m$($ref.Substring(0, [Math]::Min(25, $ref.Length)))`e[0m" } } `
+        , @{ Name = 'Subject'; Expression = { $_.Subject.Substring(0, [Math]::Min(49, $_.Subject.Length)) } } `
+        , @{ Name = 'Author'; Expression = { "`e[34;1m$($_.Author)`e[0m" } } `
+        , @{ Name = 'Email'; Expression = { "`e[36;3m$($_.Email)`e[0m" } }
 }
 function gglocs {
     Get-GitLogObject -Quiet -Start | Format-Table @{ Name = 'Commit'; Expression = { "`e[33m$($_.Commit)`e[0m" } } `
         , @{ Name = 'DateUTC'; Expression = { "`e[32m$($_.DateUTC)`e[0m" } } `
-        , @{ Name = 'Reference'; Expression = { "`e[31m$($_.Reference.Replace('origin/', '').Split(',')[0])`e[0m" } } `
-        , @{ Name = 'Subject'; Expression = { $_.Subject.Length -gt 50 ? $_.Subject.Substring(0, 49) : $_.Subject } } `
-        , @{ Name = 'Author'; Expression = { "`e[34;1m$($_.Author)`e[0m" } }
+        , @{ Name = 'Reference'; Expression = { $ref = $_.Reference.Replace('origin/', '').Split(',')[0]; "`e[31m$($ref.Substring(0, [Math]::Min(25, $ref.Length)))`e[0m" } } `
+        , @{ Name = 'Subject'; Expression = { $_.Subject.Substring(0, [Math]::Min(49, $_.Subject.Length)) } } `
+        , @{ Name = 'Author'; Expression = { "`e[34;1m$($_.Author)`e[0m" } } `
+        , @{ Name = 'Email'; Expression = { "`e[36;3m$($_.Email)`e[0m" } }
 }
 function gglocsa {
     Get-GitLogObject -Quiet -Start -All | Format-Table @{ Name = 'Commit'; Expression = { "`e[33m$($_.Commit)`e[0m" } } `
         , @{ Name = 'DateUTC'; Expression = { "`e[32m$($_.DateUTC)`e[0m" } } `
-        , @{ Name = 'Reference'; Expression = { "`e[31m$($_.Reference.Replace('origin/', '').Split(',')[0])`e[0m" } } `
-        , @{ Name = 'Subject'; Expression = { $_.Subject.Length -gt 50 ? $_.Subject.Substring(0, 49) : $_.Subject } } `
-        , @{ Name = 'Author'; Expression = { "`e[34;1m$($_.Author)`e[0m" } }
+        , @{ Name = 'Reference'; Expression = { $ref = $_.Reference.Replace('origin/', '').Split(',')[0]; "`e[31m$($ref.Substring(0, [Math]::Min(25, $ref.Length)))`e[0m" } } `
+        , @{ Name = 'Subject'; Expression = { $_.Subject.Substring(0, [Math]::Min(49, $_.Subject.Length)) } } `
+        , @{ Name = 'Author'; Expression = { "`e[34;1m$($_.Author)`e[0m" } } `
+        , @{ Name = 'Email'; Expression = { "`e[36;3m$($_.Email)`e[0m" } }
 }
 
 <#
