@@ -39,23 +39,34 @@ function Invoke-CondaSetup {
             Get-Item Env:/CONDA_EXE -ErrorAction Stop | Out-Null
         } catch {
             if (Test-Path $HOME/miniconda3/bin/conda) {
-                Write-Warning 'Conda not initialized.'
+                Write-Warning "Conda not initialized.`n"
                 [Console]::WriteLine(
                     [string]::Join("`n",
                         'Run the below command to add conda initialization to Powershell for the current user:',
-                        "`e[1m& `"`$HOME/miniconda3/bin/conda`" init powershell`e[0m"
+                        "`e[1m& `"`$HOME/miniconda3/$($IsWindows ? 'Scripts/conda.exe' : 'bin/conda')`" init powershell`e[0m"
                     )
                 )
                 return
             } else {
-                Write-Warning 'Conda not installed.'
-                [Console]::WriteLine(
-                    [string]::Join("`n",
-                        'Run the below commands to install miniconda:',
-                        "`e[1mcurl -fsSL -o miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh`e[0m",
-                        "`e[1mbash ./miniconda.sh -b -p `$HOME/miniconda3 && rm -f ./miniconda.sh`e[0m"
+                Write-Warning "Conda not installed.`n"
+                [Console]::WriteLine('Run the below command(s) to install miniconda:')
+                if ($IsWindows) {
+                    [Console]::WriteLine("`e[1mwinget install --id Anaconda.Miniconda3`e[0m")
+                } elseif ($IsLinux) {
+                    [Console]::WriteLine(
+                        [string]::Join("`n",
+                            "`e[1mcurl -fsSLO https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh",
+                            "sh ./Miniconda3-latest-Linux-x86_64.sh -b -p `$HOME/miniconda3 && rm -f ./Miniconda3-latest-Linux-x86_64.sh`e[0m"
+                        )
                     )
-                )
+                } elseif ($IsMacOS) {
+                    [Console]::WriteLine(
+                        [string]::Join("`n",
+                            "`e[1mcurl -fsSLO https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh",
+                            "sh ./Miniconda3-latest-MacOSX-x86_64.sh -b -p `$HOME/miniconda3 && rm -f ./Miniconda3-latest-MacOSX-x86_64.sh`e[0m"
+                        )
+                    )
+                }
                 return
             }
         }
