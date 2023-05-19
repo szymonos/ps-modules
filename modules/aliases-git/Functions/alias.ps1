@@ -71,19 +71,22 @@ function ggp { Invoke-WriteExecCmd -Command 'git grep --ignore-case --perl-regex
 function ghh { Invoke-WriteExecCmd -Command 'git help' -Arguments $args }
 function gignore { Invoke-WriteExecCmd -Command 'git update-index --assume-unchanged' -Arguments $args }
 function gignored { Invoke-WriteExecCmd -Command 'git ls-files -v | Select-String "^[a-z]" -CaseSensitive' -Parameters $args }
-function glg { Invoke-WriteExecCmd -Command 'git log --graph' -Arguments $args }
-function glga { Invoke-WriteExecCmd -Command 'git log --graph --decorate --all' -Arguments $args }
-function glgm { Invoke-WriteExecCmd -Command 'git log --graph --max-count=10' -Arguments $args }
-function glo { Invoke-WriteExecCmd -Command 'git log --oneline --decorate' -Arguments $args }
-function gloa { Invoke-WriteExecCmd -Command 'git log --oneline --decorate --all' -Arguments $args }
-function glog { Invoke-WriteExecCmd -Command 'git log --oneline --decorate --graph' -Arguments $args }
-function gloga { Invoke-WriteExecCmd -Command 'git log --oneline --decorate --graph --all' -Arguments $args }
+function glo { Invoke-WriteExecCmd -Command 'git log --date=rfc' -Arguments $args }
+function gloa { Invoke-WriteExecCmd -Command 'git log --date=rfc --all' -Arguments $args }
+function glog { Invoke-WriteExecCmd -Command 'git log --date=rfc --graph' -Arguments $args }
+function gloga { Invoke-WriteExecCmd -Command 'git log --date=rfc --graph --decorate --all' -Arguments $args }
 function glol { Invoke-WriteExecCmd -Command 'git log --graph --pretty="%C(yellow)%h%C(reset) %C(green)(%cr)%C(reset)%C(red)%d%C(reset) %s %C(bold blue)<%an>%C(reset)" --abbrev-commit' -Arguments $args }
 function glola { Invoke-WriteExecCmd -Command 'git log --graph --pretty="%C(yellow)%h%C(reset) %C(green)(%cr)%C(reset)%C(red)%d%C(reset) %s %C(bold blue)<%an>%C(reset)" --abbrev-commit --all' -Arguments $args }
+function glon { Invoke-WriteExecCmd -Command 'git log --oneline --decorate' -Arguments $args }
+function glona { Invoke-WriteExecCmd -Command 'git log --oneline --decorate --all' -Arguments $args }
+function glong { Invoke-WriteExecCmd -Command 'git log --oneline --decorate --graph' -Arguments $args }
+function glonga { Invoke-WriteExecCmd -Command 'git log --oneline --decorate --graph --all' -Arguments $args }
 function glop { Invoke-WriteExecCmd -Command 'git log --pretty=format:"%C(yellow)%h%C(reset) %C(green)(%ai)%C(reset)%C(red)%d%C(reset) %s %C(bold blue)<%ae>%C(reset)" --abbrev-commit' -Arguments $args }
 function glopa { Invoke-WriteExecCmd -Command 'git log --pretty=format:"%C(yellow)%h%C(reset) %C(green)(%ai)%C(reset)%C(red)%d%C(reset) %s %C(bold blue)<%ae>%C(reset)" --abbrev-commit --all' -Arguments $args }
-function gls { Invoke-WriteExecCmd -Command 'git log --stat' -Arguments $args }
-function glsp { Invoke-WriteExecCmd -Command 'git log --stat --patch' -Arguments $args }
+function glos { Invoke-WriteExecCmd -Command 'git log --date=rfc --stat' -Arguments $args }
+function glosa { Invoke-WriteExecCmd -Command 'git log --date=rfc --stat --all' -Arguments $args }
+function glosp { Invoke-WriteExecCmd -Command 'git log --date=rfc --stat --patch' -Arguments $args }
+function glospa { Invoke-WriteExecCmd -Command 'git log --date=rfc --stat --patch --all' -Arguments $args }
 function gmg { Invoke-WriteExecCmd -Command 'git merge' -Arguments $args }
 function gmgom { Invoke-WriteExecCmd -Command 'git merge origin/master' -Arguments $args }
 function gmgum { Invoke-WriteExecCmd -Command 'git merge upstream/master' -Arguments $args }
@@ -111,7 +114,7 @@ function grbm { Invoke-WriteExecCmd -Command 'git rebase master' -Arguments $arg
 function grbs { Invoke-WriteExecCmd -Command 'git rebase --skip' -Arguments $args }
 function gr { Invoke-WriteExecCmd -Command 'git reset' -Arguments $args }
 function grh { Invoke-WriteExecCmd -Command 'git reset --hard' -Arguments $args }
-function grho { gfa; Invoke-WriteExecCmd "git reset --hard origin/$(Get-GitCurrentBranch)" -Arguments $args }
+function grho { Invoke-WriteExecCmd -Command 'git fetch --all --prune' -Parameters $args; Invoke-WriteExecCmd -Command "git reset --hard origin/$(Get-GitCurrentBranch)" -Parameters $args }
 function grmb { Invoke-WriteExecCmd -Command "git reset `$(git merge-base origin/$(Get-GitResolvedBranch $args) HEAD)" -Parameters $args }
 function grs { Invoke-WriteExecCmd -Command 'git reset --soft' -Arguments $args }
 function grmc { Invoke-WriteExecCmd -Command 'git rm --cached' -Arguments $args }
