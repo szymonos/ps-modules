@@ -35,6 +35,30 @@ function Invoke-CondaSetup {
     }
 
     begin {
+        try {
+            Get-Item Env:/CONDA_EXE -ErrorAction Stop | Out-Null
+        } catch {
+            if (Test-Path $HOME/miniconda3/bin/conda) {
+                Write-Warning 'Conda not initialized.'
+                [Console]::WriteLine(
+                    [string]::Join("`n",
+                        'Run the below command to add conda initialization to Powershell for the current user:',
+                        "`e[1m& `"`$HOME/miniconda3/bin/conda`" init powershell`e[0m"
+                    )
+                )
+                return
+            } else {
+                Write-Warning 'Conda not installed.'
+                [Console]::WriteLine(
+                    [string]::Join("`n",
+                        'Run the below commands to install miniconda:',
+                        "`e[1mcurl -fsSL -o miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh`e[0m",
+                        "`e[1mbash ./miniconda.sh -b -p `$HOME/miniconda3 && rm -f ./miniconda.sh`e[0m"
+                    )
+                )
+                return
+            }
+        }
         if (-not $Option) {
             [Console]::WriteLine(
                 [string]::Join("`n",
