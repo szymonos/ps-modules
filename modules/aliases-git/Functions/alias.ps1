@@ -62,7 +62,13 @@ function gdw { Invoke-WriteExecCmd -Command 'git diff --word-diff' -Arguments $a
 function gdct { Invoke-WriteExecCmd -Command 'git describe --tags `git rev-list --tags --max-count=1`' -Arguments $args }
 function gf { Invoke-WriteExecCmd -Command 'git fetch' -Arguments $args }
 function gfa { Invoke-WriteExecCmd -Command 'git fetch --all --prune' -Arguments $args }
-function gfo { Invoke-WriteExecCmd -Command 'git fetch origin' -Arguments $args }
+function gfo {
+    if ($remote = git remote) {
+        Invoke-WriteExecCmd -Command "git fetch $remote" -Arguments $args
+    } else {
+        Write-Host 'fatal: Remote repository not set.'
+    }
+}
 function gg { Invoke-WriteExecCmd -Command 'git grep --ignore-case' -Arguments $args }
 function ggc { Invoke-WriteExecCmd -Command 'git gc' -Arguments $args }
 function ggca { Invoke-WriteExecCmd -Command 'git gc --aggressive' -Arguments $args }
@@ -88,34 +94,69 @@ function glosa { Invoke-WriteExecCmd -Command 'git log --date=rfc --stat --all' 
 function glosp { Invoke-WriteExecCmd -Command 'git log --date=rfc --stat --patch' -Arguments $args }
 function glospa { Invoke-WriteExecCmd -Command 'git log --date=rfc --stat --patch --all' -Arguments $args }
 function gmg { Invoke-WriteExecCmd -Command 'git merge' -Arguments $args }
-function gmgom { Invoke-WriteExecCmd -Command 'git merge origin/master' -Arguments $args }
-function gmgum { Invoke-WriteExecCmd -Command 'git merge upstream/master' -Arguments $args }
+function gmgo {
+    if ($remote = git remote) {
+        Invoke-WriteExecCmd -Command "git fetch $remote $(Get-GitCurrentBranch) --quiet" -Parameters $args
+        Invoke-WriteExecCmd -Command "git merge $remote/$(Get-GitCurrentBranch)" -Arguments $args
+    } else {
+        Write-Host 'fatal: Remote repository not set.'
+    }
+}
 function gmt { Invoke-WriteExecCmd -Command 'git mergetool --no-prompt' -Arguments $args }
 function gmtvim { Invoke-WriteExecCmd -Command 'git mergetool --no-prompt --tool=vimdiff' -Arguments $args }
-function gpl { Invoke-WriteExecCmd -Command "git pull origin $(Get-GitCurrentBranch)" -Arguments $args }
+function gpl {
+    if ($remote = git remote) {
+        Invoke-WriteExecCmd -Command "git pull $remote $(Get-GitCurrentBranch)" -Arguments $args
+    } else {
+        Write-Host 'fatal: Remote repository not set.'
+    }
+}
 function gpull { Invoke-WriteExecCmd -Command 'git pull' -Arguments $args }
 function gpullr { Invoke-WriteExecCmd -Command 'git pull --rebase' -Arguments $args }
 function gpullra { Invoke-WriteExecCmd -Command 'git pull --rebase --autostash' -Arguments $args }
 function gpullrav { Invoke-WriteExecCmd -Command 'git pull --rebase --autostash --verbose' -Arguments $args }
 function gpullrv { Invoke-WriteExecCmd -Command 'git pull --rebase --verbose' -Arguments $args }
-function gpullum { Invoke-WriteExecCmd -Command 'git pull upstream master' -Arguments $args }
 function gpush { Invoke-WriteExecCmd -Command 'git push' -Arguments $args }
 function gpush! { Invoke-WriteExecCmd -Command 'git push --force' -Arguments $args }
 function gpushd { Invoke-WriteExecCmd -Command 'git push --dry-run' -Arguments $args }
-function gpushoat { Invoke-WriteExecCmd -Command 'git push origin --all && git push origin --tags' -Parameters $args }
+function gpushoat {
+    if ($remote = git remote) {
+        Invoke-WriteExecCmd -Command "git push $remote --all && git push $remote --tags" -Parameters $args
+    } else {
+        Write-Host 'fatal: Remote repository not set.'
+    }
+}
 function gpushsup { Invoke-WriteExecCmd -Command "git push --set-upstream origin $(Get-GitCurrentBranch)" -Arguments $args }
-function gpushu { Invoke-WriteExecCmd -Command 'git push upstream' -Arguments $args }
 function gpushv { Invoke-WriteExecCmd -Command 'git push --verbose' -Arguments $args }
 function grb { Invoke-WriteExecCmd -Command 'git rebase' -Arguments $args }
 function grba { Invoke-WriteExecCmd -Command 'git rebase --abort' -Arguments $args }
 function grbc { Invoke-WriteExecCmd -Command 'git rebase --continue' -Arguments $args }
 function grbi { Invoke-WriteExecCmd -Command 'git rebase --interactive' -Arguments $args }
-function grbm { Invoke-WriteExecCmd -Command 'git rebase master' -Arguments $args }
+function grbo {
+    if ($remote = git remote) {
+        Invoke-WriteExecCmd -Command "git fetch $remote $(Get-GitCurrentBranch) --quiet" -Parameters $args
+        Invoke-WriteExecCmd -Command "git rebase $remote/$(Get-GitCurrentBranch)" -Arguments $args
+    } else {
+        Write-Host 'fatal: Remote repository not set.'
+    }
+}
 function grbs { Invoke-WriteExecCmd -Command 'git rebase --skip' -Arguments $args }
 function gr { Invoke-WriteExecCmd -Command 'git reset' -Arguments $args }
 function grh { Invoke-WriteExecCmd -Command 'git reset --hard' -Arguments $args }
-function grho { Invoke-WriteExecCmd -Command 'git fetch --all --prune' -Parameters $args; Invoke-WriteExecCmd -Command "git reset --hard origin/$(Get-GitCurrentBranch)" -Parameters $args }
-function grmb { Invoke-WriteExecCmd -Command "git reset `$(git merge-base origin/$(Get-GitResolvedBranch $args) HEAD)" -Parameters $args }
+function grho {
+    if ($remote = git remote) {
+        Invoke-WriteExecCmd -Command 'git fetch --all --prune' -Parameters $args
+        Invoke-WriteExecCmd -Command "git reset --hard $remote/$(Get-GitCurrentBranch)" -Parameters $args
+    } else {
+        Write-Host 'fatal: Remote repository not set.'
+    }
+}
+function grmb {
+    if ($remote = git remote) {
+        Invoke-WriteExecCmd -Command 'git fetch --all --prune' -Parameters $args
+    }
+    Invoke-WriteExecCmd -Command "git reset `$(git merge-base $($remote ? "$remote/" : '')$(Get-GitResolvedBranch $args) HEAD)" -Parameters $args
+}
 function grs { Invoke-WriteExecCmd -Command 'git reset --soft' -Arguments $args }
 function grmc { Invoke-WriteExecCmd -Command 'git rm --cached' -Arguments $args }
 function grm! { Invoke-WriteExecCmd -Command 'git rm --force' -Arguments $args }
@@ -128,8 +169,20 @@ function grta { Invoke-WriteExecCmd -Command 'git remote add' -Arguments $args }
 function grtrm { Invoke-WriteExecCmd -Command 'git remote remove' -Arguments $args }
 function grtrn { Invoke-WriteExecCmd -Command 'git remote rename' -Arguments $args }
 function grtsu { Invoke-WriteExecCmd -Command 'git remote set-url' -Arguments $args }
-function grtup { Invoke-WriteExecCmd -Command 'git remote update origin' -Arguments $args }
-function grtupp { Invoke-WriteExecCmd -Command 'git remote update origin --prune' -Arguments $args }
+function grtup {
+    if ($remote = git remote) {
+        Invoke-WriteExecCmd -Command "git remote update $remote" -Arguments $args
+    } else {
+        Write-Host 'fatal: Remote repository not set.'
+    }
+}
+function grtupp {
+    if ($remote = git remote) {
+        Invoke-WriteExecCmd -Command "git remote update $remote --prune" -Arguments $args
+    } else {
+        Write-Host 'fatal: Remote repository not set.'
+    }
+}
 function grtv { Invoke-WriteExecCmd -Command 'git remote --verbose' -Arguments $args }
 function gsw { Invoke-WriteExecCmd -Command "git switch $(Get-GitResolvedBranch $args)" -Parameters $args }
 function gsw! { Invoke-WriteExecCmd -Command "git switch $(Get-GitResolvedBranch $args) --force" -Parameters $args }
