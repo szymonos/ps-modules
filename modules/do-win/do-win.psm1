@@ -20,7 +20,7 @@ $exportModuleMemberParams = @{
     Alias    = @(
         # common
         'du'
-        'gsys'
+        'gsi'
         'touch'
         'which'
     )
