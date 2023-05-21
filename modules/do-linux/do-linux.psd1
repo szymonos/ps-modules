@@ -12,7 +12,7 @@
 RootModule = 'do-linux.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.4.1'
+ModuleVersion = '0.4.3'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -72,6 +72,7 @@ PowerShellVersion = '7.0'
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
     # common
+    'Get-OsRelease'
     'Get-SysInfo'
     'Invoke-Sudo'
     'Invoke-SudoPS'
@@ -87,7 +88,8 @@ VariablesToExport = '*'
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
 AliasesToExport = @(
     # common
-    'gsys'
+    'osr'
+    'gsi'
     '_'
     'sps'
     'feb'

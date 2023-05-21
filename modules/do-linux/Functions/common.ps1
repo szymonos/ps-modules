@@ -2,28 +2,53 @@
 .SYNOPSIS
 Returns system information from /etc/os-release.
 #>
-function Get-SysInfo {
-    $osRel = [System.IO.File]::ReadLines('/etc/os-release')
+function Get-OsRelease {
     $sysProp = [ordered]@{}
-    $osRel.ForEach({
-            $key, $value = $_.Split('=')
-            if ($key -notmatch '^#' -and $key -match 'NAME|ID|VERSION') {
-                $sysProp[$key] = $value.Trim("'|`"")
+    [System.IO.File]::ReadLines('/etc/os-release').ForEach({
+            $key, $value = $_.Split('=').Trim("'|`"")
+            if ($key -notmatch '^#' -and $value) {
+                $sysProp[$key] = $value
             }
         }
     )
-    $sysProp['DEVICE'] = $env:HOSTNAME ?? $env:NAME
-    if ($env:WSL_DISTRO_NAME) {
-        $sysProp['WSL_DISTRO_NAME'] = $env:WSL_DISTRO_NAME
-    }
-    if ($env:CONTAINER_ID) {
-        $sysProp['CONTAINER_ID'] = $env:CONTAINER_ID
-    }
 
     return [PSCustomObject]$sysProp
 }
 
-New-Alias -Name gsys -Value Get-SysInfo
+New-Alias -Name osr -Value Get-OsRelease
+
+<#
+.SYNOPSIS
+Returns system information from /etc/os-release.
+#>
+function Get-SysInfo {
+    # get os-release properties
+    $osr = Get-OsRelease
+    # calculate memory usage
+    $mem = @{}
+    (Select-String '^Mem' '/proc/meminfo' -Raw).ForEach({ $key, $value = $_.Split(':'); $mem[$key] = ($value -replace '[^0-9]') / 1MB })
+    $mem['MemUsed'] = $mem.MemTotal - $mem.MemAvailable
+
+    # build system properties
+    $sysProp = [ordered]@{
+        UserHost = "`e[1;34m$(id -un)`e[0m@`e[1;34m$($env:HOSTNAME ?? $env:NAME)`e[0m"
+        OS       = "$($osr.NAME) $($osr.BUILD_ID ?? $osr.VERSION ?? $osr.VERSION_ID) $(uname -m)"
+        Kernel   = uname -r
+        Uptime   = "$(Get-Uptime)"
+    }
+    if ($env:WSL_DISTRO_NAME) { $sysProp['OS Host'] = 'Windows Subsystem for Linux' }
+    if ($env:WSL_DISTRO_NAME) { $sysProp['WSL Distro'] = $env:WSL_DISTRO_NAME }
+    if ($env:CONTAINER_ID) { $sysProp['DistroBox'] = $env:CONTAINER_ID }
+    if ($env:TERM_PROGRAM) { $sysProp['Terminal'] = $env:TERM_PROGRAM }
+    $sysProp['Shell'] = "PowerShell $($PSVersionTable.PSVersion)"
+    $sysProp['CPU'] = (Select-String '^model name.+: (.+)' '/proc/cpuinfo')[0].Matches.Groups.Where({ $_.Name -eq 1 }).Value
+    $sysProp['Memory'] = '{0:n2} GiB / {1:n2} GiB ({2:p0})' -f $mem.MemUsed, $mem.MemTotal, ($mem.MemUsed / $mem.MemTotal)
+    if ($env:LANG) { $sysProp['Locale'] = $env:LANG }
+
+    return [PSCustomObject]$sysProp
+}
+
+New-Alias -Name gsi -Value Get-SysInfo
 
 <#
 .SYNOPSIS

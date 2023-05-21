@@ -3,6 +3,7 @@
 $exportModuleMemberParams = @{
     Function = @(
         # common
+        'Get-OsRelease'
         'Get-SysInfo'
         'Invoke-Sudo'
         'Invoke-SudoPS'
@@ -11,7 +12,8 @@ $exportModuleMemberParams = @{
     Variable = @()
     Alias    = @(
         # common
-        'gsys'
+        'osr'
+        'gsi'
         '_'
         'sps'
         'feb'
