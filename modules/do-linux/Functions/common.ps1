@@ -26,7 +26,11 @@ function Get-SysInfo {
     $osr = Get-OsRelease
     # calculate memory usage
     $mem = @{}
-    (Select-String '^Mem' '/proc/meminfo' -Raw).ForEach({ $key, $value = $_.Split(':'); $mem[$key] = ($value -replace '[^0-9]') / 1MB })
+    (Select-String '^MemTotal|^MemAvailable' '/proc/meminfo' -Raw).ForEach({
+            $key, $value = $_.Split(':')
+            $mem[$key] = ($value -replace '[^0-9]') / 1MB
+        }
+    )
     $mem['MemUsed'] = $mem.MemTotal - $mem.MemAvailable
 
     # build system properties
