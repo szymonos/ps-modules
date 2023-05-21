@@ -48,7 +48,7 @@ function Get-SysInfo {
     return [PSCustomObject]$sysProp
 }
 
-New-Alias -Name gsys -Value Get-SysInfo
+New-Alias -Name gsi -Value Get-SysInfo
 
 <#
 .SYNOPSIS

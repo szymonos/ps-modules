@@ -13,7 +13,7 @@ $exportModuleMemberParams = @{
     Alias    = @(
         # common
         'osr'
-        'gsys'
+        'gsi'
         '_'
         'sps'
         'feb'
