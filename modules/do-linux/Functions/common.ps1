@@ -24,6 +24,13 @@ Returns system information from /etc/os-release.
 function Get-SysInfo {
     # get os-release properties
     $osr = Get-OsRelease
+    # get cpu info
+    $cpu = @{}
+    (Select-String '^model name|^cpu cores' '/proc/cpuinfo' -Raw | Select-Object -Unique).ForEach({
+            $key, $value = $_.Split(':').Trim()
+            $cpu[$key] = $value
+        }
+    )
     # calculate memory usage
     $mem = @{}
     (Select-String '^MemTotal|^MemAvailable' '/proc/meminfo' -Raw).ForEach({
@@ -45,8 +52,8 @@ function Get-SysInfo {
     if ($env:CONTAINER_ID) { $sysProp['DistroBox'] = $env:CONTAINER_ID }
     if ($env:TERM_PROGRAM) { $sysProp['Terminal'] = $env:TERM_PROGRAM }
     $sysProp['Shell'] = "PowerShell $($PSVersionTable.PSVersion)"
-    $sysProp['CPU'] = (Select-String '^model name.+: (.+)' '/proc/cpuinfo')[0].Matches.Groups.Where({ $_.Name -eq 1 }).Value
-    $sysProp['Memory'] = '{0:n2} GiB / {1:n2} GiB ({2:p0})' -f $mem.MemUsed, $mem.MemTotal, ($mem.MemUsed / $mem.MemTotal)
+    $sysProp['CPU'] = "{0} ({1})" -f $cpu['model name'], $cpu['cpu cores']
+    $sysProp['Memory'] = '{0:n2} GiB / {1:n2} GiB ({2:p0})' -f $mem['MemUsed'], $mem['MemTotal'], ($mem['MemUsed'] / $mem['MemTotal'])
     if ($env:LANG) { $sysProp['Locale'] = $env:LANG }
 
     return [PSCustomObject]$sysProp
