@@ -96,7 +96,7 @@ process {
                 $manifest = Test-ModuleManifest $srcModuleManifest -ErrorAction SilentlyContinue
                 foreach ($mod in $manifest.RequiredModules.Name) {
                     if (-not (Get-Module -ListAvailable $mod)) {
-                        Install-PSResource $mod
+                        Install-PSResource $mod -WarningAction SilentlyContinue
                     }
                 }
             } catch {
