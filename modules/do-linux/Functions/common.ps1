@@ -42,7 +42,7 @@ function Get-SysInfo {
 
     # build system properties
     $sysProp = [ordered]@{
-        UserHost = "`e[1;34m$(id -un)`e[0m@`e[1;34m$($env:HOSTNAME ?? $env:NAME)`e[0m"
+        UserHost = "`e[1;34m$(id -un)`e[0m@`e[1;34m$([System.IO.File]::ReadAllLines('/proc/sys/kernel/hostname'))`e[0m"
         OS       = "$($osr.NAME) $($osr.BUILD_ID ?? $osr.VERSION ?? $osr.VERSION_ID) $(uname -m)"
         Kernel   = uname -r
         Uptime   = "$(Get-Uptime)"
