@@ -3,6 +3,7 @@ $ErrorActionPreference = 'Stop'
 <#
 .SYNOPSIS
 Generic Search-AzGraph request.
+
 .PARAMETER Query
 Kusto query.
 .PARAMETER SubscriptionId
@@ -56,6 +57,7 @@ function Invoke-AzGraph {
 <#
 .SYNOPSIS
 Get Azure Subscriptions using AzGraph.
+
 .PARAMETER SubscriptionId
 Specifies the ID of the subscription to get.
 .PARAMETER SubscriptionName
@@ -124,6 +126,9 @@ function Get-AzGraphSubscriptions {
 <#
 .SYNOPSIS
 Get resources group(s) in specified subscription.
+
+.PARAMETER ResourceId
+ID of the resource group to be retrieved.
 .PARAMETER SubscriptionId
 Specifies the ID of the subscription that contains resource groups to get.
 .PARAMETER ManagementGroup
@@ -210,8 +215,13 @@ function Get-AzGraphResourceGroups {
 <#
 .SYNOPSIS
 Get Azure resource group by name.
+
 .PARAMETER ResourceGroupName
 Resource group name.
+.PARAMETER SubscriptionId
+Optional SubscriptionId to run query against.
+.PARAMETER ManagementGroup
+Optional ManagementGroup to run query against.
 #>
 function Get-AzGraphResourceGroupByName {
     [CmdletBinding(DefaultParameterSetName = 'ByName')]
@@ -260,6 +270,9 @@ function Get-AzGraphResourceGroupByName {
 <#
 .SYNOPSIS
 Get resources using AzGraph.
+
+.PARAMETER ResourceId
+ID of the resource to be retrieved.
 .PARAMETER SubscriptionId
 Specifies the ID of the subscription that contains resources to get.
 .PARAMETER ManagementGroup
@@ -368,10 +381,17 @@ function Get-AzGraphResources {
 <#
 .SYNOPSIS
 Get Azure resource object by name and type.
+
 .PARAMETER ResourceName
 The name of the resource to be retrieved.
 .PARAMETER ResourceType
 The resource type of the resource to be retrieved.
+.PARAMETER ExcludeTypes
+Resource types to be excluded when retrieving the resource object.
+.PARAMETER SubscriptionId
+Optional SubscriptionId to run query against.
+.PARAMETER ManagementGroup
+Optional ManagementGroup to run query against.
 #>
 function Get-AzGraphResourceByName {
     [CmdletBinding(DefaultParameterSetName = 'ByName')]
