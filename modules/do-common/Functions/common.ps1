@@ -212,28 +212,26 @@ function Invoke-CommandRetry {
         [int]$MaxRetries = 10
     )
 
-    $retryCount = 0
+    Set-Variable -Name retryCount -Value 0
     do {
         try {
-            Invoke-Command -ScriptBlock $Command @PSBoundParameters
+            Invoke-Command -ScriptBlock $Command
             $exit = $true
         } catch [System.Net.Http.HttpRequestException] {
-            if ($_.Exception.TargetSite.Name -eq 'MoveNext' -and $retryCount -lt $MaxRetries) {
+            if ($_.Exception.TargetSite.Name -eq 'MoveNext') {
                 if ($_.ErrorDetails) {
                     Write-Verbose $_.ErrorDetails.Message
                 } else {
                     Write-Verbose $_.Exception.Message
                 }
-                $retryCount++
                 Write-Host 'Retrying...'
             } else {
                 Write-Verbose $_.Exception.GetType().FullName
                 Write-Error $_
             }
         } catch [System.AggregateException] {
-            if ($_.Exception.InnerException.GetType().Name -eq 'HttpRequestException' -and $retryCount -lt $MaxRetries) {
+            if ($_.Exception.InnerException.GetType().Name -eq 'HttpRequestException') {
                 Write-Verbose $_.Exception.InnerException.Message
-                $retryCount++
                 Write-Host 'Retrying...'
             } else {
                 Write-Verbose $_.Exception.InnerException.GetType().FullName
@@ -242,6 +240,10 @@ function Invoke-CommandRetry {
         } catch {
             Write-Verbose $_.Exception.GetType().FullName
             Write-Error $_
+        }
+        $retryCount++
+        if ($retryCount -eq $MaxRetries) {
+            $exit = $true
         }
     } until ($exit)
 }
