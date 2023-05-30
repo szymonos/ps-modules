@@ -17,7 +17,7 @@ function Get-GitLogObject {
 
         [switch]$Quiet
     )
-    $cmd = "git log --pretty=format:`"%h`f%ai`f%D`f%s`f%an`f%ae`"$($All ? ' --all' : '')$($Start ? '' : ' -50')"
+    $cmd = "git log --pretty=format:`"%h`f%ai`f%D`f%s`f%an`f%ae`"$($All ? ' --all' : '')$($Start ? '' : ' -40')"
     if (-not $Quiet) {
         Write-Host $cmd.Replace("`f", '`t') -ForegroundColor Magenta
     }

@@ -3,6 +3,7 @@ $ErrorActionPreference = 'Stop'
 <#
 .SYNOPSIS
 Set Az Context and eventually connect to Azure.
+
 .PARAMETER Subscription
 Subscription Name or ID.
 .PARAMETER Tenant
@@ -58,7 +59,74 @@ function Connect-AzContext {
 
 <#
 .SYNOPSIS
+Get OAuth2 access token from login.microsoftonline.com for the current user or specified Service Principal.
+
+.PARAMETER Resource
+Resource url for that you're requesting token, e.g. 'https://graph.microsoft.com/'.
+.PARAMETER ClientId
+Service Principal application id.
+.PARAMETER ClientSecret
+Service Principal credential.
+#>
+function Get-MsoToken {
+    [CmdletBinding(DefaultParameterSetName = 'BuiltIn')]
+    param (
+        [Parameter(Mandatory, Position = 0)]
+        [string]$Resource,
+
+        [Alias('i')]
+        [Parameter(Mandatory, ParameterSetName = 'ServicePrincipal')]
+        [guid]$ClientId,
+
+        [Alias('s')]
+        [Parameter(Mandatory, ParameterSetName = 'ServicePrincipal')]
+        [string]$ClientSecret
+    )
+
+    begin {
+        $ErrorActionPreference = 'Stop'
+
+        # set const
+        Set-Variable TENANT_ID -Option Constant -Value (Get-AzContext).Tenant.Id
+    }
+
+    process {
+        $token = switch ($PsCmdlet.ParameterSetName) {
+            BuiltIn {
+                Invoke-CommandRetry {
+                    Get-AzAccessToken -Resource $Resource
+                }
+            }
+            ServicePrincipal {
+                $params = @{
+                    Uri     = "https://login.microsoftonline.com/$TENANT_ID/oauth2/token"
+                    Method  = 'POST'
+                    Headers = @{ 'Content-Type' = 'application/x-www-form-urlencoded' }
+                    Body    = @{
+                        grant_type    = 'client_credentials'
+                        client_id     = $ClientId
+                        client_secret = $ClientSecret
+                        resource      = $Resource
+                    }
+                }
+                Invoke-CommandRetry {
+                    Invoke-RestMethod @params
+                }
+            }
+        }
+    }
+
+    end {
+        return $token
+    }
+}
+
+<#
+.SYNOPSIS
 Set subscription context from selection menu.
+
+.PARAMETER cli
+Switch whether to set the context for azure-cli.
 #>
 function Set-SubscriptionMenu {
     [CmdletBinding()]
@@ -92,6 +160,7 @@ Set-Alias -Name ssm -Value Set-SubscriptionMenu
 <#
 .SYNOPSIS
 Send request to Azure REST API.
+
 .PARAMETER Scope
 Request scope.
 .PARAMETER ApiVersion
@@ -104,6 +173,10 @@ Request payload provided as string or hashtable.
 Request payload provided as path to file.
 .PARAMETER Output
 Output format. Allowed values: json, jsonc, object. Default: object.
+.PARAMETER Filter
+Filter specified for the API request.
+.PARAMETER Select
+Select specific fields in the API request.
 #>
 function Invoke-AzApiRequest {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
