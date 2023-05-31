@@ -106,9 +106,12 @@ function Get-ArrayIndexMenu {
     begin {
         # create selection menu
         $menu = if ($Array[0].PSObject.Properties.Name.Count -gt 1) {
+            $i = 0
             $Array `
-            | Select-Object @{ N = '#'; E = { $Array.IndexOf($_) } }, @{ N = ' '; E = { '-' } }, * `
+            | Select-Object @{ N = '#'; E = { $Array.Count -eq 1 ? 0 : $Array.IndexOf($_) } }, @{ N = ' '; E = { '-' } }, * `
             | Format-Table -AutoSize `
+            | Out-String -Stream `
+            | ForEach-Object { $i -lt 3 ? "`e[1;92m$_`e[0m" : $_; $i++ } `
             | Out-String
         } else {
             $Array.ForEach({ [PSCustomObject]@{ '#' = $Array.IndexOf($_); ' ' = '-'; 'V' = $_ } }) `
