@@ -87,53 +87,66 @@ Flag to return value(s) instead of index(es).
 Flag to choose from selection list instead of single value.
 #>
 function Get-ArrayIndexMenu {
-    [CmdletBinding(DefaultParameterSetName = 'Index')]
-    [OutputType([int], ParameterSetName = 'Index')]
-    [OutputType([string], ParameterSetName = 'Value')]
+    [CmdletBinding()]
     param (
-        [Parameter(Mandatory, Position = 0)]
+        [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
         [object[]]$Array,
 
         [Parameter(Position = 1)]
         [string]$Message,
 
-        [Parameter(Mandatory, ParameterSetName = 'Value')]
         [switch]$Value,
 
         [switch]$List
     )
-
     begin {
-        # create selection menu
-        $menu = if ($Array[0].PSObject.Properties.Name.Count -gt 1) {
-            $i = 0
-            $Array `
-            | Select-Object @{ N = '#'; E = { $Array.Count -eq 1 ? 0 : $Array.IndexOf($_) } }, @{ N = ' '; E = { '-' } }, * `
-            | Format-Table -AutoSize `
-            | Out-String -Stream `
-            | ForEach-Object { $i -lt 3 ? "`e[1;92m$_`e[0m" : $_; $i++ } `
-            | Out-String
-        } else {
-            $Array.ForEach({ [PSCustomObject]@{ '#' = $Array.IndexOf($_); ' ' = '-'; 'V' = $_ } }) `
-            | Format-Table -AutoSize -HideTableHeaders `
-            | Out-String
+        # instantiate generic list to store the input array
+        $lst = [System.Collections.Generic.List[object]]::new()
+    }
+
+    process {
+        # determine if the input array has multiple properties
+        if (-not $arrayType) {
+            $arrayType = ($Array | Select-Object * | Get-Member -MemberType NoteProperty).Count -gt 1 ? 'object' : 'string'
         }
+        # add input array items to the generic list
+        $Array.ForEach({ $lst.Add($_) })
+    }
+
+    end {
+        # create selection menu
+        $menu = switch ($arrayType) {
+            object {
+                $i = 0
+                $lst `
+                | Select-Object @{ N = '#'; E = { $lst.Count -eq 1 ? 0 : $lst.IndexOf($_) } }, @{ N = ' '; E = { '-' } }, * `
+                | Format-Table -AutoSize `
+                | Out-String -Stream `
+                | ForEach-Object { $i -lt 3 ? "`e[1;92m$_`e[0m" : $_; $i++ } `
+                | Out-String
+                continue
+            }
+            string {
+                $lst.ToArray().ForEach({ [PSCustomObject]@{ '#' = $lst.IndexOf($_); ' ' = '-'; 'V' = $_ } }) `
+                | Format-Table -AutoSize -HideTableHeaders `
+                | Out-String
+                continue
+            }
+        }
+
         # create prompt message
         if (-not $Message) {
             $Message = $List ? 'Enter comma/space separated selection list' : 'Enter selection'
         }
         $msg = "`n`e[4m$Message`e[0m:`n$menu"
-    }
 
-    process {
         # read and validate input
         do {
             [array]$inputArray = (Read-Host -Prompt $msg).Split([char[]]@(' ', ','), [StringSplitOptions]::RemoveEmptyEntries) | Select-Object -Unique
-        } while (($inputArray.ForEach({ $_ -in 0..($Array.Count - 1) }) -contains $false) -or (-not $List -and $inputArray.Count -gt 1) -or (-not $inputArray))
-    }
+        } while (($inputArray.ForEach({ $_ -in 0..($lst.Count - 1) }) -contains $false) -or (-not $List -and $inputArray.Count -gt 1) -or (-not $inputArray))
 
-    end {
-        return $Value ? $inputArray.ForEach{ $Array[$_] } : $inputArray
+        # return result
+        return $Value ? $inputArray.ForEach{ $lst[$_] } : $inputArray
     }
 }
 
