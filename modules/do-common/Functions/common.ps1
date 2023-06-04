@@ -76,7 +76,7 @@ function ConvertTo-UTF8LF {
 
 <#
 .SYNOPSIS
-Get index(es) or a value(s) in provided array from selection menu.
+Get item index(es) or value(s) of the provided array from selection menu.
 .PARAMETER Array
 Array of strings to get the selection menu.
 .PARAMETER Message
@@ -263,6 +263,84 @@ function Invoke-CommandRetry {
         }
     } until ($exit)
 }
+
+<#
+.SYNOPSIS
+Save examples from PowerShell scripts to the gitignored console folder.
+.PARAMETER Path
+Path to the script to save the examples from.
+By default the script searches for all ps1 files in the current directory.
+.PARAMETER FolderFromBase
+Save example script in the folder of the base script.
+.EXAMPLE
+# ~save example scripts for all PowerShell scripts in the current directory
+Invoke-ExampleScriptSave
+Invoke-ExampleScriptSave -FolderFromBase
+# ~save example script for the specified PowerShell script(s)
+$Path = 'folder/script*.ps1'
+Invoke-ExampleScriptSave $Path
+Invoke-ExampleScriptSave $Path -FolderFromBase
+#>
+function Invoke-ExampleScriptSave {
+    [CmdletBinding()]
+    param (
+        [Parameter(Position = 0)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Path = './*.ps1',
+
+        [switch]$FolderFromBase
+    )
+
+    begin {
+        # instantiate generic list to store example script(s) name(s)
+        $lst = [Collections.Generic.List[string]]::new()
+        # determine if there are PowerShell scripts with examples in the current directory
+        $psScripts = Select-String '^\.EXAMPLE' $Path
+        if ($psScripts) {
+            # get git root
+            $gitRoot = git rev-parse --show-toplevel
+            # add the console folder to .gitignored if necessary
+            if (-not (Select-String '\bconsole\b' "$gitRoot/.gitignore" -Quiet)) {
+                [IO.File]::AppendAllLines("$gitRoot/.gitignore", [string[]]'/console/')
+            }
+            # determine and create example folder to put example scripts in
+            $exampleDir = if ($FolderFromBase) {
+                [IO.Path]::Combine($gitRoot, 'console', (Get-Item $psScripts[0].Path).Directory.Name)
+            } else {
+                [IO.Path]::Combine($gitRoot, 'console')
+            }
+            if (-not (Test-Path $exampleDir -PathType Container)) {
+                New-Item $exampleDir -ItemType Directory | Out-Null
+            }
+        } else {
+            return
+        }
+    }
+
+    process {
+        foreach ($script in $psScripts) {
+            # check if the script has examples
+            $content = [IO.File]::ReadAllText($script.Path)
+            $example = [regex]::Matches($content, '(?s)(?<=\n\.EXAMPLE\n).*?(?=(\n#>|\n\.[A-Z]))').Value
+            if ($example) {
+                # get parameters description
+                $param = [regex]::Matches($content, '(?s)(?<=\n)\.PARAMETER \w+\n(.*?)(?=\n(\n\.EXAMPLE|#>))').Value
+                # calculate example file path
+                $exampleFile = [IO.Path]::Combine($exampleDir, $script.Filename)
+                # save parameters and examples to the example script
+                [IO.File]::WriteAllLines($exampleFile, "$($param ? "<#`n$param`n#>`n`n" : '')$example")
+                # add example script path to the list
+                $lst.Add([IO.Path]::GetRelativePath($gitRoot, $exampleFile))
+            }
+        }
+    }
+
+    end {
+        return $lst.ToArray().ForEach({ Write-Host "$_" })
+    }
+}
+
+Set-Alias -Name egsave -Value Invoke-ExampleScriptSave
 
 <#
 .SYNOPSIS

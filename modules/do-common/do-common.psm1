@@ -23,6 +23,7 @@ $exportModuleMemberParams = @{
         'Get-SemanticVersion'
         'Format-Duration'
         'Invoke-CommandRetry'
+        'Invoke-ExampleScriptSave'
         'New-Password'
         'Show-Object'
         'Test-IsAdmin'
@@ -41,6 +42,7 @@ $exportModuleMemberParams = @{
     Alias    = @(
         # common
         'alias'
+        'egsave'
         # dotnet
         'swd'
         'sswd'
