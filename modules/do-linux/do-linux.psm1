@@ -7,7 +7,7 @@ $exportModuleMemberParams = @{
         'Get-SysInfo'
         'Invoke-Sudo'
         'Invoke-SudoPS'
-        'Invoke-FixExecutableBit'
+        'Invoke-ExecutableBitFix'
     )
     Variable = @()
     Alias    = @(
@@ -16,7 +16,7 @@ $exportModuleMemberParams = @{
         'gsi'
         '_'
         'sps'
-        'feb'
+        'fxmod'
     )
 }
 
