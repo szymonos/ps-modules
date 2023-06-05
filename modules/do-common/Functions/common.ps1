@@ -76,7 +76,7 @@ function ConvertTo-UTF8LF {
 
 <#
 .SYNOPSIS
-Get index(es) or a value(s) in provided array from selection menu.
+Get item index(es) or value(s) of the provided array from selection menu.
 .PARAMETER Array
 Array of strings to get the selection menu.
 .PARAMETER Message
@@ -87,50 +87,66 @@ Flag to return value(s) instead of index(es).
 Flag to choose from selection list instead of single value.
 #>
 function Get-ArrayIndexMenu {
-    [CmdletBinding(DefaultParameterSetName = 'Index')]
-    [OutputType([int], ParameterSetName = 'Index')]
-    [OutputType([string], ParameterSetName = 'Value')]
+    [CmdletBinding()]
     param (
-        [Parameter(Mandatory, Position = 0)]
+        [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
         [object[]]$Array,
 
         [Parameter(Position = 1)]
         [string]$Message,
 
-        [Parameter(Mandatory, ParameterSetName = 'Value')]
         [switch]$Value,
 
         [switch]$List
     )
-
     begin {
-        # create selection menu
-        $menu = if ($Array[0].PSObject.Properties.Name.Count -gt 1) {
-            $Array `
-            | Select-Object @{ N = '#'; E = { $Array.IndexOf($_) } }, @{ N = ' '; E = { '-' } }, * `
-            | Format-Table -AutoSize `
-            | Out-String
-        } else {
-            $Array.ForEach({ [PSCustomObject]@{ '#' = $Array.IndexOf($_); ' ' = '-'; 'V' = $_ } }) `
-            | Format-Table -AutoSize -HideTableHeaders `
-            | Out-String
+        # instantiate generic list to store the input array
+        $lst = [System.Collections.Generic.List[object]]::new()
+    }
+
+    process {
+        # determine if the input array has multiple properties
+        if (-not $arrayType) {
+            $arrayType = ($Array | Select-Object * | Get-Member -MemberType NoteProperty).Count -gt 1 ? 'object' : 'string'
         }
+        # add input array items to the generic list
+        $Array.ForEach({ $lst.Add($_) })
+    }
+
+    end {
+        # create selection menu
+        $menu = switch ($arrayType) {
+            object {
+                $i = 0
+                $lst `
+                | Select-Object @{ N = '#'; E = { $lst.Count -eq 1 ? 0 : $lst.IndexOf($_) } }, @{ N = ' '; E = { '-' } }, * `
+                | Format-Table -AutoSize `
+                | Out-String -Stream `
+                | ForEach-Object { $i -lt 3 ? "`e[1;92m$_`e[0m" : $_; $i++ } `
+                | Out-String
+                continue
+            }
+            string {
+                $lst.ToArray().ForEach({ [PSCustomObject]@{ '#' = $lst.IndexOf($_); ' ' = '-'; 'V' = $_ } }) `
+                | Format-Table -AutoSize -HideTableHeaders `
+                | Out-String
+                continue
+            }
+        }
+
         # create prompt message
         if (-not $Message) {
             $Message = $List ? 'Enter comma/space separated selection list' : 'Enter selection'
         }
         $msg = "`n`e[4m$Message`e[0m:`n$menu"
-    }
 
-    process {
         # read and validate input
         do {
             [array]$inputArray = (Read-Host -Prompt $msg).Split([char[]]@(' ', ','), [StringSplitOptions]::RemoveEmptyEntries) | Select-Object -Unique
-        } while (($inputArray.ForEach({ $_ -in 0..($Array.Count - 1) }) -contains $false) -or (-not $List -and $inputArray.Count -gt 1) -or (-not $inputArray))
-    }
+        } while (($inputArray.ForEach({ $_ -in 0..($lst.Count - 1) }) -contains $false) -or (-not $List -and $inputArray.Count -gt 1) -or (-not $inputArray))
 
-    end {
-        return $Value ? $inputArray.ForEach{ $Array[$_] } : $inputArray
+        # return result
+        return $Value ? $inputArray.ForEach{ $lst[$_] } : $inputArray
     }
 }
 
@@ -247,6 +263,84 @@ function Invoke-CommandRetry {
         }
     } until ($exit)
 }
+
+<#
+.SYNOPSIS
+Save examples from PowerShell scripts to the gitignored console folder.
+.PARAMETER Path
+Path to the script to save the examples from.
+By default the script searches for all ps1 files in the current directory.
+.PARAMETER FolderFromBase
+Save example script in the folder of the base script.
+.EXAMPLE
+# ~save example scripts for all PowerShell scripts in the current directory
+Invoke-ExampleScriptSave
+Invoke-ExampleScriptSave -FolderFromBase
+# ~save example script for the specified PowerShell script(s)
+$Path = 'folder/script*.ps1'
+Invoke-ExampleScriptSave $Path
+Invoke-ExampleScriptSave $Path -FolderFromBase
+#>
+function Invoke-ExampleScriptSave {
+    [CmdletBinding()]
+    param (
+        [Parameter(Position = 0)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Path = './*.ps1',
+
+        [switch]$FolderFromBase
+    )
+
+    begin {
+        # instantiate generic list to store example script(s) name(s)
+        $lst = [Collections.Generic.List[string]]::new()
+        # determine if there are PowerShell scripts with examples in the current directory
+        $psScripts = Select-String '^\.EXAMPLE' $Path
+        if ($psScripts) {
+            # get git root
+            $gitRoot = git rev-parse --show-toplevel
+            # add the console folder to .gitignored if necessary
+            if (-not (Select-String '\bconsole\b' "$gitRoot/.gitignore" -Quiet)) {
+                [IO.File]::AppendAllLines("$gitRoot/.gitignore", [string[]]'/console/')
+            }
+            # determine and create example folder to put example scripts in
+            $exampleDir = if ($FolderFromBase) {
+                [IO.Path]::Combine($gitRoot, 'console', (Get-Item $psScripts[0].Path).Directory.Name)
+            } else {
+                [IO.Path]::Combine($gitRoot, 'console')
+            }
+            if (-not (Test-Path $exampleDir -PathType Container)) {
+                New-Item $exampleDir -ItemType Directory | Out-Null
+            }
+        } else {
+            return
+        }
+    }
+
+    process {
+        foreach ($script in $psScripts) {
+            # check if the script has examples
+            $content = [IO.File]::ReadAllText($script.Path)
+            $example = [regex]::Matches($content, '(?s)(?<=\n\.EXAMPLE\n).*?(?=(\n#>|\n\.[A-Z]))').Value
+            if ($example) {
+                # get parameters description
+                $param = [regex]::Matches($content, '(?s)(?<=\n)\.PARAMETER \w+\n(.*?)(?=\n(\n\.EXAMPLE|#>))').Value
+                # calculate example file path
+                $exampleFile = [IO.Path]::Combine($exampleDir, $script.Filename)
+                # save parameters and examples to the example script
+                [IO.File]::WriteAllLines($exampleFile, "$($param ? "<#`n$param`n#>`n`n" : '')$example")
+                # add example script path to the list
+                $lst.Add([IO.Path]::GetRelativePath($gitRoot, $exampleFile))
+            }
+        }
+    }
+
+    end {
+        return $lst.ToArray().ForEach({ Write-Host "$_" })
+    }
+}
+
+Set-Alias -Name egsave -Value Invoke-ExampleScriptSave
 
 <#
 .SYNOPSIS

@@ -4,7 +4,7 @@
 RootModule = 'do-common.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.20.8'
+ModuleVersion = '0.21.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -50,6 +50,7 @@ FunctionsToExport = @(
     'Get-SemanticVersion'
     'Format-Duration'
     'Invoke-CommandRetry'
+    'Invoke-ExampleScriptSave'
     'New-Password'
     'Show-Object'
     'Test-IsAdmin'
@@ -75,6 +76,7 @@ VariablesToExport = '*'
 AliasesToExport = @(
     # common
     'alias'
+    'egsave'
     # dotnet
     'swd'
     'sswd'

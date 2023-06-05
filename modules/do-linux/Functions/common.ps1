@@ -110,7 +110,7 @@ Fix executable bit based on shebang presence.
 .DESCRIPTION
 Process specified directory, looking for bash and powershell scripts, and sets executable bit based on shebang presence.
 #>
-function Invoke-FixExecutableBit {
+function Invoke-ExecutableBitFix {
     [CmdletBinding()]
     [OutputType([System.Void])]
     param (
@@ -154,4 +154,4 @@ function Invoke-FixExecutableBit {
     }
 }
 
-Set-Alias -Name feb -Value Invoke-FixExecutableBit
+Set-Alias -Name fxmod -Value Invoke-ExecutableBitFix
