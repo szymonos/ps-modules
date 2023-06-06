@@ -324,7 +324,7 @@ function Invoke-ExampleScriptSave {
             $example = [regex]::Matches($content, '(?s)(?<=\n\.EXAMPLE\n).*?(?=(\n#>|\n\.[A-Z]))').Value
             if ($example) {
                 # get parameters description
-                $param = [regex]::Matches($content, '(?s)(?<=\n)\.PARAMETER \w+\n(.*?)(?=\n(\n\.EXAMPLE|#>))').Value
+                $param = [regex]::Matches($content, '(?s)(?<=\n)\.PARAMETER \w+\n(.*?)(?=\n(\n\.[A-Z]+\n|#>))').Value
                 # calculate example file path
                 $exampleFile = [IO.Path]::Combine($exampleDir, $script.Filename)
                 # save parameters and examples to the example script
