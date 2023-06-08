@@ -108,7 +108,7 @@ function Get-SysInfo {
     # build system properties
     $sysProp = [ordered]@{
         UserHost       = "`e[1;34m$env:USERNAME`e[0m@`e[1;34m$env:COMPUTERNAME`e[0m"
-        OS             = "$($gcim.Caption.Replace('Microsoft ', '')) ($($cv.DisplayVersion)) $($gcim.OSArchitecture)"
+        OS             = "`e[1;37m$($gcim.Caption.Replace('Microsoft ', '')) ($($cv.DisplayVersion)) $($gcim.OSArchitecture)`e[0m"
         Kernel         = "$($gcim.Version).$($cv.UBR)"
         Installed      = $gcim.InstallDate.ToString('yyyy-MM-d')
         Uptime         = "$(Get-Uptime)"
