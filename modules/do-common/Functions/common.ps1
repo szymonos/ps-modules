@@ -231,7 +231,7 @@ function Invoke-CommandRetry {
     Set-Variable -Name retryCount -Value 0
     do {
         try {
-            Invoke-Command -ScriptBlock $Command
+            Invoke-Command -ScriptBlock $Command -ErrorAction Stop
             $exit = $true
         } catch [System.Net.Http.HttpRequestException] {
             if ($_.Exception.TargetSite.Name -eq 'MoveNext') {
@@ -240,7 +240,7 @@ function Invoke-CommandRetry {
                 } else {
                     Write-Verbose $_.Exception.Message
                 }
-                Write-Host 'Retrying...'
+                Write-Host "`nRetrying..."
             } else {
                 Write-Verbose $_.Exception.GetType().FullName
                 Write-Error $_
@@ -248,7 +248,7 @@ function Invoke-CommandRetry {
         } catch [System.AggregateException] {
             if ($_.Exception.InnerException.GetType().Name -eq 'HttpRequestException') {
                 Write-Verbose $_.Exception.InnerException.Message
-                Write-Host 'Retrying...'
+                Write-Host "`nRetrying..."
             } else {
                 Write-Verbose $_.Exception.InnerException.GetType().FullName
                 Write-Error $_
