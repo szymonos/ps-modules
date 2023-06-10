@@ -292,10 +292,19 @@ function Invoke-ExampleScriptSave {
     )
 
     begin {
+        $ErrorActionPreference = 'Stop'
         # instantiate generic list to store example script(s) name(s)
         $lst = [Collections.Generic.List[string]]::new()
         # determine if there are PowerShell scripts with examples in the current directory
-        $psScripts = Select-String '^\.EXAMPLE' $Path
+        try {
+            $psScripts = Select-String '^\.EXAMPLE' $Path
+        } catch [System.Management.Automation.ItemNotFoundException] {
+            Write-Warning "Cannot find path because it does not exist ($Path)."
+            return
+        } catch {
+            Write-Verbose $_.Exception.GetType().FullName
+            Write-Error $_
+        }
         if ($psScripts) {
             # get git root
             $gitRoot = git rev-parse --show-toplevel
