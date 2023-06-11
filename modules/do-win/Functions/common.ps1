@@ -96,14 +96,14 @@ Set-Alias -Name du -Value Get-DiskUsage
 Returns system information from /etc/os-release.
 #>
 function Get-SysInfo {
+    # get CPU properties
+    $cpu = Get-CimInstance -ClassName Win32_Processor
     # get system properties
     $gcim = Get-CimInstance -ClassName Win32_OperatingSystem
     $cv = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\'
     # calculate memory usage
     $memTotal = $gcim.TotalVisibleMemorySize / 1MB
     $memUsed = ($gcim.TotalVisibleMemorySize - $gcim.FreePhysicalMemory) / 1MB
-    # get CPU info
-    $cpu = Get-ChildItem -Path HKLM:HARDWARE\DESCRIPTION\System\CentralProcessor
 
     # build system properties
     $sysProp = [ordered]@{
@@ -113,7 +113,7 @@ function Get-SysInfo {
         Installed      = $gcim.InstallDate.ToString('yyyy-MM-d')
         Uptime         = "$(Get-Uptime)"
         Shell          = "PowerShell $($PSVersionTable.PSVersion)"
-        CPU            = "$($cpu[0].GetValue('ProcessorNameString')) ($($cpu.Count))"
+        CPU            = "$($cpu.Name) ($($cpu.NumberOfCores)/$($cpu.NumberOfLogicalProcessors))"
         Memory         = '{0:n2} GiB / {1:n2} GiB ({2:p0})' -f $memUsed, $memTotal, ($memUsed / $memTotal)
         RegisteredUser = $gcim.RegisteredUser
     }
