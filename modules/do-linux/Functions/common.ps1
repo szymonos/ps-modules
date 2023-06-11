@@ -2,31 +2,12 @@
 .SYNOPSIS
 Returns system information from /etc/os-release.
 #>
-function Get-OsRelease {
-    $sysProp = [ordered]@{}
-    [System.IO.File]::ReadLines('/etc/os-release').ForEach({
-            $key, $value = $_.Split('=').Trim("'|`"")
-            if ($key -notmatch '^#' -and $value) {
-                $sysProp[$key] = $value
-            }
-        }
-    )
-
-    return [PSCustomObject]$sysProp
-}
-
-New-Alias -Name osr -Value Get-OsRelease
-
-<#
-.SYNOPSIS
-Returns system information from /etc/os-release.
-#>
 function Get-SysInfo {
     # get os-release properties
-    $osr = Get-OsRelease
+    $osr = Get-DotEnv '/etc/os-release'
     # get cpu info
     $cpu = @{}
-    (Select-String '^model name|^cpu cores' '/proc/cpuinfo' -Raw | Select-Object -Unique).ForEach({
+    (Select-String '^model name|^cpu cores|^siblings' '/proc/cpuinfo' -Raw | Select-Object -Unique).ForEach({
             $key, $value = $_.Split(':').Trim()
             $cpu[$key] = $value
         }
@@ -52,7 +33,7 @@ function Get-SysInfo {
     if ($env:CONTAINER_ID) { $sysProp['DistroBox'] = $env:CONTAINER_ID }
     if ($env:TERM_PROGRAM) { $sysProp['Terminal'] = $env:TERM_PROGRAM }
     $sysProp['Shell'] = "PowerShell $($PSVersionTable.PSVersion)"
-    $sysProp['CPU'] = "{0} ({1})" -f $cpu['model name'], $cpu['cpu cores']
+    $sysProp['CPU'] = "$($cpu['model name']) ($($cpu['cpu cores'])/$($cpu['siblings']))"
     $sysProp['Memory'] = '{0:n2} GiB / {1:n2} GiB ({2:p0})' -f $mem['MemUsed'], $mem['MemTotal'], ($mem['MemUsed'] / $mem['MemTotal'])
     if ($env:LANG) { $sysProp['Locale'] = $env:LANG }
 

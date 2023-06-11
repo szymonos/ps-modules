@@ -85,6 +85,8 @@ Optional menu header to display.
 Flag to return value(s) instead of index(es).
 .PARAMETER List
 Flag to choose from selection list instead of single value.
+.PARAMETER AllowNoSelection
+Allow empty selection, otherwise keep prompting for input.
 #>
 function Get-ArrayIndexMenu {
     [CmdletBinding()]
@@ -97,7 +99,9 @@ function Get-ArrayIndexMenu {
 
         [switch]$Value,
 
-        [switch]$List
+        [switch]$List,
+
+        [switch]$AllowNoSelection
     )
     begin {
         # instantiate generic list to store the input array
@@ -142,11 +146,27 @@ function Get-ArrayIndexMenu {
 
         # read and validate input
         do {
-            [array]$inputArray = (Read-Host -Prompt $msg).Split([char[]]@(' ', ','), [StringSplitOptions]::RemoveEmptyEntries) | Select-Object -Unique
-        } while (($inputArray.ForEach({ $_ -in 0..($lst.Count - 1) }) -contains $false) -or (-not $List -and $inputArray.Count -gt 1) -or (-not $inputArray))
+            # instantiate indexes collection
+            $indexes = [System.Collections.Generic.HashSet[int]]::new()
+            # prompt for a selection from the input array
+            (Read-Host -Prompt $msg).Split([char[]]@(' ', ','), [StringSplitOptions]::RemoveEmptyEntries).ForEach({
+                    try { $indexes.Add($_) | Out-Null } catch { }
+                }
+            )
+            # calculate stats for returned indexes
+            $stat = $indexes | Measure-Object -Minimum -Maximum
+            # evaluate if the Read-Host input is valid
+            $continue = if ($stat.Count -eq 0) {
+                $AllowNoSelection
+            } elseif ($stat.Count -eq 1 -or ($List -and $stat.Count -gt 0)) {
+                $stat.Minimum -ge 0 -and $stat.Maximum -lt $lst.Count
+            } else {
+                $false
+            }
+        } until ($continue)
 
         # return result
-        return $Value ? $inputArray.ForEach{ $lst[$_] } : $inputArray
+        return $Value ? $indexes.ForEach({ $lst[$_] }) : [int[]]$indexes.ForEach({ $_ })
     }
 }
 
@@ -167,6 +187,68 @@ function Get-CmdletAlias {
 }
 
 Set-Alias -Name alias -Value Get-CmdletAlias
+
+<#
+.SYNOPSIS
+Get/Set environment variables from env file.
+
+.PARAMETER Path
+Path to the env file.
+.PARAMETER SetEnvironmentVariables
+Set environment variables from file instead of returning them.
+
+.EXAMPLE
+Get-DotEnv
+Get-DotEnv -SetEnvironmentVariables
+#>
+function Get-DotEnv {
+    [CmdletBinding()]
+    param (
+        [Parameter(Position = 0)]
+        [string]$Path = '.env',
+
+        [switch]$SetEnvironmentVariables
+    )
+
+    begin {
+        $ErrorActionPreference = 'Stop'
+
+        # load content of the env file
+        try {
+            $envContent = Get-Content -Path $Path
+        } catch [System.Management.Automation.ItemNotFoundException] {
+            Write-Warning "File does not exist ($Path)."
+            return
+        } catch {
+            Write-Verbose $_.Exception.GetType().FullName
+            Write-Error $_
+        }
+        # instantiate hashtable to store variables
+        $envHash = [ordered]@{}
+    }
+
+    process {
+        $envContent | ForEach-Object {
+            if ($_ -match '^([a-zA-Z_]+[a-zA-Z0-9_]*)=(.+)$') {
+                $envHash[$matches[1]] = $matches[2].Trim().Trim("'|`"")
+            }
+        }
+
+        if ($SetEnvironmentVariables) {
+            foreach ($key in $envHash.Keys) {
+                [Environment]::SetEnvironmentVariable($key, $envHash[$key])
+            }
+        }
+    }
+
+    end {
+        if ($SetEnvironmentVariables -and $envHash) {
+            Write-Host "Environmet variables set: $($envHash.Keys | Join-String -Separator ', ')"
+        } else {
+            return $envHash
+        }
+    }
+}
 
 <#
 .SYNOPSIS
