@@ -85,6 +85,8 @@ Optional menu header to display.
 Flag to return value(s) instead of index(es).
 .PARAMETER List
 Flag to choose from selection list instead of single value.
+.PARAMETER AllowNoSelection
+Allow empty selection, otherwise keep prompting for input.
 #>
 function Get-ArrayIndexMenu {
     [CmdletBinding()]
@@ -97,7 +99,9 @@ function Get-ArrayIndexMenu {
 
         [switch]$Value,
 
-        [switch]$List
+        [switch]$List,
+
+        [switch]$AllowNoSelection
     )
     begin {
         # instantiate generic list to store the input array
@@ -142,11 +146,27 @@ function Get-ArrayIndexMenu {
 
         # read and validate input
         do {
-            [array]$inputArray = (Read-Host -Prompt $msg).Split([char[]]@(' ', ','), [StringSplitOptions]::RemoveEmptyEntries) | Select-Object -Unique
-        } while (($inputArray.ForEach({ $_ -in 0..($lst.Count - 1) }) -contains $false) -or (-not $List -and $inputArray.Count -gt 1) -or (-not $inputArray))
+            # instantiate indexes collection
+            $indexes = [System.Collections.Generic.HashSet[int]]::new()
+            # prompt for a selection from the input array
+            (Read-Host -Prompt $msg).Split([char[]]@(' ', ','), [StringSplitOptions]::RemoveEmptyEntries).ForEach({
+                    try { $indexes.Add($_) | Out-Null } catch { }
+                }
+            )
+            # calculate stats for returned indexes
+            $stat = $indexes | Measure-Object -Minimum -Maximum
+            # evaluate if the Read-Host input is valid
+            $continue = if ($stat.Count -eq 0) {
+                $AllowNoSelection
+            } elseif ($stat.Count -eq 1 -or ($List -and $stat.Count -gt 0)) {
+                $stat.Minimum -ge 0 -and $stat.Maximum -lt $lst.Count
+            } else {
+                $false
+            }
+        } until ($continue)
 
         # return result
-        return $Value ? $inputArray.ForEach{ $lst[$_] } : $inputArray
+        return $Value ? $indexes.ForEach({ $lst[$_] }) : [int[]]$indexes.ForEach({ $_ })
     }
 }
 
