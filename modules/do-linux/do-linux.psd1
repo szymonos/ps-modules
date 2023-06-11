@@ -12,7 +12,7 @@
 RootModule = 'do-linux.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.4.8'
+ModuleVersion = '0.4.9'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -52,7 +52,9 @@ PowerShellVersion = '7.0'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-# RequiredModules = @()
+RequiredModules = @(
+    'do-common'
+)
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
