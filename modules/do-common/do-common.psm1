@@ -20,6 +20,7 @@ $exportModuleMemberParams = @{
         'ConvertTo-UTF8LF'
         'Get-ArrayIndexMenu'
         'Get-CmdletAlias'
+        'Get-DotEnv'
         'Get-SemanticVersion'
         'Format-Duration'
         'Invoke-CommandRetry'

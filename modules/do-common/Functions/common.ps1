@@ -170,6 +170,68 @@ Set-Alias -Name alias -Value Get-CmdletAlias
 
 <#
 .SYNOPSIS
+Get/Set environment variables from env file.
+
+.PARAMETER Path
+Path to the env file.
+.PARAMETER SetEnvironmentVariables
+Set environment variables from file instead of returning them.
+
+.EXAMPLE
+Get-DotEnv
+Get-DotEnv -SetEnvironmentVariables
+#>
+function Get-DotEnv {
+    [CmdletBinding()]
+    param (
+        [Parameter(Position = 0)]
+        [string]$Path = '.env',
+
+        [switch]$SetEnvironmentVariables
+    )
+
+    begin {
+        $ErrorActionPreference = 'Stop'
+
+        # load content of the env file
+        try {
+            $envContent = Get-Content -Path $Path
+        } catch [System.Management.Automation.ItemNotFoundException] {
+            Write-Warning "File does not exist ($Path)."
+            return
+        } catch {
+            Write-Verbose $_.Exception.GetType().FullName
+            Write-Error $_
+        }
+        # instantiate hashtable to store variables
+        $envHash = [ordered]@{}
+    }
+
+    process {
+        $envContent | ForEach-Object {
+            if ($_ -match '^([a-zA-Z_]+[a-zA-Z0-9_]*)=(.+)$') {
+                $envHash[$matches[1]] = $matches[2].Trim().Trim("'|`"")
+            }
+        }
+
+        if ($SetEnvironmentVariables) {
+            foreach ($key in $envHash.Keys) {
+                [Environment]::SetEnvironmentVariable($key, $envHash[$key])
+            }
+        }
+    }
+
+    end {
+        if ($SetEnvironmentVariables -and $envHash) {
+            Write-Host "Environmet variables set: $($envHash.Keys | Join-String -Separator ', ')"
+        } else {
+            return $envHash
+        }
+    }
+}
+
+<#
+.SYNOPSIS
 Parse semantic version and return Major, Minor, Patch numbers.
 #>
 function Get-SemanticVersion {
