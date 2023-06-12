@@ -190,32 +190,22 @@ Set-Alias -Name alias -Value Get-CmdletAlias
 
 <#
 .SYNOPSIS
-Get/Set environment variables from env file.
+Get environment variables from env file.
 
 .PARAMETER Path
 Path to the env file.
-.PARAMETER SetEnvironmentVariables
-Set environment variables from file instead of returning them.
-
-.EXAMPLE
-Get-DotEnv
-Get-DotEnv -SetEnvironmentVariables
 #>
 function Get-DotEnv {
     [CmdletBinding()]
     param (
         [Parameter(Position = 0)]
-        [string]$Path = '.env',
-
-        [switch]$SetEnvironmentVariables
+        [string]$Path = '.env'
     )
 
     begin {
-        $ErrorActionPreference = 'Stop'
-
         # load content of the env file
         try {
-            $envContent = Get-Content -Path $Path
+            $envContent = Get-Content -Path $Path -ErrorAction Stop
         } catch [System.Management.Automation.ItemNotFoundException] {
             Write-Warning "File does not exist ($Path)."
             return
@@ -233,22 +223,39 @@ function Get-DotEnv {
                 $envHash[$matches[1]] = $matches[2].Trim().Trim("'|`"")
             }
         }
-
-        if ($SetEnvironmentVariables) {
-            foreach ($key in $envHash.Keys) {
-                [Environment]::SetEnvironmentVariable($key, $envHash[$key])
-            }
-        }
     }
 
     end {
-        if ($SetEnvironmentVariables -and $envHash) {
-            Write-Host "Environmet variables set: $($envHash.Keys | Join-String -Separator ', ')"
-        } else {
-            return $envHash
-        }
+        return $envHash
     }
 }
+
+<#
+.SYNOPSIS
+Set environment variables from env file.
+
+.PARAMETER Path
+Path to the env file.
+#>
+function Set-DotEnv {
+    [CmdletBinding()]
+    param (
+        [Parameter(Position = 0)]
+        [string]$Path = '.env'
+    )
+
+    $envHash = Get-DotEnv $Path
+
+    foreach ($key in $envHash.Keys) {
+        [Environment]::SetEnvironmentVariable($key, $envHash[$key])
+    }
+
+    if ($envHash) {
+        Write-Verbose "Environmet variables set: $($envHash.Keys | Join-String -Separator ', ')"
+    }
+}
+
+Set-Alias -Name src -Value Set-DotEnv
 
 <#
 .SYNOPSIS
