@@ -4,7 +4,7 @@
 RootModule = 'do-common.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.22.1'
+ModuleVersion = '0.23.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -53,6 +53,7 @@ FunctionsToExport = @(
     'Invoke-CommandRetry'
     'Invoke-ExampleScriptSave'
     'New-Password'
+    'Set-DotEnv'
     'Show-Object'
     'Test-IsAdmin'
     # dotnet

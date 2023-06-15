@@ -26,6 +26,7 @@ $exportModuleMemberParams = @{
         'Invoke-CommandRetry'
         'Invoke-ExampleScriptSave'
         'New-Password'
+        'Set-DotEnv'
         'Show-Object'
         'Test-IsAdmin'
         # dotnet
