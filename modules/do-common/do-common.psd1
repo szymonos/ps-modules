@@ -4,7 +4,7 @@
 RootModule = 'do-common.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.23.0'
+ModuleVersion = '0.23.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()

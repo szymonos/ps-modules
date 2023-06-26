@@ -18,18 +18,26 @@ function Invoke-CondaSetup {
     )
 
     dynamicparam {
-        if (@('activate', 'remove') -match "^$Option" -and -not $PSBoundParameters.CondaFile) {
-            $parameterAttribute = [Management.Automation.ParameterAttribute]@{ Position = 1 }
+        if (@('activate', 'create', 'remove') -match "^$Option" -and -not $PSBoundParameters.CondaFile) {
+            $paramDict = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
 
             $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
-            $attributeCollection.Add($parameterAttribute)
-
+            $attributeCollection.Add([Management.Automation.ParameterAttribute]@{ Position = 1 })
             $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new(
                 'Environment', [string], $attributeCollection
             )
-
-            $paramDict = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
             $paramDict.Add('Environment', $dynParam)
+
+            if ('create' -match "^$Option" -and -not $PSBoundParameters.CondaFile) {
+                # dependencies dynamic parameter
+                $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
+                $attributeCollection.Add([Management.Automation.ParameterAttribute]@{ Position  = 2 })
+                $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new(
+                    'Dependencies', [string[]], $attributeCollection
+                )
+                $paramDict.Add('Dependencies', $dynParam)
+            }
+
             return $paramDict
         }
     }
@@ -78,6 +86,7 @@ function Invoke-CondaSetup {
                     'The following options are available:',
                     "  `e[1;97mactivate`e[0m    Activate environment",
                     "  `e[1;97mclean`e[0m       Clean conda environment",
+                    "  `e[1;97mcreate`e[0m      Create conda environment",
                     "  `e[1;97mdeactivate`e[0m  Deactivate environment",
                     "  `e[1;97menvs`e[0m        List environments",
                     "  `e[1;97mlist`e[0m        List packages",
@@ -89,7 +98,7 @@ function Invoke-CondaSetup {
             return
         }
         # evaluate Option parameter abbreviations
-        $optSet = @('activate', 'clean', 'deactivate', 'envs', 'list', 'remove', 'setup', 'update')
+        $optSet = @('activate', 'clean', 'create', 'deactivate', 'envs', 'list', 'remove', 'setup', 'update')
         $opt = $optSet -match "^$Option"
         if ($opt.Count -eq 0) {
             Write-Warning "Option parameter name '$Option' is invalid. Valid Option values are:`n`t $($optSet -join ', ')"
@@ -136,6 +145,13 @@ function Invoke-CondaSetup {
                 # *Clean conda
                 Invoke-Conda clean -y --all
                 break
+            }
+
+            create {
+                # *Create conda environment
+                $cmd = "Invoke-Conda create --name $($PSBoundParameters.Environment) --yes $($PSBoundParameters.Dependencies -join ' ')"
+                Invoke-Expression $cmd
+                Enter-CondaEnvironment $PSBoundParameters.Environment
             }
 
             deactivate {
