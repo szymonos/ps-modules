@@ -27,15 +27,15 @@ function gcamp { gcam @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
 function gacam { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gcam @args }
 function gacamp { gacam @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
 function gcan! { Invoke-WriteExecCmd -Command 'git commit --verbose --all --no-edit --amend' -Arguments $args }
-function gcanp! { gcan! @args; Invoke-WriteExecCmd 'git push --force' -Parameters $args }
+function gcanp! { gcan! @args; Invoke-WriteExecCmd 'git push --force-with-lease' -Parameters $args }
 function gacan! { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gcan! @args }
-function gacanp! { gacan! @args; Invoke-WriteExecCmd 'git push --force' -Parameters $args }
+function gacanp! { gacan! @args; Invoke-WriteExecCmd 'git push --force-with-lease' -Parameters $args }
 function gcans! { Invoke-WriteExecCmd -Command 'git commit --verbose --all --signoff --no-edit --amend' -Arguments $args }
 function gacans! { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gcans! @args }
 function gcmsg { Invoke-WriteExecCmd -Command 'git commit -m' -Arguments $args }
 function gcmsgp { gcmsg @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
 function gcn! { Invoke-WriteExecCmd -Command 'git commit --verbose --no-edit --amend' -Arguments $args }
-function gcnp! { gcn! @args; Invoke-WriteExecCmd 'git push --force' -Parameters $args }
+function gcnp! { gcn! @args; Invoke-WriteExecCmd 'git push --force-with-lease' -Parameters $args }
 function gcsm { Invoke-WriteExecCmd -Command 'git commit --signoff -m' -Arguments $args }
 function gcd { Set-Location $(git rev-parse --show-toplevel 2>$null || '.') }
 function gcf { Invoke-WriteExecCmd -Command 'git config' -Arguments $args }
@@ -117,7 +117,7 @@ function gpullra { Invoke-WriteExecCmd -Command 'git pull --rebase --autostash' 
 function gpullrav { Invoke-WriteExecCmd -Command 'git pull --rebase --autostash --verbose' -Arguments $args }
 function gpullrv { Invoke-WriteExecCmd -Command 'git pull --rebase --verbose' -Arguments $args }
 function gpush { Invoke-WriteExecCmd -Command 'git push' -Arguments $args }
-function gpush! { Invoke-WriteExecCmd -Command 'git push --force' -Arguments $args }
+function gpush! { Invoke-WriteExecCmd -Command 'git push --force-with-lease' -Arguments $args }
 function gpushd { Invoke-WriteExecCmd -Command 'git push --dry-run' -Arguments $args }
 function gpushoat {
     if ($remote = git remote) {
