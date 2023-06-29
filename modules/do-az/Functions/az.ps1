@@ -72,7 +72,7 @@ function Get-MsoToken {
     [CmdletBinding(DefaultParameterSetName = 'BuiltIn')]
     param (
         [Parameter(Mandatory, Position = 0)]
-        [string]$Resource,
+        [string]$ResourceUrl,
 
         [Alias('i')]
         [Parameter(Mandatory, ParameterSetName = 'ServicePrincipal')]
@@ -85,32 +85,36 @@ function Get-MsoToken {
 
     begin {
         $ErrorActionPreference = 'Stop'
-
-        # set const
-        Set-Variable TENANT_ID -Option Constant -Value (Get-AzContext).Tenant.Id
     }
 
     process {
         $token = switch ($PsCmdlet.ParameterSetName) {
             BuiltIn {
                 Invoke-CommandRetry {
-                    Get-AzAccessToken -Resource $Resource
+                    Get-AzAccessToken -ResourceUrl $ResourceUrl
                 }
             }
             ServicePrincipal {
                 $params = @{
-                    Uri     = "https://login.microsoftonline.com/$TENANT_ID/oauth2/token"
+                    Uri     = "https://login.microsoftonline.com/$((Get-AzContext).Tenant.Id)/oauth2/token"
                     Method  = 'POST'
                     Headers = @{ 'Content-Type' = 'application/x-www-form-urlencoded' }
                     Body    = @{
                         grant_type    = 'client_credentials'
                         client_id     = $ClientId
                         client_secret = $ClientSecret
-                        resource      = $Resource
+                        resource      = $ResourceUrl
                     }
                 }
-                Invoke-CommandRetry {
+                $oauth2Token = Invoke-CommandRetry {
                     Invoke-RestMethod @params
+                }
+                [PSCustomObject]@{
+                    Token     = $oauth2Token.access_token
+                    ExpiresOn = Get-Date -UnixTimeSeconds $oauth2Token.expires_on
+                    Type      = 'Bearer'
+                    TenantId  = $TENANT_ID
+                    UserId    = $ClientId
                 }
             }
         }
