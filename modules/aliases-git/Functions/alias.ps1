@@ -6,6 +6,7 @@ function gbl { Invoke-WriteExecCmd -Command 'git blame -b -w' -Arguments $args }
 function gb { Invoke-WriteExecCmd -Command 'git branch' -Arguments $args }
 function gba { Invoke-WriteExecCmd -Command 'git branch --all' -Arguments $args }
 function gbd { Invoke-WriteExecCmd -Command 'git branch --delete' -Arguments $args }
+function gbd! { Invoke-WriteExecCmd -Command 'git branch -D' -Arguments $args }
 function gbnm { Invoke-WriteExecCmd -Command 'git branch --no-merged' -Arguments $args }
 function gbr { Invoke-WriteExecCmd -Command 'git branch --remote' -Arguments $args }
 function gbsu { Invoke-WriteExecCmd -Command "git branch --set-upstream-to=origin/$(Get-GitCurrentBranch)" -Arguments $args }

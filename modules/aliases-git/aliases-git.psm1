@@ -23,6 +23,7 @@ $exportModuleMemberParams = @{
         'gb'
         'gba'
         'gbd'
+        'gbd!'
         'gbnm'
         'gbr'
         'gbsu'
