@@ -56,18 +56,23 @@ to the client in $HOME/.local/bin directory.
 Function requires the $HOME/.local/bin directory to be preceding path in $PATH environment variable.
 #>
 function Set-KubectlLocal {
-    $LOCAL_BIN = [IO.Path]::Combine($HOME, '.local', 'bin')
+    # determine kubectl binary name
     $KUBECTL = $IsWindows ? 'kubectl.exe' : 'kubectl'
+    # calculate paths
+    $LOCAL_BIN = [IO.Path]::Combine($HOME, '.local', 'bin')
     $KUBECTL_LOCAL = [IO.Path]::Combine($LOCAL_BIN, $KUBECTL)
     $KUBECTL_DIR = [IO.Path]::Combine($HOME, '.local', 'share', 'kubectl')
 
+    # check kubernetes server version
     $serverVersion = Get-KubectlServerVersion
     if (-not $serverVersion) {
         Write-Warning 'Server not available.'
         break
     }
+    # calculate kubectl path corresponding to server version
     $kctlVer = [IO.Path]::Combine($KUBECTL_DIR, $serverVersion, $KUBECTL)
 
+    # check if ~/.local/bin/kubectl symbolic link points to the above path
     if ((Get-ItemPropertyValue $KUBECTL_LOCAL -Name LinkTarget -ErrorAction SilentlyContinue) -ne $kctlVer) {
         if (-not (Test-Path $LOCAL_BIN)) {
             New-Item $LOCAL_BIN -ItemType Directory | Out-Null
@@ -88,6 +93,7 @@ function Set-KubectlLocal {
                 chmod +x $kctlVer
             }
         }
+        # replace existing ~/.local/bin/kubectl symbolic link
         Remove-Item $KUBECTL_LOCAL -Force -ErrorAction SilentlyContinue
         New-Item -ItemType SymbolicLink -Path $KUBECTL_LOCAL -Target $kctlVer | Out-Null
     }
@@ -114,6 +120,20 @@ function Set-KubectlContext {
 }
 #endregion
 
+<#
+.SYNOPSIS
+Decode and print kubernetes secret data
+#>
+function Get-SecretDecodedData {
+    # convert secret to PSObject
+    $secretJson = kubectl get secret @args -o json | ConvertFrom-Json
+    # decode and write secret data
+    $secretJson.data.PSobject.Properties | ForEach-Object {
+        Write-Host "# $($_.Name)" -ForegroundColor DarkGreen
+        [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($_.Value)).Trim()
+    }
+}
+
 #region aliases
 Set-Alias -Name k -Value kubectl
 Set-Alias -Name kv -Value Get-KubectlVersion
@@ -121,4 +141,5 @@ Set-Alias -Name kvc -Value Get-KubectlClientVersion
 Set-Alias -Name kvs -Value Get-KubectlServerVersion
 Set-Alias -Name kcgctx -Value Get-KubectlContext
 Set-Alias -Name kcuctx -Value Set-KubectlContext
+Set-Alias -Name kgsecd -Value Get-SecretDecodedData
 #endregion
