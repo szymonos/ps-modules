@@ -12,7 +12,7 @@
 RootModule = 'aliases-kubectl.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.2.2'
+ModuleVersion = '0.2.3'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -78,6 +78,7 @@ FunctionsToExport = @(
     'Set-KubectlLocal'
     'Get-KubectlContext'
     'Set-KubectlContext'
+    'Get-SecretDecodedData'
     # alias
     'ktop'
     'ktopcntr'
@@ -900,6 +901,7 @@ AliasesToExport = @(
     'kvs'
     'kcgctx'
     'kcuctx'
+    'kgsecd'
 )
 
 # DSC resources to export from this module

@@ -129,8 +129,49 @@ function ConvertTo-X509Certificate {
 
         [Parameter(Mandatory, Position = 0, ParameterSetName = 'FromPath')]
         [ValidateScript({ Test-Path $_ -PathType 'Leaf' }, ErrorMessage = "'{0}' is not a valid file path.")]
-        [string]$Path
+        [string]$Path,
+
+        [ValidateNotNullorEmpty()]
+        [string]$Output = 'PassThru'
     )
+
+    begin {
+        # evaluate Output parameter abbreviations
+        $optSet = @('All', 'Compact', 'Extended', 'PassThru', 'Strip')
+        $opt = $optSet -match "^$Output"
+        if ($opt.Count -eq 0) {
+            Write-Warning "Output parameter name '$Output' is invalid. Valid Option values are:`n`t $($optSet -join ', ')"
+            break
+        }
+
+        # calculate properties for the specified Output
+        $showCertProp = switch ($opt) {
+            Compact {
+                @{
+                    TypeName   = @('System.DateTime', 'System.String')
+                    MemberType = @('AliasProperty', 'Property')
+                    Strip      = $true
+                }
+                continue
+            }
+            Extended {
+                @{
+                    TypeName   = @('System.Boolean', 'System.DateTime', 'System.Int32', 'System.IntPtr', 'System.String')
+                    MemberType = @('AliasProperty', 'Property')
+                    Strip      = $true
+                }
+                continue
+            }
+            Strip {
+                @{ Strip = $true }
+                continue
+            }
+            All { @{} }
+        }
+
+        # instantiate X509 certificate list
+        $x509Certs = [System.Collections.Generic.List[Security.Cryptography.X509Certificates.X509Certificate2]]::new()
+    }
 
     process {
         if ($PsCmdlet.ParameterSetName -eq 'FromPath') {
@@ -144,7 +185,18 @@ function ConvertTo-X509Certificate {
         ).Value
         # convert PEM encoded certificates to X509 certificate objects
         foreach ($pem in $pems) {
-            [Security.Cryptography.X509Certificates.X509Certificate2]::new([Convert]::FromBase64String($pem))
+            $x509Certs.Add([Security.Cryptography.X509Certificates.X509Certificate2]::new([Convert]::FromBase64String($pem)))
+        }
+    }
+
+    end {
+        switch ($opt) {
+            PassThru {
+                return $x509Certs
+            }
+            Default {
+                return $x509Certs | Add-CertificateProperties | Show-Object @showCertProp
+            }
         }
     }
 }
@@ -278,6 +330,9 @@ function Show-Certificate {
         [Parameter(Mandatory, ParameterSetName = 'Extended')]
         [switch]$Extended,
 
+        [Parameter(Mandatory, ParameterSetName = 'Strip')]
+        [switch]$Strip,
+
         [Parameter(Mandatory, ParameterSetName = 'All')]
         [switch]$All
     )
@@ -304,11 +359,16 @@ function Show-Certificate {
                 }
                 continue
             }
+            Strip {
+                @{ Strip = $true }
+                continue
+            }
             All { @{} }
         }
 
         # clean PSBoundParameters for Get-Certificate function
         $PSBoundParameters.Remove('Extended') | Out-Null
+        $PSBoundParameters.Remove('Strip') | Out-Null
         $PSBoundParameters.Remove('All') | Out-Null
     }
 

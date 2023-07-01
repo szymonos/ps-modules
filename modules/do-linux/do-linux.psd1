@@ -12,7 +12,7 @@
 RootModule = 'do-linux.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.4.9'
+ModuleVersion = '0.4.10'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()

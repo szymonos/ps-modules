@@ -355,18 +355,23 @@ function Invoke-CommandRetry {
 
 <#
 .SYNOPSIS
-Save examples from PowerShell scripts to the gitignored console folder.
+Save examples from PowerShell, Python, shell scripts to the console folder.
+Function ignores script_examples_save.ps1 script that can be used to invoke it
+and lines containing ExampleScriptSave keyword.
+
 .PARAMETER Path
-Path to the script to save the examples from.
-By default the script searches for all ps1 files in the current directory.
+Path to the file/folder to save the examples from.
+.PARAMETER ExtensionFilter
+Scripts extension filter.
 .PARAMETER FolderFromBase
 Save example script in the folder of the base script.
+
 .EXAMPLE
-# ~save example scripts for all PowerShell scripts in the current directory
+# :save example scripts from scripts in the current folder
 Invoke-ExampleScriptSave
 Invoke-ExampleScriptSave -FolderFromBase
-# ~save example script for the specified PowerShell script(s)
-$Path = 'folder/script*.ps1'
+# :save example script from scripts in the specified path
+$Path = 'folder'
 Invoke-ExampleScriptSave $Path
 Invoke-ExampleScriptSave $Path -FolderFromBase
 #>
@@ -374,27 +379,25 @@ function Invoke-ExampleScriptSave {
     [CmdletBinding()]
     param (
         [Parameter(Position = 0)]
-        [ValidateNotNullOrEmpty()]
-        [string]$Path = './*.ps1',
+        [ValidateScript({ Test-Path $_ }, ErrorMessage = "'{0}' is not a valid path.")]
+        [string]$Path = '.',
+
+        [ValidateScript({ $_.ForEach({ $_ -in @('.ps1', '.py', '.sh') }) -notcontains $false },
+            ErrorMessage = 'Wrong extensions provided. Valid values: .ps1, .py, .sh')]
+        [string[]]$ExtensionFilter = @('.ps1', '.py', '.sh'),
 
         [switch]$FolderFromBase
     )
 
     begin {
         $ErrorActionPreference = 'Stop'
+        # get list of scripts in the specified directory
+        $scripts = Get-ChildItem $Path -File -Force | Where-Object {
+            $_.Extension -in $ExtensionFilter -and $_.Name -ne 'script_examples_save.ps1' `
+        }
         # instantiate generic list to store example script(s) name(s)
         $lst = [Collections.Generic.List[string]]::new()
-        # determine if there are PowerShell scripts with examples in the current directory
-        try {
-            $psScripts = Select-String '^\.EXAMPLE' $Path
-        } catch [System.Management.Automation.ItemNotFoundException] {
-            Write-Warning "Cannot find path because it does not exist ($Path)."
-            return
-        } catch {
-            Write-Verbose $_.Exception.GetType().FullName
-            Write-Error $_
-        }
-        if ($psScripts) {
+        if ($scripts) {
             # get git root
             $gitRoot = git rev-parse --show-toplevel
             # add the console folder to .gitignored if necessary
@@ -403,12 +406,19 @@ function Invoke-ExampleScriptSave {
             }
             # determine and create example folder to put example scripts in
             $exampleDir = if ($FolderFromBase) {
-                [IO.Path]::Combine($gitRoot, 'console', (Get-Item $psScripts[0].Path).Directory.Name)
+                [IO.Path]::Combine($gitRoot, 'console', $scripts[0].Directory.Name)
             } else {
                 [IO.Path]::Combine($gitRoot, 'console')
             }
+            # create example dir if not exists
             if (-not (Test-Path $exampleDir -PathType Container)) {
                 New-Item $exampleDir -ItemType Directory | Out-Null
+            }
+            # script's initial comment regex pattern
+            $pattern = @{
+                '.ps1' = '(?s)(?<=\n\.EXAMPLE\n).*?(?=(\n#>|\n\.[A-Z]))'
+                '.sh'  = "(?s)(?<=\n: '\n).*?(?=\n'\n)"
+                '.py'  = '(?<=^(#.*?\n)?"""\n)((?!""")[\s\S])*(?=\n""")'
             }
         } else {
             return
@@ -416,17 +426,29 @@ function Invoke-ExampleScriptSave {
     }
 
     process {
-        foreach ($script in $psScripts) {
-            # check if the script has examples
-            $content = [IO.File]::ReadAllText($script.Path)
-            $example = [regex]::Matches($content, '(?s)(?<=\n\.EXAMPLE\n).*?(?=(\n#>|\n\.[A-Z]))').Value
+        foreach ($script in $scripts) {
+            $content = [IO.File]::ReadAllText($script)
+            # get script examples
+            $example = [regex]::Matches($content, $pattern[$script.Extension]).Value
             if ($example) {
-                # get parameters description
-                $param = [regex]::Matches($content, '(?s)(?<=\n)\.PARAMETER \w+\n(.*?)(?=\n(\n\.[A-Z]+\n|#>))').Value
+                # get PowerShell parameters descriptions
+                if ($script.Extension -eq '.ps1') {
+                    $param = [regex]::Matches($content, '(?s)(?<=\n)\.PARAMETER \w+\n(.*?)(?=\n(\n\.[A-Z]+\n|#>))').Value
+                } else {
+                    # quote sentences and links
+                    $example = $example `
+                        -replace '(^|\n)([A-Z].*\.)(\n|$)', '$1# $2$3' `
+                        -replace '(^|\n)(http.*)(\n|$)', '$1# $2$3'
+                    # clean param variable
+                    $param = $null
+                }
                 # calculate example file path
-                $exampleFile = [IO.Path]::Combine($exampleDir, $script.Filename)
-                # save parameters and examples to the example script
-                [IO.File]::WriteAllLines($exampleFile, "$($param ? "<#`n$param`n#>`n`n" : '')$example")
+                $fileName = $script.Extension -eq '.py' ? "$($script.BaseName)_py.ps1" : $script.Name
+                $exampleFile = [IO.Path]::Combine($exampleDir, $fileName)
+                # calculate file content
+                $content = "$($param ? "<#`n$param`n#>`n`n" : '')$example".Split("`n") -notmatch 'ExampleScriptSave'
+                # save the example script
+                [IO.File]::WriteAllLines($exampleFile, [string]::Join("`n", $content).Trim())
                 # add example script path to the list
                 $lst.Add([IO.Path]::GetRelativePath($gitRoot, $exampleFile))
             }
@@ -434,7 +456,10 @@ function Invoke-ExampleScriptSave {
     }
 
     end {
-        return $lst.ToArray().ForEach({ Write-Host "$_" })
+        # print list of saved file paths
+        foreach ($example in $lst) {
+            Write-Host $example
+        }
     }
 }
 

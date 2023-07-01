@@ -6,6 +6,7 @@ function gbl { Invoke-WriteExecCmd -Command 'git blame -b -w' -Arguments $args }
 function gb { Invoke-WriteExecCmd -Command 'git branch' -Arguments $args }
 function gba { Invoke-WriteExecCmd -Command 'git branch --all' -Arguments $args }
 function gbd { Invoke-WriteExecCmd -Command 'git branch --delete' -Arguments $args }
+function gbd! { Invoke-WriteExecCmd -Command 'git branch -D' -Arguments $args }
 function gbnm { Invoke-WriteExecCmd -Command 'git branch --no-merged' -Arguments $args }
 function gbr { Invoke-WriteExecCmd -Command 'git branch --remote' -Arguments $args }
 function gbsu { Invoke-WriteExecCmd -Command "git branch --set-upstream-to=origin/$(Get-GitCurrentBranch)" -Arguments $args }
@@ -27,15 +28,16 @@ function gcamp { gcam @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
 function gacam { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gcam @args }
 function gacamp { gacam @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
 function gcan! { Invoke-WriteExecCmd -Command 'git commit --verbose --all --no-edit --amend' -Arguments $args }
-function gcanp! { gcan! @args; Invoke-WriteExecCmd 'git push --force' -Parameters $args }
+function gcanp! { gcan! @args; Invoke-WriteExecCmd 'git push --force-with-lease' -Parameters $args }
+function gcempty { Invoke-WriteExecCmd 'git commit --allow-empty -m' -Arguments $args }
 function gacan! { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gcan! @args }
-function gacanp! { gacan! @args; Invoke-WriteExecCmd 'git push --force' -Parameters $args }
+function gacanp! { gacan! @args; Invoke-WriteExecCmd 'git push --force-with-lease' -Parameters $args }
 function gcans! { Invoke-WriteExecCmd -Command 'git commit --verbose --all --signoff --no-edit --amend' -Arguments $args }
 function gacans! { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gcans! @args }
 function gcmsg { Invoke-WriteExecCmd -Command 'git commit -m' -Arguments $args }
 function gcmsgp { gcmsg @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
 function gcn! { Invoke-WriteExecCmd -Command 'git commit --verbose --no-edit --amend' -Arguments $args }
-function gcnp! { gcn! @args; Invoke-WriteExecCmd 'git push --force' -Parameters $args }
+function gcnp! { gcn! @args; Invoke-WriteExecCmd 'git push --force-with-lease' -Parameters $args }
 function gcsm { Invoke-WriteExecCmd -Command 'git commit --signoff -m' -Arguments $args }
 function gcd { Set-Location $(git rev-parse --show-toplevel 2>$null || '.') }
 function gcf { Invoke-WriteExecCmd -Command 'git config' -Arguments $args }
@@ -117,7 +119,7 @@ function gpullra { Invoke-WriteExecCmd -Command 'git pull --rebase --autostash' 
 function gpullrav { Invoke-WriteExecCmd -Command 'git pull --rebase --autostash --verbose' -Arguments $args }
 function gpullrv { Invoke-WriteExecCmd -Command 'git pull --rebase --verbose' -Arguments $args }
 function gpush { Invoke-WriteExecCmd -Command 'git push' -Arguments $args }
-function gpush! { Invoke-WriteExecCmd -Command 'git push --force' -Arguments $args }
+function gpush! { Invoke-WriteExecCmd -Command 'git push --force-with-lease' -Arguments $args }
 function gpushd { Invoke-WriteExecCmd -Command 'git push --dry-run' -Arguments $args }
 function gpushoat {
     if ($remote = git remote) {
@@ -188,6 +190,7 @@ function gsw { Invoke-WriteExecCmd -Command "git switch $(Get-GitResolvedBranch 
 function gsw! { Invoke-WriteExecCmd -Command "git switch $(Get-GitResolvedBranch $args) --force" -Parameters $args }
 function gswc { Invoke-WriteExecCmd -Command 'git switch --create' -Arguments $args }
 function gswd { Invoke-WriteExecCmd -Command 'git switch --detach' -Arguments $args }
+function gswo { Invoke-WriteExecCmd -Command 'git switch --orphan' -Arguments $args }
 function gsmi { Invoke-WriteExecCmd -Command 'git submodule init' -Arguments $args }
 function gsmu { Invoke-WriteExecCmd -Command 'git submodule update' -Arguments $args }
 function gsps { Invoke-WriteExecCmd -Command 'git show --pretty=short --show-signature' -Arguments $args }

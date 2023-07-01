@@ -11,6 +11,7 @@ $exportModuleMemberParams = @{
         'Set-KubectlLocal'
         'Get-KubectlContext'
         'Set-KubectlContext'
+        'Get-SecretDecodedData'
         # alias
         'ktop'
         'ktopcntr'
@@ -826,6 +827,7 @@ $exportModuleMemberParams = @{
         'kvs'
         'kcgctx'
         'kcuctx'
+        'kgsecd'
     )
 }
 
