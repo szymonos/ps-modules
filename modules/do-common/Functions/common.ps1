@@ -438,22 +438,36 @@ function Invoke-ExampleScriptSave {
             if ($example) {
                 # get PowerShell parameters descriptions
                 if ($script.Extension -eq '.ps1') {
-                    $param = [regex]::Matches($content, '(?s)(?<=\n)\.PARAMETER \w+\n(.*?)(?=\n(\n\.[A-Z]+\n|#>))').Value
+                    $synopsis = [regex]::Matches($content, '(?s)(?<=\n)\.SYNOPSIS\n(.*?)(?=(\n\.[A-Z]+( \w+)?\n|#>))').Value
+                    $param = [regex]::Matches($content, '(?s)(?<=\n)\.PARAMETER \w+\n(.*?)(?=(\n\.[A-Z]+\n|#>))').Value
                 } else {
                     # quote sentences and links
                     $example = $example `
                         -replace '(^|\n)([A-Z].*\.)(\n|$)', '$1# $2$3' `
                         -replace '(^|\n)(http.*)(\n|$)', '$1# $2$3'
                     # clean param variable
+                    $synopsis = $null
                     $param = $null
                 }
                 # calculate example file path
                 $fileName = $script.Extension -eq '.py' ? "$($script.BaseName)_py.ps1" : $script.Name
                 $exampleFile = [IO.Path]::Combine($exampleDir, $fileName)
-                # calculate file content
-                $content = "$($param ? "<#`n$param`n#>`n`n" : '')$example".Split("`n") -notmatch 'ExampleScriptSave'
+                # build content string
+                $builder = [System.Text.StringBuilder]::new()
+                if ($synopsis -or $param) {
+                    $builder.AppendLine('<#') | Out-Null
+                    if ($synopsis) { $builder.AppendLine($synopsis.Trim()) | Out-Null }
+                    if ($param) { $builder.AppendLine($synopsis ? "`n$($param.Trim())" : $param.Trim()) | Out-Null }
+                    $builder.AppendLine('#>') | Out-Null
+                    if ($example) { $builder.AppendLine('') | Out-Null }
+                }
+                if ($example) {
+                    $example.Trim().Split("`n") | Select-String -NotMatch 'ExampleScriptSave' | ForEach-Object {
+                        $builder.AppendLine($_) | Out-Null
+                    }
+                }
                 # save the example script
-                [IO.File]::WriteAllLines($exampleFile, [string]::Join("`n", $content).Trim())
+                [IO.File]::WriteAllText($exampleFile, $builder.ToString())
                 # add example script path to the list
                 $lst.Add([IO.Path]::GetRelativePath($gitRoot, $exampleFile))
             }
