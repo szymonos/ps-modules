@@ -12,7 +12,7 @@
 RootModule = 'aliases-git.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.2.8'
+ModuleVersion = '1.3.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -186,6 +186,7 @@ FunctionsToExport = @(
     'gpush'
     'gpush!'
     'gpushd'
+    'gpushdr'
     'gpushoat'
     'gpushsup'
     'gpushv'
