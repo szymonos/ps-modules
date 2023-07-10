@@ -71,8 +71,9 @@ Service Principal credential.
 function Get-MsoToken {
     [CmdletBinding(DefaultParameterSetName = 'BuiltIn')]
     param (
-        [Parameter(Mandatory, Position = 0)]
-        [string]$ResourceUrl,
+        [Parameter(Position = 0)]
+        [ValidateNotNullOrEmpty()]
+        [string]$ResourceUrl = 'https://management.core.windows.net/',
 
         [Alias('i')]
         [Parameter(Mandatory, ParameterSetName = 'ServicePrincipal')]
@@ -80,7 +81,9 @@ function Get-MsoToken {
 
         [Alias('s')]
         [Parameter(Mandatory, ParameterSetName = 'ServicePrincipal')]
-        [string]$ClientSecret
+        [string]$ClientSecret,
+
+        [switch]$AsSecureString
     )
 
     begin {
@@ -117,6 +120,9 @@ function Get-MsoToken {
                     UserId    = $ClientId
                 }
             }
+        }
+        if ($AsSecureString) {
+            $token = ConvertTo-SecureString -String $token.Token -AsPlainText -Force
         }
     }
 

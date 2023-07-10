@@ -1,4 +1,9 @@
-$ErrorActionPreference = 'Stop'
+<#
+.SYNOPSIS
+Azure Resource Graph functions.
+.LINK
+https://learn.microsoft.com/en-gb/azure/governance/resource-graph/reference/supported-tables-resources
+#>
 
 <#
 .SYNOPSIS
