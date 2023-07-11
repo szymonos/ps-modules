@@ -118,52 +118,57 @@ function Get-ArrayIndexMenu {
     }
 
     end {
-        # create selection menu
-        $menu = switch ($arrayType) {
-            object {
-                $i = 0
-                $lst `
-                | Select-Object @{ N = '#'; E = { $lst.Count -eq 1 ? 0 : $lst.IndexOf($_) } }, @{ N = ' '; E = { '-' } }, * `
-                | Format-Table -AutoSize `
-                | Out-String -Stream `
-                | ForEach-Object { $i -lt 3 ? "`e[1;92m$_`e[0m" : $_; $i++ } `
-                | Out-String
-                continue
-            }
-            string {
-                $lst.ToArray().ForEach({ [PSCustomObject]@{ '#' = $lst.IndexOf($_); ' ' = '-'; 'V' = $_ } }) `
-                | Format-Table -AutoSize -HideTableHeaders `
-                | Out-String
-                continue
-            }
-        }
-
-        # create prompt message
-        if (-not $Message) {
-            $Message = $List ? 'Enter comma/space separated selection list' : 'Enter selection'
-        }
-        $msg = "`n`e[4m$Message`e[0m:`n$menu"
-
-        # read and validate input
-        do {
-            # instantiate indexes collection
-            $indexes = [System.Collections.Generic.HashSet[int]]::new()
-            # prompt for a selection from the input array
-            (Read-Host -Prompt $msg).Split([char[]]@(' ', ','), [StringSplitOptions]::RemoveEmptyEntries).ForEach({
-                    try { $indexes.Add($_) | Out-Null } catch { }
+        # return if the input array has only 1 item
+        if ($lst.Count -eq 1) {
+            $indexes = [System.Collections.Generic.HashSet[int]]::new([int[]]0)
+        } else {
+            # create selection menu
+            $menu = switch ($arrayType) {
+                object {
+                    $i = 0
+                    $lst `
+                    | Select-Object @{ N = '#'; E = { $lst.IndexOf($_) } }, @{ N = ' '; E = { '-' } }, * `
+                    | Format-Table -AutoSize `
+                    | Out-String -Stream `
+                    | ForEach-Object { $i -lt 3 ? "`e[1;92m$_`e[0m" : $_; $i++ } `
+                    | Out-String
+                    continue
                 }
-            )
-            # calculate stats for returned indexes
-            $stat = $indexes | Measure-Object -Minimum -Maximum
-            # evaluate if the Read-Host input is valid
-            $continue = if ($stat.Count -eq 0) {
-                $AllowNoSelection
-            } elseif ($stat.Count -eq 1 -or ($List -and $stat.Count -gt 0)) {
-                $stat.Minimum -ge 0 -and $stat.Maximum -lt $lst.Count
-            } else {
-                $false
+                string {
+                    $lst.ToArray().ForEach({ [PSCustomObject]@{ '#' = $lst.IndexOf($_); ' ' = '-'; 'V' = $_ } }) `
+                    | Format-Table -AutoSize -HideTableHeaders `
+                    | Out-String
+                    continue
+                }
             }
-        } until ($continue)
+
+            # create prompt message
+            if (-not $Message) {
+                $Message = $List ? 'Enter comma/space separated selection list' : 'Enter selection'
+            }
+            $msg = "`n`e[4m$Message`e[0m:`n$menu"
+
+            # read and validate input
+            do {
+                # instantiate indexes collection
+                $indexes = [System.Collections.Generic.HashSet[int]]::new()
+                # prompt for a selection from the input array
+                (Read-Host -Prompt $msg).Split([char[]]@(' ', ','), [StringSplitOptions]::RemoveEmptyEntries).ForEach({
+                        try { $indexes.Add($_) | Out-Null } catch { }
+                    }
+                )
+                # calculate stats for returned indexes
+                $stat = $indexes | Measure-Object -Minimum -Maximum
+                # evaluate if the Read-Host input is valid
+                $continue = if ($stat.Count -eq 0) {
+                    $AllowNoSelection
+                } elseif ($stat.Count -eq 1 -or ($List -and $stat.Count -gt 0)) {
+                    $stat.Minimum -ge 0 -and $stat.Maximum -lt $lst.Count
+                } else {
+                    $false
+                }
+            } until ($continue)
+        }
 
         # return result
         return $Value ? $indexes.ForEach({ $lst[$_] }) : [int[]]$indexes.ForEach({ $_ })
@@ -433,22 +438,36 @@ function Invoke-ExampleScriptSave {
             if ($example) {
                 # get PowerShell parameters descriptions
                 if ($script.Extension -eq '.ps1') {
-                    $param = [regex]::Matches($content, '(?s)(?<=\n)\.PARAMETER \w+\n(.*?)(?=\n(\n\.[A-Z]+\n|#>))').Value
+                    $synopsis = [regex]::Matches($content, '(?s)(?<=\n)\.SYNOPSIS\n(.*?)(?=(\n\.[A-Z]+( \w+)?\n|#>))').Value
+                    $param = [regex]::Matches($content, '(?s)(?<=\n)\.PARAMETER \w+\n(.*?)(?=(\n\.[A-Z]+\n|#>))').Value
                 } else {
                     # quote sentences and links
                     $example = $example `
                         -replace '(^|\n)([A-Z].*\.)(\n|$)', '$1# $2$3' `
                         -replace '(^|\n)(http.*)(\n|$)', '$1# $2$3'
                     # clean param variable
+                    $synopsis = $null
                     $param = $null
                 }
                 # calculate example file path
                 $fileName = $script.Extension -eq '.py' ? "$($script.BaseName)_py.ps1" : $script.Name
                 $exampleFile = [IO.Path]::Combine($exampleDir, $fileName)
-                # calculate file content
-                $content = "$($param ? "<#`n$param`n#>`n`n" : '')$example".Split("`n") -notmatch 'ExampleScriptSave'
+                # build content string
+                $builder = [System.Text.StringBuilder]::new()
+                if ($synopsis -or $param) {
+                    $builder.AppendLine('<#') | Out-Null
+                    if ($synopsis) { $builder.AppendLine($synopsis.Trim()) | Out-Null }
+                    if ($param) { $builder.AppendLine($synopsis ? "`n$($param.Trim())" : $param.Trim()) | Out-Null }
+                    $builder.AppendLine('#>') | Out-Null
+                    if ($example) { $builder.AppendLine('') | Out-Null }
+                }
+                if ($example) {
+                    $example.Trim().Split("`n") | Select-String -NotMatch 'ExampleScriptSave' | ForEach-Object {
+                        $builder.AppendLine($_) | Out-Null
+                    }
+                }
                 # save the example script
-                [IO.File]::WriteAllLines($exampleFile, [string]::Join("`n", $content).Trim())
+                [IO.File]::WriteAllText($exampleFile, $builder.ToString())
                 # add example script path to the list
                 $lst.Add([IO.Path]::GetRelativePath($gitRoot, $exampleFile))
             }

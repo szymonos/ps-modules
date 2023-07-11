@@ -120,7 +120,14 @@ function gpullrav { Invoke-WriteExecCmd -Command 'git pull --rebase --autostash 
 function gpullrv { Invoke-WriteExecCmd -Command 'git pull --rebase --verbose' -Arguments $args }
 function gpush { Invoke-WriteExecCmd -Command 'git push' -Arguments $args }
 function gpush! { Invoke-WriteExecCmd -Command 'git push --force-with-lease' -Arguments $args }
-function gpushd { Invoke-WriteExecCmd -Command 'git push --dry-run' -Arguments $args }
+function gpushd {
+    if ($remote = git remote) {
+        Invoke-WriteExecCmd -Command "git push --delete $remote" -Arguments $args
+    } else {
+        Write-Host 'fatal: Remote repository not set.'
+    }
+}
+function gpushdr { Invoke-WriteExecCmd -Command 'git push --dry-run' -Arguments $args }
 function gpushoat {
     if ($remote = git remote) {
         Invoke-WriteExecCmd -Command "git push $remote --all && git push $remote --tags" -Parameters $args
