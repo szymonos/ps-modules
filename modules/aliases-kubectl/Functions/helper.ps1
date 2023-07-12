@@ -104,9 +104,51 @@ function Set-KubectlLocal {
 Get list of available kubernetes contexts.
 #>
 function Get-KubectlContext {
-    (kubectl config get-contexts) -replace '\s+', "`f" `
-    | ConvertFrom-Csv -Delimiter "`f" `
-    | Format-Table @{ N = '@'; E = { $_.CURRENT } }, NAME, CLUSTER, NAMESPACE, AUTHINFO
+    param (
+        [ValidateNotNullOrEmpty()]
+        [ValidateSet('json', 'object', 'table')]
+        [string]$Output = 'table'
+    )
+
+    $config = kubectl config view --output json | ConvertFrom-Json
+    $ctxs = foreach ($ctx in $config.contexts) {
+        [PSCustomObject]@{
+            '@'       = $ctx.name -eq $config.'current-context' ? '*' : $null
+            name      = $ctx.name
+            cluster   = $ctx.context.cluster
+            namespace = $ctx.context.namespace
+            user      = $ctx.context.user
+        }
+    }
+
+    switch ($Output) {
+        json {
+            if (Get-Command jq -CommandType Application -ErrorAction SilentlyContinue) {
+                $ctxs | ConvertTo-Json | jq
+            } else {
+                $ctxs | ConvertTo-Json
+            }
+        }
+        object {
+            $ctxs
+        }
+        table {
+            $ctxs | Format-Table
+        }
+    }
+}
+
+<#
+.SYNOPSIS
+Get list of available kubernetes contexts.
+#>
+function Remove-KubectlContext {
+    $ctx = Get-KubectlContext -Output 'object' | Select-Object name, cluster, user | Get-ArrayIndexMenu -Value
+
+    # unset context
+    kubectl config unset "contexts.$($ctx.name)"
+    kubectl config unset "clusters.$($ctx.cluster)"
+    kubectl config unset "users.$($ctx.user)"
 }
 
 <#
@@ -115,8 +157,20 @@ Change kubernetes context and sets the corresponding kubectl client version.
 #>
 function Set-KubectlContext {
     Write-Host "kubectl config use-context $args" -ForegroundColor Magenta
-    kubectl config use-context @args
-    Set-KubectlLocal
+
+    $contexts = Get-KubectlContext -Output 'object' | Sort-Object name
+    if ($args -in $contexts.name) {
+        kubectl config use-context @args
+        Set-KubectlLocal
+    } elseif (-not $args) {
+        $ctx = $contexts `
+        | Select-Object name, cluster, namespace `
+        | Get-ArrayIndexMenu -Value -Message 'Select kubernetes context to switch to.'
+        kubectl config use-context $ctx.name
+        Set-KubectlLocal
+    } else {
+        Write-Warning "Context does not exist ($($args[0]))"
+    }
 }
 #endregion
 
@@ -141,5 +195,6 @@ Set-Alias -Name kvc -Value Get-KubectlClientVersion
 Set-Alias -Name kvs -Value Get-KubectlServerVersion
 Set-Alias -Name kcgctx -Value Get-KubectlContext
 Set-Alias -Name kcuctx -Value Set-KubectlContext
+Set-Alias -Name kcrmctx -Value Remove-KubectlContext
 Set-Alias -Name kgsecd -Value Get-SecretDecodedData
 #endregion
