@@ -368,6 +368,8 @@ and lines containing ExampleScriptSave keyword.
 Path to the file/folder to save the examples from.
 .PARAMETER ExtensionFilter
 Scripts extension filter.
+.PARAMETER Exclude
+List of file relative or full paths to be excluded from processing.
 .PARAMETER FolderFromBase
 Save example script in the folder of the base script.
 
@@ -391,6 +393,9 @@ function Invoke-ExampleScriptSave {
             ErrorMessage = 'Wrong extensions provided. Valid values: .ps1, .py, .sh')]
         [string[]]$ExtensionFilter = @('.ps1', '.py', '.sh'),
 
+        [ValidateNotNullOrEmpty()]
+        [string[]]$Exclude = '.',
+
         [switch]$FolderFromBase
     )
 
@@ -398,7 +403,7 @@ function Invoke-ExampleScriptSave {
         $ErrorActionPreference = 'Stop'
         # get list of scripts in the specified directory
         $scripts = Get-ChildItem $Path -File -Force | Where-Object {
-            $_.Extension -in $ExtensionFilter -and $_.Name -ne 'script_examples_save.ps1' `
+            $_.Extension -in $ExtensionFilter -and $_.FullName -notin (Resolve-Path $Exclude -ErrorAction SilentlyContinue).Path
         }
         # instantiate generic list to store example script(s) name(s)
         $lst = [Collections.Generic.List[string]]::new()
