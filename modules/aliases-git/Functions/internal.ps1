@@ -137,3 +137,16 @@ function Get-GitResolvedBranch {
         return $branch
     }
 }
+
+function ConvertFrom-GitLog {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
+        [string]$InputObject
+    )
+
+    $InputObject | ConvertFrom-Csv -Delimiter "`f"
+}
+
+Invoke-Expression  "git log --pretty=format:`"%h`f%ai`f%D`f%s`f%an`f%ae`"" | ConvertFrom-GitLog
+Invoke-Expression  "git log --pretty=format:`"%h`f%ai`f%D`f%s`f%an`f%ae`"" | ConvertFrom-Csv -Delimiter "`f"
