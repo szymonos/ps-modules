@@ -5,15 +5,14 @@
 $exportModuleMemberParams = @{
     Function = @(
         # helper
-        'Remove-GitLocalBranches'
         'gglo'
         'ggloa'
-        'gglos'
-        'gglosa'
         'ggloc'
         'ggloca'
-        'gglocs'
-        'gglocsa'
+        'ggrep'
+        'ggrepa'
+        'ggrepc'
+        'ggrepca'
         # alias
         'ga'
         'gaa'
@@ -177,6 +176,7 @@ $exportModuleMemberParams = @{
     Variable = @()
     Alias    = @(
         'gbda'
+        'gglobj'
     )
 }
 

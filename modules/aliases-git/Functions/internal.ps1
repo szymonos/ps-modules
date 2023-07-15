@@ -4,34 +4,61 @@ Get git log object.
 
 .PARAMETER All
 Switch whether to get commits from all branches.
-.PARAMETER Start
-Switch whether to get all commits, otherwise only last 50 will be shown.
-.PARAMETER Quiet
-Switch whether to write command.
+.PARAMETER Grep
+Specify regex expression to search in the commit subjects
+.PARAMETER Count
+Specify number of results to be returned
+
+.EXAMPLE
+Get-GitLogObject
+Get-GitLogObject -Count 10
+Get-GitLogObject -All -Grep '^feat.*aliases-git' -Verbose
 #>
 function Get-GitLogObject {
+    [CmdletBinding()]
     param (
+        [Parameter(Position = 0)]
+        [int]$Count,
+
         [switch]$All,
 
-        [switch]$Start,
-
-        [switch]$Quiet
+        [string]$Grep
     )
-    $cmd = "git log --pretty=format:`"%h`f%ai`f%D`f%s`f%an`f%ae`"$($All ? ' --all' : '')$($Start ? '' : ' -40')"
-    if (-not $Quiet) {
-        Write-Host $cmd.Replace("`f", '`t') -ForegroundColor Magenta
+
+    begin {
+        # initialize list with CSV header for the execution results
+        $csv = [System.Collections.Generic.List[string]]::new([string[]]"Commit`fDate`fReference`fSubject`fAuthor`fEmail")
+        # build format string array
+        $format = $(
+            ($Grep ? " --grep '$Grep' --perl-regexp --regexp-ignore-case" : ''),
+            ($All ? ' --all' : ''),
+            ($Count ? " -$Count" : '')
+        )
+        # build git expression
+        $cmd = "git log{0}{1} --pretty=format:`"%h`f%ai`f%D`f%s`f%an`f%ae`"{2}" -f $format
+        # show the expression
+        Write-Verbose $cmd.Replace("`f", ' ')
     }
-    [string[]]$commit = Invoke-Expression $cmd
-    if ($commit) {
-        @("Commit`fDate`fReference`fSubject`fAuthor`fEmail", $commit) `
-        | ConvertFrom-Csv -Delimiter "`f" `
-        | Select-Object Commit `
-            , @{ Name = 'DateUTC'; Expression = { [TimeZoneInfo]::ConvertTimeToUtc($_.Date).ToString('s') } } `
-            , @{ Name = 'Reference'; Expression = { $_.Reference.Replace('origin/', '').Split(',')[0] } } `
-            , Subject `
-            , Author `
-            , Email `
-        | Sort-Object DateUTC
+
+    process {
+        # execute formatted expression
+        (Invoke-Expression $cmd).ForEach({ $csv.Add($_) })
+        if ($csv.Count -gt 1) {
+            # build properties for Select-Object
+            $prop = @(
+                'Commit'
+                @{ Name = 'DateUTC'; Expression = { [TimeZoneInfo]::ConvertTimeToUtc($_.Date).ToString('s') } }
+                @{ Name = 'Reference'; Expression = { $_.Reference.Replace('origin/', '').Split(',')[0] } }
+                'Subject'
+                'Author'
+                'Email'
+            )
+            $result = $csv | ConvertFrom-Csv -Delimiter "`f" | Select-Object -Property $prop
+        }
+    }
+
+    end {
+        return $result
     }
 }
 
@@ -118,12 +145,9 @@ function Get-GitResolvedBranch {
     }
 
     process {
-        [string[]]$branches = (git branch -a --format='%(refname:short)').Where({ $_ -ne 'origin/HEAD' })
+        [string[]]$branches = (git branch --all --format='%(refname:short)').Where({ $_ -ne 'origin/HEAD' }).Replace('origin/', '')
         if ($branches) {
-            $branch = $branches.Replace('origin/', '') `
-            | Sort-Object -Unique `
-            | Select-String $branchMatch -Raw `
-            | Select-Object -First 1
+            $branch = $branches | Sort-Object -Unique | Select-String $branchMatch -Raw | Select-Object -First 1
         }
         if (-not $branch) {
             if ($BranchName) {
@@ -138,15 +162,46 @@ function Get-GitResolvedBranch {
     }
 }
 
-function ConvertFrom-GitLog {
-    [CmdletBinding()]
+<#
+.SYNOPSIS
+Clean local branches.
+
+.PARAMETER DeleteNoMerged
+Switch whether to delete no merged branches.
+.PARAMETER WhatIf
+Switch whether to see what the command would have done instead of making changes.
+#>
+function Remove-GitLocalBranches {
     param (
-        [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
-        [string]$InputObject
+        [switch]$DeleteNoMerged,
+
+        [switch]$WhatIf,
+
+        [switch]$Quiet
     )
-
-    $InputObject | ConvertFrom-Csv -Delimiter "`f"
+    begin {
+        # remove DeleteNoMerged from PSBoundParameters
+        $PSBoundParameters.Remove('DeleteNoMerged') | Out-Null
+        # switch to dev/main branch
+        git switch $(Get-GitResolvedBranch) --quiet
+        # update remote
+        git remote update --prune
+    }
+    process {
+        # *get list of branches
+        filter branchFilter { $_.Where({ $_ -notmatch '^ma(in|ster)$|^dev(|el|elop)$|^qa$|^stage$|^trunk$' }) }
+        $merged = git branch --format='%(refname:short)' --merged | branchFilter
+        # *delete branches
+        foreach ($branch in $merged) {
+            Invoke-WriteExecCmd -Command "git branch --delete $branch" @PSBoundParameters
+        }
+        if ($DeleteNoMerged) {
+            $no_merged = git branch --format='%(refname:short)' --no-merged | branchFilter
+            foreach ($branch in $no_merged) {
+                if ((Read-Host -Prompt "Do you want to remove branch: `e[1;97m$branch`e[0m? [y/N]") -eq 'y') {
+                    Invoke-WriteExecCmd -Command "git branch -D $branch" @PSBoundParameters
+                }
+            }
+        }
+    }
 }
-
-Invoke-Expression  "git log --pretty=format:`"%h`f%ai`f%D`f%s`f%an`f%ae`"" | ConvertFrom-GitLog
-Invoke-Expression  "git log --pretty=format:`"%h`f%ai`f%D`f%s`f%an`f%ae`"" | ConvertFrom-Csv -Delimiter "`f"
