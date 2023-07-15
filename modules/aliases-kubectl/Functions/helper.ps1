@@ -172,7 +172,6 @@ function Set-KubectlContext {
         Write-Warning "Context does not exist ($($args[0]))"
     }
 }
-#endregion
 
 <#
 .SYNOPSIS
@@ -187,6 +186,7 @@ function Get-SecretDecodedData {
         [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($_.Value)).Trim()
     }
 }
+#endregion
 
 #region aliases
 Set-Alias -Name k -Value kubectl
