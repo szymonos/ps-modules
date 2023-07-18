@@ -105,6 +105,7 @@ $exportModuleMemberParams = @{
         'glosa'
         'glosp'
         'glospa'
+        'gmb'
         'gmg'
         'gmgo'
         'gmt'
