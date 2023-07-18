@@ -171,18 +171,18 @@ Set-Alias -Name ssm -Value Set-SubscriptionMenu
 .SYNOPSIS
 Send request to Azure REST API.
 
-.PARAMETER Scope
-Request scope.
+.PARAMETER Path
+Request path.
 .PARAMETER ApiVersion
 API version.
 .PARAMETER Method
-Request method. Allowed values: Get, Patch, Put, Delete. Default: Get.
+Request method. Allowed values: Get, Patch, Post, Put, Delete. Default: Get.
 .PARAMETER Body
 Request payload provided as string or hashtable.
 .PARAMETER InFile
 Request payload provided as path to file.
 .PARAMETER Output
-Output format. Allowed values: json, jsonc, object. Default: object.
+Output format. Allowed values: json, object. Default: object.
 .PARAMETER Filter
 Filter specified for the API request.
 .PARAMETER Select
@@ -191,25 +191,19 @@ Select specific fields in the API request.
 function Invoke-AzApiRequest {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
-        [Alias('s')]
         [Parameter(Mandatory, Position = 0)]
-        [string]$Scope,
+        [string]$Path,
 
-        [Alias('a')]
         [Parameter(Mandatory, Position = 1)]
         [string]$ApiVersion,
 
-        [Parameter(ParameterSetName = 'Default')]
         [string]$Filter,
 
-        [Parameter(ParameterSetName = 'Default')]
         [string[]]$Select,
 
-        [Alias('m')]
-        [ValidateSet('Get', 'Patch', 'Put', 'Delete')]
+        [ValidateSet('Get', 'Patch', 'Post', 'Put', 'Delete')]
         [string]$Method = 'Get',
 
-        [Alias('b')]
         [Parameter(Mandatory, ParameterSetName = 'Payload:Body')]
         [ValidateNotNullorEmpty()]
         [object]$Body,
@@ -219,8 +213,7 @@ function Invoke-AzApiRequest {
         [ValidateScript({ Test-Path $_ -PathType 'Leaf' }, ErrorMessage = "'{0}' is not a valid path.")]
         [string]$InFile,
 
-        [Alias('o')]
-        [ValidateSet('json', 'jsonc', 'object')]
+        [ValidateSet('json', 'object')]
         [string]$Output = 'object'
     )
 
@@ -233,39 +226,47 @@ function Invoke-AzApiRequest {
         }
 
         # add payload
-        if ($Method -in @('Patch', 'Put')) {
+        if ($Method -in @('Patch', 'Post', 'Put')) {
             if ($Body) {
-                $params.Body = if ($Body.GetType().Name -eq 'Hashtable') {
-                    $Body | ConvertTo-Json -Depth 99
-                } else {
-                    $Body
+                $params.Body = switch -Regex ($Body.GetType().Name) {
+                    String {
+                        $Body
+                    }
+                    'Hashtable|OrderedDictionary' {
+                        $Body | ConvertTo-Json -Depth 99
+                    }
+                    Default {
+                        $null
+                    }
                 }
             } elseif ($InFile) {
                 $params.InFile = $InFile
             }
         }
 
-        # build uri
-        $uri = "https://management.azure.com$($Scope)?api-version=$ApiVersion"
+        # build Uri
+        $Query = "?api-version=$ApiVersion"
         if ($PSBoundParameters.Filter) {
-            $uri += "&`$filter=$($Filter.Replace(' ', '%20'))"
+            $Query += "&`$filter=$($Filter.Replace(' ', '%20'))"
         }
         if ($PSBoundParameters.Select) {
-            $uri += "&`$select=$(($Select -replace ' +') -join ',')"
+            $Query += "&`$select=$(($Select -replace ' +') -join ',')"
         }
+        $params.Uri = [System.UriBuilder]::new('https', 'management.azure.com', 443, $Path, $Query).Uri
 
+        # initialize variables
         $response = $null
-        $responseList = [Collections.Generic.List[PSCustomObject]]::new()
+        $responseList = [System.Collections.Generic.List[PSCustomObject]]::new()
     }
 
     process {
-        Write-Verbose "$($params.Method.ToUpper()) $uri"
+        Write-Verbose "$($params.Method.ToUpper()) $($params.Uri)"
         if ($params.Body) {
             Write-Verbose "Body`n$($params.Body)"
         }
         do {
             $response = Invoke-CommandRetry {
-                Invoke-RestMethod @params -Uri $uri
+                Invoke-RestMethod @params
             }
             if ($response.value) {
                 $response.value.ForEach({ $responseList.Add($_) })
@@ -273,7 +274,7 @@ function Invoke-AzApiRequest {
                 $response.ForEach({ $responseList.Add($_) })
             }
             if ($response.nextLink) {
-                $uri = $response.nextLink
+                $params.Uri = $response.nextLink
             }
         } while ($response.nextLink)
     }
@@ -284,10 +285,11 @@ function Invoke-AzApiRequest {
                 return $responseList
             }
             json {
-                return $responseList | ConvertTo-Json -Depth 10
-            }
-            jsonc {
-                return $responseList | ConvertTo-Json -Depth 10 | jq
+                if (Get-Command jq -CommandType Application -ErrorAction SilentlyContinue) {
+                    return $responseList | ConvertTo-Json -Depth 99 | jq
+                } else {
+                    return $responseList | ConvertTo-Json -Depth 99
+                }
             }
         }
     }

@@ -1,99 +1,106 @@
+#region helper functions
 <#
 .SYNOPSIS
 Get-GitLogObject function aliases.
 #>
+function gglogs {
+    [CmdletBinding()]
+    param (
+        [Parameter(Position = 0)]
+        [int]$Count,
+
+        [switch]$All,
+
+        [string]$Grep
+    )
+
+    Get-GitLogObject @PSBoundParameters | Sort-Object DateUTC | Select-Object Commit, DateUTC, Subject, Author
+}
+
 function gglo {
-    Get-GitLogObject | Select-Object Commit, DateUTC, Subject, Author
+    [CmdletBinding()]
+    param ([int]$Count = 30)
+
+    gglogs -Count $Count
 }
 function ggloa {
-    Get-GitLogObject -All | Select-Object Commit, DateUTC, Subject, Author
+    [CmdletBinding()]
+    param ([int]$Count = 30)
+
+    gglogs -Count $Count -All
 }
-function gglos {
-    Get-GitLogObject -Start | Select-Object Commit, DateUTC, Subject, Author
+
+function ggrep {
+    [CmdletBinding()]
+    param ([string]$Grep)
+
+    gglogs -Grep $Grep
 }
-function gglosa {
-    Get-GitLogObject -Start -All | Select-Object Commit, DateUTC, Subject, Author
+
+function ggrepa {
+    [CmdletBinding()]
+    param ([string]$Grep)
+
+    gglogs -Grep $Grep -All
 }
 
 <#
 .SYNOPSIS
 Get-GitLogObject function colored aliases.
 #>
-function ggloc {
-    Get-GitLogObject -Quiet | Format-Table @{ Name = 'Commit'; Expression = { "`e[33m$($_.Commit)`e[0m" } } `
-        , @{ Name = 'DateUTC'; Expression = { "`e[32m$($_.DateUTC)`e[0m" } } `
-        , @{ Name = 'Reference'; Expression = { $ref = $_.Reference.Replace('origin/', '').Split(',')[0]; "`e[31m$($ref.Substring(0, [Math]::Min(25, $ref.Length)))`e[0m" } } `
-        , @{ Name = 'Subject'; Expression = { $_.Subject.Substring(0, [Math]::Min(49, $_.Subject.Length)) } } `
-        , @{ Name = 'Author'; Expression = { "`e[34;1m$($_.Author)`e[0m" } } `
-        , @{ Name = 'Email'; Expression = { "`e[36;3m$($_.Email)`e[0m" } }
-}
-function ggloca {
-    Get-GitLogObject -Quiet -All | Format-Table @{ Name = 'Commit'; Expression = { "`e[33m$($_.Commit)`e[0m" } } `
-        , @{ Name = 'DateUTC'; Expression = { "`e[32m$($_.DateUTC)`e[0m" } } `
-        , @{ Name = 'Reference'; Expression = { $ref = $_.Reference.Replace('origin/', '').Split(',')[0]; "`e[31m$($ref.Substring(0, [Math]::Min(25, $ref.Length)))`e[0m" } } `
-        , @{ Name = 'Subject'; Expression = { $_.Subject.Substring(0, [Math]::Min(49, $_.Subject.Length)) } } `
-        , @{ Name = 'Author'; Expression = { "`e[34;1m$($_.Author)`e[0m" } } `
-        , @{ Name = 'Email'; Expression = { "`e[36;3m$($_.Email)`e[0m" } }
-}
-function gglocs {
-    Get-GitLogObject -Quiet -Start | Format-Table @{ Name = 'Commit'; Expression = { "`e[33m$($_.Commit)`e[0m" } } `
-        , @{ Name = 'DateUTC'; Expression = { "`e[32m$($_.DateUTC)`e[0m" } } `
-        , @{ Name = 'Reference'; Expression = { $ref = $_.Reference.Replace('origin/', '').Split(',')[0]; "`e[31m$($ref.Substring(0, [Math]::Min(25, $ref.Length)))`e[0m" } } `
-        , @{ Name = 'Subject'; Expression = { $_.Subject.Substring(0, [Math]::Min(49, $_.Subject.Length)) } } `
-        , @{ Name = 'Author'; Expression = { "`e[34;1m$($_.Author)`e[0m" } } `
-        , @{ Name = 'Email'; Expression = { "`e[36;3m$($_.Email)`e[0m" } }
-}
-function gglocsa {
-    Get-GitLogObject -Quiet -Start -All | Format-Table @{ Name = 'Commit'; Expression = { "`e[33m$($_.Commit)`e[0m" } } `
-        , @{ Name = 'DateUTC'; Expression = { "`e[32m$($_.DateUTC)`e[0m" } } `
-        , @{ Name = 'Reference'; Expression = { $ref = $_.Reference.Replace('origin/', '').Split(',')[0]; "`e[31m$($ref.Substring(0, [Math]::Min(25, $ref.Length)))`e[0m" } } `
-        , @{ Name = 'Subject'; Expression = { $_.Subject.Substring(0, [Math]::Min(49, $_.Subject.Length)) } } `
-        , @{ Name = 'Author'; Expression = { "`e[34;1m$($_.Author)`e[0m" } } `
-        , @{ Name = 'Email'; Expression = { "`e[36;3m$($_.Email)`e[0m" } }
-}
-
-<#
-.SYNOPSIS
-Clean local branches.
-
-.PARAMETER DeleteNoMerged
-Switch whether to delete no merged branches.
-.PARAMETER WhatIf
-Switch whether to see what the command would have done instead of making changes.
-#>
-function Remove-GitLocalBranches {
+function gglogc {
+    [CmdletBinding()]
     param (
-        [switch]$DeleteNoMerged,
+        [Parameter(Position = 0)]
+        [int]$Count,
 
-        [switch]$WhatIf,
+        [switch]$All,
 
-        [switch]$Quiet
+        [string]$Grep
     )
-    begin {
-        # remove DeleteNoMerged from PSBoundParameters
-        $PSBoundParameters.Remove('DeleteNoMerged') | Out-Null
-        # switch to dev/main branch
-        git switch $(Get-GitResolvedBranch) --quiet
-        # update remote
-        git remote update --prune
-    }
-    process {
-        # *get list of branches
-        filter branchFilter { $_.Where({ $_ -notmatch '^ma(in|ster)$|^dev(|el|elop)$|^qa$|^stage$|^trunk$' }) }
-        $merged = git branch --format='%(refname:short)' --merged | branchFilter
-        # *delete branches
-        foreach ($branch in $merged) {
-            Invoke-WriteExecCmd -Command "git branch --delete $branch" @PSBoundParameters
-        }
-        if ($DeleteNoMerged) {
-            $no_merged = git branch --format='%(refname:short)' --no-merged | branchFilter
-            foreach ($branch in $no_merged) {
-                if ((Read-Host -Prompt "Do you want to remove branch: `e[1;97m$branch`e[0m? [y/N]") -eq 'y') {
-                    Invoke-WriteExecCmd -Command "git branch -D $branch" @PSBoundParameters
-                }
-            }
-        }
-    }
+
+    # build properties for Format-Table
+    $prop = @(
+        @{ Name = 'Commit'; Expression = { "`e[33m$($_.Commit)`e[0m" } }
+        @{ Name = 'DateUTC'; Expression = { "`e[32m$($_.DateUTC)`e[0m" } }
+        @{ Name = 'Reference'; Expression = { $ref = $_.Reference.Replace('origin/', '').Split(',')[0]; "`e[31m$($ref.Substring(0, [Math]::Min(25, $ref.Length)))`e[0m" } }
+        @{ Name = 'Subject'; Expression = { $_.Subject.Substring(0, [Math]::Min(49, $_.Subject.Length)) } }
+        @{ Name = 'Author'; Expression = { "`e[34;1m$($_.Author)`e[0m" } }
+        @{ Name = 'Email'; Expression = { "`e[36;3m$($_.Email)`e[0m" } }
+    )
+    Get-GitLogObject @PSBoundParameters | Sort-Object DateUTC | Format-Table -Property $prop
 }
 
-Set-Alias -Name gbda -Value Remove-GitLocalBranches
+function ggloc {
+    [CmdletBinding()]
+    param ([int]$Count = 30)
+
+    gglogc -Count $Count
+}
+
+function ggloca {
+    [CmdletBinding()]
+    param ([int]$Count = 30)
+
+    gglogc -Count $Count -All
+}
+
+function ggrepc {
+    [CmdletBinding()]
+    param ([string]$Grep)
+
+    gglogc -Grep $Grep
+}
+
+function ggrepca {
+    [CmdletBinding()]
+    param ([string]$Grep)
+
+    gglogc -Grep $Grep -All
+}
+#endregion
+
+#region aliases
+New-Alias -Name gbda -Value Remove-GitLocalBranches
+New-Alias -Name gglobj -Value Get-GitLogObject
+#endregion

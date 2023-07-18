@@ -12,7 +12,7 @@
 RootModule = 'aliases-git.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.3.0'
+ModuleVersion = '1.5.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -72,15 +72,14 @@ PowerShellVersion = '7.0'
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
     # helper
-    'Remove-GitLocalBranches'
     'gglo'
     'ggloa'
-    'gglos'
-    'gglosa'
     'ggloc'
     'ggloca'
-    'gglocs'
-    'gglocsa'
+    'ggrep'
+    'ggrepa'
+    'ggrepc'
+    'ggrepca'
     # alias
     'ga'
     'gaa'
@@ -148,6 +147,7 @@ FunctionsToExport = @(
     'gdct'
     'gf'
     'gfa'
+    'gfa!'
     'gfo'
     'gg'
     'ggc'
@@ -251,6 +251,7 @@ VariablesToExport = '*'
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
 AliasesToExport = @(
     'gbda'
+    'gglobj'
 )
 
 # DSC resources to export from this module

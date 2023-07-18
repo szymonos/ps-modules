@@ -118,8 +118,10 @@ function Get-ArrayIndexMenu {
     }
 
     end {
-        # return if the input array has only 1 item
-        if ($lst.Count -eq 1) {
+        # return if the input array has less then 2 items
+        if ($lst.Count -eq 0) {
+            return
+        } elseif ($lst.Count -eq 1) {
             $indexes = [System.Collections.Generic.HashSet[int]]::new([int[]]0)
         } else {
             # create selection menu
