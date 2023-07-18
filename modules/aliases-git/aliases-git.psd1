@@ -12,7 +12,7 @@
 RootModule = 'aliases-git.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.5.0'
+ModuleVersion = '1.6.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -173,6 +173,7 @@ FunctionsToExport = @(
     'glosa'
     'glosp'
     'glospa'
+    'gmb'
     'gmg'
     'gmgo'
     'gmt'

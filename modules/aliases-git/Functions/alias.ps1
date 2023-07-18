@@ -96,6 +96,10 @@ function glos { Invoke-WriteExecCmd -Command 'git log --date=rfc --stat' -Argume
 function glosa { Invoke-WriteExecCmd -Command 'git log --date=rfc --stat --all' -Arguments $args }
 function glosp { Invoke-WriteExecCmd -Command 'git log --date=rfc --stat --patch' -Arguments $args }
 function glospa { Invoke-WriteExecCmd -Command 'git log --date=rfc --stat --patch --all' -Arguments $args }
+function gmb {
+    $remote = git remote
+    Invoke-WriteExecCmd -Command "git merge-base $($remote ? "$remote/" : '')$(Get-GitResolvedBranch $args) HEAD" -Parameters $args
+}
 function gmg { Invoke-WriteExecCmd -Command 'git merge' -Arguments $args }
 function gmgo {
     if ($remote = git remote) {
