@@ -12,7 +12,7 @@
 RootModule = 'aliases-kubectl.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.3.1'
+ModuleVersion = '0.4.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -72,21 +72,21 @@ PowerShellVersion = '7.0'
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
     # helper
+    'Get-KubectlVersion'
     'Get-KubectlClientVersion'
     'Get-KubectlServerVersion'
-    'Get-KubectlVersion'
     'Set-KubectlLocal'
     'Get-KubectlContext'
     'Set-KubectlContext'
     'Remove-KubectlContext'
     'Get-SecretDecodedData'
+    'Set-KubectlContextCurrentNamespace'
     # alias
     'ktop'
     'ktopcntr'
     'kinf'
     'kav'
     'kcv'
-    'kcsctxcns'
     'ksys'
     'ka'
     'ksysa'
@@ -904,6 +904,7 @@ AliasesToExport = @(
     'kcuctx'
     'kcrmctx'
     'kgsecd'
+    'kcsctxcns'
 )
 
 # DSC resources to export from this module
