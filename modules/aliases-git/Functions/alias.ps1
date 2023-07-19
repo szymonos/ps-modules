@@ -118,6 +118,7 @@ function gpl {
         Write-Host 'fatal: Remote repository not set.'
     }
 }
+function gpl! { gpl --force @args }
 function gpull { Invoke-WriteExecCmd -Command 'git pull' -Arguments $args }
 function gpullr { Invoke-WriteExecCmd -Command 'git pull --rebase' -Arguments $args }
 function gpullra { Invoke-WriteExecCmd -Command 'git pull --rebase --autostash' -Arguments $args }
