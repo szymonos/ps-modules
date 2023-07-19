@@ -111,6 +111,7 @@ $exportModuleMemberParams = @{
         'gmt'
         'gmtvim'
         'gpl'
+        'gpl!'
         'gpull'
         'gpullr'
         'gpullra'
