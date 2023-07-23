@@ -1,4 +1,4 @@
-#region helper functions
+#region helper git log functions
 <#
 .SYNOPSIS
 Get-GitLogObject function aliases.
@@ -43,7 +43,9 @@ function ggrepa {
 
     gglogs -Grep $Grep -All
 }
+#endregion
 
+#region helper git log colored functions
 <#
 .SYNOPSIS
 Get-GitLogObject function colored aliases.
@@ -70,6 +72,7 @@ function gglogc {
     )
     Get-GitLogObject @PSBoundParameters | Sort-Object DateUTC | Format-Table -Property $prop
 }
+#endregion
 
 function ggloc {
     [CmdletBinding()]
@@ -85,6 +88,8 @@ function ggloca {
     gglogc -Count $Count -All
 }
 
+
+#region helper git grep functions
 function ggrepc {
     [CmdletBinding()]
     param ([string]$Grep)
@@ -100,7 +105,11 @@ function ggrepca {
 }
 #endregion
 
-#region aliases
-New-Alias -Name gbda -Value Remove-GitLocalBranches
-New-Alias -Name gglobj -Value Get-GitLogObject
-#endregion
+#region helper git remove local branches
+function gbdl {
+    Remove-GitLocalBranches
+}
+
+function gbdla {
+    Remove-GitLocalBranches -DeleteNoMerged
+}

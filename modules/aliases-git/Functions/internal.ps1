@@ -168,16 +168,10 @@ Clean local branches.
 
 .PARAMETER DeleteNoMerged
 Switch whether to delete no merged branches.
-.PARAMETER WhatIf
-Switch whether to see what the command would have done instead of making changes.
 #>
 function Remove-GitLocalBranches {
     param (
-        [switch]$DeleteNoMerged,
-
-        [switch]$WhatIf,
-
-        [switch]$Quiet
+        [switch]$DeleteNoMerged
     )
     begin {
         # remove DeleteNoMerged from PSBoundParameters

@@ -23,6 +23,8 @@ $exportModuleMemberParams = @{
         'gba'
         'gbd'
         'gbd!'
+        'gbdl'
+        'gbdla'
         'gbnm'
         'gbr'
         'gbsu'
@@ -176,10 +178,7 @@ $exportModuleMemberParams = @{
         'gwch'
     )
     Variable = @()
-    Alias    = @(
-        'gbda'
-        'gglobj'
-    )
+    Alias    = @()
 }
 
 Export-ModuleMember @exportModuleMemberParams
