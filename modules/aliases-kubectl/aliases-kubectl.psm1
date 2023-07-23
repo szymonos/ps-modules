@@ -5,21 +5,21 @@
 $exportModuleMemberParams = @{
     Function = @(
         # helper
+        'Get-KubectlVersion'
         'Get-KubectlClientVersion'
         'Get-KubectlServerVersion'
-        'Get-KubectlVersion'
         'Set-KubectlLocal'
         'Get-KubectlContext'
         'Set-KubectlContext'
         'Remove-KubectlContext'
         'Get-SecretDecodedData'
+        'Set-KubectlContextCurrentNamespace'
         # alias
         'ktop'
         'ktopcntr'
         'kinf'
         'kav'
         'kcv'
-        'kcsctxcns'
         'ksys'
         'ka'
         'ksysa'
@@ -830,6 +830,7 @@ $exportModuleMemberParams = @{
         'kcuctx'
         'kcrmctx'
         'kgsecd'
+        'kcsctxcns'
     )
 }
 

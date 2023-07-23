@@ -12,7 +12,7 @@
 RootModule = 'aliases-git.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.7.0'
+ModuleVersion = '1.7.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -90,6 +90,8 @@ FunctionsToExport = @(
     'gba'
     'gbd'
     'gbd!'
+    'gbdl'
+    'gbdla'
     'gbnm'
     'gbr'
     'gbsu'
@@ -251,10 +253,7 @@ CmdletsToExport = @()
 VariablesToExport = '*'
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = @(
-    'gbda'
-    'gglobj'
-)
+AliasesToExport = @()
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()
