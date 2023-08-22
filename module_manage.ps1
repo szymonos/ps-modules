@@ -1,6 +1,6 @@
 #!/usr/bin/pwsh -nop
 #Requires -Version 7.0
-#Requires -Module @{ ModuleName = 'PowerShellGet'; ModuleVersion = '3.0.0' }
+#Requires -Module Microsoft.PowerShell.PSResourceGet
 <#
 .SYNOPSIS
 Manage PowerShell modules.

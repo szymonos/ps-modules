@@ -270,18 +270,23 @@ Parse semantic version and return Major, Minor, Patch numbers.
 #>
 function Get-SemanticVersion {
     [CmdletBinding()]
+    [OutputType([System.Management.Automation.SemanticVersion[]])]
     param (
-        [Parameter(Mandatory, Position = 0)]
+        [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
         [ValidateScript({ [regex]::IsMatch($_, '^v?\d+\.\d+\.\d+$') }, ErrorMessage = "`e[1;4m{0}`e[22;24m is not valid version")]
         [string]$Version
     )
 
-    $major, $minor, $patch = [int[]]$Version.Replace('v', '').Split('.')
+    begin {
+        $versionList = [System.Collections.Generic.List[System.Management.Automation.SemanticVersion]]::new()
+    }
 
-    return [PSCustomObject]@{
-        Major = $major
-        Minor = $minor
-        Patch = $patch
+    process {
+        $versionList.Add($Version -replace '^v')
+    }
+
+    end {
+        return $versionList.ToArray()
     }
 }
 
