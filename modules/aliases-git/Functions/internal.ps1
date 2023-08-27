@@ -94,7 +94,7 @@ function Invoke-WriteExecCmd {
         # calculate control parameters
         $Parameters = $($Parameters ? $Parameters : $Arguments).Where({ $_ -match '^-WhatIf$|^-Quiet$' })
         # remove control parameters from arguments and quote arguments with spaces
-        $Arguments = $Arguments.Where({ $_ -notmatch '^-WhatIf$|^-Quiet$' }).ForEach({ $_ -match '\s' ? "'$_'" : $_ })
+        $Arguments = $Arguments.Where({ $_ -notmatch '^-WhatIf$|^-Quiet$' }).ForEach({ $_ -match '^-' ? $_ : "'$($_.Replace("'", "''"))'" })
         # build the command expression
         $cmd = "$Command $Arguments"
     }
