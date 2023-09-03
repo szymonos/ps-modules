@@ -105,11 +105,20 @@ function ggrepca {
 }
 #endregion
 
-#region helper git remove local branches
+#region helper git remove branches
 function gbdl {
     Remove-GitLocalBranches
 }
 
-function gbdla {
+function gbdl! {
     Remove-GitLocalBranches -DeleteNoMerged
 }
+
+function gbdm {
+    Remove-GitMergedBranches
+}
+
+function gbdm! {
+    Remove-GitMergedBranches -DeleteRemote
+}
+#endregion

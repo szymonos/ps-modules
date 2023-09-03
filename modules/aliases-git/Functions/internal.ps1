@@ -176,15 +176,18 @@ function Get-GitResolvedBranch {
 
 <#
 .SYNOPSIS
-Clean local branches.
+Delete local branches.
+.DESCRIPTION
+If DeleteNoMerged parameter is not specified, all local merged branches will be deleted.
 
 .PARAMETER DeleteNoMerged
-Switch whether to delete no merged branches.
+Switch whether to delete non merged branches.
 #>
 function Remove-GitLocalBranches {
     param (
         [switch]$DeleteNoMerged
     )
+
     begin {
         # remove DeleteNoMerged from PSBoundParameters
         $PSBoundParameters.Remove('DeleteNoMerged') | Out-Null
@@ -193,11 +196,12 @@ function Remove-GitLocalBranches {
         # update remote
         git remote update --prune
     }
+
     process {
-        # *get list of branches
+        # get list of branches
         filter branchFilter { $_.Where({ $_ -notmatch '^ma(in|ster)$|^dev(|el|elop)$|^qa$|^stage$|^trunk$' }) }
         $merged = git branch --format='%(refname:short)' --merged | branchFilter
-        # *delete branches
+        # delete branches
         foreach ($branch in $merged) {
             Invoke-WriteExecCmd -Command "git branch --delete $branch" @PSBoundParameters
         }
@@ -206,6 +210,53 @@ function Remove-GitLocalBranches {
             foreach ($branch in $no_merged) {
                 if ((Read-Host -Prompt "Do you want to remove branch: `e[1;97m$branch`e[0m? [y/N]") -eq 'y') {
                     Invoke-WriteExecCmd -Command "git branch -D $branch" @PSBoundParameters
+                }
+            }
+        }
+    }
+}
+
+<#
+.SYNOPSIS
+Delete merged branches.
+
+.PARAMETER DeleteRemote
+Switch whether to delete remote merged branches.
+#>
+function Remove-GitMergedBranches {
+    param (
+        [switch]$DeleteRemote
+    )
+
+    begin {
+        # switch to dev/main branch
+        git switch $(Get-GitResolvedBranch) --quiet
+        # update remote
+        git remote update --prune
+
+        # build branch filters
+        filter localFilter { $_.Where({ $_ -notmatch '^ma(in|ster)$|^dev(|el|elop)$|^qa$|^stage$|^trunk$' }) }
+        if ($DeleteRemote) {
+            [string[]]$remotes = git remote
+            $remoteFilter = $remotes.ForEach({ "^$_/" }) | Join-String -Separator '|'
+            $knownFilter = "($remoteFilter)(ma(in|ster)$|dev(|el|elop)$|qa$|stage$|trunk$)"
+            filter remoteFilter { $_.Where({ $_ -match $remoteFilter -and $_ -notmatch $knownFilter }) }
+        }
+    }
+
+    process {
+        # remove local merged branches
+        [string[]]$mergedLocal = git branch --format='%(refname:short)' --merged | localFilter
+        foreach ($branch in $mergedLocal) {
+            git branch --delete $branch
+        }
+
+        # remove remote merged branches
+        if ($DeleteRemote) {
+            [string[]]$mergedRemote = git branch --remotes --format='%(refname:short)' --merged | remoteFilter
+            foreach ($remote in $remotes) {
+                $mergedRemote | Select-String "^$remote/(.*)" | ForEach-Object {
+                    git push --delete $remote $_.Matches.Groups[1].Value
                 }
             }
         }

@@ -12,7 +12,7 @@
 RootModule = 'aliases-git.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.7.5'
+ModuleVersion = '1.8.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -91,7 +91,9 @@ FunctionsToExport = @(
     'gbd'
     'gbd!'
     'gbdl'
-    'gbdla'
+    'gbdl!'
+    'gbdm'
+    'gbdm!'
     'gbnm'
     'gbr'
     'gbsu'
