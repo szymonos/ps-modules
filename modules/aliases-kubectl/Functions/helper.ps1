@@ -67,7 +67,7 @@ function Set-KubectlContextCurrentNamespace {
 .SYNOPSIS
 Decode and print kubernetes secret data
 #>
-function Get-SecretDecodedData {
+function Get-KubectlSecretDecodedData {
     # convert secret to PSObject
     $secretJson = kubectl get secret @args -o json | ConvertFrom-Json
     # decode and write secret data
@@ -204,14 +204,13 @@ function Set-KubectlLocal {
 #endregion
 
 #region aliases
-Set-Alias -Name k -Value kubectl
-Set-Alias -Name kv -Value Get-KubectlVersion
-Set-Alias -Name kvc -Value Get-KubectlClientVersion
-Set-Alias -Name kvs -Value Get-KubectlServerVersion
-Set-Alias -Name kcgctx -Value Get-KubectlContext
-Set-Alias -Name kcuctx -Value Set-KubectlContext
-Set-Alias -Name kcrmctx -Value Remove-KubectlContext
-Set-Alias -Name kgsecd -Value Get-SecretDecodedData
-Set-Alias -Name kcsctxcns -Value Set-KubectlContextCurrentNamespace
-
+New-Alias -Name k -Value kubectl
+New-Alias -Name kv -Value Get-KubectlVersion
+New-Alias -Name kvc -Value Get-KubectlClientVersion
+New-Alias -Name kvs -Value Get-KubectlServerVersion
+New-Alias -Name kcgctx -Value Get-KubectlContext
+New-Alias -Name kcuctx -Value Set-KubectlContext
+New-Alias -Name kcrmctx -Value Remove-KubectlContext
+New-Alias -Name kgsecd -Value Get-KubectlSecretDecodedData
+New-Alias -Name kcsctxcns -Value Set-KubectlContextCurrentNamespace
 #endregion

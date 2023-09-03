@@ -12,7 +12,7 @@ $exportModuleMemberParams = @{
         'Get-KubectlContext'
         'Set-KubectlContext'
         'Remove-KubectlContext'
-        'Get-SecretDecodedData'
+        'Get-KubectlSecretDecodedData'
         'Set-KubectlContextCurrentNamespace'
         # alias
         'ktop'

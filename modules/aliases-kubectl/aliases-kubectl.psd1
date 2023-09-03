@@ -12,7 +12,7 @@
 RootModule = 'aliases-kubectl.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.4.0'
+ModuleVersion = '0.4.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -79,7 +79,7 @@ FunctionsToExport = @(
     'Get-KubectlContext'
     'Set-KubectlContext'
     'Remove-KubectlContext'
-    'Get-SecretDecodedData'
+    'Get-KubectlSecretDecodedData'
     'Set-KubectlContextCurrentNamespace'
     # alias
     'ktop'
