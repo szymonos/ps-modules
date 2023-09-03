@@ -81,6 +81,7 @@ $exportModuleMemberParams = @{
         'gdw'
         'gdct'
         'gf'
+        'gfa'
         'gfa!'
         'gfo'
         'gg'

@@ -133,22 +133,34 @@ function Get-GitResolvedBranch {
     )
 
     begin {
-        [string]$BranchName = $BranchName.Where({ $_ -notmatch '^-WhatIf$|^-Quiet$' })
-        $branchMatch = switch ($BranchName) {
-            '' { '(^|/)dev(|el|elop|elopment)$|(^|/)ma(in|ster)$|(^|/)trunk$'; continue }
-            d { '(^|/)dev(|el|elop|elopment)$'; continue }
-            m { '(^|/)ma(in|ster)$'; continue }
-            s { '(^|/)stage$'; continue }
-            t { '(^|/)trunk$'; continue }
-            Default { "(^|/)$BranchName$" }
+        $ErrorActionPreference = 'Stop'
+        if (git rev-parse --is-inside-work-tree) {
+            [string]$BranchName = $BranchName.Where({ $_ -notmatch '^-WhatIf$|^-Quiet$' })
+            $branchMatch = switch ($BranchName) {
+                '' { '^dev(|el|elop|elopment)$|^ma(in|ster)$|^trunk$'; continue }
+                d { '^dev(|el|elop|elopment)$'; continue }
+                m { '^ma(in|ster)$'; continue }
+                s { '^stage$'; continue }
+                t { '^trunk$'; continue }
+                Default { "(^|/)$BranchName$" }
+            }
+            # instantiate SortedSet
+            $matched = [System.Collections.Generic.SortedSet[string]]::new()
+        } else {
+            break
         }
     }
 
     process {
-        [string[]]$branches = (git branch --all --format='%(refname:short)').Where({ $_ -ne 'origin/HEAD' }).Replace('origin/', '')
-        if ($branches) {
-            $branch = $branches | Sort-Object -Unique | Select-String $branchMatch -Raw | Select-Object -First 1
+        $remoteFilter = git remote | ForEach-Object { "$_/?" } | Join-String -Separator '|'
+        [string[]]$branches = git branch --all --format='%(refname:short)'
+        $branches -replace $remoteFilter | Select-String $branchMatch -Raw | ForEach-Object { $matched.Add($_) | Out-Null }
+        $branch = if (-not $BranchName -and ($main = $matched -match '^ma(in|ster)$')) {
+            $main[0]
+        } else {
+            $matched[0]
         }
+
         if (-not $branch) {
             if ($BranchName) {
                 Write-Host "invalid reference: $BranchName`nvalid branch names: $branches"
