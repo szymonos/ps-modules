@@ -127,7 +127,7 @@ process {
             $installPath = [IO.Path]::Combine($dstModulePath, $manifest.Version)
             # create/cleanup destination directory
             if (-not $Force -and ($manifest.Version -eq (Get-Module $Module -ListAvailable).Version)) {
-                Write-Verbose "Current module version already installed ($Module v$($manifest.Version))."
+                Write-Verbose "Current module version already installed in the $Scope scope ($Module v$($manifest.Version))."
             } else {
                 # clean-up old module versions
                 if ($CleanUp -and (Test-Path $dstModulePath -PathType Container)) {
@@ -141,7 +141,7 @@ process {
                     $dstModuleManifest = [IO.Path]::Combine($installPath, "$Module.psd1")
                     [IO.File]::WriteAllText($dstModuleManifest, [IO.File]::ReadAllText($dstModuleManifest) -replace '(?s)RequiredModules.*?\)\n')
                 }
-                Write-Verbose "Module installed in $($installPath.Replace($HOME, '~'))"
+                Write-Verbose "Module $Module v$($manifest.Version) installed in the $Scope scope."
             }
             continue
         }
