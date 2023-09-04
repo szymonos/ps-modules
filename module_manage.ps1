@@ -30,6 +30,7 @@ $Module = 'do-linux'
 $Module = 'do-win'
 # *install
 ./module_manage.ps1 $Module -CleanUp -Verbose
+./module_manage.ps1 $Module -CleanUp -Verbose -Scope CurrentUser
 ./module_manage.ps1 $Module -CleanUp -Verbose -Force
 ./module_manage.ps1 $Module -CleanUp -RemoveRequirements -Verbose
 @('aliases-git', 'aliases-kubectl') | ./module_manage.ps1 -CleanUp -Verbose
@@ -50,6 +51,10 @@ param (
     [switch]$RemoveRequirements,
 
     [Parameter(ParameterSetName = 'Install')]
+    [ValidateSet('AllUsers', 'CurrentUser')]
+    [string]$Scope,
+
+    [Parameter(ParameterSetName = 'Install')]
     [switch]$Force,
 
     [Parameter(ParameterSetName = 'Delete')]
@@ -60,6 +65,7 @@ param (
 )
 
 begin {
+    $ErrorActionPreference = 'Stop'
     # set location to workspace folder
     Push-Location $PSScriptRoot
 }
@@ -74,14 +80,28 @@ process {
 
         Install {
             # *install modules
-            # calculate destination path
+            # calculate destination path determined on the Scope
             $isAdmin = if ($IsWindows) {
-                ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')
+                    ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')
             } else {
-                ((id -u) -eq 0) ? $true : $false
+                    ((id -u) -eq 0) ? $true : $false
+            }
+            if ($Scope) {
+                if (-not $isAdmin -and $Scope -eq 'AllUsers') {
+                    Write-Error "Cannot install `"$Module`" module to the AllUsers scope. Run the script as Admin."
+                }
+            } else {
+                $Scope = $isAdmin ? 'AllUsers' : 'CurrentUser'
             }
             $psModPathSplit = $env:PSModulePath.Split([IO.Path]::PathSeparator)
-            $psModPath = $isAdmin ? $psModPathSplit[1] : $psModPathSplit[0]
+            $psModPath = switch ($Scope) {
+                AllUsers {
+                    $psModPathSplit[1]
+                }
+                CurrentUser {
+                    $psModPathSplit[0]
+                }
+            }
             $dstModulePath = [IO.Path]::Combine($psModPath, $Module)
             # check if module exists
             if (-not (Test-Path $srcModuleManifest)) {
