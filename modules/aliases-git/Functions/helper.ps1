@@ -29,20 +29,6 @@ function ggloa {
 
     gglogs -Count $Count -All
 }
-
-function ggrep {
-    [CmdletBinding()]
-    param ([string]$Grep)
-
-    gglogs -Grep $Grep
-}
-
-function ggrepa {
-    [CmdletBinding()]
-    param ([string]$Grep)
-
-    gglogs -Grep $Grep -All
-}
 #endregion
 
 #region helper git log colored functions
@@ -72,7 +58,6 @@ function gglogc {
     )
     Get-GitLogObject @PSBoundParameters | Sort-Object DateUTC | Format-Table -Property $prop
 }
-#endregion
 
 function ggloc {
     [CmdletBinding()]
@@ -87,9 +72,23 @@ function ggloca {
 
     gglogc -Count $Count -All
 }
-
+#endregion
 
 #region helper git grep functions
+function ggrep {
+    [CmdletBinding()]
+    param ([string]$Grep)
+
+    gglogs -Grep $Grep
+}
+
+function ggrepa {
+    [CmdletBinding()]
+    param ([string]$Grep)
+
+    gglogs -Grep $Grep -All
+}
+
 function ggrepc {
     [CmdletBinding()]
     param ([string]$Grep)
@@ -120,5 +119,25 @@ function gbdm {
 
 function gbdm! {
     Remove-GitMergedBranches -DeleteRemote
+}
+#endregion
+
+#region other
+<#
+.SYNOPSIS
+Refresh all git repositories in subdirectories of the current folder.
+#>
+function grefresh {
+    $dirs = Get-ChildItem -Directory
+    Push-Location
+    foreach ($dir in $dirs) {
+        Write-Host "`n$($dir.Name)" -ForegroundColor Cyan
+        [bool]$isGitRepo = git rev-parse --is-inside-work-tree 2>$null && $true || $false
+        if ($isGitRepo) {
+            # perform switch to the default branch, pull changes and delete merged local branches
+            gsw && gpl && gbdm
+        }
+    }
+    Pop-Location
 }
 #endregion
