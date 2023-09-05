@@ -128,13 +128,24 @@ function gbdm! {
 Refresh all git repositories in subdirectories of the current folder.
 #>
 function grefresh {
-    $dirs = Get-ChildItem -Directory
     Push-Location
+    # check if in git repo
+    [bool]$isGitRepo = git rev-parse --is-inside-work-tree 2>$null && $true || $false
+    if ($isGitRepo) {
+        # get only the current dir
+        $dirs = Get-Item .
+    } else {
+        # get all subdirectories
+        $dirs = Get-ChildItem -Directory
+    }
     foreach ($dir in $dirs) {
-        Write-Host "`n$($dir.Name)" -ForegroundColor Cyan
+        Set-Location $dir
+        # check if in git repo
         [bool]$isGitRepo = git rev-parse --is-inside-work-tree 2>$null && $true || $false
         if ($isGitRepo) {
-            # perform switch to the default branch, pull changes and delete merged local branches
+            # perform refresh
+            $follow = $dir -eq $dirs[0] ? '' : "`n"
+            Write-Host "$follow$($dir.Name)" -ForegroundColor Cyan
             gsw && gpl && gbdm
         }
     }
