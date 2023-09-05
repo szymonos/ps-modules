@@ -130,7 +130,7 @@ Refresh all git repositories in subdirectories of the current folder.
 function grefresh {
     Push-Location
     # check if in git repo
-    [bool]$isGitRepo = git rev-parse --is-inside-work-tree 2>$null && $true || $false
+    $isGitRepo = git rev-parse --is-inside-work-tree 2>$null && $true || $false
     if ($isGitRepo) {
         # get only the current dir
         $dirs = Get-Item .
@@ -141,8 +141,8 @@ function grefresh {
     foreach ($dir in $dirs) {
         Set-Location $dir
         # check if in git repo
-        [bool]$isGitRepo = git rev-parse --is-inside-work-tree 2>$null && $true || $false
-        if ($isGitRepo) {
+        $hasRemote = (git remote 2>$null) ? $true : $false
+        if ($hasRemote) {
             # perform refresh
             $follow = $dir -eq $dirs[0] ? '' : "`n"
             Write-Host "$follow$($dir.Name)" -ForegroundColor Cyan
