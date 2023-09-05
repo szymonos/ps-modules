@@ -129,6 +129,7 @@ $exportModuleMemberParams = @{
         'gpushoat'
         'gpushsup'
         'gpushv'
+        'grefresh'
         'grb'
         'grba'
         'grbc'
