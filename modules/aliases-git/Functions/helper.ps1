@@ -129,26 +129,30 @@ Refresh all git repositories in subdirectories of the current folder.
 #>
 function grefresh {
     Push-Location
+    # instantiate list for storing git directories with remote set
+    $dirs = [System.Collections.Generic.List[System.IO.DirectoryInfo]]::new()
+
     # check if in git repo
     $isGitRepo = git rev-parse --is-inside-work-tree 2>$null && $true || $false
+    # build list of directories with remote set
     if ($isGitRepo) {
-        # get only the current dir
-        $dirs = Get-Item .
+        (git remote) ? $dirs.Add($(Get-Item .)) : $null
     } else {
-        # get all subdirectories
-        $dirs = Get-ChildItem -Directory
-    }
-    foreach ($dir in $dirs) {
-        Set-Location $dir
-        # check if in git repo
-        $hasRemote = (git remote 2>$null) ? $true : $false
-        if ($hasRemote) {
-            # perform refresh
-            $follow = $dir -eq $dirs[0] ? '' : "`n"
-            Write-Host "$follow$($dir.Name)" -ForegroundColor Cyan
-            gsw && gpl && gbdm
+        Get-ChildItem -Directory | ForEach-Object {
+            (git -C $_.FullName remote 2>$null) ? $dirs.Add($_) : $null
         }
     }
+
+    # iterate over all git repos with remote set
+    foreach ($dir in $dirs) {
+        Set-Location $dir
+        # set line separator for printing the following results
+        $follow = $dir -eq $dirs[0] ? '' : "`n"
+        Write-Host "$follow$($dir.Name)" -ForegroundColor Cyan
+        # perform refresh
+        gsw && gpl && gbdm
+    }
+
     Pop-Location
 }
 #endregion
