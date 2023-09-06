@@ -150,7 +150,7 @@ function grefresh {
         $follow = $dir -eq $dirs[0] ? '' : "`n"
         Write-Host "$follow$($dir.Name)" -ForegroundColor Cyan
         # perform refresh
-        gsw && gpl && gbdm
+        gsw && gfa! && gmg && gbdm
     }
 
     Pop-Location
