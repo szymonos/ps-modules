@@ -25,15 +25,16 @@ function gca! { Invoke-WriteExecCmd -Command 'git commit --verbose --all --amend
 function gaca! { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gca! @args }
 function gcam { Invoke-WriteExecCmd -Command 'git commit --all -m' -Arguments $args }
 function gcamp { gcam @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
-function gacam { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gcam @args }
-function gacamp { gacam @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
+function gacm { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gcmsg @args }
+function gacmp { gacm @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
 function gcan! { Invoke-WriteExecCmd -Command 'git commit --verbose --all --no-edit --amend' -Arguments $args }
 function gcanp! { gcan! @args; Invoke-WriteExecCmd 'git push --force-with-lease' -Parameters $args }
 function gcempty { Invoke-WriteExecCmd 'git commit --allow-empty -m' -Arguments $args }
-function gacan! { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gcan! @args }
-function gacanp! { gacan! @args; Invoke-WriteExecCmd 'git push --force-with-lease' -Parameters $args }
+function gacn! { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gcn! @args }
+function gacnp! { gacn! @args; Invoke-WriteExecCmd 'git push --force-with-lease' -Parameters $args }
+function gcns! { Invoke-WriteExecCmd -Command 'git commit --verbose --signoff --no-edit --amend' -Arguments $args }
 function gcans! { Invoke-WriteExecCmd -Command 'git commit --verbose --all --signoff --no-edit --amend' -Arguments $args }
-function gacans! { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gcans! @args }
+function gacns! { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gcns! @args }
 function gcmsg { Invoke-WriteExecCmd -Command 'git commit -m' -Arguments $args }
 function gcmsgp { gcmsg @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
 function gcn! { Invoke-WriteExecCmd -Command 'git commit --verbose --no-edit --amend' -Arguments $args }
