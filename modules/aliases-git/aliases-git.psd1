@@ -12,7 +12,7 @@
 RootModule = 'aliases-git.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.9.4'
+ModuleVersion = '1.9.5'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -112,14 +112,15 @@ FunctionsToExport = @(
     'gaca!'
     'gcam'
     'gcamp'
-    'gacam'
-    'gacamp'
+    'gacm'
+    'gacmp'
     'gcan!'
     'gcanp!'
-    'gacan!'
-    'gacanp!'
+    'gacn!'
+    'gacnp!'
+    'gcns!'
     'gcans!'
-    'gacans!'
+    'gacns!'
     'gcmsg'
     'gcmsgp'
     'gcempty'
