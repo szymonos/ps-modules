@@ -1,5 +1,3 @@
-$ErrorActionPreference = 'Stop'
-
 <#
 .SYNOPSIS
 Set Az Context and eventually connect to Azure.
@@ -85,10 +83,6 @@ function Get-MsoToken {
 
         [switch]$AsSecureString
     )
-
-    begin {
-        $ErrorActionPreference = 'Stop'
-    }
 
     process {
         $token = switch ($PsCmdlet.ParameterSetName) {

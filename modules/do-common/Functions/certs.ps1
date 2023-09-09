@@ -197,8 +197,6 @@ function Get-Certificate {
     )
 
     begin {
-        $ErrorActionPreference = 'Stop'
-
         $tcpClient = [System.Net.Sockets.TcpClient]::new($Uri, 443)
         if ($BuildChain) {
             $chain = [System.Security.Cryptography.X509Certificates.X509Chain]::new()
@@ -256,9 +254,8 @@ function Get-CertificateOpenSSL {
     )
 
     begin {
-        $ErrorActionPreference = 'Stop'
         # check if openssl is installed
-        if (-not (Get-Command openssl -CommandType Application)) {
+        if (-not (Get-Command openssl -CommandType Application -ErrorAction SilentlyContinue)) {
             Write-Error 'Openssl not found. Script execution halted.'
         }
         # build openssl command
@@ -311,7 +308,6 @@ function Show-Certificate {
     )
 
     begin {
-        $ErrorActionPreference = 'Stop'
         $WarningPreference = 'Stop'
 
         # build properties for Show-Object function

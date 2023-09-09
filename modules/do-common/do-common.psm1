@@ -1,3 +1,5 @@
+$ErrorActionPreference = 'Stop'
+
 . $PSScriptRoot/Functions/certs.ps1
 . $PSScriptRoot/Functions/common.ps1
 . $PSScriptRoot/Functions/dotnet.ps1

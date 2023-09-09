@@ -1,5 +1,3 @@
-$ErrorActionPreference = 'Stop'
-
 <#
 .SYNOPSIS
 Parse winget upgrade results and return object with list of upgradeable packages.
