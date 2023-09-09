@@ -122,7 +122,7 @@ class AzGraphResource : AzGraphResourceGroup {
     }
 
     [string] GetSubscriptionName () {
-        $this.subscription = (Get-AzGraphSubscriptions -SubscriptionId $this.subscriptionId).name
+        $this.subscription = (Get-AzGraphSubscription -SubscriptionId $this.subscriptionId).name
 
         return $this.subscription
     }
@@ -202,7 +202,7 @@ class AzResource {
     }
 
     [string] GetSubscriptionName () {
-        $this.SubscriptionName = (Get-AzGraphSubscriptions -SubscriptionId $this.SubscriptionId).name
+        $this.SubscriptionName = (Get-AzGraphSubscription -SubscriptionId $this.SubscriptionId).name
 
         return $this.SubscriptionName
     }

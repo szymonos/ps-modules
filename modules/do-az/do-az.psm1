@@ -10,10 +10,10 @@ $exportModuleMemberParams = @{
         'Invoke-AzApiRequest'
         # azgraph
         'Invoke-AzGraph'
-        'Get-AzGraphSubscriptions'
-        'Get-AzGraphResourceGroups'
+        'Get-AzGraphSubscription'
+        'Get-AzGraphResourceGroup'
         'Get-AzGraphResourceGroupByName'
-        'Get-AzGraphResources'
+        'Get-AzGraphResource'
         'Get-AzGraphResourceByName'
     )
     Variable = @()
