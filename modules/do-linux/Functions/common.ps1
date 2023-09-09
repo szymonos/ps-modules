@@ -105,7 +105,7 @@ function Invoke-ExecutableBitFix {
     )
 
     # *adding executable bit in files with shebang
-        (Get-ChildItem $Path -File -Recurse -Force).Where({
+    (Get-ChildItem $Path -File -Recurse -Force).Where({
             $_.DirectoryName -notmatch '/\.git\b' `
                 -and ($_.Extension -in $ExtensionFilter -or -not $_.Extension) `
                 -and $_.UnixMode -notmatch '^-rwx' `
