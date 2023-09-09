@@ -133,7 +133,6 @@ function Get-GitResolvedBranch {
     )
 
     begin {
-        $ErrorActionPreference = 'Stop'
         if (git rev-parse --is-inside-work-tree) {
             [string]$BranchName = $BranchName.Where({ $_ -notmatch '^-WhatIf$|^-Quiet$' })
             $branchMatch = switch ($BranchName) {

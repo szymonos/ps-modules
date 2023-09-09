@@ -1,3 +1,5 @@
+$ErrorActionPreference = 'Stop'
+
 . $PSScriptRoot/Functions/alias.ps1
 . $PSScriptRoot/Functions/helper.ps1
 . $PSScriptRoot/Functions/internal.ps1
