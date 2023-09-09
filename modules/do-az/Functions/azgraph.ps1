@@ -230,7 +230,7 @@ Optional ManagementGroup to run query against.
 #>
 function Get-AzGraphResourceGroupByName {
     [CmdletBinding(DefaultParameterSetName = 'ByName')]
-    [OutputType([AzGraphResourceGroup])]
+    [OutputType([AzGraphResourceGroup[]])]
     param (
         [Alias('n')]
         [Parameter(Mandatory, Position = 0)]
@@ -400,7 +400,7 @@ Optional ManagementGroup to run query against.
 #>
 function Get-AzGraphResourceByName {
     [CmdletBinding(DefaultParameterSetName = 'ByName')]
-    [OutputType([AzGraphResource])]
+    [OutputType([AzGraphResource[]])]
     param (
         [Alias('n')]
         [Parameter(Mandatory, Position = 0)]
