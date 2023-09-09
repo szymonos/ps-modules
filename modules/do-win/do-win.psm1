@@ -1,3 +1,5 @@
+$ErrorActionPreference = 'Stop'
+
 . $PSScriptRoot/Functions/common.ps1
 . $PSScriptRoot/Functions/forms.ps1
 . $PSScriptRoot/Functions/winget.ps1
