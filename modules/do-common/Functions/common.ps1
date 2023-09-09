@@ -306,7 +306,7 @@ function Invoke-CommandRetry {
     Set-Variable -Name retryCount -Value 0
     do {
         try {
-            Invoke-Command -ScriptBlock $Command -ErrorAction Stop
+            Invoke-Command -ScriptBlock $Command
             $exit = $true
         } catch [System.Net.Http.HttpRequestException] {
             if ($_.Exception.TargetSite.Name -eq 'MoveNext') {
@@ -381,7 +381,6 @@ function Invoke-ExampleScriptSave {
     )
 
     begin {
-        $ErrorActionPreference = 'Stop'
         # get list of scripts in the specified directory
         $scripts = Get-ChildItem $Path -File -Force | Where-Object {
             $_.Extension -in $ExtensionFilter -and $_.FullName -notin (Resolve-Path $Exclude -ErrorAction SilentlyContinue).Path
