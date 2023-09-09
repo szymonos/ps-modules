@@ -4,7 +4,7 @@
     RootModule           = 'do-az.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.12.5'
+    ModuleVersion        = '1.12.6'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -46,10 +46,10 @@
         'Invoke-AzApiRequest'
         # azgraph
         'Invoke-AzGraph'
-        'Get-AzGraphSubscriptions'
-        'Get-AzGraphResourceGroups'
+        'Get-AzGraphSubscription'
+        'Get-AzGraphResourceGroup'
         'Get-AzGraphResourceGroupByName'
-        'Get-AzGraphResources'
+        'Get-AzGraphResource'
         'Get-AzGraphResourceByName'
     )
 

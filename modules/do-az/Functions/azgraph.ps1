@@ -72,7 +72,7 @@ Specifies the ID of the ManagementGroup that contains subscriptions to get.
 .PARAMETER Condition
 Optional query condition.
 #>
-function Get-AzGraphSubscriptions {
+function Get-AzGraphSubscription {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     [OutputType([AzGraphSubscription[]])]
     param (
@@ -143,7 +143,7 @@ Specifies the name of the resource group to get.
 .PARAMETER Condition
 Optional query condition.
 #>
-function Get-AzGraphResourceGroups {
+function Get-AzGraphResourceGroup {
     [CmdletBinding()]
     [OutputType([AzGraphResourceGroup[]])]
     param (
@@ -258,7 +258,7 @@ function Get-AzGraphResourceGroupByName {
     }
 
     process {
-        $rg = Get-AzGraphResourceGroups @param | Sort-Object subscription
+        $rg = Get-AzGraphResourceGroup @param | Sort-Object subscription
         # select resource if query returned more than one result
         if ($rg.Count -gt 1) {
             Write-Warning 'Found more than one resource group matching the criteria!'
@@ -291,7 +291,7 @@ The name of the resource to be retrieved.
 .PARAMETER Condition
 Optional query condition.
 #>
-function Get-AzGraphResources {
+function Get-AzGraphResource {
     [CmdletBinding(DefaultParameterSetName = 'Id')]
     [OutputType([AzGraphResource[]])]
     param (
@@ -448,7 +448,7 @@ function Get-AzGraphResourceByName {
     }
 
     process {
-        $resource = Get-AzGraphResources @param | Sort-Object subscription, resourceGroup, type
+        $resource = Get-AzGraphResource @param | Sort-Object subscription, resourceGroup, type
         # select resource if query returned more than one result
         if ($resource.Count -gt 1) {
             Write-Warning 'Found more than one resource matching the criteria!'

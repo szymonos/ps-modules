@@ -139,7 +139,7 @@ Set subscription context from selection menu.
 Switch whether to set the context for azure-cli.
 #>
 function Set-SubscriptionMenu {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param (
         [switch]$cli
     )
@@ -155,11 +155,13 @@ function Set-SubscriptionMenu {
     } else {
         $i = 0
     }
-    if ($cli) {
-        az account set --subscription $subscriptions[$i].subscriptionId
-        az account show | ConvertFrom-Json | Select-Object name, id, tenantId, state
-    } else {
-        $sub = (Connect-AzContext $subscriptions[$i].subscriptionId).Subscription
+    if ($PSCmdlet.ShouldProcess($i)) {
+        $sub = if ($cli) {
+            az account set --subscription $subscriptions[$i].subscriptionId
+            az account show | ConvertFrom-Json | Select-Object name, id, tenantId, state
+        } else {
+            (Connect-AzContext $subscriptions[$i].subscriptionId).Subscription
+        }
     }
 
     return $sub
