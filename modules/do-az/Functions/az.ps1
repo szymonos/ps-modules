@@ -59,12 +59,14 @@ function Connect-AzContext {
 .SYNOPSIS
 Get OAuth2 access token from login.microsoftonline.com for the current user or specified Service Principal.
 
-.PARAMETER Resource
+.PARAMETER ResourceUrl
 Resource url for that you're requesting token, e.g. 'https://graph.microsoft.com/'.
 .PARAMETER ClientId
 Service Principal application id.
 .PARAMETER ClientSecret
 Service Principal credential.
+.PARAMETER AsSecureString
+Return token as a secure string.
 #>
 function Get-MsoToken {
     [CmdletBinding(DefaultParameterSetName = 'BuiltIn')]
