@@ -122,37 +122,60 @@ function gbdm! {
 }
 #endregion
 
-#region other
+#region helper grun functions
+<#
+.DESCRIPTION
+Alias functions using the Invoke-GitRepoCommand internal function that runs specified git commands in the current repo,
+or all repos located in subdirectories of the current folder.
+Function runs only in repositories with remote set.
+#>
+
+<#
+.SYNOPSIS
+Invoke-GitRepoCommand alias function.
+
+.PARAMETER cmd
+Script block of commands to execute.
+#>
+function grunrepocmd ([scriptblock]$cmd) {
+    Invoke-GitRepoCommand -Command $cmd
+}
+
 <#
 .SYNOPSIS
 Refresh all git repositories in subdirectories of the current folder.
 #>
-function grefresh {
-    Push-Location
-    # instantiate list for storing git directories with remote set
-    $dirs = [System.Collections.Generic.List[System.IO.DirectoryInfo]]::new()
-
-    # check if in git repo
-    $isGitRepo = git rev-parse --is-inside-work-tree 2>$null && $true || $false
-    # build list of directories with remote set
-    if ($isGitRepo) {
-        (git remote) ? $dirs.Add($(Get-Item .)) : $null
-    } else {
-        Get-ChildItem -Directory | ForEach-Object {
-            (git -C $_.FullName remote 2>$null) ? $dirs.Add($_) : $null
-        }
-    }
-
-    # iterate over all git repos with remote set
-    foreach ($dir in $dirs) {
-        Set-Location $dir
-        # set line separator for printing the following results
-        $follow = $dir -eq $dirs[0] ? '' : "`n"
-        Write-Host "$follow$($dir.Name)" -ForegroundColor Cyan
-        # perform refresh
+function grunrefresh {
+    $cmd = {
         gsw && gfa! && gmg && gbdm
     }
+    Invoke-GitRepoCommand -Command $cmd
+}
 
-    Pop-Location
+<#
+.SYNOPSIS
+Set git local settings in all git repositories.
+
+.PARAMETER Option
+Git local setting option.
+.PARAMETER Value
+Git local setting value.
+#>
+function gruncfl {
+    param (
+        [Parameter(Mandatory, Position = 0)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Option,
+
+        [Parameter(Mandatory, Position = 1)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Value
+    )
+
+    $cmd = {
+        git config --local $Option $Value
+        Write-Host "${Option}: $(git config --local $Option)"
+    }
+    Invoke-GitRepoCommand -Command $cmd
 }
 #endregion
