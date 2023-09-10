@@ -1,6 +1,9 @@
 <#
 .SYNOPSIS
 Function resolving CIDR notation range.
+
+.PARAMETER InputObject
+Input string to be converted from CIDR range.
 #>
 function ConvertFrom-CIDR {
     [CmdletBinding()]

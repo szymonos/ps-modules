@@ -286,6 +286,16 @@ Show certificate chain for a specified Uri.
 
 .PARAMETER Uri
 Uri used for intercepting certificate chain.
+.PARAMETER InputObject
+Object from pipeline to show certificate properties.
+.PARAMETER BuildChain
+Build chain for certificate obtained from Uri.
+.PARAMETER Extended
+Switch, whether to show extended certificate properties.
+.PARAMETER Strip
+Switch, whether to show non-null certificate properties.
+.PARAMETER All
+Switch, whether to show all certificate properties.
 #>
 function Show-Certificate {
     [CmdletBinding(DefaultParameterSetName = 'Compact')]
@@ -364,6 +374,12 @@ Show certificate chain for a specified Uri.
 
 .PARAMETER Uri
 Uri used for intercepting certificate chain.
+.PARAMETER Extended
+Switch, whether to show extended certificate properties.
+.PARAMETER Strip
+Switch, whether to show non-null certificate properties.
+.PARAMETER All
+Switch, whether to show all certificate properties.
 #>
 function Show-CertificateChain {
     [CmdletBinding(DefaultParameterSetName = 'Compact')]
@@ -374,6 +390,9 @@ function Show-CertificateChain {
 
         [Parameter(Mandatory, ParameterSetName = 'Extended')]
         [switch]$Extended,
+
+        [Parameter(Mandatory, ParameterSetName = 'Strip')]
+        [switch]$Strip,
 
         [Parameter(Mandatory, ParameterSetName = 'All')]
         [switch]$All

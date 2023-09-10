@@ -1,6 +1,7 @@
 <#
 .SYNOPSIS
 Convert text from Base64 string.
+
 .PARAMETER InputObject
 Base64 encoded string to be converted.
 #>
@@ -21,6 +22,7 @@ function ConvertFrom-Base64 {
 <#
 .SYNOPSIS
 Convert text to Base64 string.
+
 .PARAMETER InputObject
 Text to be converted to Base64 string.
 #>
@@ -41,6 +43,7 @@ function ConvertTo-Base64 {
 <#
 .SYNOPSIS
 Convert all files in a directory to UTF8 and change EOLs from CRLF to LF.
+
 .PARAMETER $Path
 Directory to convert all files from.
 #>
@@ -77,6 +80,7 @@ function ConvertTo-UTF8LF {
 <#
 .SYNOPSIS
 Get item index(es) or value(s) of the provided array from selection menu.
+
 .PARAMETER Array
 Array of strings to get the selection menu.
 .PARAMETER Message
@@ -180,6 +184,9 @@ function Get-ArrayIndexMenu {
 <#
 .SYNOPSIS
 Get the aliases for any cmdlet.
+
+.PARAMETER CmdletName
+Name of the cmdlet to get aliases for.
 #>
 function Get-CmdletAlias {
     [CmdletBinding()]
@@ -267,6 +274,9 @@ Set-Alias -Name src -Value Set-DotEnv
 <#
 .SYNOPSIS
 Print timespan in human readable format.
+
+.PARAMETER TimeSpan
+Timespan to be formatted as human redable duration.
 #>
 function Format-Duration {
     [CmdletBinding()]
@@ -290,8 +300,10 @@ function Format-Duration {
 <#
 .SYNOPSIS
 Retry executing command if fails on HttpRequestException.
-.PARAMETER Script
+.PARAMETER Command
 Script block of commands to execute.
+.PARAMETER MaxRetries
+Maximum number of retries to rerun the script block.
 #>
 function Invoke-CommandRetry {
     [CmdletBinding()]
@@ -472,12 +484,23 @@ Set-Alias -Name egsave -Value Invoke-ExampleScriptSave
 <#
 .SYNOPSIS
 Generate a random string.
+
+.PARAMETER Length
+Length of the password to be generated.
+.PARAMETER Complexity
+Set of characters to use for generating password:
+- U: upper case characters
+- L: lower case characters
+- N: numbers
+- S: symbols
+.PARAMETER Exclude
+List of characters to be excluded.
 #>
 function New-Password {
     [CmdletBinding()]
     [OutputType([string])]
     param (
-        [Int]$Size = 8,
+        [Int]$Length = 8,
 
         [Char[]]$Complexity = 'ULNS',
 
@@ -498,7 +521,7 @@ function New-Password {
         }
         $AllTokens += $TokenSet
     }
-    while ($Chars.Count -lt $Size) {
+    while ($Chars.Count -lt $Length) {
         $Chars += $AllTokens | Get-Random
     } -join ($Chars | Sort-Object { Get-Random })
 }
