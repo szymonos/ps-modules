@@ -15,6 +15,9 @@ $exportModuleMemberParams = @{
         'ggrepa'
         'ggrepc'
         'ggrepca'
+        'grunrepocmd'
+        'grunrefresh'
+        'gruncfl'
         # alias
         'ga'
         'gaa'
@@ -132,7 +135,6 @@ $exportModuleMemberParams = @{
         'gpushoat'
         'gpushsup'
         'gpushv'
-        'grefresh'
         'grb'
         'grba'
         'grbc'

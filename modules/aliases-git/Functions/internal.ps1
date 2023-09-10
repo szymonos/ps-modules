@@ -261,3 +261,46 @@ function Remove-GitMergedBranches {
         }
     }
 }
+
+<#
+.SYNOPSIS
+Run specified git commands in a current repo or all repos located in subdirectories of the current folder.
+Function runs only for repositories with remote set.
+
+.PARAMETER Command
+Script block of commands to execute.
+#>
+function Invoke-GitRepoCommand {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory, Position = 0, HelpMessage = 'The command to be invoked.')]
+        [scriptblock]$Command
+    )
+
+    Push-Location
+    # instantiate list for storing git directories with remote set
+    $dirs = [System.Collections.Generic.List[System.IO.DirectoryInfo]]::new()
+
+    # check if in git repo
+    $isGitRepo = git rev-parse --is-inside-work-tree 2>$null && $true || $false
+    # build list of directories with remote set
+    if ($isGitRepo) {
+        (git remote) ? $dirs.Add($(Get-Item .)) : $null
+    } else {
+        Get-ChildItem -Directory | ForEach-Object {
+            (git -C $_.FullName remote 2>$null) ? $dirs.Add($_) : $null
+        }
+    }
+
+    # iterate over all git repos with remote set
+    foreach ($dir in $dirs) {
+        Set-Location $dir
+        # set line separator for printing the following results
+        $follow = $dir -eq $dirs[0] ? '' : "`n"
+        Write-Host "$follow$($dir.Name)" -ForegroundColor Cyan
+        # execute commands
+        Invoke-Command -ScriptBlock $Command
+    }
+
+    Pop-Location
+}
