@@ -179,6 +179,7 @@ function grm! { Invoke-WriteExecCmd -Command 'git rm --force' -Arguments $args }
 function grmrc { Invoke-WriteExecCmd -Command 'git rm -r --cached' -Arguments $args }
 function grmr! { Invoke-WriteExecCmd -Command 'git rm -r --force' -Arguments $args }
 function grr { Invoke-WriteExecCmd -Command 'git restore' -Arguments $args }
+function grp { Invoke-WriteExecCmd -Command 'git rev-parse' -Arguments $args }
 function grrs { Invoke-WriteExecCmd -Command 'git restore --source' -Arguments $args }
 function grt { Invoke-WriteExecCmd -Command 'git remote' -Arguments $args }
 function grta { Invoke-WriteExecCmd -Command 'git remote add' -Arguments $args }
