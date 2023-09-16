@@ -173,18 +173,22 @@ Send request to Azure REST API.
 Request path.
 .PARAMETER ApiVersion
 API version.
+.PARAMETER ApiVersionLatest
+Detect and use the latest stable API version for the specified resource.
+.PARAMETER Filter
+Filter specified for the API request.
+.PARAMETER Select
+Select specific fields in the API request.
 .PARAMETER Method
 Request method. Allowed values: Get, Patch, Post, Put, Delete. Default: Get.
 .PARAMETER Body
 Request payload provided as string or hashtable.
 .PARAMETER InFile
 Request payload provided as path to file.
+.PARAMETER SkipPagination
+Do not retrieve paginated results.
 .PARAMETER Output
 Output format. Allowed values: json, object. Default: object.
-.PARAMETER Filter
-Filter specified for the API request.
-.PARAMETER Select
-Select specific fields in the API request.
 #>
 function Invoke-AzApiRequest {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -197,8 +201,6 @@ function Invoke-AzApiRequest {
 
         [Parameter(Mandatory, ParameterSetName = 'API:Latest')]
         [switch]$ApiVersionLatest,
-
-        [switch]$SkipPagination,
 
         [string]$Filter,
 
@@ -219,6 +221,8 @@ function Invoke-AzApiRequest {
         [Parameter(ParameterSetName = 'API:Specified')]
         [ValidateScript({ Test-Path $_ -PathType 'Leaf' }, ErrorMessage = "'{0}' is not a valid path.")]
         [string]$InFile,
+
+        [switch]$SkipPagination,
 
         [ValidateSet('json', 'object')]
         [string]$Output = 'object'
