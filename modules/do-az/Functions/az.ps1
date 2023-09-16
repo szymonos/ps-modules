@@ -189,11 +189,16 @@ Select specific fields in the API request.
 function Invoke-AzApiRequest {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
-        [Parameter(Mandatory, Position = 0)]
+        [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
         [string]$Path,
 
-        [Parameter(Mandatory, Position = 1)]
+        [Parameter(Mandatory, ParameterSetName = 'API:Specified')]
         [string]$ApiVersion,
+
+        [Parameter(Mandatory, ParameterSetName = 'API:Latest')]
+        [switch]$ApiVersionLatest,
+
+        [switch]$SkipPagination,
 
         [string]$Filter,
 
@@ -203,11 +208,15 @@ function Invoke-AzApiRequest {
         [string]$Method = 'Get',
 
         [Parameter(Mandatory, ParameterSetName = 'Payload:Body')]
+        [Parameter(ParameterSetName = 'API:Latest')]
+        [Parameter(ParameterSetName = 'API:Specified')]
         [ValidateNotNullorEmpty()]
         [object]$Body,
 
         [Alias('f')]
         [Parameter(Mandatory, ParameterSetName = 'Payload:File')]
+        [Parameter(ParameterSetName = 'API:Latest')]
+        [Parameter(ParameterSetName = 'API:Specified')]
         [ValidateScript({ Test-Path $_ -PathType 'Leaf' }, ErrorMessage = "'{0}' is not a valid path.")]
         [string]$InFile,
 
@@ -221,6 +230,20 @@ function Invoke-AzApiRequest {
             Authentication = 'Bearer'
             Token          = (Get-AzAccessToken -ResourceTypeName 'Arm').Token | ConvertTo-SecureString -AsPlainText -Force
             Headers        = @{ 'Content-Type' = 'application/json' }
+            ErrorAction    = 'Stop'
+        }
+
+        # get the latest stable API version
+        if ($ApiVersionLatest) {
+            $split = $Path.Split('/')
+            $apiVers = Invoke-CommandRetry {
+                (Get-AzResourceProvider -ProviderNamespace $split[6]).ResourceTypes.Where({ $_.ResourceTypeName -eq $split[7] }).ApiVersions
+            }
+            $ApiVersion = $apiVers.Where({ $_ -notmatch '-preview$' }) | Sort-Object | Select-Object -Last 1
+        }
+        if (-not $ApiVersion) {
+            Write-Warning 'Missing ApiVersion parameter. Provide correct ApiVersion or use ApiVersionLatest switch.'
+            break
         }
 
         # add payload
@@ -250,7 +273,6 @@ function Invoke-AzApiRequest {
         if ($PSBoundParameters.Select) {
             $Query += "&`$select=$(($Select -replace ' +') -join ',')"
         }
-        $params.Uri = [System.UriBuilder]::new('https', 'management.azure.com', 443, $Path, $Query).Uri
 
         # initialize variables
         $response = $null
@@ -258,13 +280,25 @@ function Invoke-AzApiRequest {
     }
 
     process {
+        # calculate request Uri
+        $params.Uri = [System.UriBuilder]::new('https', 'management.azure.com', 443, $Path, $Query).Uri
+        # write verbose messages
         Write-Verbose "$($params.Method.ToUpper()) $($params.Uri)"
         if ($params.Body) {
             Write-Verbose "Body`n$($params.Body)"
         }
         do {
-            $response = Invoke-CommandRetry {
-                Invoke-RestMethod @params
+            $response = try {
+                Invoke-CommandRetry {
+                    Invoke-RestMethod @params
+                }
+            } catch {
+                if ($PSBoundParameters.ErrorAction -eq 'SilentlyContinue') {
+                    Write-Verbose $_
+                } else {
+                    Write-Verbose $_.Exception.GetType().FullName
+                    Write-Error $_
+                }
             }
             if ($response.value) {
                 $response.value.ForEach({ $responseList.Add($_) })
@@ -272,7 +306,11 @@ function Invoke-AzApiRequest {
                 $response.ForEach({ $responseList.Add($_) })
             }
             if ($response.nextLink) {
-                $params.Uri = $response.nextLink
+                if ($SkipPagination) {
+                    $response.nextLink = $null
+                } else {
+                    $params.Uri = $response.nextLink
+                }
             }
         } while ($response.nextLink)
     }
