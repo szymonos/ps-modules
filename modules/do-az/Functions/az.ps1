@@ -175,6 +175,8 @@ Request path.
 API version.
 .PARAMETER ApiVersionLatest
 Detect and use the latest stable API version for the specified resource.
+.PARAMETER Token
+Azure ARM access token.
 .PARAMETER Filter
 Filter specified for the API request.
 .PARAMETER Select
@@ -186,9 +188,9 @@ Request payload provided as string or hashtable.
 .PARAMETER InFile
 Request payload provided as path to file.
 .PARAMETER SkipPagination
-Do not retrieve paginated results.
-.PARAMETER Output
-Output format. Allowed values: json, object. Default: object.
+Switch whether or not to retrieve paginated results.
+.PARAMETER JsonOutput
+Switch whether to return a response as json.
 #>
 function Invoke-AzApiRequest {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -197,10 +199,13 @@ function Invoke-AzApiRequest {
         [string]$Path,
 
         [Parameter(Mandatory, ParameterSetName = 'API:Specified')]
+        [ValidateScript({ $_ -match '^\d{4}-\d{2}-\d{2}$' }, ErrorMessage = 'API version should be in the yyyy-MM-dd format.')]
         [string]$ApiVersion,
 
         [Parameter(Mandatory, ParameterSetName = 'API:Latest')]
         [switch]$ApiVersionLatest,
+
+        [securestring]$Token,
 
         [string]$Filter,
 
@@ -224,15 +229,23 @@ function Invoke-AzApiRequest {
 
         [switch]$SkipPagination,
 
-        [ValidateSet('json', 'object')]
-        [string]$Output = 'object'
+        [switch]$JsonOutput
     )
 
     begin {
+        # get Azure ARM access token if not prvided
+        if (-not $Token) {
+            $Token = Invoke-CommandRetry {
+                Get-AzAccessToken -ResourceTypeName 'Arm' -ErrorAction 'Stop' `
+                | Select-Object -ExpandProperty Token `
+                | ConvertTo-SecureString -AsPlainText -Force
+            }
+        }
+        # build Azure REST API request parameters for splatting
         $params = @{
             Method         = $Method
             Authentication = 'Bearer'
-            Token          = (Get-AzAccessToken -ResourceTypeName 'Arm').Token | ConvertTo-SecureString -AsPlainText -Force
+            Token          = $Token
             Headers        = @{ 'Content-Type' = 'application/json' }
             ErrorAction    = 'Stop'
         }
@@ -241,7 +254,10 @@ function Invoke-AzApiRequest {
         if ($ApiVersionLatest) {
             $split = $Path.Split('/')
             $apiVers = Invoke-CommandRetry {
-                (Get-AzResourceProvider -ProviderNamespace $split[6]).ResourceTypes.Where({ $_.ResourceTypeName -eq $split[7] }).ApiVersions
+                Get-AzResourceProvider -ProviderNamespace $split[6] -ErrorAction 'Stop' `
+                | Select-Object -ExpandProperty ResourceTypes `
+                | Where-Object { $_.ResourceTypeName -eq $split[7] } `
+                | Select-Object -ExpandProperty ApiVersions
             }
             $ApiVersion = $apiVers.Where({ $_ -notmatch '-preview$' }) | Sort-Object | Select-Object -Last 1
         }
@@ -269,7 +285,7 @@ function Invoke-AzApiRequest {
             }
         }
 
-        # build Uri
+        # build Query
         $Query = "?api-version=$ApiVersion"
         if ($PSBoundParameters.Filter) {
             $Query += "&`$filter=$($Filter.Replace(' ', '%20'))"
@@ -292,8 +308,9 @@ function Invoke-AzApiRequest {
             Write-Verbose "Body`n$($params.Body)"
         }
         do {
-            $response = try {
-                Invoke-CommandRetry {
+            # send API request
+            try {
+                $response = Invoke-CommandRetry {
                     Invoke-RestMethod @params
                 }
             } catch {
@@ -304,11 +321,13 @@ function Invoke-AzApiRequest {
                     Write-Error $_
                 }
             }
+            # add response to response list
             if ($response.value) {
                 $response.value.ForEach({ $responseList.Add($_) })
             } else {
                 $response.ForEach({ $responseList.Add($_) })
             }
+            # check pagination
             if ($response.nextLink) {
                 if ($SkipPagination) {
                     $response.nextLink = $null
@@ -320,17 +339,15 @@ function Invoke-AzApiRequest {
     }
 
     end {
-        switch ($Output) {
-            object {
-                return $responseList
+        # return response
+        if ($JsonOutput) {
+            if (Get-Command jq -CommandType Application -ErrorAction SilentlyContinue) {
+                return $responseList | ConvertTo-Json -Depth 99 | jq
+            } else {
+                return $responseList | ConvertTo-Json -Depth 99
             }
-            json {
-                if (Get-Command jq -CommandType Application -ErrorAction SilentlyContinue) {
-                    return $responseList | ConvertTo-Json -Depth 99 | jq
-                } else {
-                    return $responseList | ConvertTo-Json -Depth 99
-                }
-            }
+        } else {
+            return $responseList
         }
     }
 }
