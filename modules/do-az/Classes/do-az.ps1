@@ -121,10 +121,27 @@ class AzGraphResource : AzGraphResourceGroup {
         $this.ResourceId = $this.id
     }
 
-    [string] GetSubscriptionName () {
+    AzGraphResource ([AzGraphResource]$obj) {
+        $this.id = $obj.id
+        $this.kind = $obj.kind
+        $this.location = $obj.location
+        $this.name = $obj.name
+        $this.resourceGroup = $obj.resourceGroup
+        $this.type = $obj.type
+        $this.subscriptionId = $obj.subscriptionId
+        $this.subscription = $obj.subscription
+        $this.tenantId = $obj.tenantId
+        $this.sku = $obj.sku
+        $this.properties = $obj.properties
+        $this.tags = $obj.tags
+        $this.identity = $obj.identity
+        $this.ResourceId = $this.id
+    }
+
+    [AzGraphResource] GetSubscriptionName () {
         $this.subscription = (Get-AzGraphSubscription -SubscriptionId $this.subscriptionId).name
 
-        return $this.subscription
+        return [AzGraphResource]::new($this)
     }
 }
 # Specify AzGraphResource DefaultDisplayPropertySet
@@ -201,10 +218,28 @@ class AzResource {
         $this.Identity = $obj.identity
     }
 
-    [string] GetSubscriptionName () {
+    AzResource ([AzResource]$obj) {
+        $this.ResourceId = $obj.ResourceId
+        $this.Id = $this.Id
+        $this.Kind = $obj.Kind
+        $this.Location = $obj.Location
+        $this.ResourceName = $obj.ResourceName
+        $this.Name = $this.Name
+        $this.ResourceGroupName = $obj.ResourceGroupName
+        $this.ResourceType = $obj.ResourceType
+        $this.Type = $this.Type
+        $this.SubscriptionId = $obj.SubscriptionId
+        $this.SubscriptionName = $obj.SubscriptionName
+        $this.Sku = $obj.Sku
+        $this.Properties = $obj.Properties
+        $this.Tags = $obj.Tags
+        $this.Identity = $obj.Identity
+    }
+
+    [AzGraphResource] GetSubscriptionName () {
         $this.SubscriptionName = (Get-AzGraphSubscription -SubscriptionId $this.SubscriptionId).name
 
-        return $this.SubscriptionName
+        return [AzGraphResource]::new($this)
     }
 }
 # Specify AzResource DefaultDisplayPropertySet
