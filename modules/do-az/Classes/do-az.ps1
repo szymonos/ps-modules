@@ -220,14 +220,14 @@ class AzResource {
 
     AzResource ([AzResource]$obj) {
         $this.ResourceId = $obj.ResourceId
-        $this.Id = $this.Id
+        $this.Id = $this.ResourceId
         $this.Kind = $obj.Kind
         $this.Location = $obj.Location
         $this.ResourceName = $obj.ResourceName
-        $this.Name = $this.Name
+        $this.Name = $this.ResourceName
         $this.ResourceGroupName = $obj.ResourceGroupName
         $this.ResourceType = $obj.ResourceType
-        $this.Type = $this.Type
+        $this.Type = $this.ResourceType
         $this.SubscriptionId = $obj.SubscriptionId
         $this.SubscriptionName = $obj.SubscriptionName
         $this.Sku = $obj.Sku
