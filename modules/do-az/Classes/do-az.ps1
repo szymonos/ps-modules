@@ -236,10 +236,10 @@ class AzResource {
         $this.Identity = $obj.Identity
     }
 
-    [AzGraphResource] GetSubscriptionName () {
+    [AzResource] GetSubscriptionName () {
         $this.SubscriptionName = (Get-AzGraphSubscription -SubscriptionId $this.SubscriptionId).name
 
-        return [AzGraphResource]::new($this)
+        return [AzResource]::new($this)
     }
 }
 # Specify AzResource DefaultDisplayPropertySet
