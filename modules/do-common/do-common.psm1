@@ -38,6 +38,7 @@ $exportModuleMemberParams = @{
         'ConvertFrom-CIDR'
         'Invoke-DownloadFile'
         # python
+        'Invoke-CertifyFixFromChain'
         'Invoke-CondaSetup'
         'Invoke-PySetup'
     )
@@ -53,6 +54,7 @@ $exportModuleMemberParams = @{
         # net
         'idf'
         # python
+        'fxcert'
         'ics'
         'ips'
     )

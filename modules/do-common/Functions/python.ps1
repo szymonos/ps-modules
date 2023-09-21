@@ -1,5 +1,67 @@
 <#
 .SYNOPSIS
+Add certificates from SSL chain to the certifi file.
+#>
+function Invoke-CertifyFixFromChain {
+    [CmdletBinding()]
+    param (
+        [bool]$NoConfirm
+    )
+    begin {
+        $ErrorActionPreference = 'Stop'
+
+        # get certifi/cacert.pem file path
+        $cacertPaths = foreach ($package in @('certifi', 'pip')) {
+            $show = pip show -f $package 2>$null
+            if ($location = ($show | Select-String '^Location:\s*(\S*)$').Matches) {
+                if ($cacert = ($show | Select-String '\bcacert\.pem$').Line) {
+                    [IO.Path]::Combine($location.Groups[1].Value, $cacert.Trim())
+                }
+            }
+        }
+    }
+
+    process {
+        if ($cacertPaths) {
+            # get intermediate and root certificates
+            $certChain = Get-Certificate 'www.python.org' -BuildChain | Select-Object -Skip 1
+            # add certificates from chain to certify/cacert.pem
+            foreach ($path in $cacertPaths) {
+                foreach ($cert in $certChain) {
+                    if (-not [IO.File]::ReadAllText($path).Contains($cert.SerialNumber)) {
+                        $msg = [string]::Join("`n",
+                            "`n`e[1mCertifi missing certificate found in TLS chain.`e[0m`n",
+                            "`e[1;92mThumbprint :`e[0m $($cert.Thumbprint)",
+                            "`e[1;92mSubject    :`e[0m $($cert.Subject)",
+                            "`e[1;92mIssuer     :`e[0m $($cert.Issuer)"
+                        )
+                        Write-Host $msg
+                        $prompt = "`nDo you want to add it to the certifi trusted certificates? [y/N]"
+                        if ((Read-Host -Prompt $prompt) -eq 'y') {
+                            $pem = "`n$(ConvertTo-PEM $cert -AddHeader)"
+                            Write-Host $cert.Subject
+                            if ($IsLinux -and (Get-ChildItem $path).User -eq 'root') {
+                                sudo pwsh -nop -noni -c "[IO.File]::AppendAllText('$path', '$pem')"
+                            } else {
+                                [IO.File]::AppendAllText($path, $pem)
+                            }
+                        } else {
+                            Write-Host 'Certificate installation skipped.'
+                        }
+                    }
+                }
+            }
+        } else {
+            Write-Verbose 'Certifi location not found.'
+            return
+        }
+    }
+}
+
+Set-Alias -Name fxcert -Value Invoke-CertifyFixFromChain
+
+<#
+.SYNOPSIS
 Manage conda environments.
 .PARAMETER Option
 Select script action.
@@ -14,7 +76,9 @@ function Invoke-CondaSetup {
 
         [Alias('f')]
         [ValidateNotNullorEmpty()]
-        [string]$CondaFile = 'conda.yaml'
+        [string]$YamlFile = 'conda.yaml',
+
+        [switch]$CertificateFix
     )
 
     dynamicparam {
@@ -28,10 +92,10 @@ function Invoke-CondaSetup {
             )
             $paramDict.Add('Environment', $dynParam)
 
-            if ('create' -match "^$Option" -and -not $PSBoundParameters.CondaFile) {
+            if ('create' -match "^$Option") {
                 # dependencies dynamic parameter
                 $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
-                $attributeCollection.Add([Management.Automation.ParameterAttribute]@{ Position  = 2 })
+                $attributeCollection.Add([Management.Automation.ParameterAttribute]@{ Position = 2 })
                 $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new(
                     'Dependencies', [string[]], $attributeCollection
                 )
@@ -89,6 +153,7 @@ function Invoke-CondaSetup {
                     "  `e[1;97mcreate`e[0m      Create conda environment",
                     "  `e[1;97mdeactivate`e[0m  Deactivate environment",
                     "  `e[1;97menvs`e[0m        List environments",
+                    "  `e[1;97mfix`e[0m         Fix self-signed certificates",
                     "  `e[1;97mlist`e[0m        List packages",
                     "  `e[1;97mremove`e[0m      Remove environment",
                     "  `e[1;97msetup`e[0m       Create/update environment",
@@ -98,7 +163,7 @@ function Invoke-CondaSetup {
             return
         }
         # evaluate Option parameter abbreviations
-        $optSet = @('activate', 'clean', 'create', 'deactivate', 'envs', 'list', 'remove', 'setup', 'update')
+        $optSet = @('activate', 'clean', 'create', 'deactivate', 'envs', 'fix', 'list', 'remove', 'setup', 'update')
         $opt = $optSet -match "^$Option"
         if ($opt.Count -eq 0) {
             Write-Warning "Option parameter name '$Option' is invalid. Valid Option values are:`n`t $($optSet -join ', ')"
@@ -113,12 +178,12 @@ function Invoke-CondaSetup {
             if ($PSBoundParameters.Environment) {
                 $envName = $PSBoundParameters.Environment
                 $envExists = $true
-            } elseif (Test-Path $CondaFile) {
+            } elseif (Test-Path $YamlFile) {
                 # get environment name
-                $envName = (Select-String -Pattern '^name: +(\S+)' -Path $CondaFile).Matches.Groups.Where({ $_.Name -eq '1' }).Value
+                $envName = (Select-String -Pattern '^name: +(\S+)' -Path $YamlFile).Matches.Groups.Where({ $_.Name -eq '1' }).Value
                 $envExists = $envName -in (Get-CondaEnvironment).Name
             } else {
-                Write-Warning "File `e[4m$CondaFile`e[24m not found"
+                Write-Warning "File `e[4m$YamlFile`e[24m not found"
                 break
             }
             if ($envName) {
@@ -130,6 +195,9 @@ function Invoke-CondaSetup {
 
     # *Execute option
     process {
+        if ($CertificateFix -and $opt -in @('create', 'setup')) {
+            $opt = $opt + 'fix'
+        }
         switch ($opt) {
             activate {
                 # *Activate environment
@@ -138,13 +206,13 @@ function Invoke-CondaSetup {
                 } else {
                     Write-Host "`e[1;4m$envName`e[22;24m environment doesn't exist!"
                 }
-                break
+                continue
             }
 
             clean {
                 # *Clean conda
                 Invoke-Conda clean -y --all
-                break
+                continue
             }
 
             create {
@@ -157,19 +225,25 @@ function Invoke-CondaSetup {
             deactivate {
                 # *Clean conda
                 Exit-CondaEnvironment
-                break
+                continue
             }
 
             envs {
                 # *List environments
                 Invoke-Conda env list
-                break
+                continue
             }
 
             list {
                 # *List packages
                 Invoke-Conda list
-                break
+                continue
+            }
+
+            fix {
+                # *Fix certificates
+                Invoke-CertifyFixFromChain
+                continue
             }
 
             remove {
@@ -182,28 +256,28 @@ function Invoke-CondaSetup {
                 } else {
                     Write-Host "`e[1;4m$envName`e[22;24m environment doesn't exist!"
                 }
-                break
+                continue
             }
 
             setup {
                 if ($envExists) {
                     # *Create environment
                     Write-Host "`nEnvironment `e[1;4m$envName`e[22;24m already exist. Updating..."
-                    Invoke-Conda env update --file $CondaFile --prune
+                    Invoke-Conda env update --file $YamlFile --prune
                     Enter-CondaEnvironment $envName
                 } else {
                     # *Update environment
                     Write-Host "Creating `e[1;4m$envName`e[22;24m environment."
-                    Invoke-Conda env create --file $CondaFile
+                    Invoke-Conda env create --file $YamlFile
                     Enter-CondaEnvironment $envName
                 }
-                break
+                continue
             }
 
             update {
                 # *Update conda
                 Invoke-Conda update -y --name base --channel pkgs/main --update-all
-                break
+                continue
             }
 
         }

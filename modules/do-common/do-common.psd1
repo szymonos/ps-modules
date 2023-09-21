@@ -4,7 +4,7 @@
     RootModule           = 'do-common.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '0.25.2'
+    ModuleVersion        = '0.26.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -63,6 +63,7 @@
         'ConvertFrom-CIDR'
         'Invoke-DownloadFile'
         # python
+        'Invoke-CertifyFixFromChain'
         'Invoke-CondaSetup'
         'Invoke-PySetup'
     )
@@ -85,6 +86,7 @@
         # net
         'idf'
         # python
+        'fxcert'
         'ics'
         'ips'
     )
