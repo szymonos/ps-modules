@@ -146,8 +146,8 @@ function Invoke-CondaSetup {
             [Console]::WriteLine(
                 [string]::Join("`n",
                     "Invoke-CondaSetup cmdlet manages conda environments.`n",
-                    "usage: Invoke-CondaSetup [-Option] <string> [[-Environment] <string>] [-CondaFile <string>]`n",
-                    'The following options are available:',
+                    "usage: Invoke-CondaSetup [-Option] <string> [-YamlFile <String>] [-CertificateFix] [[-Environment] <string>] [[-Dependencies] <string[]>]`n",
+                    'The following Options are available:',
                     "  `e[1;97mactivate`e[0m    Activate environment",
                     "  `e[1;97mclean`e[0m       Clean conda environment",
                     "  `e[1;97mcreate`e[0m      Create conda environment",
