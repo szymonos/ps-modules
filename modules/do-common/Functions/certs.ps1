@@ -147,14 +147,12 @@ function ConvertTo-PEM {
     process {
         # convert certificate to base64
         $base64 = [System.Convert]::ToBase64String($Certificate.RawData)
-        # add CommonName certificate property
-        $Certificate = $Certificate | Add-CertificateProperties
         # build PEM encoded X.509 certificate
         $builder = [System.Text.StringBuilder]::new()
         if ($AddHeader) {
             $builder.AppendLine("# Issuer: $($Certificate.Issuer)") | Out-Null
             $builder.AppendLine("# Subject: $($Certificate.Subject)") | Out-Null
-            $builder.AppendLine("# Label: $($Certificate.CommonName)") | Out-Null
+            $builder.AppendLine("# Label: $([regex]::Match($Certificate.Subject, '(?<=CN=)(.)+?(?=,|$)').Value)") | Out-Null
             $builder.AppendLine("# Serial: $($Certificate.SerialNumber)") | Out-Null
             $builder.AppendLine("# SHA1 Fingerprint: $($Certificate.Thumbprint)") | Out-Null
         }
