@@ -42,7 +42,7 @@ function Invoke-CertifiFixFromChain {
                                 "`e[1;92mIssuer     :`e[0m $($cert.Issuer)`n"
                             )
                             Write-Host $msg
-                            $pem = "`n$((ConvertTo-PEM $cert -AddHeader).Trim())"
+                            $pem = "`n$(ConvertTo-PEM $cert -AddHeader)"
                             if ($IsLinux -and (Get-ChildItem $path).User -eq 'root') {
                                 sudo pwsh -nop -noni -c "[IO.File]::AppendAllText('$path', '$pem')"
                             } else {
