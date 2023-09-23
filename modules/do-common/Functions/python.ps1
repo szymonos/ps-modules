@@ -2,20 +2,19 @@
 .SYNOPSIS
 Add certificates from SSL chain to the certifi file.
 #>
-function Invoke-CertifyFixFromChain {
+function Invoke-CertifiFixFromChain {
     [CmdletBinding()]
-    param (
-        [bool]$NoConfirm
-    )
+    param ()
     begin {
         $ErrorActionPreference = 'Stop'
 
+        $cacertPaths = [System.Collections.Generic.HashSet[string]]::new()
         # get certifi/cacert.pem file path
-        $cacertPaths = foreach ($package in @('certifi', 'pip')) {
-            $show = pip show -f $package 2>$null
-            if ($location = ($show | Select-String '^Location:\s*(\S*)$').Matches) {
-                if ($cacert = ($show | Select-String '\bcacert\.pem$').Line) {
-                    [IO.Path]::Combine($location.Groups[1].Value, $cacert.Trim())
+        foreach ($package in @('certifi', 'pip')) {
+            [string[]]$showFiles = pip show -f $package 2>$null
+            if ($location = ($showFiles | Select-String '(?<=^Location: ).+$').Matches.Value) {
+                if ($cacert = ($showFiles | Select-String '\S*\bcacert\.pem$').Matches.Value) {
+                    $cacert.ForEach({ $cacertPaths.Add(([IO.Path]::Combine($location, $_))) | Out-Null })
                 }
             }
         }
@@ -24,41 +23,47 @@ function Invoke-CertifyFixFromChain {
     process {
         if ($cacertPaths) {
             # get intermediate and root certificates
-            $certChain = Get-Certificate 'www.python.org' -BuildChain | Select-Object -Skip 1
-            # add certificates from chain to certify/cacert.pem
-            foreach ($path in $cacertPaths) {
-                foreach ($cert in $certChain) {
-                    if (-not [IO.File]::ReadAllText($path).Contains($cert.SerialNumber)) {
-                        $msg = [string]::Join("`n",
-                            "`n`e[1mCertifi missing certificate found in TLS chain.`e[0m`n",
-                            "`e[1;92mThumbprint :`e[0m $($cert.Thumbprint)",
-                            "`e[1;92mSubject    :`e[0m $($cert.Subject)",
-                            "`e[1;92mIssuer     :`e[0m $($cert.Issuer)"
-                        )
-                        Write-Host $msg
-                        $prompt = "`nDo you want to add it to the certifi trusted certificates? [y/N]"
-                        if ((Read-Host -Prompt $prompt) -eq 'y') {
-                            $pem = "`n$(ConvertTo-PEM $cert -AddHeader)"
-                            Write-Host $cert.Subject
+            $chain = Invoke-CommandRetry {
+                Get-Certificate 'www.python.org' -BuildChain | Select-Object -Skip 1
+            }
+            # check if root certificate from chain is installed in the system
+            $rootCrts = Get-RootCertificates
+            if ($chain[-1].Thumbprint -in $rootCrts.Thumbprint) {
+                foreach ($path in $cacertPaths) {
+                    Write-Verbose $path.Replace($HOME, '~')
+                    $certifiCerts = ConvertFrom-PEM $path
+                    # check if certs already added to cacert.pem
+                    if ($certsToAdd = $chain.ForEach({ $_.Where({ $_.Thumbprint -notin $certifiCerts.Thumbprint }) })) {
+                        # add certificates from chain to the certifi/cacert.pem
+                        foreach ($cert in $certsToAdd) {
+                            $msg = [string]::Join("`n",
+                                "`e[1;92mThumbprint :`e[0m $($cert.Thumbprint)",
+                                "`e[1;92mSubject    :`e[0m $($cert.Subject)",
+                                "`e[1;92mIssuer     :`e[0m $($cert.Issuer)`n"
+                            )
+                            Write-Host $msg
+                            $pem = "`n$((ConvertTo-PEM $cert -AddHeader).Trim())"
                             if ($IsLinux -and (Get-ChildItem $path).User -eq 'root') {
                                 sudo pwsh -nop -noni -c "[IO.File]::AppendAllText('$path', '$pem')"
                             } else {
                                 [IO.File]::AppendAllText($path, $pem)
                             }
-                        } else {
-                            Write-Host 'Certificate installation skipped.'
                         }
+                    } else {
+                        Write-Verbose 'All certificates from TLS chain already added to the file.'
                     }
                 }
+            } else {
+                Write-Error "Root certificate from TLS chain is not trusted ($($chain[-1].Subject))."
             }
         } else {
-            Write-Verbose 'Certifi location not found.'
+            Write-Verbose 'Certifi not found in the environment.'
             return
         }
     }
 }
 
-Set-Alias -Name fxcert -Value Invoke-CertifyFixFromChain
+Set-Alias -Name fxcertpy -Value Invoke-CertifiFixFromChain
 
 <#
 .SYNOPSIS
@@ -242,7 +247,7 @@ function Invoke-CondaSetup {
 
             fix {
                 # *Fix certificates
-                Invoke-CertifyFixFromChain
+                Invoke-CertifiFixFromChain
                 continue
             }
 

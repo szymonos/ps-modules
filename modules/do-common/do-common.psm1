@@ -14,6 +14,7 @@ $exportModuleMemberParams = @{
         'ConvertTo-PEM'
         'Get-Certificate'
         'Get-CertificateOpenSSL'
+        'Get-RootCertificates'
         'Show-CertificateChain'
         'Show-Certificate'
         # common
@@ -38,7 +39,7 @@ $exportModuleMemberParams = @{
         'ConvertFrom-CIDR'
         'Invoke-DownloadFile'
         # python
-        'Invoke-CertifyFixFromChain'
+        'Invoke-CertifiFixFromChain'
         'Invoke-CondaSetup'
         'Invoke-PySetup'
     )
@@ -54,7 +55,7 @@ $exportModuleMemberParams = @{
         # net
         'idf'
         # python
-        'fxcert'
+        'fxcertpy'
         'ics'
         'ips'
     )
