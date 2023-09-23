@@ -332,6 +332,18 @@ function Invoke-CommandRetry {
                 Write-Verbose $_.Exception.GetType().FullName
                 Write-Error $_
             }
+        } catch [System.IO.IOException] {
+            if ($_.Exception.TargetSite.Name -eq 'MoveNext') {
+                if ($_.ErrorDetails) {
+                    Write-Verbose $_.ErrorDetails.Message
+                } else {
+                    Write-Verbose $_.Exception.Message
+                }
+                Write-Host "`nRetrying..."
+            } else {
+                Write-Verbose $_.Exception.GetType().FullName
+                Write-Error $_
+            }
         } catch [System.AggregateException] {
             if ($_.Exception.InnerException.GetType().Name -eq 'HttpRequestException') {
                 Write-Verbose $_.Exception.InnerException.Message
