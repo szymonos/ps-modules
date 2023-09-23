@@ -108,7 +108,7 @@ function ConvertFrom-PEM {
         # parse certificate string
         [regex]::Matches(
             [string]::Join("`n", $pemTxt).Replace("`r`n", "`n"),
-            '(?<=-{5}BEGIN CERTIFICATE-{5}\n)[\S\n]+(?=\n-{5}END CERTIFICATE-{5})'
+            '(?<=-{5}BEGIN[\w ]+CERTIFICATE-{5}\n)[\S\n]+(?=\n-{5}END[\w ]+CERTIFICATE-{5})'
         ).Value.ForEach({ $pemSplit.Add($_) | Out-Null })
         # convert PEM encoded certificates to X509 certificate objects
         foreach ($pem in $pemSplit) {
@@ -275,6 +275,20 @@ function Get-CertificateOpenSSL {
         foreach ($pem in $pems) {
             [Security.Cryptography.X509Certificates.X509Certificate2]::new([Convert]::FromBase64String($pem))
         }
+    }
+}
+
+<#
+.SYNOPSIS
+Get root TLS certificates in the system.
+#>
+function Get-RootCertificates {
+    if ($IsWindows) {
+        Get-ChildItem Cert:\LocalMachine\Root
+    } elseif ($IsLinux) {
+        $sysId = (Select-String '(?<=^ID.+)(alpine|arch|fedora|debian|ubuntu|opensuse)' -List /etc/os-release).Matches.Value
+        $certPath = $sysId -eq 'opensuse' ? '/etc/ssl/ca-bundle.pem' : '/etc/ssl/certs/ca-certificates.crt'
+        ConvertFrom-PEM -Path $certPath
     }
 }
 
