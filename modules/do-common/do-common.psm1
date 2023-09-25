@@ -11,6 +11,8 @@ $exportModuleMemberParams = @{
         # certs
         'Add-CertificateProperties'
         'ConvertFrom-PEM'
+        'ConvertFrom-Cfg'
+        'ConvertTo-Cfg'
         'ConvertTo-PEM'
         'Get-Certificate'
         'Get-CertificateOpenSSL'
