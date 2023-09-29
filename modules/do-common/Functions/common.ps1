@@ -55,22 +55,22 @@ function ConvertFrom-Cfg {
         [ValidateScript({ Test-Path $_ -PathType Leaf }, ErrorMessage = "'{0}' is not a valid file path.")]
         [string]$Path
     )
-    $cfg = @{}
+    $cfg = [ordered]@{}
     switch -Regex -File $Path {
-        '^\[(.+)\]' {
+        '^\s*\[(.+)\]' {
             # Section
             $section = $matches[1]
-            $cfg[$section] = @{}
+            $cfg[$section] = [ordered]@{}
             $CommentCount = 0
         }
-        '^(;.*)$' {
+        '^\s*([#;].*)' {
             # Comment
             $value = $matches[1]
             $CommentCount = $CommentCount + 1
             $name = 'Comment' + $CommentCount
             $cfg[$section][$name] = $value
         }
-        '(\S+)\s*=(.*)' {
+        '^\s*(\w+)\s*=(.*)' {
             # Key
             $name, $value = $matches[1..2]
             $cfg[$section][$name] = $value.Trim()
@@ -93,9 +93,8 @@ function ConvertTo-Cfg {
     [OutputType([hashtable])]
     param (
         [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
-        [hashtable]$HashTable,
+        [System.Collections.Specialized.OrderedDictionary]$HashTable,
 
-        [Parameter(Mandatory, Position = 0)]
         [string]$Path,
 
         [switch]$Force
@@ -108,16 +107,24 @@ function ConvertTo-Cfg {
     }
 
     $builder = [System.Text.StringBuilder]::new()
-    foreach ($section in $HashTable.Keys) {
+    foreach ($enum in $HashTable.GetEnumerator()) {
+        $section = $enum.Key
         $builder.AppendLine("`n[$section]") | Out-Null
-        foreach ($key in $HashTable.$section.Keys) {
-            $value = $HashTable.$section.$key
-            $builder.AppendLine("$key = $value") | Out-Null
+        foreach ($cfg in $enum.Value.GetEnumerator()) {
+            if ($cfg.Key -like 'Comment*') {
+                $builder.AppendLine($cfg.Value) | Out-Null
+            } else {
+                $builder.AppendLine([string]::Join(' = ', $cfg.Key, $cfg.Value)) | Out-Null
+            }
         }
     }
 
     $content = $builder.ToString().Trim()
-    Set-Content -Value $content -Path $Path
+    if ($Path) {
+        Set-Content -Value $content -Path $Path
+    } else {
+        $content
+    }
 }
 
 <#

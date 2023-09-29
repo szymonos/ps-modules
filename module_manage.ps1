@@ -68,6 +68,8 @@ begin {
     $ErrorActionPreference = 'Stop'
     # set location to workspace folder
     Push-Location $PSScriptRoot
+    # load do-common module
+    Import-Module (Resolve-Path 'modules/do-common')
 }
 
 process {
@@ -81,11 +83,7 @@ process {
         Install {
             # *install modules
             # calculate destination path determined on the Scope
-            $isAdmin = if ($IsWindows) {
-                    ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')
-            } else {
-                    ((id -u) -eq 0) ? $true : $false
-            }
+            $isAdmin = Test-IsAdmin
             if ($Scope) {
                 if (-not $isAdmin -and $Scope -eq 'AllUsers') {
                     Write-Error "Cannot install `"$Module`" module to the AllUsers scope. Run the script as Admin."
