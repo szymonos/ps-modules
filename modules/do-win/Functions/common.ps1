@@ -132,3 +132,27 @@ function New-File {
 }
 
 Set-Alias -Name touch -Value New-File
+
+<#
+.SYNOPSIS
+Refresh path environment variable for process scope.
+#>
+function Update-SessionEnvironmentPath {
+    # instantiate a HashSet to store unique paths
+    $auxHashSet = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+
+    # get Path env variable from all scopes and build unique set
+    foreach ($scope in @('Machine', 'User', 'Process')) {
+        [Environment]::GetEnvironmentVariable('Path', $scope).Split(';').Where({ $_ }).ForEach({
+                $auxHashSet.Add($_) | Out-Null
+            }
+        )
+    }
+
+    # build a path string from the HashSet
+    $pathStr = [string]::Join([System.IO.Path]::PathSeparator, $auxHashSet)
+    # set the Path environment variable in the current process scope
+    [System.Environment]::SetEnvironmentVariable('Path', $pathStr, 'Process')
+}
+
+Set-Alias -Name refreshenvpath -Value Update-SessionEnvironmentPath

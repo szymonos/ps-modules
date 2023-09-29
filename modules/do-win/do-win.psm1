@@ -11,6 +11,7 @@ $exportModuleMemberParams = @{
         'Get-DiskUsage'
         'Get-SysInfo'
         'New-File'
+        'Update-SessionEnvironmentPath'
         # forms
         'Get-FileName'
         'Get-FolderPath'
@@ -23,6 +24,7 @@ $exportModuleMemberParams = @{
         # common
         'du'
         'gsi'
+        'refreshenvpath'
         'touch'
         'which'
     )
