@@ -42,6 +42,93 @@ function ConvertTo-Base64 {
 
 <#
 .SYNOPSIS
+Converts configuration file to a hashtable
+
+.PARAMETER Path
+Path to the configuration file
+#>
+function ConvertFrom-Cfg {
+    [CmdletBinding()]
+    [OutputType([hashtable])]
+    param (
+        [Parameter(Mandatory, Position = 0)]
+        [ValidateScript({ Test-Path $_ -PathType Leaf }, ErrorMessage = "'{0}' is not a valid file path.")]
+        [string]$Path
+    )
+    $cfg = [ordered]@{}
+    switch -Regex -File $Path {
+        '^\s*\[(.+)\]' {
+            # Section
+            $section = $matches[1]
+            $cfg[$section] = [ordered]@{}
+            $CommentCount = 0
+        }
+        '^\s*([#;].*)' {
+            # Comment
+            $value = $matches[1]
+            $CommentCount = $CommentCount + 1
+            $name = 'Comment' + $CommentCount
+            $cfg[$section][$name] = $value
+        }
+        '^\s*(\w+)\s*=(.*)' {
+            # Key
+            $name, $value = $matches[1..2]
+            $cfg[$section][$name] = $value.Trim()
+        }
+    }
+    return $cfg
+}
+
+<#
+.SYNOPSIS
+Converts configuration file to a hashtable
+
+.PARAMETER HashTable
+Input hashtable consisting a content to be converted to a configuration file.
+.PARAMETER Path
+Path to the configuration file
+#>
+function ConvertTo-Cfg {
+    [CmdletBinding()]
+    [OutputType([hashtable])]
+    param (
+        [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
+        [System.Collections.Specialized.OrderedDictionary]$HashTable,
+
+        [string]$Path,
+
+        [switch]$Force
+    )
+
+    $ErrorActionPreference = 'Stop'
+
+    if (-not $Force -and (Test-Path $Path)) {
+        Write-Error "$Path destination already exists."
+    }
+
+    $builder = [System.Text.StringBuilder]::new()
+    foreach ($enum in $HashTable.GetEnumerator()) {
+        $section = $enum.Key
+        $builder.AppendLine("`n[$section]") | Out-Null
+        foreach ($cfg in $enum.Value.GetEnumerator()) {
+            if ($cfg.Key -like 'Comment*') {
+                $builder.AppendLine($cfg.Value) | Out-Null
+            } else {
+                $builder.AppendLine([string]::Join(' = ', $cfg.Key, $cfg.Value)) | Out-Null
+            }
+        }
+    }
+
+    $content = $builder.ToString().Trim()
+    if ($Path) {
+        Set-Content -Value $content -Path $Path
+    } else {
+        $content
+    }
+}
+
+<#
+.SYNOPSIS
 Convert all files in a directory to UTF8 and change EOLs from CRLF to LF.
 
 .PARAMETER $Path

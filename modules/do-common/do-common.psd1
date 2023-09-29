@@ -4,10 +4,10 @@
     RootModule           = 'do-common.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '0.27.2'
+    ModuleVersion        = '0.28.0'
 
     # Supported PSEditions
-    # CompatiblePSEditions = @()
+    CompatiblePSEditions = @('Core')
 
     # ID used to uniquely identify this module
     GUID                 = '4fa2b6d3-def2-4684-8ed2-8d02508f35bc'
@@ -22,7 +22,6 @@
     Description          = 'This module is intended to streamline my workflow with PowerShell.'
 
     # Minimum version of the PowerShell engine required by this module
-    CompatiblePSEditions = @('Core')
     PowerShellVersion    = '7.0'
 
     # Modules that must be imported into the global environment prior to importing this module
@@ -45,6 +44,8 @@
         # common
         'ConvertFrom-Base64'
         'ConvertTo-Base64'
+        'ConvertFrom-Cfg'
+        'ConvertTo-Cfg'
         'ConvertTo-UTF8LF'
         'Get-ArrayIndexMenu'
         'Get-CmdletAlias'
