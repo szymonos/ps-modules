@@ -42,10 +42,12 @@ function ConvertTo-Base64 {
 
 <#
 .SYNOPSIS
-Converts configuration file to a hashtable
+Converts configuration file to an ordered dictionary.
 
 .PARAMETER Path
-Path to the configuration file
+Path to the configuration file.
+.PARAMETER InputObject
+Configuration file content passed to the cmdlet through pipeline.
 #>
 function ConvertFrom-Cfg {
     [CmdletBinding()]
@@ -108,21 +110,27 @@ function ConvertFrom-Cfg {
 
 <#
 .SYNOPSIS
-Converts configuration file to a hashtable
+Converts ordered dictionary to a configuration file/string.
 
-.PARAMETER HashTable
+.PARAMETER OrderedDict
 Input hashtable consisting a content to be converted to a configuration file.
 .PARAMETER Path
-Path to the configuration file
+Path to the configuration file to save the content to.
+Without providing the parameter, prints the configuration string.
+.PARAMETER LineFeed
+Output the configuration file using LF EOF.
+.PARAMETER Force
+Force overwrite the destination file.
 #>
 function ConvertTo-Cfg {
     [CmdletBinding()]
-    [OutputType([hashtable])]
     param (
         [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
-        [System.Collections.Specialized.OrderedDictionary]$HashTable,
+        [System.Collections.Specialized.OrderedDictionary]$OrderedDict,
 
         [string]$Path,
+
+        [switch]$LineFeed,
 
         [switch]$Force
     )
@@ -134,7 +142,7 @@ function ConvertTo-Cfg {
     }
 
     $builder = [System.Text.StringBuilder]::new()
-    foreach ($enum in $HashTable.GetEnumerator()) {
+    foreach ($enum in $OrderedDict.GetEnumerator()) {
         $section = $enum.Key
         $builder.AppendLine("`n[$section]") | Out-Null
         foreach ($cfg in $enum.Value.GetEnumerator()) {
@@ -147,6 +155,9 @@ function ConvertTo-Cfg {
     }
 
     $content = $builder.ToString().Trim()
+    if ($LineFeed) {
+        $content = $content.Replace("`r`n", "`n")
+    }
     if ($Path) {
         Set-Content -Value $content -Path $Path
     } else {
