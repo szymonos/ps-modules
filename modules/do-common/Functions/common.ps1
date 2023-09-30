@@ -49,34 +49,61 @@ Path to the configuration file
 #>
 function ConvertFrom-Cfg {
     [CmdletBinding()]
-    [OutputType([hashtable])]
+    [OutputType([System.Collections.Specialized.OrderedDictionary])]
     param (
-        [Parameter(Mandatory, Position = 0)]
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'FromFile')]
         [ValidateScript({ Test-Path $_ -PathType Leaf }, ErrorMessage = "'{0}' is not a valid file path.")]
-        [string]$Path
+        [string]$Path,
+
+        [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = 'FromPipeline')]
+        [object]$InputObject
     )
-    $cfg = [ordered]@{}
-    switch -Regex -File $Path {
-        '^\s*\[(.+)\]' {
-            # Section
-            $section = $matches[1]
-            $cfg[$section] = [ordered]@{}
-            $CommentCount = 0
-        }
-        '^\s*([#;].*)' {
-            # Comment
-            $value = $matches[1]
-            $CommentCount = $CommentCount + 1
-            $name = 'Comment' + $CommentCount
-            $cfg[$section][$name] = $value
-        }
-        '^\s*(\w+)\s*=(.*)' {
-            # Key
-            $name, $value = $matches[1..2]
-            $cfg[$section][$name] = $value.Trim()
+
+    begin {
+        # instantiate generic list for the configuration content
+        $cfgList = [System.Collections.Generic.List[string]]::new()
+    }
+
+    process {
+        switch ($PsCmdlet.ParameterSetName) {
+            FromFile {
+                $content = [System.IO.File]::ReadAllLines((Resolve-Path $Path))
+                $content.ForEach({ $cfgList.Add( $_ ) })
+            }
+            FromPipeline {
+                if ($InputObject) {
+                    $cfgList.Add( $InputObject )
+                }
+            }
         }
     }
-    return $cfg
+
+    end {
+        # build an ordered dictionary from cfg object
+        $cfg = [ordered]@{}
+        switch -Regex ($cfgList) {
+            '^\s*\[(.+)\]' {
+                # Section
+                $section = $matches[1]
+                $cfg[$section] = [ordered]@{}
+                $CommentCount = 0
+            }
+            '^\s*([#;].*)' {
+                # Comment
+                $value = $matches[1]
+                $CommentCount = $CommentCount + 1
+                $name = 'Comment' + $CommentCount
+                $cfg[$section][$name] = $value
+            }
+            '^\s*(\w+)\s*=(.*)' {
+                # Key
+                $name, $value = $matches[1..2]
+                $cfg[$section][$name] = $value.Trim()
+            }
+        }
+        # return configuration dictionary
+        return $cfg
+    }
 }
 
 <#
