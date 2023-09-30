@@ -163,7 +163,7 @@ function ConvertTo-PEM {
         }
         $builder.AppendLine('-----END CERTIFICATE-----') | Out-Null
         # create object with parsed common name and PEM encoded certificate
-        $pems.Add($builder.ToString())
+        $pems.Add($builder.ToString().Replace("`r`n", "`n"))
     }
 
     end {
