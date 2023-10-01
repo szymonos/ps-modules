@@ -4,19 +4,13 @@ $ErrorActionPreference = 'Stop'
 
 $exportModuleMemberParams = @{
     Function = @(
-        'Get-SysInfo'
-        'Format-Duration'
         'Invoke-CommandRetry'
-        'New-File'
         'Test-IsAdmin'
         'Update-SessionEnvironmentPath'
     )
     Variable = @()
     Alias    = @(
-        'gsi'
         'refreshenvpath'
-        'touch'
-        'which'
     )
 }
 
