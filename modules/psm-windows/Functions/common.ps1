@@ -54,6 +54,59 @@ function Invoke-CommandRetry {
 
 <#
 .SYNOPSIS
+Combines objects from the pipeline into a single string.
+
+.PARAMETER InputObject
+Specifies the text to be joined.
+.PARAMETER Separator
+Text or characters such as a comma or semicolon that's inserted between the text for each pipeline object.
+.PARAMETER SingleQuote
+Wraps the string value of each pipeline object in single quotes.
+.PARAMETER DoubleQuote
+Wraps the string value of each pipeline object in double-quotes.
+#>
+function Join-Str {
+    [CmdletBinding()]
+    [OutputType([string])]
+    param (
+        [Parameter(Mandatory, ValueFromPipeline = $true)]
+        [string[]]$InputObject,
+
+        [string]$Separator = ' ',
+
+        [Parameter(ParameterSetName = 'Single')]
+        [switch]$SingleQuote,
+
+        [Parameter(ParameterSetName = 'Double')]
+        [switch]$DoubleQuote
+    )
+
+    begin {
+        # instantiate list to store quoted elements
+        $lst = [System.Collections.Generic.List[string]]::new()
+        # calculate quote char
+        $quote = if ($SingleQuote) {
+            "'"
+        } elseif ($DoubleQuote) {
+            '"'
+        } else {
+            ''
+        }
+    }
+
+    process {
+        # quote input elements
+        $lst.Add("${quote}$_${quote}")
+    }
+
+    end {
+        # return joined elements
+        return [string]::Join($Separator, $lst)
+    }
+}
+
+<#
+.SYNOPSIS
 Check if PowerShell runs elevated.
 #>
 function Test-IsAdmin {

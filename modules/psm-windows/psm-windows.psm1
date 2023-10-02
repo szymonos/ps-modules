@@ -5,6 +5,7 @@ $ErrorActionPreference = 'Stop'
 $exportModuleMemberParams = @{
     Function = @(
         'Invoke-CommandRetry'
+        'Join-Str'
         'Test-IsAdmin'
         'Update-SessionEnvironmentPath'
     )
