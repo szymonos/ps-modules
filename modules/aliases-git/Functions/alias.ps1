@@ -19,10 +19,10 @@ function gcv { Invoke-WriteExecCmd -Command 'git commit --verbose' -Arguments $a
 function gc! { Invoke-WriteExecCmd -Command 'git commit --verbose --amend' -Arguments $args }
 function gca { Invoke-WriteExecCmd -Command 'git commit --verbose --all' -Arguments $args }
 function gcap { gca @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
-function gaca { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gca @args }
-function gacap { gaca @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
+function gac { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gcv @args }
+function gacp { gac @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
 function gca! { Invoke-WriteExecCmd -Command 'git commit --verbose --all --amend' -Arguments $args }
-function gaca! { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gca! @args }
+function gac! { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gca! @args }
 function gcam { Invoke-WriteExecCmd -Command 'git commit --all -m' -Arguments $args }
 function gcamp { gcam @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
 function gacm { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gcmsg @args }

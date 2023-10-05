@@ -12,10 +12,10 @@
     RootModule           = 'aliases-git.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.11.0'
+    ModuleVersion        = '1.11.1'
 
     # Supported PSEditions
-    # CompatiblePSEditions = @()
+    CompatiblePSEditions = @('Core')
 
     # ID used to uniquely identify this module
     GUID                 = 'f3f1a553-f6f5-452d-affb-ab82ff97a896'
@@ -33,7 +33,6 @@
     Description          = 'This module contains git alias functions.'
 
     # Minimum version of the PowerShell engine required by this module
-    CompatiblePSEditions = @('Core')
     PowerShellVersion    = '7.0'
 
     # Name of the PowerShell host required by this module
@@ -109,10 +108,10 @@
         'gc!'
         'gca'
         'gcap'
-        'gaca'
-        'gacap'
+        'gac'
+        'gacp'
         'gca!'
-        'gaca!'
+        'gac!'
         'gcam'
         'gcamp'
         'gacm'
