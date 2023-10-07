@@ -221,8 +221,8 @@ function gstb { Invoke-WriteExecCmd -Command 'git status --short --branch' -Argu
 function gsts { Invoke-WriteExecCmd -Command 'git status --short' -Arguments $args }
 function gsvnd { Invoke-WriteExecCmd -Command 'git svn dcommit' -Arguments $args }
 function gsvnr { Invoke-WriteExecCmd -Command 'git svn rebase' -Arguments $args }
-function gt { Invoke-WriteExecCmd -Command 'git tag' -Arguments $args }
+function gt { Invoke-WriteExecCmd -Command 'git tag --sort=v:refname' -Arguments $args }
 function gts { Invoke-WriteExecCmd -Command 'git tag --sign' -Arguments $args }
-function gtr { Invoke-WriteExecCmd -Command 'git show-ref --tags' -Arguments $args }
+function gtr { Invoke-WriteExecCmd -Command "git for-each-ref refs/tags/ --sort=v:refname --format='%1B[33m%(objectname:short)%1B[m %1B[31m%(refname:short)%1B[m %(subject) %1B[1;94m%(authorname)%1B[m %1B[36m%(authoremail)%1B[m'" -Arguments @($args, '-Quiet') }
 function gunignore { Invoke-WriteExecCmd -Command 'git update-index --no-assume-unchanged' -Arguments $args }
 function gwch { Invoke-WriteExecCmd -Command 'git whatchanged -p --abbrev-commit --pretty=medium' -Arguments $args }
