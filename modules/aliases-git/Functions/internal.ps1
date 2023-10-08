@@ -15,27 +15,31 @@ Get-GitLogObject -Count 10
 Get-GitLogObject -All -Grep '^feat.*aliases-git' -Verbose
 #>
 function Get-GitLogObject {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
         [Parameter(Position = 0)]
         [int]$Count,
 
+        [Parameter(ParameterSetName = 'Commits')]
         [switch]$All,
+
+        [Parameter(ParameterSetName = 'Tags')]
+        [switch]$Tags,
 
         [string]$Grep
     )
 
     begin {
         # initialize list with CSV header for the execution results
-        $csv = [System.Collections.Generic.List[string]]::new([string[]]"Commit`fDate`fReference`fSubject`fAuthor`fEmail")
+        $csv = [System.Collections.Generic.List[string]]::new([string[]]"Commit`fDate`fSubject`fAuthor`fEmail`fRef")
         # build format string array
         $format = $(
             ($Grep ? " --grep '$Grep' --perl-regexp --regexp-ignore-case" : ''),
-            ($All ? ' --all' : ''),
+            ($All ? ' --all' : ($Tags ? ' --no-walk --tags="*"' : '')),
             ($Count ? " -$Count" : '')
         )
         # build git expression
-        $cmd = "git log{0}{1} --pretty=format:`"%h`f%ai`f%D`f%s`f%an`f%ae`"{2}" -f $format
+        $cmd = "git log{0}{1} --pretty=format:`"%h`f%ai`f%s`f%an`f%ae`f%D`"{2}" -f $format
         # show the expression
         Write-Verbose $cmd.Replace("`f", ' ')
     }
@@ -47,11 +51,11 @@ function Get-GitLogObject {
             # build properties for Select-Object
             $prop = @(
                 'Commit'
-                @{ Name = 'DateUTC'; Expression = { [TimeZoneInfo]::ConvertTimeToUtc($_.Date).ToString('s') } }
-                @{ Name = 'Reference'; Expression = { $_.Reference.Replace('origin/', '').Split(',')[0] } }
+                @{ Name = 'DateUTC'; Expression = { [TimeZoneInfo]::ConvertTimeToUtc($_.Date).ToString('s').Replace('T', ' ') } }
                 'Subject'
                 'Author'
                 'Email'
+                'Ref'
             )
             $result = $csv | ConvertFrom-Csv -Delimiter "`f" | Select-Object -Property $prop
         }

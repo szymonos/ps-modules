@@ -91,6 +91,7 @@ function glon { Invoke-WriteExecCmd -Command 'git log --oneline --decorate' -Arg
 function glona { Invoke-WriteExecCmd -Command 'git log --oneline --decorate --all' -Arguments $args }
 function glong { Invoke-WriteExecCmd -Command 'git log --oneline --decorate --graph' -Arguments $args }
 function glonga { Invoke-WriteExecCmd -Command 'git log --oneline --decorate --graph --all' -Arguments $args }
+function glont { Invoke-WriteExecCmd -Command 'git log --oneline --decorate --no-walk --tags="*"' -Arguments $args }
 function glop { Invoke-WriteExecCmd -Command 'git log --pretty=format:"%C(yellow)%h%C(reset) %C(green)(%ai)%C(reset)%C(red)%d%C(reset) %s %C(bold blue)<%ae>%C(reset)" --abbrev-commit' -Arguments @($args, '-Quiet') }
 function glopa { Invoke-WriteExecCmd -Command 'git log --pretty=format:"%C(yellow)%h%C(reset) %C(green)(%ai)%C(reset)%C(red)%d%C(reset) %s %C(bold blue)<%ae>%C(reset)" --abbrev-commit --all' -Arguments @($args, '-Quiet') }
 function glos { Invoke-WriteExecCmd -Command 'git log --date=rfc --stat' -Arguments $args }
@@ -221,8 +222,8 @@ function gstb { Invoke-WriteExecCmd -Command 'git status --short --branch' -Argu
 function gsts { Invoke-WriteExecCmd -Command 'git status --short' -Arguments $args }
 function gsvnd { Invoke-WriteExecCmd -Command 'git svn dcommit' -Arguments $args }
 function gsvnr { Invoke-WriteExecCmd -Command 'git svn rebase' -Arguments $args }
-function gt { Invoke-WriteExecCmd -Command 'git tag --sort=v:refname' -Arguments $args }
+function gt { Invoke-WriteExecCmd -Command 'git tag --sort=-v:refname' -Arguments $args }
 function gts { Invoke-WriteExecCmd -Command 'git tag --sign' -Arguments $args }
-function gtr { Invoke-WriteExecCmd -Command "git for-each-ref refs/tags/ --sort=v:refname --format='%1B[33m%(objectname:short)%1B[m %1B[31m%(refname:short)%1B[m %(subject) %1B[1;94m%(authorname)%1B[m %1B[36m%(authoremail)%1B[m'" -Arguments @($args, '-Quiet') }
+function gtr { Invoke-WriteExecCmd -Command "git for-each-ref refs/tags/ --sort=-v:refname --format='%1B[33m%(objectname:short)%1B[m %1B[31m%(refname:short)%1B[m %(subject) %1B[1;94m%(authorname)%1B[m %1B[36m%(authoremail)%1B[m'" -Arguments @($args, '-Quiet') }
 function gunignore { Invoke-WriteExecCmd -Command 'git update-index --no-assume-unchanged' -Arguments $args }
 function gwch { Invoke-WriteExecCmd -Command 'git whatchanged -p --abbrev-commit --pretty=medium' -Arguments $args }
