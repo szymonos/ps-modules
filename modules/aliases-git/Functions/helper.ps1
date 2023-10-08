@@ -37,24 +37,37 @@ function ggloa {
 Get-GitLogObject function colored aliases.
 #>
 function gglogc {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
         [Parameter(Position = 0)]
         [int]$Count,
 
+        [Parameter(ParameterSetName = 'Commits')]
         [switch]$All,
+
+        [Parameter(ParameterSetName = 'Tags')]
+        [switch]$Tags,
 
         [string]$Grep
     )
 
     # build properties for Format-Table
+    $refCmd = {
+        $refs = switch -Regex ($_.Ref.Split(',').Trim()) {
+            '^tag:' { "`e[1;93m$($_ -replace '^tag: ')`e[0m" }
+            '^origin/' { "`e[1;91m$_`e[0m" }
+            '^HEAD' { "`e[1;96mHEAD -> `e[92m$($_ -replace 'HEAD -> ')`e[0m" }
+            Default { "`e[1;92m$_`e[0m" }
+        }
+        $([string]::Join(', ', $refs))
+    }
     $prop = @(
         @{ Name = 'Commit'; Expression = { "`e[33m$($_.Commit)`e[0m" } }
         @{ Name = 'DateUTC'; Expression = { "`e[32m$($_.DateUTC)`e[0m" } }
-        @{ Name = 'Reference'; Expression = { $ref = $_.Reference.Replace('origin/', '').Split(',')[0]; "`e[31m$($ref.Substring(0, [Math]::Min(25, $ref.Length)))`e[0m" } }
-        @{ Name = 'Subject'; Expression = { $_.Subject.Substring(0, [Math]::Min(49, $_.Subject.Length)) } }
-        @{ Name = 'Author'; Expression = { "`e[34;1m$($_.Author)`e[0m" } }
-        @{ Name = 'Email'; Expression = { "`e[36;3m$($_.Email)`e[0m" } }
+        @{ Name = 'Subject'; Expression = { $_.Subject.Substring(0, [Math]::Min(59, $_.Subject.Length)) } }
+        @{ Name = 'Author'; Expression = { "`e[94;1m$($_.Author)`e[0m" } }
+        @{ Name = 'Email'; Expression = { "`e[34;3m$($_.Email -match 'users.noreply.github.com' ? 'noreply@github.com' : $_.Email)`e[0m" } }
+        @{ Name = 'Ref'; Expression = $refCmd }
     )
     Get-GitLogObject @PSBoundParameters | Sort-Object DateUTC | Format-Table -Property $prop
 }
@@ -71,6 +84,13 @@ function ggloca {
     param ([int]$Count = 30)
 
     gglogc -Count $Count -All
+}
+
+function gglot {
+    [CmdletBinding()]
+    param ([int]$Count = 0)
+
+    gglogc -Count $Count -Tags
 }
 #endregion
 
