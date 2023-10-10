@@ -199,7 +199,7 @@ function Invoke-AzApiRequest {
         [string]$Path,
 
         [Parameter(Mandatory, ParameterSetName = 'API:Specified')]
-        [ValidateScript({ $_ -match '^\d{4}-\d{2}-\d{2}$' }, ErrorMessage = 'API version should be in the yyyy-MM-dd format.')]
+        [ValidateScript({ $_ -match '^\d{4}-\d{2}-\d{2}(-preview)?$' }, ErrorMessage = 'API version should be in the yyyy-MM-dd(-preview) format.')]
         [string]$ApiVersion,
 
         [Parameter(Mandatory, ParameterSetName = 'API:Latest')]
