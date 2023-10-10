@@ -4,10 +4,10 @@
     RootModule           = 'do-az.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.12.13'
+    ModuleVersion        = '1.12.14'
 
     # Supported PSEditions
-    # CompatiblePSEditions = @()
+    CompatiblePSEditions = @('Core')
 
     # ID used to uniquely identify this module
     GUID                 = 'e6489e60-2302-441c-a1ed-25ab5d2b52d5'
@@ -22,7 +22,6 @@
     Description          = 'This module is intended to streamline work with Azure.'
 
     # Minimum version of the PowerShell engine required by this module
-    CompatiblePSEditions = @('Core')
     PowerShellVersion    = '7.0'
 
     # Modules that must be imported into the global environment prior to importing this module
