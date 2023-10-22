@@ -19,6 +19,7 @@ function ConvertFrom-Base64 {
     }
 }
 
+
 <#
 .SYNOPSIS
 Convert text to Base64 string.
@@ -39,6 +40,7 @@ function ConvertTo-Base64 {
         [System.Convert]::ToBase64String($bytes)
     }
 }
+
 
 <#
 .SYNOPSIS
@@ -108,6 +110,7 @@ function ConvertFrom-Cfg {
     }
 }
 
+
 <#
 .SYNOPSIS
 Converts ordered dictionary to a configuration file/string.
@@ -165,11 +168,12 @@ function ConvertTo-Cfg {
     }
 }
 
+
 <#
 .SYNOPSIS
 Convert all files in a directory to UTF8 and change EOLs from CRLF to LF.
 
-.PARAMETER $Path
+.PARAMETER Path
 Directory to convert all files from.
 #>
 function ConvertTo-UTF8LF {
@@ -201,6 +205,47 @@ function ConvertTo-UTF8LF {
         Write-Host "Converted $fileCnt file(s)."
     }
 }
+
+
+<#
+.SYNOPSIS
+Obfuscate input string by shifting letters in string by 13 positions.
+To "decode" obfuscated text you should just run the function again as there are 26 base letters.
+
+.PARAMETER Text
+Input string to be obfuscated.
+#>
+function Convert-ROT13 {
+    [CmdletBinding()]
+    [OutputType([string])]
+    param (
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Text
+    )
+
+    begin {
+        $strLen = $InputString.Length
+        $rot13 = [char[]]::new($strLen)
+    }
+
+    process {
+        for ($i = 0; $i -lt $strLen; $i++) {
+            [char]$c = $InputString[$i]
+            $rot13[$i] = if ([char]::IsLetter($c)) {
+                [char]$base = [char]::IsUpper($c) ? 'A' : 'a'
+                [char](($c - $base + 13) % 26 + $base)
+            } else {
+                $c
+            }
+        }
+    }
+
+    end {
+        return [string]::Join('', $rot13)
+    }
+}
+
 
 <#
 .SYNOPSIS
@@ -306,6 +351,7 @@ function Get-ArrayIndexMenu {
     }
 }
 
+
 <#
 .SYNOPSIS
 Get the aliases for any cmdlet.
@@ -369,6 +415,7 @@ function Get-DotEnv {
     }
 }
 
+
 <#
 .SYNOPSIS
 Set environment variables from env file.
@@ -421,6 +468,7 @@ function Format-Duration {
         Default { '0ms' }
     }
 }
+
 
 <#
 .SYNOPSIS
@@ -487,6 +535,7 @@ function Invoke-CommandRetry {
         }
     } until ($exit)
 }
+
 
 <#
 .SYNOPSIS
@@ -663,6 +712,7 @@ function New-Password {
     } -join ($Chars | Sort-Object { Get-Random })
 }
 
+
 <#
 .SYNOPSIS
 Show specified properties of the object.
@@ -700,6 +750,7 @@ function Show-Object {
         $Object | Select-Object $prop
     }
 }
+
 
 <#
 .SYNOPSIS

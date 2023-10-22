@@ -58,6 +58,7 @@ function Add-CertificateProperties {
     }
 }
 
+
 <#
 .SYNOPSIS
 Create X509Certificate2 object(s) from PEM encoded certificate(s).
@@ -120,6 +121,7 @@ function ConvertFrom-PEM {
     }
 }
 
+
 <#
 .SYNOPSIS
 Create PEM encoded certificate from X509Certificate2 object.
@@ -170,6 +172,7 @@ function ConvertTo-PEM {
         return $pems
     }
 }
+
 
 <#
 .SYNOPSIS
@@ -232,6 +235,7 @@ function Get-Certificate {
     }
 }
 
+
 <#
 .SYNOPSIS
 Get certificate(s) from specified Uri using OpenSSL application.
@@ -278,6 +282,7 @@ function Get-CertificateOpenSSL {
     }
 }
 
+
 <#
 .SYNOPSIS
 Get root TLS certificates in the system.
@@ -291,6 +296,7 @@ function Get-RootCertificates {
         ConvertFrom-PEM -Path $certPath
     }
 }
+
 
 <#
 .SYNOPSIS
@@ -379,6 +385,7 @@ function Show-Certificate {
         $cert | Show-Object @showCertProp
     }
 }
+
 
 <#
 .SYNOPSIS
