@@ -8,6 +8,7 @@ function Get-DotnetCurrentDirectory {
 
 Set-Alias -Name swd -Value Get-DotnetCurrentDirectory
 
+
 <#
 .SYNOPSIS
 Set dotnet current directory to specified location.
@@ -24,6 +25,7 @@ function Set-DotnetCurrentDirectory {
 }
 
 Set-Alias -Name sswd -Value Set-DotnetCurrentDirectory
+
 
 <#
 .SYNOPSIS

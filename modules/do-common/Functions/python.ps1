@@ -65,6 +65,7 @@ function Invoke-CertifiFixFromChain {
 
 Set-Alias -Name fxcertpy -Value Invoke-CertifiFixFromChain
 
+
 <#
 .SYNOPSIS
 Manage conda environments.
@@ -290,6 +291,7 @@ function Invoke-CondaSetup {
 }
 
 Set-Alias -Name ics -Value Invoke-CondaSetup
+
 
 <#
 .SYNOPSIS
