@@ -52,6 +52,7 @@ function Invoke-CommandRetry {
     } until ($exit)
 }
 
+
 <#
 .SYNOPSIS
 Combines objects from the pipeline into a single string.
@@ -105,6 +106,7 @@ function Join-Str {
     }
 }
 
+
 <#
 .SYNOPSIS
 Check if PowerShell runs elevated.
@@ -116,6 +118,7 @@ function Test-IsAdmin {
 
     return $principal.IsInRole($admin)
 }
+
 
 <#
 .SYNOPSIS

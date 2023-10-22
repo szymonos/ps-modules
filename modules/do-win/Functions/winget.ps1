@@ -67,6 +67,7 @@ function Get-WingetResult {
     }
 }
 
+
 <#
 .SYNOPSIS
 Update all packages that were not excluded or unknown.

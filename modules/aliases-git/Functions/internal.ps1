@@ -66,6 +66,7 @@ function Get-GitLogObject {
     }
 }
 
+
 <#
 .SYNOPSIS
 Write provided command with its arguments and then execute it.
@@ -115,6 +116,7 @@ function Invoke-WriteExecCmd {
     }
 }
 
+
 <#
 .SYNOPSIS
 Get current branch name.
@@ -122,6 +124,7 @@ Get current branch name.
 function Get-GitCurrentBranch {
     git branch --show-current
 }
+
 
 <#
 .SYNOPSIS
@@ -177,6 +180,7 @@ function Get-GitResolvedBranch {
     }
 }
 
+
 <#
 .SYNOPSIS
 Delete local branches.
@@ -218,6 +222,7 @@ function Remove-GitLocalBranches {
         }
     }
 }
+
 
 <#
 .SYNOPSIS
@@ -265,6 +270,7 @@ function Remove-GitMergedBranches {
         }
     }
 }
+
 
 <#
 .SYNOPSIS
