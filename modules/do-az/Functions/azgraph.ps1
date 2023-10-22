@@ -59,6 +59,7 @@ function Invoke-AzGraph {
     }
 }
 
+
 <#
 .SYNOPSIS
 Get Azure Subscriptions using AzGraph.
@@ -127,6 +128,7 @@ function Get-AzGraphSubscription {
         return [AzGraphSubscription[]]$response
     }
 }
+
 
 <#
 .SYNOPSIS
@@ -217,6 +219,7 @@ function Get-AzGraphResourceGroup {
     }
 }
 
+
 <#
 .SYNOPSIS
 Get Azure resource group by name.
@@ -271,6 +274,7 @@ function Get-AzGraphResourceGroupByName {
         return $rg
     }
 }
+
 
 <#
 .SYNOPSIS
@@ -382,6 +386,7 @@ function Get-AzGraphResource {
         return [AzGraphResource[]]$response
     }
 }
+
 
 <#
 .SYNOPSIS

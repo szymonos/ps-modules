@@ -32,6 +32,7 @@ function Get-KubectlVersion {
     }
 }
 
+
 <#
 .SYNOPSIS
 Get kubectl client version.
@@ -39,6 +40,7 @@ Get kubectl client version.
 function Get-KubectlClientVersion {
     return (kubectl version -o=json 2>$null | ConvertFrom-Json).clientVersion.gitVersion
 }
+
 
 <#
 .SYNOPSIS
@@ -63,6 +65,7 @@ function Set-KubectlContextCurrentNamespace {
     }
 }
 
+
 <#
 .SYNOPSIS
 Decode and print kubernetes secret data
@@ -76,6 +79,7 @@ function Get-KubectlSecretDecodedData {
         [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($_.Value)).Trim()
     }
 }
+
 
 <#
 .SYNOPSIS
@@ -99,6 +103,7 @@ function Set-KubectlContext {
     }
 }
 
+
 <#
 .SYNOPSIS
 Get list of available kubernetes contexts.
@@ -111,6 +116,7 @@ function Remove-KubectlContext {
     kubectl config unset "clusters.$($ctx.cluster)"
     kubectl config unset "users.$($ctx.user)"
 }
+
 
 <#
 .SYNOPSIS
@@ -150,6 +156,7 @@ function Get-KubectlContext {
         }
     }
 }
+
 
 <#
 .SYNOPSIS
@@ -202,6 +209,7 @@ function Set-KubectlLocal {
     }
 }
 #endregion
+
 
 #region aliases
 New-Alias -Name k -Value kubectl

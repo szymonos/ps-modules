@@ -17,12 +17,15 @@ function gglogs {
     Get-GitLogObject @PSBoundParameters | Sort-Object DateUTC | Select-Object Commit, DateUTC, Subject, Author
 }
 
+
 function gglo {
     [CmdletBinding()]
     param ([int]$Count = 30)
 
     gglogs -Count $Count
 }
+
+
 function ggloa {
     [CmdletBinding()]
     param ([int]$Count = 30)
@@ -30,6 +33,7 @@ function ggloa {
     gglogs -Count $Count -All
 }
 #endregion
+
 
 #region helper git log colored functions
 <#
@@ -72,6 +76,7 @@ function gglogc {
     Get-GitLogObject @PSBoundParameters | Sort-Object DateUTC | Format-Table -Property $prop
 }
 
+
 function ggloc {
     [CmdletBinding()]
     param ([int]$Count = 30)
@@ -79,12 +84,14 @@ function ggloc {
     gglogc -Count $Count
 }
 
+
 function ggloca {
     [CmdletBinding()]
     param ([int]$Count = 30)
 
     gglogc -Count $Count -All
 }
+
 
 function gglot {
     [CmdletBinding()]
@@ -94,6 +101,7 @@ function gglot {
 }
 #endregion
 
+
 #region helper git grep functions
 function ggrep {
     [CmdletBinding()]
@@ -102,6 +110,7 @@ function ggrep {
     gglogs -Grep $Grep
 }
 
+
 function ggrepa {
     [CmdletBinding()]
     param ([string]$Grep)
@@ -109,12 +118,14 @@ function ggrepa {
     gglogs -Grep $Grep -All
 }
 
+
 function ggrepc {
     [CmdletBinding()]
     param ([string]$Grep)
 
     gglogc -Grep $Grep
 }
+
 
 function ggrepca {
     [CmdletBinding()]
@@ -124,23 +135,28 @@ function ggrepca {
 }
 #endregion
 
+
 #region helper git remove branches
 function gbdl {
     Remove-GitLocalBranches
 }
 
+
 function gbdl! {
     Remove-GitLocalBranches -DeleteNoMerged
 }
+
 
 function gbdm {
     Remove-GitMergedBranches
 }
 
+
 function gbdm! {
     Remove-GitMergedBranches -DeleteRemote
 }
 #endregion
+
 
 #region helper grun functions
 <#
@@ -161,6 +177,7 @@ function grunrepocmd ([scriptblock]$cmd) {
     Invoke-GitRepoCommand -Command $cmd
 }
 
+
 <#
 .SYNOPSIS
 Refresh all git repositories in subdirectories of the current folder.
@@ -171,6 +188,7 @@ function grunrefresh {
     }
     Invoke-GitRepoCommand -Command $cmd
 }
+
 
 <#
 .SYNOPSIS

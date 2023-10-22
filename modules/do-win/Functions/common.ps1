@@ -8,6 +8,7 @@ function Get-CommandSource {
 
 Set-Alias -Name which -Value Get-CommandSource
 
+
 <#
 .SYNOPSIS
 Get summary size of files inside folders.
@@ -91,6 +92,7 @@ function Get-DiskUsage {
 
 Set-Alias -Name du -Value Get-DiskUsage
 
+
 <#
 .SYNOPSIS
 Returns system information from /etc/os-release.
@@ -123,6 +125,7 @@ function Get-SysInfo {
 
 New-Alias -Name gsi -Value Get-SysInfo
 
+
 <#
 .SYNOPSIS
 Create a new file.
@@ -132,6 +135,7 @@ function New-File {
 }
 
 Set-Alias -Name touch -Value New-File
+
 
 <#
 .SYNOPSIS

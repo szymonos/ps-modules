@@ -55,6 +55,7 @@ function Connect-AzContext {
     }
 }
 
+
 <#
 .SYNOPSIS
 Get OAuth2 access token from login.microsoftonline.com for the current user or specified Service Principal.
@@ -127,6 +128,7 @@ function Get-MsoToken {
     }
 }
 
+
 <#
 .SYNOPSIS
 Set subscription context from selection menu.
@@ -164,6 +166,7 @@ function Set-SubscriptionMenu {
 }
 
 Set-Alias -Name ssm -Value Set-SubscriptionMenu
+
 
 <#
 .SYNOPSIS

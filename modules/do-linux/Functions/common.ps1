@@ -42,6 +42,7 @@ function Get-SysInfo {
 
 New-Alias -Name gsi -Value Get-SysInfo
 
+
 <#
 .SYNOPSIS
 Run commands as root in PowerShell.
@@ -62,6 +63,7 @@ function Invoke-Sudo {
 }
 
 Set-Alias -Name _ -Value Invoke-Sudo
+
 
 <#
 .SYNOPSIS
@@ -84,6 +86,7 @@ function Invoke-SudoPS {
 }
 
 Set-Alias -Name sps -Value Invoke-SudoPS
+
 
 <#
 .SYNOPSIS

@@ -26,6 +26,7 @@ function Get-FileName {
     return $OpenFileDialog.FileName
 }
 
+
 <#
 .SYNOPSIS
 Get folder path from folder browser dialag.
