@@ -66,12 +66,15 @@ Resource url for that you're requesting token, e.g. 'https://graph.microsoft.com
 Service Principal application id.
 .PARAMETER ClientSecret
 Service Principal credential.
+.PARAMETER Credential
+PSCredential object with username and password.
 .PARAMETER AsSecureString
 Return token as a secure string.
 #>
 function Get-MsoToken {
     [CmdletBinding(DefaultParameterSetName = 'BuiltIn')]
     param (
+        [Alias('u')]
         [Parameter(Position = 0)]
         [ValidateNotNullOrEmpty()]
         [string]$ResourceUrl = 'https://management.core.windows.net/',
@@ -84,6 +87,10 @@ function Get-MsoToken {
         [Parameter(Mandatory, ParameterSetName = 'ServicePrincipal')]
         [string]$ClientSecret,
 
+        [Alias('c')]
+        [Parameter(Mandatory, ParameterSetName = 'Credential')]
+        [System.Management.Automation.PSCredential]$Credential,
+
         [switch]$AsSecureString
     )
 
@@ -93,8 +100,13 @@ function Get-MsoToken {
                 Invoke-CommandRetry {
                     Get-AzAccessToken -ResourceUrl $ResourceUrl
                 }
+                continue
             }
-            ServicePrincipal {
+            Default {
+                if ($PSBoundParameters.Credential) {
+                    $ClientId = $Credential.GetNetworkCredential().UserName
+                    $ClientSecret = $Credential.GetNetworkCredential().Password
+                }
                 $params = @{
                     Uri     = "https://login.microsoftonline.com/$((Get-AzContext).Tenant.Id)/oauth2/token"
                     Method  = 'POST'
@@ -238,11 +250,7 @@ function Invoke-AzApiRequest {
     begin {
         # get Azure ARM access token if not prvided
         if (-not $Token) {
-            $Token = Invoke-CommandRetry {
-                Get-AzAccessToken -ResourceTypeName 'Arm' -ErrorAction 'Stop' `
-                | Select-Object -ExpandProperty Token `
-                | ConvertTo-SecureString -AsPlainText -Force
-            }
+            $Token = Get-MsoToken -AsSecureString
         }
         # build Azure REST API request parameters for splatting
         $params = @{
