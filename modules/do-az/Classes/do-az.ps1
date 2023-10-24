@@ -29,6 +29,7 @@ class AzGraphSubscription {
 # Specify AzGraphResource DefaultDisplayPropertySet
 Update-TypeData -TypeName 'AzGraphSubscription' -DefaultDisplayPropertySet 'name', 'type', 'subscriptionId', 'id' -ErrorAction SilentlyContinue
 
+
 class AzGraphResourceGroup : AzGraphSubscription {
     [string]$location
     [string]$resourceGroup
@@ -70,6 +71,7 @@ class AzGraphResourceGroup : AzGraphSubscription {
 }
 # Specify AzGraphResourceGroup DefaultDisplayPropertySet
 Update-TypeData -TypeName 'AzGraphResourceGroup' -DefaultDisplayPropertySet 'name', 'type', 'subscriptionId', 'subscription', 'id' -ErrorAction SilentlyContinue
+
 
 class AzGraphResource : AzGraphResourceGroup {
     [string]$kind
@@ -146,6 +148,7 @@ class AzGraphResource : AzGraphResourceGroup {
 }
 # Specify AzGraphResource DefaultDisplayPropertySet
 Update-TypeData -TypeName 'AzGraphResource' -DefaultDisplayPropertySet 'name', 'resourceGroup', 'type', 'subscriptionId', 'id' -ErrorAction SilentlyContinue
+
 
 <#
 .SYNOPSIS
