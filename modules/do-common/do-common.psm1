@@ -27,6 +27,7 @@ $exportModuleMemberParams = @{
         'Get-ArrayIndexMenu'
         'Get-CmdletAlias'
         'Get-DotEnv'
+        'Get-LogMessage'
         'Format-Duration'
         'Invoke-CommandRetry'
         'Invoke-ExampleScriptSave'

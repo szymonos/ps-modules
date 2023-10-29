@@ -4,7 +4,7 @@
     RootModule           = 'do-common.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '0.29.0'
+    ModuleVersion        = '0.30.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -51,6 +51,7 @@
         'Get-ArrayIndexMenu'
         'Get-CmdletAlias'
         'Get-DotEnv'
+        'Get-LogMessage'
         'Format-Duration'
         'Invoke-CommandRetry'
         'Invoke-ExampleScriptSave'
