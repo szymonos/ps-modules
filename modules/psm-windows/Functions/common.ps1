@@ -1,5 +1,45 @@
 <#
 .SYNOPSIS
+Formats log message.
+
+.PARAMETER Message
+Log message text to be printed.
+.PARAMETER Level
+Log level.
+#>
+function Get-LogMessage {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory, Position = 0)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Message,
+
+        [ValidateSet('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')]
+        [string]$Level = 'INFO'
+    )
+
+    # ANSI escape sequence
+    $ESC = [char]0x001b
+    # calculate message color
+    $msgColor = switch ($Level) {
+        DEBUG { "$ESC[36m" }
+        INFO { "$ESC[34m" }
+        WARNING { "$ESC[33m" }
+        ERROR { "$ESC[31m" }
+        CRITICAL { "$ESC[91m" }
+    }
+    # calculate message information
+    $position = "$(Split-Path $MyInvocation.ScriptName -Leaf):$($MyInvocation.ScriptLineNumber)"
+    $ts = (Get-Date).ToString('s').Replace('T', ' ')
+
+    # print log message
+    $msg = "$ESC[32m{0}$ESC[0m|$ESC[30m{1}$ESC[0m|{2} - $msgColor{3}$ESC[0m" -f $ts, $Level.ToUpper(), $position, $Message
+    Write-Host $msg
+}
+
+
+<#
+.SYNOPSIS
 Retry executing command if fails on HttpRequestException.
 .PARAMETER Command
 Script block of commands to execute.

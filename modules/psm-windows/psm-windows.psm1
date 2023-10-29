@@ -4,6 +4,7 @@ $ErrorActionPreference = 'Stop'
 
 $exportModuleMemberParams = @{
     Function = @(
+        'Get-LogMessage'
         'Invoke-CommandRetry'
         'Join-Str'
         'Test-IsAdmin'
