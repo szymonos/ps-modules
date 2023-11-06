@@ -225,13 +225,13 @@ function Convert-ROT13 {
     )
 
     begin {
-        $strLen = $InputString.Length
+        $strLen = $Text.Length
         $rot13 = [char[]]::new($strLen)
     }
 
     process {
         for ($i = 0; $i -lt $strLen; $i++) {
-            [char]$c = $InputString[$i]
+            [char]$c = $Text[$i]
             $rot13[$i] = if ([char]::IsLetter($c)) {
                 [char]$base = [char]::IsUpper($c) ? 'A' : 'a'
                 [char](($c - $base + 13) % 26 + $base)
