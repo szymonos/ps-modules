@@ -142,41 +142,52 @@ function Get-GitResolvedBranch {
     begin {
         if (git rev-parse --is-inside-work-tree) {
             [string]$BranchName = $BranchName.Where({ $_ -notmatch '^-WhatIf$|^-Quiet$' })
-            $branchMatch = switch ($BranchName) {
-                '' { '^dev(|el|elop|elopment)$|^ma(in|ster)$|^trunk$'; continue }
-                d { '^dev(|el|elop|elopment)$'; continue }
-                m { '^ma(in|ster)$'; continue }
-                s { '^stage$'; continue }
-                t { '^trunk$'; continue }
-                Default { "(^|/)$BranchName$" }
+            $match = @{
+                d = @('^dev(|el|elop|elopment)$')
+                m = @('^ma(in|ster)$', '^prod(uction)?$')
+                s = @('^stag(e|ing)$')
+                t = @('^trunk$')
             }
-            # instantiate SortedSet
-            $matched = [System.Collections.Generic.SortedSet[string]]::new()
+            $branchMatch = switch ($BranchName) {
+                '' { $match.m + $match.d + $match.t; continue }
+                d { $match.d; continue }
+                m { $match.m; continue }
+                s { $match.s; continue }
+                t { $match.t; continue }
+                Default { @("(^|/)$BranchName$") }
+            }
+            # instantiate HashSet
+            $matched = [System.Collections.Generic.HashSet[string]]::new()
         } else {
             break
         }
     }
 
     process {
-        $remoteFilter = git remote | ForEach-Object { "$_/?" } | Join-String -Separator '|'
-        [string[]]$branches = git branch --all --format='%(refname:short)'
-        $branches -replace $remoteFilter | Select-String $branchMatch -Raw | ForEach-Object { $matched.Add($_) | Out-Null }
-        $branch = if (-not $BranchName -and ($main = $matched -match '^ma(in|ster)$')) {
-            $main[0]
-        } else {
-            $matched[0]
-        }
-
-        if (-not $branch) {
-            if ($BranchName) {
-                Write-Host "invalid reference: $BranchName`nvalid branch names: $branches"
+        # build remote names filter
+        $remoteFilter = [string]::Join('|', (git remote).ForEach({ "$_/?" }))
+        # get list of branches without remote name indicator
+        [string[]]$branches = ((git branch --all --format='%(refname:short)') -replace $remoteFilter).Where({ $_ })
+        # get set of matching branches in specified order
+        $branchMatch.ForEach({
+                ($branches -match $_).ForEach({ $matched.Add($_) | Out-Null })
             }
-            break
+        )
+
+        # return if no matching branches found
+        if ($matched.Count -eq 0) {
+            if ($BranchName) {
+                Write-Host "`e[92mInvalid reference  :`e[0m $BranchName"
+                Write-Host "`e[92mValid branch names :`e[0m $([string]::Join(', ', $branches))"
+                break
+            } else {
+                $matched.Add($(git branch --format='%(refname:short)')) | Out-Null
+            }
         }
     }
 
     end {
-        return $branch
+        return $matched | Select-Object -First 1
     }
 }
 
