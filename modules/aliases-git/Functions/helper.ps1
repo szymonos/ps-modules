@@ -57,7 +57,7 @@ function gglogc {
 
     # build properties for Format-Table
     $refCmd = {
-        $refs = switch -Regex ($_.Ref.Split(',').Trim()) {
+        $refs = switch -Regex ($_.Ref.Split(',').Trim().Where({ $_ -ne 'origin/HEAD' })) {
             '^tag:' { "`e[1;93m$($_ -replace '^tag: ')`e[0m" }
             '^origin/' { "`e[1;91m$_`e[0m" }
             '^HEAD' { "`e[1;96mHEAD -> `e[92m$($_ -replace 'HEAD -> ')`e[0m" }
@@ -73,7 +73,7 @@ function gglogc {
         @{ Name = 'Email'; Expression = { "`e[34;3m$($_.Email -match 'users.noreply.github.com' ? 'noreply@github.com' : $_.Email)`e[0m" } }
         @{ Name = 'Ref'; Expression = $refCmd }
     )
-    Get-GitLogObject @PSBoundParameters | Sort-Object DateUTC | Format-Table -Property $prop
+    Get-GitLogObject @PSBoundParameters | Sort-Object DateUTC | Format-Table -Property $prop -Wrap
 }
 
 
