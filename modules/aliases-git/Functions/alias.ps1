@@ -144,6 +144,8 @@ function gpushoat {
     }
 }
 function gpushsup { Invoke-WriteExecCmd -Command "git push --set-upstream origin $(Get-GitCurrentBranch)" -Arguments $args }
+function gpusht { Invoke-WriteExecCmd -Command "git push --tags" -Arguments $args }
+function gpusht! { Invoke-WriteExecCmd -Command "git push --tags --force" -Arguments $args }
 function gpushv { Invoke-WriteExecCmd -Command 'git push --verbose' -Arguments $args }
 function grb { Invoke-WriteExecCmd -Command 'git rebase' -Arguments $args }
 function grba { Invoke-WriteExecCmd -Command 'git rebase --abort' -Arguments $args }

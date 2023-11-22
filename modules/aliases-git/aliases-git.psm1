@@ -136,6 +136,8 @@ $exportModuleMemberParams = @{
         'gpushdr'
         'gpushoat'
         'gpushsup'
+        'gpusht'
+        'gpusht!'
         'gpushv'
         'grb'
         'grba'
