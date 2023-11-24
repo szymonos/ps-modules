@@ -177,6 +177,8 @@ function grmb {
     Invoke-WriteExecCmd -Command "git reset `$(git merge-base $($remote ? "$remote/" : '')$(Get-GitResolvedBranch $args) HEAD)" -Parameters $args
 }
 function grs { Invoke-WriteExecCmd -Command 'git reset --soft' -Arguments $args }
+
+function grl { Invoke-WriteExecCmd -Command 'git reflog' -Arguments $args }
 function grmc { Invoke-WriteExecCmd -Command 'git rm --cached' -Arguments $args }
 function grm! { Invoke-WriteExecCmd -Command 'git rm --force' -Arguments $args }
 function grmrc { Invoke-WriteExecCmd -Command 'git rm -r --cached' -Arguments $args }
