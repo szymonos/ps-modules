@@ -150,6 +150,7 @@ $exportModuleMemberParams = @{
         'grho'
         'grmb'
         'grs'
+        'grl'
         'grmc'
         'grm!'
         'grmrc'

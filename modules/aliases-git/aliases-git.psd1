@@ -12,7 +12,7 @@
     RootModule           = 'aliases-git.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.12.3'
+    ModuleVersion        = '1.12.4'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -213,6 +213,7 @@
         'grh'
         'grho'
         'grs'
+        'grl'
         'grmb'
         'grmc'
         'grm!'
