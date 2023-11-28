@@ -192,8 +192,8 @@ API version.
 Detect and use the latest stable API version for the specified resource.
 .PARAMETER Token
 Azure ARM access token.
-.PARAMETER Filter
-Filter specified for the API request.
+.PARAMETER Query
+Request query. Should not begin with '?' nor '&' character.
 .PARAMETER Select
 Select specific fields in the API request.
 .PARAMETER Method
@@ -222,9 +222,8 @@ function Invoke-AzApiRequest {
 
         [securestring]$Token,
 
-        [string]$Filter,
-
-        [string[]]$Select,
+        [ValidateScript({ $_ -notmatch '^(\?|\&)' }, ErrorMessage = "Query should not begin with '?' nor '&' character.")]
+        [string]$Query,
 
         [ValidateSet('Get', 'Patch', 'Post', 'Put', 'Delete')]
         [string]$Method = 'Get',
@@ -296,13 +295,10 @@ function Invoke-AzApiRequest {
             }
         }
 
-        # build Query
-        $Query = "?api-version=$ApiVersion"
-        if ($PSBoundParameters.Filter) {
-            $Query += "&`$filter=$($Filter.Replace(' ', '%20'))"
-        }
-        if ($PSBoundParameters.Select) {
-            $Query += "&`$select=$(($Select -replace ' +') -join ',')"
+        # build query for uribuilder
+        $builderQuery = "?api-version=$ApiVersion"
+        if ($PSBoundParameters.Query) {
+            $builderQuery += '&' + $PSBoundParameters.Query
         }
 
         # initialize variables
@@ -312,7 +308,7 @@ function Invoke-AzApiRequest {
 
     process {
         # calculate request Uri
-        $params.Uri = [System.UriBuilder]::new('https', 'management.azure.com', 443, $Path, $Query).Uri
+        $params.Uri = [System.UriBuilder]::new('https', 'management.azure.com', 443, $Path, $builderQuery).Uri
         # write verbose messages
         Write-Verbose "$($params.Method.ToUpper()) $($params.Uri)"
         if ($params.Body) {
