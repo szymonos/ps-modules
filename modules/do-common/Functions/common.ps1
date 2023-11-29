@@ -531,19 +531,7 @@ function Invoke-CommandRetry {
         try {
             Invoke-Command -ScriptBlock $Command
             $exit = $true
-        } catch [System.Net.Http.HttpRequestException] {
-            if ($_.Exception.TargetSite.Name -eq 'MoveNext') {
-                if ($_.ErrorDetails) {
-                    Write-Verbose $_.ErrorDetails.Message
-                } else {
-                    Write-Verbose $_.Exception.Message
-                }
-                Write-Host "`nRetrying..."
-            } else {
-                Write-Verbose $_.Exception.GetType().FullName
-                Write-Error $_
-            }
-        } catch [System.IO.IOException] {
+        } catch [System.IO.IOException], [System.Net.Http.HttpRequestException] {
             if ($_.Exception.TargetSite.Name -eq 'MoveNext') {
                 if ($_.ErrorDetails) {
                     Write-Verbose $_.ErrorDetails.Message
