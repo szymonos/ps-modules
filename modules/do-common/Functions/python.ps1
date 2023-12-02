@@ -282,7 +282,7 @@ function Invoke-CondaSetup {
 
             update {
                 # *Update conda
-                Invoke-Conda update -y --name base --channel pkgs/main --update-all
+                Invoke-Conda update --name base --channel defaults conda --yes --update-all
                 continue
             }
 

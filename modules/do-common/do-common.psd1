@@ -4,7 +4,7 @@
     RootModule           = 'do-common.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '0.30.2'
+    ModuleVersion        = '1.0.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -113,7 +113,7 @@
             # ReleaseNotes = ''
 
             # Prerelease string of this module
-            Prerelease = 'beta'
+            # Prerelease = 'beta'
 
         } # End of PSData hashtable
 
