@@ -65,7 +65,7 @@ function gdw { Invoke-WriteExecCmd -Command 'git diff --word-diff' -Arguments $a
 function gdct { Invoke-WriteExecCmd -Command 'git describe --tags `git rev-list --tags --max-count=1`' -Arguments $args }
 function gf { Invoke-WriteExecCmd -Command 'git fetch' -Arguments $args }
 function gfa { Invoke-WriteExecCmd -Command 'git fetch --all --prune' -Arguments $args }
-function gfa! { Invoke-WriteExecCmd -Command 'git fetch --tags --all --prune --force' -Arguments $args }
+function gfa! { Invoke-WriteExecCmd -Command 'git fetch --all --tags --prune --prune-tags --force' -Arguments $args }
 function gfo {
     if ($remote = git remote) {
         Invoke-WriteExecCmd -Command "git fetch $remote" -Arguments $args
@@ -164,7 +164,7 @@ function gr { Invoke-WriteExecCmd -Command 'git reset' -Arguments $args }
 function grh { Invoke-WriteExecCmd -Command 'git reset --hard' -Arguments $args }
 function grho {
     if ($remote = git remote) {
-        Invoke-WriteExecCmd -Command 'git fetch --tags --all --prune --force' -Parameters $args
+        Invoke-WriteExecCmd -Command "git fetch --tags --prune --prune-tags --force $remote" -Parameters $args
         Invoke-WriteExecCmd -Command "git reset --hard $remote/$(Get-GitCurrentBranch)" -Parameters $args
     } else {
         Write-Host 'fatal: Remote repository not set.'
