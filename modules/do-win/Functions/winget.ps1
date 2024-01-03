@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
 Parse winget upgrade results and return object with list of upgradeable packages.
-.PARAMETER Option
+.PARAMETER Operation
 Specify if the result should return all installed packages or upgradeable only.
 .EXAMPLE
 Get-WingetResult
@@ -12,57 +12,74 @@ function Get-WingetResult {
     [CmdletBinding()]
     param (
         [Alias('o')]
+        [Parameter(Position = 0)]
         [ValidateSet('list', 'upgrade')]
-        [string]$Option = 'list'
+        [string]$Operation = 'list'
     )
 
     begin {
-        # get results
-        if ($Option -eq 'list') {
-            [string[]]$result = @(winget list --source 'winget').Where({ $_ -match '^\w' })
-        } elseif ($Option -eq 'upgrade') {
-            [string[]]$result = @(winget upgrade --source 'winget').Where({ $_ -match '^\w' -and $_ -notmatch '^\d+ +(upgrades|package)' })
-            # return if winget hasn't returned upgradeable packages
-            try {
-                if (-not $result[0].StartsWith('Name')) {
-                    Write-Host $result -ForegroundColor Yellow
-                    return
+        switch ($Operation) {
+            list {
+                [string[]]$result = @(winget list).Where({ $_ -match '^\w' })
+            }
+            upgrade {
+                [string[]]$result = @(winget upgrade).Where({ $_ -match '^\w' -and $_ -notmatch '(^\d+ +upgrades)|(--include-unknown)|(^No installed)' })
+                # check for secondary explicit targeting for upgrade
+                $targetIdx = [array]::IndexOf($result, ($result | Select-String 'explicit targeting' -Raw)) - 1
+                if ($targetIdx -gt 0) {
+                    $result = $result[0..$targetIdx]
+                } else {
+                    $result = @()
                 }
-            } catch {
-                return
             }
         }
     }
 
     process {
+        # return if winget hasn't returned upgradeable packages
+        try {
+            if (-not $result[0].StartsWith('Name')) {
+                return $result[0]
+            }
+        } catch {
+            return
+        }
+
         # index columns
         $idIndex = $result[0].IndexOf('Id')
         $versionIndex = $result[0].IndexOf('Version')
-        if ($Option -eq 'upgrade') {
-            $availableIndex = $result[0].IndexOf('Available')
-        }
+        $availableIndex = $result[0].IndexOf('Available')
+        $sourceIndex = $result[0].IndexOf('Source')
         # Now cycle in real package and split accordingly
         $packages = [Collections.Generic.List[PSObject]]::new()
         for ($i = 1; $i -lt $result.Length; $i++) {
             $package = @{
-                Name = $result[$i].Substring(0, $idIndex).TrimEnd()
-                Id   = $result[$i].Substring($idIndex, $versionIndex - $idIndex).TrimEnd()
+                Name   = $result[$i].Substring(0, $idIndex).TrimEnd()
+                Id     = $result[$i].Substring($idIndex, $versionIndex - $idIndex).TrimEnd()
+                Source = $result[$i].Substring($sourceIndex, $result[$i].Length - $sourceIndex)
             }
-            if ($Option -eq 'list') {
-                $package.Version = $result[$i].Substring($versionIndex, $result[$i].Length - $versionIndex).TrimEnd()
-            } elseif ($Option -eq 'upgrade') {
-                $package.Version = $result[$i].Substring($versionIndex, $availableIndex - $versionIndex).TrimEnd()
-                $package.Available = $result[$i].Substring($availableIndex, $result[$i].Length - $availableIndex).TrimEnd()
+
+            switch ($Operation) {
+                list {
+                    $package['Version'] = $result[$i].Substring($versionIndex, $sourceIndex - $versionIndex).TrimEnd()
+                }
+                upgrade {
+                    $package['Version'] = $result[$i].Substring($versionIndex, $availableIndex - $versionIndex).TrimEnd()
+                    $package['Available'] = $result[$i].Substring($availableIndex, $sourceIndex - $availableIndex).TrimEnd()
+                }
             }
             $packages.Add([PSCustomObject]$package)
         }
     }
 
     end {
-        if ($Option -eq 'list') {
-            return $packages | Sort-Object -Property Name | Select-Object Name, Id, Version
-        } else {
-            return $packages | Sort-Object -Property Name | Select-Object Name, Id, Version, Available
+        switch ($Operation) {
+            list {
+                return $packages | Sort-Object -Property Name | Select-Object Name, Id, Version, Source
+            }
+            upgrade {
+                return $packages
+            }
         }
     }
 }
