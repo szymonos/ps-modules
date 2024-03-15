@@ -56,12 +56,59 @@ function Get-KubectlServerVersion {
 Set kubernetes current namespace context.
 #>
 function Set-KubectlContextCurrentNamespace {
-    if ($args) {
-        Invoke-WriteExecCmd -Command 'kubectl config set-context --current --namespace' -Arguments $args
-    } else {
-        $ns = (kubectl get namespaces -o=json | ConvertFrom-Json).items.metadata
-        $namespace = $ns | Select-Object name, creationTimestamp | Get-ArrayIndexMenu -Value -Message 'Select namespace to switch context to'
-        Invoke-WriteExecCmd -Command "kubectl config set-context --current --namespace $($namespace.name)" -Parameters $args
+    [CmdletBinding()]
+    param ()
+
+    DynamicParam {
+        # create the parameter dictionary
+        $paramDict = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
+
+        # *Namespace parameter
+        $paramName = 'Namespace'
+        # create and set the collection of attributes
+        $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
+        $paramAttrib = [Management.Automation.ParameterAttribute]::new()
+        $paramAttrib.Mandatory = $false
+        $paramAttrib.Position = 0
+        $AttributeCollection.Add($paramAttrib)
+        # generate and set the ValidateSet
+        [string[]]$arrSet = kubectl get namespace --output json `
+        | ConvertFrom-Json `
+        | Select-Object -ExpandProperty items `
+        | Select-Object -ExpandProperty metadata `
+        | Select-Object -ExpandProperty name
+        $validSetAttrib = [System.Management.Automation.ValidateSetAttribute]::new($arrSet)
+        $AttributeCollection.Add($validSetAttrib)
+        # create the dynamic parameter
+        $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new($paramName, [string], $attributeCollection)
+        $paramDict.Add($paramName, $dynParam)
+
+        # return the parameter dictionary
+        return $paramDict
+    }
+
+    begin {
+        # get namespace name
+        $namespace = if ($PsBoundParameters.Namespace) {
+            $PsBoundParameters.Namespace
+        } else {
+            $prop = @(
+                @{ Name = 'Name'; Expression = { $_.metadata.name } }
+                @{ Name = 'Status'; Expression = { $_.status.phase } }
+                @{ Name = 'CreatedAt'; Expression = { $_.metadata.creationTimestamp } }
+            )
+            kubectl get namespace --output json `
+            | ConvertFrom-Json `
+            | Select-Object -ExpandProperty items `
+            | Select-Object -Property $prop `
+            | Get-ArrayIndexMenu -Value -Message 'Select namespace to switch context to' `
+            | Select-Object -ExpandProperty name
+        }
+    }
+
+    process {
+        # execute command
+        Invoke-WriteExecCmd -Command 'kubectl config set-context --current --namespace' -Arguments $namespace
     }
 }
 
@@ -86,20 +133,53 @@ function Get-KubectlSecretDecodedData {
 Change kubernetes context and sets the corresponding kubectl client version.
 #>
 function Set-KubectlContext {
-    Write-Host "kubectl config use-context $args" -ForegroundColor Magenta
+    [CmdletBinding()]
+    param ()
 
-    $contexts = Get-KubectlContext -Output 'object' | Sort-Object name
-    if ($args -in $contexts.name) {
-        kubectl config use-context @args
+    DynamicParam {
+        # create the parameter dictionary
+        $paramDict = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
+
+        # *Context parameter
+        $paramName = 'Context'
+        # create and set the collection of attributes
+        $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
+        $paramAttrib = [Management.Automation.ParameterAttribute]::new()
+        $paramAttrib.Mandatory = $false
+        $paramAttrib.Position = 0
+        $AttributeCollection.Add($paramAttrib)
+        # generate and set the ValidateSet
+        [string[]]$arrSet = kubectl config view --output json `
+        | ConvertFrom-Json `
+        | Select-Object -ExpandProperty contexts `
+        | Select-Object -ExpandProperty name
+        $validSetAttrib = [System.Management.Automation.ValidateSetAttribute]::new($arrSet)
+        $AttributeCollection.Add($validSetAttrib)
+        # create the dynamic parameter
+        $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new($paramName, [string], $attributeCollection)
+        $paramDict.Add($paramName, $dynParam)
+
+        # return the parameter dictionary
+        return $paramDict
+    }
+
+    begin {
+        # get context name
+        $ctx = if ($PSBoundParameters.Context) {
+            $PSBoundParameters.Context
+        } else {
+            Get-KubectlContext -Output 'object' `
+            | Select-Object name, cluster, namespace `
+            | Get-ArrayIndexMenu -Value -Message 'Select kubernetes context to switch to.' `
+            | Select-Object -ExpandProperty name
+        }
+    }
+
+    process {
+        # execute command
+        Invoke-WriteExecCmd -Command 'kubectl config use-context' -Arguments $ctx
+        # set kubectl binary to server version
         Set-KubectlLocal
-    } elseif (-not $args) {
-        $ctx = $contexts `
-        | Select-Object name, cluster, namespace `
-        | Get-ArrayIndexMenu -Value -Message 'Select kubernetes context to switch to.'
-        kubectl config use-context $ctx.name
-        Set-KubectlLocal
-    } else {
-        Write-Warning "Context does not exist ($($args[0]))"
     }
 }
 
@@ -208,6 +288,92 @@ function Set-KubectlLocal {
         New-Item -ItemType SymbolicLink -Path $KUBECTL_LOCAL -Target $kctlVer | Out-Null
     }
 }
+
+
+<#
+.SYNOPSIS
+Connect remotely to the specified pod on the cluster.
+.PARAMETER Pod
+Name of the pod to connect to.
+.PARAMETER Container
+Explicitly specify the container in the pod to connect to.
+.PARAMETER Shell
+Shell command to run inside the container.
+#>
+function Connect-KubernetesContainer {
+    [CmdletBinding()]
+    param ()
+
+    DynamicParam {
+        # create the parameter dictionary
+        $paramDict = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
+
+        # *Pod parameter
+        $paramName = 'Pod'
+        # create and set the collection of attributes
+        $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
+        $paramAttrib = [Management.Automation.ParameterAttribute]::new()
+        $paramAttrib.Mandatory = $true
+        $paramAttrib.Position = 0
+        $AttributeCollection.Add($paramAttrib)
+        # generate and set the ValidateSet
+        [string[]]$arrSet = kubectl get pods --output json `
+        | ConvertFrom-Json `
+        | Select-Object -ExpandProperty items `
+        | Where-Object { $_.status.phase -eq 'Running' } `
+        | Select-Object -ExpandProperty metadata `
+        | Select-Object -ExpandProperty name
+        $validSetAttrib = [System.Management.Automation.ValidateSetAttribute]::new($arrSet)
+        $AttributeCollection.Add($validSetAttrib)
+        # create the dynamic parameter
+        $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new($paramName, [string], $attributeCollection)
+        $paramDict.Add($paramName, $dynParam)
+
+        # *Container parameter
+        $paramName = 'Container'
+        # create and set the collection of attributes
+        $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
+        $paramAttrib = [Management.Automation.ParameterAttribute]::new()
+        $paramAttrib.Mandatory = $false
+        $AttributeCollection.Add($paramAttrib)
+        # create and set parameter not null validation
+        $validateNotNull = [System.Management.Automation.ValidateNotNullOrEmptyAttribute]::new()
+        $AttributeCollection.Add($validateNotNull)
+        # create the dynamic parameter
+        $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new($paramName, [string], $attributeCollection)
+        $paramDict.Add($paramName, $dynParam)
+
+        # *Shell parameter
+        $paramName = 'Shell'
+        # create and set the collection of attributes
+        $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
+        $paramAttrib = [Management.Automation.ParameterAttribute]::new()
+        $paramAttrib.Mandatory = $false
+        $paramAttrib.Position = 1
+        $AttributeCollection.Add($paramAttrib)
+        # create the dynamic parameter
+        $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new($paramName, [string], $attributeCollection)
+        $paramDict.Add($paramName, $dynParam)
+
+        # return the parameter dictionary
+        return $paramDict
+    }
+
+    begin {
+        # build command string
+        $sb = [System.Text.StringBuilder]::new("kubectl exec --stdin --tty $($PSBoundParameters.Pod)")
+        if ($PSBoundParameters.Container) {
+            $sb.Append(" --container $($PSBoundParameters.Container)") | Out-Null
+        }
+        $sb.Append(" -- $($PSBoundParameters.Shell ?? 'sh')") | Out-Null
+        $cmd = $sb.ToString()
+    }
+
+    process {
+        # execute command
+        Invoke-WriteExecCmd -Command $cmd
+    }
+}
 #endregion
 
 
@@ -218,7 +384,10 @@ New-Alias -Name kvc -Value Get-KubectlClientVersion
 New-Alias -Name kvs -Value Get-KubectlServerVersion
 New-Alias -Name kcgctx -Value Get-KubectlContext
 New-Alias -Name kcuctx -Value Set-KubectlContext
+New-Alias -Name kc -Value Set-KubectlContext
 New-Alias -Name kcrmctx -Value Remove-KubectlContext
 New-Alias -Name kgsecd -Value Get-KubectlSecretDecodedData
 New-Alias -Name kcsctxcns -Value Set-KubectlContextCurrentNamespace
+New-Alias -Name kn -Value Set-KubectlContextCurrentNamespace
+New-Alias -Name kex -Value Connect-KubernetesContainer
 #endregion
