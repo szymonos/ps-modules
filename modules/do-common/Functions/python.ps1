@@ -160,6 +160,7 @@ function Invoke-CondaSetup {
                     "  `e[1;97mdeactivate`e[0m  Deactivate environment",
                     "  `e[1;97menvs`e[0m        List environments",
                     "  `e[1;97mfix`e[0m         Fix self-signed certificates",
+                    "  `e[1;97minfo`e[0m        Display current conda install info",
                     "  `e[1;97mlist`e[0m        List packages",
                     "  `e[1;97mremove`e[0m      Remove environment",
                     "  `e[1;97msetup`e[0m       Create/update environment",
@@ -169,7 +170,7 @@ function Invoke-CondaSetup {
             return
         }
         # evaluate Option parameter abbreviations
-        $optSet = @('activate', 'clean', 'create', 'deactivate', 'envs', 'fix', 'list', 'remove', 'setup', 'update')
+        $optSet = @('activate', 'clean', 'create', 'deactivate', 'envs', 'fix', 'info', 'list', 'remove', 'setup', 'update')
         $opt = $optSet -match "^$Option"
         if ($opt.Count -eq 0) {
             Write-Warning "Option parameter name '$Option' is invalid. Valid Option values are:`n`t $($optSet -join ', ')"
@@ -237,6 +238,19 @@ function Invoke-CondaSetup {
             envs {
                 # *List environments
                 Invoke-Conda env list
+                continue
+            }
+
+            info {
+                # *Display current conda install information
+                conda info | ForEach-Object {
+                    if ($_ -match '\w : ') {
+                        $header, $val = $_.Split(' : ')
+                        Write-Host "`e[1;92m${header} : `e[0m${val}"
+                    } else {
+                        Write-Host $_
+                    }
+                }
                 continue
             }
 
