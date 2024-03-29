@@ -149,32 +149,72 @@ Set subscription context from selection menu.
 Switch whether to set the context for azure-cli.
 #>
 function Set-SubscriptionMenu {
-    [CmdletBinding(SupportsShouldProcess)]
-    param (
-        [switch]$cli
-    )
-    # query graph api for subscriptions
-    $query = "ResourceContainers | where type =~ 'microsoft.resources/subscriptions' | project name, subscriptionId"
-    $subscriptions = Invoke-CommandRetry {
-        Search-AzGraph -Query $query | Sort-Object name
+    [CmdletBinding()]
+    param ()
+
+    DynamicParam {
+        # create the parameter dictionary
+        $paramDict = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
+
+        # *Subscription parameter
+        $paramName = 'Subscription'
+        # create and set the collection of attributes
+        $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
+        $paramAttrib = [Management.Automation.ParameterAttribute]::new()
+        $paramAttrib.Mandatory = $false
+        $paramAttrib.Position = 0
+        $AttributeCollection.Add($paramAttrib)
+        # generate and set the ValidateSet
+        $query = "ResourceContainers | where type =~ 'microsoft.resources/subscriptions' | project name"
+        [string[]]$arrSet = Invoke-AzGraph -Query $query | Select-Object -ExpandProperty name
+        $validSetAttrib = [System.Management.Automation.ValidateSetAttribute]::new($arrSet)
+        $AttributeCollection.Add($validSetAttrib)
+        # create the dynamic parameter
+        $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new($paramName, [string], $attributeCollection)
+        $paramDict.Add($paramName, $dynParam)
+
+        # *Cli parameter
+        $paramName = 'Cli'
+        # create and set the collection of attributes
+        $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
+        $paramAttrib = [Management.Automation.ParameterAttribute]::new()
+        $paramAttrib.Mandatory = $false
+        $paramAttrib.Position = 1
+        $AttributeCollection.Add($paramAttrib)
+        # create the dynamic parameter
+        $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new($paramName, [switch], $attributeCollection)
+        $paramDict.Add($paramName, $dynParam)
+
+        # return the parameter dictionary
+        return $paramDict
     }
 
-    # select subscription from menu
-    if ($subscriptions.Count -gt 1) {
-        $i = Get-ArrayIndexMenu -Array $subscriptions.name -Message 'Select subscription'
-    } else {
-        $i = 0
-    }
-    if ($PSCmdlet.ShouldProcess($i)) {
-        $sub = if ($cli) {
-            az account set --subscription $subscriptions[$i].subscriptionId
-            az account show | ConvertFrom-Json | Select-Object name, id, tenantId, state
+    begin {
+        $subscription = if ($PsBoundParameters.Subscription) {
+            $PsBoundParameters.Subscription
         } else {
-            (Connect-AzContext $subscriptions[$i].subscriptionId).Subscription
+            $query = "ResourceContainers | where type =~ 'microsoft.resources/subscriptions' | project name"
+            Invoke-AzGraph -Query $query `
+            | Select-Object subscriptionId, name `
+            | Get-ArrayIndexMenu -Value `
+            | Select-Object -ExpandProperty name
         }
     }
 
-    return $sub
+    process {
+        if ($subscription) {
+            $sub = if ($PsBoundParameters.Cli) {
+                az account set --subscription $subscription
+                az account show | ConvertFrom-Json | Select-Object name, id, tenantId, state
+            } else {
+                (Connect-AzContext $subscription).Subscription | Select-Object Name, Id, TenantId, State
+            }
+        }
+    }
+
+    end {
+        return $sub
+    }
 }
 
 Set-Alias -Name ssm -Value Set-SubscriptionMenu
