@@ -24,6 +24,7 @@ $exportModuleMemberParams = @{
         'ConvertTo-Cfg'
         'ConvertTo-UTF8LF'
         'Convert-ROT13'
+        'ConvertTo-JsonFormatted'
         'Get-ArrayIndexMenu'
         'Get-CmdletAlias'
         'Get-DotEnv'
@@ -52,6 +53,7 @@ $exportModuleMemberParams = @{
         # common
         'alias'
         'egsave'
+        'json'
         # dotnet
         'swd'
         'sswd'

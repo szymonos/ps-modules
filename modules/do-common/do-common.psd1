@@ -4,7 +4,7 @@
     RootModule           = 'do-common.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.0.1'
+    ModuleVersion        = '1.1.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -48,6 +48,7 @@
         'ConvertTo-Cfg'
         'ConvertTo-UTF8LF'
         'Convert-ROT13'
+        'ConvertTo-JsonFormatted'
         'Get-ArrayIndexMenu'
         'Get-CmdletAlias'
         'Get-DotEnv'
@@ -83,6 +84,7 @@
         # common
         'alias'
         'egsave'
+        'json'
         # dotnet
         'swd'
         'sswd'
