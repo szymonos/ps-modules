@@ -249,6 +249,36 @@ function Convert-ROT13 {
 
 <#
 .SYNOPSIS
+Converts PowerShell object to json and prints it formatted if jq is available.
+
+.PARAMETER InputObject
+Input object to be converted to json.
+#>
+function ConvertTo-JsonFormatted {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory, ValueFromPipeline)]
+        [object]$InputObject
+    )
+
+    begin {
+        $jq = (Get-Command 'jq' -CommandType Application -ErrorAction SilentlyContinue) ? $true : $false
+    }
+
+    process {
+        if ($jq) {
+            $InputObject | ConvertTo-Json -Depth 99 | jq
+        } else {
+            $InputObject | ConvertTo-Json -Depth 99
+        }
+    }
+}
+
+Set-Alias -Name json -Value ConvertTo-JsonFormatted
+
+
+<#
+.SYNOPSIS
 Get item index(es) or value(s) of the provided array from selection menu.
 
 .PARAMETER Array
@@ -373,6 +403,7 @@ function Get-CmdletAlias {
 
 Set-Alias -Name alias -Value Get-CmdletAlias
 
+
 <#
 .SYNOPSIS
 Get environment variables from env file.
@@ -442,6 +473,7 @@ function Set-DotEnv {
 }
 
 Set-Alias -Name src -Value Set-DotEnv
+
 
 <#
 .SYNOPSIS
@@ -692,6 +724,7 @@ function Invoke-ExampleScriptSave {
 }
 
 Set-Alias -Name egsave -Value Invoke-ExampleScriptSave
+
 
 <#
 .SYNOPSIS
