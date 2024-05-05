@@ -1,9 +1,15 @@
 . $PSScriptRoot/Functions/alias.ps1
+. $PSScriptRoot/Functions/completers.ps1
 . $PSScriptRoot/Functions/helper.ps1
 . $PSScriptRoot/Functions/internal.ps1
 
 $exportModuleMemberParams = @{
     Function = @(
+        # completers
+        'ArgK8sGetContexts'
+        'ArgK8sGetNamespaces'
+        'ArgK8sGetPods'
+        'ArgK8sGetPodContainers'
         # helper
         'Get-KubectlVersion'
         'Get-KubectlClientVersion'

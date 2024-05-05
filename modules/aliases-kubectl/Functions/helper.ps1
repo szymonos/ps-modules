@@ -57,35 +57,10 @@ Set kubernetes current namespace context.
 #>
 function Set-KubectlContextCurrentNamespace {
     [CmdletBinding()]
-    param ()
-
-    DynamicParam {
-        # create the parameter dictionary
-        $paramDict = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
-
-        # *Namespace parameter
-        $paramName = 'Namespace'
-        # create and set the collection of attributes
-        $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
-        $paramAttrib = [Management.Automation.ParameterAttribute]::new()
-        $paramAttrib.Mandatory = $false
-        $paramAttrib.Position = 0
-        $AttributeCollection.Add($paramAttrib)
-        # generate and set the ValidateSet
-        [string[]]$arrSet = kubectl get namespace --output json `
-        | ConvertFrom-Json `
-        | Select-Object -ExpandProperty items `
-        | Select-Object -ExpandProperty metadata `
-        | Select-Object -ExpandProperty name
-        $validSetAttrib = [System.Management.Automation.ValidateSetAttribute]::new($arrSet)
-        $AttributeCollection.Add($validSetAttrib)
-        # create the dynamic parameter
-        $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new($paramName, [string], $attributeCollection)
-        $paramDict.Add($paramName, $dynParam)
-
-        # return the parameter dictionary
-        return $paramDict
-    }
+    param (
+        [ArgumentCompleter({ ArgK8sGetNamespaces @args })]
+        [string]$Namespace
+    )
 
     begin {
         # get namespace name
@@ -134,34 +109,10 @@ Change kubernetes context and sets the corresponding kubectl client version.
 #>
 function Set-KubectlContext {
     [CmdletBinding()]
-    param ()
-
-    DynamicParam {
-        # create the parameter dictionary
-        $paramDict = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
-
-        # *Context parameter
-        $paramName = 'Context'
-        # create and set the collection of attributes
-        $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
-        $paramAttrib = [Management.Automation.ParameterAttribute]::new()
-        $paramAttrib.Mandatory = $false
-        $paramAttrib.Position = 0
-        $AttributeCollection.Add($paramAttrib)
-        # generate and set the ValidateSet
-        [string[]]$arrSet = kubectl config view --output json `
-        | ConvertFrom-Json `
-        | Select-Object -ExpandProperty contexts `
-        | Select-Object -ExpandProperty name
-        $validSetAttrib = [System.Management.Automation.ValidateSetAttribute]::new($arrSet)
-        $AttributeCollection.Add($validSetAttrib)
-        # create the dynamic parameter
-        $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new($paramName, [string], $attributeCollection)
-        $paramDict.Add($paramName, $dynParam)
-
-        # return the parameter dictionary
-        return $paramDict
-    }
+    param (
+        [ArgumentCompleter({ ArgK8sGetContexts @args })]
+        [string]$Context
+    )
 
     begin {
         # get context name
@@ -292,88 +243,90 @@ function Set-KubectlLocal {
 
 <#
 .SYNOPSIS
-Connect remotely to the specified pod on the cluster.
+Connect remotely to the specified pod on the cluster. By default sh shell is being executed.
+
 .PARAMETER Pod
 Name of the pod to connect to.
 .PARAMETER Container
 Explicitly specify the container in the pod to connect to.
-.PARAMETER Shell
-Shell command to run inside the container.
+.PARAMETER Namespace
+Specify namespace of the pod to connect to.
+.PARAMETER Bash
+Specify to run bash shell.
+.PARAMETER Python
+Specify to run python REPL.
+.PARAMETER PowerShell
+Specify to run PowerShell shell.
+.PARAMETER Command
+Specify to run any specified command.
 #>
 function Connect-KubernetesContainer {
-    [CmdletBinding()]
-    param ()
+    [CmdletBinding(DefaultParameterSetName = 'Shell')]
+    param (
+        [Alias('p')]
+        [Parameter(Position = 0, Mandatory = $true)]
+        [ArgumentCompleter({ ArgK8sGetPods @args })]
+        [string]$Pod,
 
-    DynamicParam {
-        # create the parameter dictionary
-        $paramDict = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
+        [Alias('c')]
+        [Parameter(Position = 1)]
+        [ArgumentCompleter({ ArgK8sGetPodContainers @args })]
+        [string]$Container,
 
-        # *Pod parameter
-        $paramName = 'Pod'
-        # create and set the collection of attributes
-        $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
-        $paramAttrib = [Management.Automation.ParameterAttribute]::new()
-        $paramAttrib.Mandatory = $true
-        $paramAttrib.Position = 0
-        $AttributeCollection.Add($paramAttrib)
-        # generate and set the ValidateSet
-        [string[]]$arrSet = kubectl get pods --output json `
-        | ConvertFrom-Json `
-        | Select-Object -ExpandProperty items `
-        | Where-Object { $_.status.phase -eq 'Running' } `
-        | Select-Object -ExpandProperty metadata `
-        | Select-Object -ExpandProperty name
-        $validSetAttrib = [System.Management.Automation.ValidateSetAttribute]::new($arrSet)
-        $AttributeCollection.Add($validSetAttrib)
-        # create the dynamic parameter
-        $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new($paramName, [string], $attributeCollection)
-        $paramDict.Add($paramName, $dynParam)
+        [ArgumentCompleter({ ArgK8sGetNamespaces @args })]
+        [string]$Namespace,
 
-        # *Container parameter
-        $paramName = 'Container'
-        # create and set the collection of attributes
-        $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
-        $paramAttrib = [Management.Automation.ParameterAttribute]::new()
-        $paramAttrib.Mandatory = $false
-        $AttributeCollection.Add($paramAttrib)
-        # create and set parameter not null validation
-        $validateNotNull = [System.Management.Automation.ValidateNotNullOrEmptyAttribute]::new()
-        $AttributeCollection.Add($validateNotNull)
-        # create the dynamic parameter
-        $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new($paramName, [string], $attributeCollection)
-        $paramDict.Add($paramName, $dynParam)
+        [Parameter(ParameterSetName = 'Shell')]
+        [switch]$Bash,
 
-        # *Shell parameter
-        $paramName = 'Shell'
-        # create and set the collection of attributes
-        $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
-        $paramAttrib = [Management.Automation.ParameterAttribute]::new()
-        $paramAttrib.Mandatory = $false
-        $paramAttrib.Position = 1
-        $AttributeCollection.Add($paramAttrib)
-        # create the dynamic parameter
-        $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new($paramName, [string], $attributeCollection)
-        $paramDict.Add($paramName, $dynParam)
+        [Parameter(ParameterSetName = 'Shell')]
+        [switch]$Python,
 
-        # return the parameter dictionary
-        return $paramDict
-    }
+        [Alias('pwsh')]
+        [Parameter(ParameterSetName = 'Shell')]
+        [switch]$PowerShell,
+
+        [Alias('cmd')]
+        [Parameter(ParameterSetName = 'Command')]
+        [string]$Command
+    )
 
     begin {
-        # build command string
+        # build kubectl command
         $sb = [System.Text.StringBuilder]::new("kubectl exec --stdin --tty $($PSBoundParameters.Pod)")
+        if ($PSBoundParameters.Namespace) {
+            $sb.Append(" --namespace $($PSBoundParameters.Namespace)") | Out-Null
+        }
         if ($PSBoundParameters.Container) {
             $sb.Append(" --container $($PSBoundParameters.Container)") | Out-Null
         }
-        $sb.Append(" -- $($PSBoundParameters.Shell ?? 'sh')") | Out-Null
-        $cmd = $sb.ToString()
+        # specify command to be used in the container
+        switch ($PsCmdlet.ParameterSetName) {
+            Shell {
+                if ($PSBoundParameters.Bash) {
+                    $sb.Append(' -- bash') | Out-Null
+                } elseif ($PSBoundParameters.Python) {
+                    $sb.Append(' -- python') | Out-Null
+                } elseif ($PSBoundParameters.PowerShell) {
+                    $sb.Append(' -- pwsh') | Out-Null
+                } else {
+                    $sb.Append(' -- sh') | Out-Null
+                }
+            }
+            Command {
+                $sb.Append(" -- $Command") | Out-Null
+            }
+        }
+        # get the command string
+        $cmnd = $sb.ToString()
     }
 
     process {
         # execute command
-        Invoke-WriteExecCmd -Command $cmd
+        Invoke-WriteExecCmd -Command $cmnd
     }
 }
+
 #endregion
 
 
