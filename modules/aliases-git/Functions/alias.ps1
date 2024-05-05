@@ -144,8 +144,8 @@ function gpushoat {
     }
 }
 function gpushsup { Invoke-WriteExecCmd -Command "git push --set-upstream origin $(Get-GitCurrentBranch)" -Arguments $args }
-function gpusht { Invoke-WriteExecCmd -Command "git push --tags" -Arguments $args }
-function gpusht! { Invoke-WriteExecCmd -Command "git push --tags --force" -Arguments $args }
+function gpusht { Invoke-WriteExecCmd -Command 'git push --tags' -Arguments $args }
+function gpusht! { Invoke-WriteExecCmd -Command 'git push --tags --force' -Arguments $args }
 function gpushv { Invoke-WriteExecCmd -Command 'git push --verbose' -Arguments $args }
 function grb { Invoke-WriteExecCmd -Command 'git rebase' -Arguments $args }
 function grba { Invoke-WriteExecCmd -Command 'git rebase --abort' -Arguments $args }
@@ -205,8 +205,50 @@ function grtupp {
     }
 }
 function grtv { Invoke-WriteExecCmd -Command 'git remote --verbose' -Arguments $args }
-function gsw { Invoke-WriteExecCmd -Command "git switch $(Get-GitResolvedBranch $args)" -Parameters $args }
-function gsw! { Invoke-WriteExecCmd -Command "git switch $(Get-GitResolvedBranch $args) --force" -Parameters $args }
+function gsw {
+    [CmdletBinding()]
+    param (
+        [ArgumentCompleter({ ArgGitGetBranches @args })]
+        [string]$Branch,
+
+        [switch]$WhatIf,
+
+        [switch]$Quiet
+    )
+
+    # calculate command string
+    $cmnd = "git switch $(Get-GitResolvedBranch $Branch)"
+    # write command to be executed
+    if (-not $PSBoundParameters.Quiet) {
+        Write-Host $cmnd -ForegroundColor Magenta
+    }
+    # execute command
+    if (-not $PSBoundParameters.WhatIf) {
+        Invoke-Expression $cmnd
+    }
+}
+function gsw! {
+    [CmdletBinding()]
+    param (
+        [ArgumentCompleter({ ArgGitGetBranches @args })]
+        [string]$Branch,
+
+        [switch]$WhatIf,
+
+        [switch]$Quiet
+    )
+
+    # calculate command string
+    $cmnd = "git switch $(Get-GitResolvedBranch $Branch) --force"
+    # write command to be executed
+    if (-not $PSBoundParameters.Quiet) {
+        Write-Host $cmnd -ForegroundColor Magenta
+    }
+    # execute command
+    if (-not $PSBoundParameters.WhatIf) {
+        Invoke-Expression $cmnd
+    }
+}
 function gswc { Invoke-WriteExecCmd -Command 'git switch --create' -Arguments $args }
 function gswd { Invoke-WriteExecCmd -Command 'git switch --detach' -Arguments $args }
 function gswo { Invoke-WriteExecCmd -Command 'git switch --orphan' -Arguments $args }

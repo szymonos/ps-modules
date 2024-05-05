@@ -1,11 +1,14 @@
 $ErrorActionPreference = 'Stop'
 
 . $PSScriptRoot/Functions/alias.ps1
+. $PSScriptRoot/Functions/completers.ps1
 . $PSScriptRoot/Functions/helper.ps1
 . $PSScriptRoot/Functions/internal.ps1
 
 $exportModuleMemberParams = @{
     Function = @(
+        # completers
+        'ArgGitGetBranches'
         # helper
         'gglo'
         'ggloa'
