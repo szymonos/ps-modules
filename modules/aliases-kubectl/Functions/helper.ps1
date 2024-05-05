@@ -291,7 +291,7 @@ function Connect-KubernetesContainer {
     )
 
     begin {
-        # build kubectl command
+        # build kubectl command string
         $sb = [System.Text.StringBuilder]::new("kubectl exec --stdin --tty $($PSBoundParameters.Pod)")
         if ($PSBoundParameters.Namespace) {
             $sb.Append(" --namespace $($PSBoundParameters.Namespace)") | Out-Null
@@ -375,8 +375,8 @@ function Debug-KubernetesPod {
     )
 
     begin {
-        # build kubectl command
-        $sb = [System.Text.StringBuilder]::new("kubectl debug $($PSBoundParameters.Pod) -it")
+        # build kubectl command string
+        $sb = [System.Text.StringBuilder]::new("kubectl debug $($PSBoundParameters.Pod) --stdin --tty")
         if ($PSBoundParameters.Namespace) {
             $sb.Append(" --namespace $($PSBoundParameters.Namespace)") | Out-Null
         }
@@ -404,11 +404,50 @@ function Debug-KubernetesPod {
 
     process {
         # execute command
-        Write-Host $cmnd -ForegroundColor Magenta
-        Invoke-Expression -Command $cmnd
+        Invoke-WriteExecCmd -Command $cmnd
     }
 }
 
+<#
+.SYNOPSIS
+Get list of container names in the specified pod.
+
+.PARAMETER Pod
+Name of the pod to list the containers.
+.PARAMETER Namespace
+Specify namespace of the pod.
+#>
+function Get-KubectlPodContainers {
+    [CmdletBinding()]
+    param (
+        [Parameter(Position = 0, Mandatory = $true)]
+        [ArgumentCompleter({ ArgK8sGetPods @args })]
+        [string]$Pod,
+
+        [ArgumentCompleter({ ArgK8sGetNamespaces @args })]
+        [string]$Namespace
+    )
+
+    begin {
+        # build kubectl command string
+        $sb = [System.Text.StringBuilder]::new("kubectl get pods $($PSBoundParameters.Pod)")
+        if ($PSBoundParameters.Namespace) {
+            $sb.Append(" --namespace $($PSBoundParameters.Namespace)") | Out-Null
+        }
+        $sb.Append(' --output json | ConvertFrom-Json') | Out-Null
+        # get command string
+        $cmnd = $sb.ToString()
+    }
+
+    process {
+        # execute command
+        $result = Invoke-Expression -Command $cmnd
+    }
+
+    end {
+        return $result.spec.containers.name
+    }
+}
 #endregion
 
 
@@ -426,4 +465,5 @@ New-Alias -Name kcsctxcns -Value Set-KubectlContextCurrentNamespace
 New-Alias -Name kn -Value Set-KubectlContextCurrentNamespace
 New-Alias -Name kex -Value Connect-KubernetesContainer
 New-Alias -Name kdbg -Value Debug-KubernetesPod
+New-Alias -Name kgpocntr -Value Get-KubectlPodContainers
 #endregion

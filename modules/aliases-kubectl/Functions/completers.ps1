@@ -11,8 +11,12 @@ function ArgK8sGetContexts {
         $fakeBoundParameters
     )
 
-    # kubectl command string
-    $cmnd = 'kubectl config view --output json | ConvertFrom-Json'
+    # build kubectl command string
+    $sb = [System.Text.StringBuilder]::new('kubectl config view')
+    # convert kubectl command results to object
+    $sb.Append(' --output json | ConvertFrom-Json') | Out-Null
+    # get command string
+    $cmnd = $sb.ToString()
 
     # get namespaces
     [string[]]$possibleValues = (Invoke-Expression $cmnd).contexts.name
@@ -35,8 +39,12 @@ function ArgK8sGetNamespaces {
         $fakeBoundParameters
     )
 
-    # kubectl command string
-    $cmnd = 'kubectl get namespaces --output json | ConvertFrom-Json'
+    # build kubectl command string
+    $sb = [System.Text.StringBuilder]::new('kubectl get namespaces')
+    # convert kubectl command results to object
+    $sb.Append(' --output json | ConvertFrom-Json') | Out-Null
+    # get command string
+    $cmnd = $sb.ToString()
 
     # get namespaces
     [string[]]$possibleValues = (Invoke-Expression $cmnd).items.Where({ $_.status.phase -eq 'Active' }).metadata.name
@@ -60,11 +68,12 @@ function ArgK8sGetPods {
     )
 
     # build kubectl command string
-    $sb = [System.Text.StringBuilder]::new('kubectl get pods --output json')
+    $sb = [System.Text.StringBuilder]::new('kubectl get pods')
     if ($fakeBoundParameters.ContainsKey('Namespace')) {
         $sb.Append(" --namespace $($fakeBoundParameters.Namespace)") | Out-Null
     }
-    $sb.Append(' | ConvertFrom-Json') | Out-Null
+    # convert kubectl command results to object
+    $sb.Append(' --output json | ConvertFrom-Json') | Out-Null
     # get command string
     $cmnd = $sb.ToString()
 
@@ -91,11 +100,12 @@ function ArgK8sGetPodContainers {
 
     if ($fakeBoundParameters.ContainsKey('Pod')) {
         # build kubectl command string
-        $sb = [System.Text.StringBuilder]::new("kubectl get pods $($fakeBoundParameters.Pod) --output json")
+        $sb = [System.Text.StringBuilder]::new("kubectl get pods $($fakeBoundParameters.Pod)")
         if ($fakeBoundParameters.ContainsKey('Namespace')) {
             $sb.Append(" --namespace $($fakeBoundParameters.Namespace)") | Out-Null
         }
-        $sb.Append(' | ConvertFrom-Json') | Out-Null
+        # convert kubectl command results to object
+        $sb.Append(' --output json | ConvertFrom-Json') | Out-Null
         # get command string
         $cmnd = $sb.ToString()
 
