@@ -12,7 +12,7 @@
     RootModule           = 'aliases-kubectl.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '0.6.0'
+    ModuleVersion        = '0.7.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -88,6 +88,7 @@
         'Set-KubectlContextCurrentNamespace'
         'Connect-KubernetesContainer'
         'Debug-KubernetesPod'
+        'Get-KubectlPodContainers'
         # alias
         'ktop'
         'ktopcntr'
@@ -916,6 +917,7 @@
         'kn'
         'kex'
         'kdbg'
+        'kgpocntr'
     )
 
     # DSC resources to export from this module

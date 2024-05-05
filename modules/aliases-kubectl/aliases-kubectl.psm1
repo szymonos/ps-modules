@@ -22,6 +22,7 @@ $exportModuleMemberParams = @{
         'Set-KubectlContextCurrentNamespace'
         'Connect-KubernetesContainer'
         'Debug-KubernetesPod'
+        'Get-KubectlPodContainers'
         # alias
         'ktop'
         'ktopcntr'
@@ -843,6 +844,7 @@ $exportModuleMemberParams = @{
         'kn'
         'kex'
         'kdbg'
+        'kgpocntr'
     )
 }
 
