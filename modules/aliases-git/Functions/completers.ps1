@@ -11,21 +11,15 @@ function ArgGitGetBranches {
         $fakeBoundParameters
     )
 
-    # instantiate SortedSet
-    $branches = [System.Collections.Generic.SortedSet[string]]::new()
-
     # get list of all branches
-    $branchList = git branch --all --format='%(refname:short)'
+    $branches = git branch --all --format='%(refname:short)'
     # build remote names filter
-    $remoteFilter = [string]::Join('|', (git remote).ForEach({ "$_/?" }))
-
-    $branchList -replace $remoteFilter `
+    $remoteFilter = [string]::Join('|', (git remote).ForEach({ "$_/?(HEAD)?" }))
+    # filter list of branches
+    [string[]]$possibleValues = $branches -replace $remoteFilter `
     | Where-Object { $_ } `
-    | ForEach-Object { $branches.Add($_) | Out-Null }
+    | Sort-Object -Unique
 
-    # get namespaces
-    [string[]]$possibleValues = $branches
-
-    # return matching namespaces
+    # return matching branches
     $possibleValues.Where({ $_ -like "$wordToComplete*" }).ForEach({ $_ })
 }
