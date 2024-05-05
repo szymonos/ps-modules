@@ -251,14 +251,14 @@ Name of the pod to connect to.
 Explicitly specify the container in the pod to connect to.
 .PARAMETER Namespace
 Specify namespace of the pod to connect to.
-.PARAMETER Bash
-Specify to run bash shell.
-.PARAMETER Python
-Specify to run python REPL.
-.PARAMETER PowerShell
-Specify to run PowerShell shell.
 .PARAMETER Command
 Specify to run any specified command.
+.PARAMETER bash
+Specify to run bash shell.
+.PARAMETER python
+Specify to run python REPL.
+.PARAMETER pwsh
+Specify to run PowerShell shell.
 #>
 function Connect-KubernetesContainer {
     [CmdletBinding(DefaultParameterSetName = 'Shell')]
@@ -276,19 +276,18 @@ function Connect-KubernetesContainer {
         [ArgumentCompleter({ ArgK8sGetNamespaces @args })]
         [string]$Namespace,
 
-        [Parameter(ParameterSetName = 'Shell')]
-        [switch]$Bash,
-
-        [Parameter(ParameterSetName = 'Shell')]
-        [switch]$Python,
-
-        [Alias('pwsh')]
-        [Parameter(ParameterSetName = 'Shell')]
-        [switch]$PowerShell,
-
         [Alias('cmd')]
         [Parameter(ParameterSetName = 'Command')]
-        [string]$Command
+        [string]$Command,
+
+        [Parameter(ParameterSetName = 'Shell')]
+        [switch]$bash,
+
+        [Parameter(ParameterSetName = 'Shell')]
+        [switch]$python,
+
+        [Parameter(ParameterSetName = 'Shell')]
+        [switch]$pwsh
     )
 
     begin {
@@ -303,9 +302,9 @@ function Connect-KubernetesContainer {
         # specify command to be used in the container
         switch ($PsCmdlet.ParameterSetName) {
             Shell {
-                if ($PSBoundParameters.Bash) {
+                if ($PSBoundParameters.bash) {
                     $sb.Append(' -- bash') | Out-Null
-                } elseif ($PSBoundParameters.Python) {
+                } elseif ($PSBoundParameters.python) {
                     $sb.Append(' -- python') | Out-Null
                 } elseif ($PSBoundParameters.PowerShell) {
                     $sb.Append(' -- pwsh') | Out-Null
@@ -327,6 +326,89 @@ function Connect-KubernetesContainer {
     }
 }
 
+
+<#
+.SYNOPSIS
+Debug cluster pods using interactive debugging containers.
+
+.PARAMETER Pod
+Name of the pod to be debugged.
+.PARAMETER Namespace
+Specify namespace of the pod to debug.
+.PARAMETER Command
+Specify to run any specified command in the debug container.
+.PARAMETER bash
+Specify to run bash shell in the debug container.
+.PARAMETER python
+Specify to run python REPL in the debug container.
+.PARAMETER pwsh
+Specify to run PowerShell shell in the debug container.
+#>
+function Debug-KubernetesPod {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(Position = 0, Mandatory = $true)]
+        [ArgumentCompleter({ ArgK8sGetPods @args })]
+        [string]$Pod,
+
+        [Parameter(Position = 1)]
+        [string]$Image,
+
+        [ArgumentCompleter({ ArgK8sGetNamespaces @args })]
+        [string]$Namespace,
+
+        [Alias('cmd')]
+        [Parameter(ParameterSetName = 'Command')]
+        [string]$Command,
+
+        [Parameter(ParameterSetName = 'Shell')]
+        [switch]$sh,
+
+        [Parameter(ParameterSetName = 'Shell')]
+        [switch]$bash,
+
+        [Parameter(ParameterSetName = 'Shell')]
+        [switch]$python,
+
+        [Parameter(ParameterSetName = 'Shell')]
+        [switch]$pwsh
+    )
+
+    begin {
+        # build kubectl command
+        $sb = [System.Text.StringBuilder]::new("kubectl debug $($PSBoundParameters.Pod) -it")
+        if ($PSBoundParameters.Namespace) {
+            $sb.Append(" --namespace $($PSBoundParameters.Namespace)") | Out-Null
+        }
+        $sb.Append(" --image=$($PSBoundParameters.Image)") | Out-Null
+        # specify command to be used in the container
+        switch ($PsCmdlet.ParameterSetName) {
+            Shell {
+                if ($PSBoundParameters.bash) {
+                    $sb.Append(' -- bash') | Out-Null
+                } elseif ($PSBoundParameters.python) {
+                    $sb.Append(' -- python') | Out-Null
+                } elseif ($PSBoundParameters.pwsh) {
+                    $sb.Append(' -- pwsh') | Out-Null
+                } elseif ($PSBoundParameters.sh) {
+                    $sb.Append(' -- sh') | Out-Null
+                }
+            }
+            Command {
+                $sb.Append(" -- $Command") | Out-Null
+            }
+        }
+        # get the command string
+        $cmnd = $sb.ToString()
+    }
+
+    process {
+        # execute command
+        Write-Host $cmnd -ForegroundColor Magenta
+        Invoke-Expression -Command $cmnd
+    }
+}
+
 #endregion
 
 
@@ -343,4 +425,5 @@ New-Alias -Name kgsecd -Value Get-KubectlSecretDecodedData
 New-Alias -Name kcsctxcns -Value Set-KubectlContextCurrentNamespace
 New-Alias -Name kn -Value Set-KubectlContextCurrentNamespace
 New-Alias -Name kex -Value Connect-KubernetesContainer
+New-Alias -Name kdbg -Value Debug-KubernetesPod
 #endregion

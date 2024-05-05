@@ -21,6 +21,7 @@ $exportModuleMemberParams = @{
         'Get-KubectlSecretDecodedData'
         'Set-KubectlContextCurrentNamespace'
         'Connect-KubernetesContainer'
+        'Debug-KubernetesPod'
         # alias
         'ktop'
         'ktopcntr'
@@ -841,6 +842,7 @@ $exportModuleMemberParams = @{
         'kcsctxcns'
         'kn'
         'kex'
+        'kdbg'
     )
 }
 
