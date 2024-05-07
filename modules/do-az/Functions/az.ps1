@@ -150,44 +150,12 @@ Switch whether to set the context for azure-cli.
 #>
 function Set-SubscriptionMenu {
     [CmdletBinding()]
-    param ()
+    param (
+        [ArgumentCompleter({ ArgAzGetSubscriptions @args })]
+        [string]$Subscription,
 
-    DynamicParam {
-        # create the parameter dictionary
-        $paramDict = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
-
-        # *Subscription parameter
-        $paramName = 'Subscription'
-        # create and set the collection of attributes
-        $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
-        $paramAttrib = [Management.Automation.ParameterAttribute]::new()
-        $paramAttrib.Mandatory = $false
-        $paramAttrib.Position = 0
-        $AttributeCollection.Add($paramAttrib)
-        # generate and set the ValidateSet
-        $query = "ResourceContainers | where type =~ 'microsoft.resources/subscriptions' | project name"
-        [string[]]$arrSet = Invoke-AzGraph -Query $query | Select-Object -ExpandProperty name
-        $validSetAttrib = [System.Management.Automation.ValidateSetAttribute]::new($arrSet)
-        $AttributeCollection.Add($validSetAttrib)
-        # create the dynamic parameter
-        $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new($paramName, [string], $attributeCollection)
-        $paramDict.Add($paramName, $dynParam)
-
-        # *Cli parameter
-        $paramName = 'Cli'
-        # create and set the collection of attributes
-        $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
-        $paramAttrib = [Management.Automation.ParameterAttribute]::new()
-        $paramAttrib.Mandatory = $false
-        $paramAttrib.Position = 1
-        $AttributeCollection.Add($paramAttrib)
-        # create the dynamic parameter
-        $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new($paramName, [switch], $attributeCollection)
-        $paramDict.Add($paramName, $dynParam)
-
-        # return the parameter dictionary
-        return $paramDict
-    }
+        [switch]$Cli
+    )
 
     begin {
         $subscription = if ($PsBoundParameters.Subscription) {
