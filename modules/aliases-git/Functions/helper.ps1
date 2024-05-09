@@ -1,3 +1,173 @@
+#region helper git branch delete functions
+function gbd {
+    [CmdletBinding()]
+    param (
+        [ArgumentCompleter({ ArgGitGetBranches @args })]
+        [string]$Branch,
+
+        [switch]$WhatIf,
+
+        [switch]$Quiet
+    )
+
+    # calculate command string
+    $cmnd = "git branch --delete $Branch"
+    if (-not $PSBoundParameters.Quiet) {
+        # write command to be executed
+        Write-Host $cmnd -ForegroundColor Magenta
+    }
+    if (-not $PSBoundParameters.WhatIf) {
+        # execute command
+        Invoke-Expression $cmnd
+    }
+}
+function gbd! {
+    [CmdletBinding()]
+    param (
+        [ArgumentCompleter({ ArgGitGetBranches @args })]
+        [string]$Branch,
+
+        [switch]$WhatIf,
+
+        [switch]$Quiet
+    )
+
+    # calculate command string
+    $cmnd = "git branch -D $Branch"
+    # write command to be executed
+    if (-not $PSBoundParameters.Quiet) {
+        Write-Host $cmnd -ForegroundColor Magenta
+    }
+    # execute command
+    if (-not $PSBoundParameters.WhatIf) {
+        Invoke-Expression $cmnd
+    }
+}
+function gbdo {
+    [CmdletBinding()]
+    param (
+        [ArgumentCompleter({ ArgGitGetBranches @args })]
+        [string]$Branch,
+
+        [switch]$WhatIf,
+
+        [switch]$Quiet
+    )
+
+    # calculate command strings
+    $commands = [System.Collections.Generic.List[string]]::new([string[]]"git branch --delete $Branch")
+    if ($remote = git remote) {
+        $commands.Add("git push --delete $remote $Branch")
+    } else {
+        Write-Host 'fatal: Remote repository not set.'
+    }
+
+    # run commands
+    foreach ($cmnd in $commands) {
+        if (-not $PSBoundParameters.Quiet) {
+            # write command to be executed
+            Write-Host $cmnd -ForegroundColor Magenta
+        }
+        if (-not $PSBoundParameters.WhatIf) {
+            # execute command
+            Invoke-Expression $cmnd
+        }
+    }
+}
+function gbdo! {
+    [CmdletBinding()]
+    param (
+        [ArgumentCompleter({ ArgGitGetBranches @args })]
+        [string]$Branch,
+
+        [switch]$WhatIf,
+
+        [switch]$Quiet
+    )
+
+    # calculate command strings
+    $commands = [System.Collections.Generic.List[string]]::new([string[]]"git branch -D $Branch")
+    if ($remote = git remote) {
+        $commands.Add("git push --delete $remote $Branch")
+    } else {
+        Write-Host 'fatal: Remote repository not set.'
+    }
+
+    # run commands
+    foreach ($cmnd in $commands) {
+        if (-not $PSBoundParameters.Quiet) {
+            # write command to be executed
+            Write-Host $cmnd -ForegroundColor Magenta
+        }
+        if (-not $PSBoundParameters.WhatIf) {
+            # execute command
+            Invoke-Expression $cmnd
+        }
+    }
+}
+function gpushd {
+    [CmdletBinding()]
+    param (
+        [ArgumentCompleter({ ArgGitGetBranches @args })]
+        [string]$Branch,
+
+        [switch]$WhatIf,
+
+        [switch]$Quiet
+    )
+
+    # calculate command string
+    if ($remote = git remote) {
+        $cmnd = "git push --delete $remote $Branch"
+        if (-not $PSBoundParameters.Quiet) {
+            # write command to be executed
+            Write-Host $cmnd -ForegroundColor Magenta
+        }
+        if (-not $PSBoundParameters.WhatIf) {
+            # execute command
+            Invoke-Expression $cmnd
+        }
+    } else {
+        Write-Host 'fatal: Remote repository not set.'
+    }
+}
+#endregion
+
+
+#region helper git grep functions
+function ggrep {
+    [CmdletBinding()]
+    param ([string]$Grep)
+
+    gglogs -Grep $Grep
+}
+
+
+function ggrepa {
+    [CmdletBinding()]
+    param ([string]$Grep)
+
+    gglogs -Grep $Grep -All
+}
+
+
+function ggrepc {
+    [CmdletBinding()]
+    param ([string]$Grep)
+
+    gglogc -Grep $Grep
+}
+
+
+function ggrepca {
+    [CmdletBinding()]
+    param ([string]$Grep)
+
+    gglogc -Grep $Grep -All
+}
+#endregion
+
+
 #region helper git log functions
 <#
 .SYNOPSIS
@@ -102,40 +272,6 @@ function gglot {
 #endregion
 
 
-#region helper git grep functions
-function ggrep {
-    [CmdletBinding()]
-    param ([string]$Grep)
-
-    gglogs -Grep $Grep
-}
-
-
-function ggrepa {
-    [CmdletBinding()]
-    param ([string]$Grep)
-
-    gglogs -Grep $Grep -All
-}
-
-
-function ggrepc {
-    [CmdletBinding()]
-    param ([string]$Grep)
-
-    gglogc -Grep $Grep
-}
-
-
-function ggrepca {
-    [CmdletBinding()]
-    param ([string]$Grep)
-
-    gglogc -Grep $Grep -All
-}
-#endregion
-
-
 #region helper git remove branches
 function gbdl {
     Remove-GitLocalBranches
@@ -215,5 +351,55 @@ function gruncfl {
         Write-Host "${Option}: $(git config --local $Option)"
     }
     Invoke-GitRepoCommand -Command $cmd
+}
+#endregion
+
+
+#region helper switch function
+function gsw {
+    [CmdletBinding()]
+    param (
+        [ArgumentCompleter({ ArgGitGetBranches @args })]
+        [string]$Branch,
+
+        [switch]$WhatIf,
+
+        [switch]$Quiet
+    )
+
+    # calculate command string
+    $cmnd = "git switch $(Get-GitResolvedBranch $Branch)"
+
+    if (-not $PSBoundParameters.Quiet) {
+        # write command to be executed
+        Write-Host $cmnd -ForegroundColor Magenta
+    }
+    if (-not $PSBoundParameters.WhatIf) {
+        # execute command
+        Invoke-Expression $cmnd
+    }
+}
+function gsw! {
+    [CmdletBinding()]
+    param (
+        [ArgumentCompleter({ ArgGitGetBranches @args })]
+        [string]$Branch,
+
+        [switch]$WhatIf,
+
+        [switch]$Quiet
+    )
+
+    # calculate command string
+    $cmnd = "git switch $(Get-GitResolvedBranch $Branch) --force"
+
+    if (-not $PSBoundParameters.Quiet) {
+        # write command to be executed
+        Write-Host $cmnd -ForegroundColor Magenta
+    }
+    if (-not $PSBoundParameters.WhatIf) {
+        # execute command
+        Invoke-Expression $cmnd
+    }
 }
 #endregion

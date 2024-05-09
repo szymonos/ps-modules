@@ -5,8 +5,6 @@ function gau { Invoke-WriteExecCmd -Command 'git add --update' -Arguments $args 
 function gbl { Invoke-WriteExecCmd -Command 'git blame -b -w' -Arguments $args }
 function gb { Invoke-WriteExecCmd -Command 'git branch' -Arguments $args }
 function gba { Invoke-WriteExecCmd -Command 'git branch --all' -Arguments $args }
-function gbd { Invoke-WriteExecCmd -Command 'git branch --delete' -Arguments $args }
-function gbd! { Invoke-WriteExecCmd -Command 'git branch -D' -Arguments $args }
 function gbnm { Invoke-WriteExecCmd -Command 'git branch --no-merged' -Arguments $args }
 function gbr { Invoke-WriteExecCmd -Command 'git branch --remote' -Arguments $args }
 function gbsu { Invoke-WriteExecCmd -Command "git branch --set-upstream-to=origin/$(Get-GitCurrentBranch)" -Arguments $args }
@@ -128,13 +126,6 @@ function gpullrav { Invoke-WriteExecCmd -Command 'git pull --rebase --autostash 
 function gpullrv { Invoke-WriteExecCmd -Command 'git pull --rebase --verbose' -Arguments $args }
 function gpush { Invoke-WriteExecCmd -Command 'git push' -Arguments $args }
 function gpush! { Invoke-WriteExecCmd -Command 'git push --force-with-lease' -Arguments $args }
-function gpushd {
-    if ($remote = git remote) {
-        Invoke-WriteExecCmd -Command "git push --delete $remote" -Arguments $args
-    } else {
-        Write-Host 'fatal: Remote repository not set.'
-    }
-}
 function gpushdr { Invoke-WriteExecCmd -Command 'git push --dry-run' -Arguments $args }
 function gpushoat {
     if ($remote = git remote) {
@@ -205,50 +196,6 @@ function grtupp {
     }
 }
 function grtv { Invoke-WriteExecCmd -Command 'git remote --verbose' -Arguments $args }
-function gsw {
-    [CmdletBinding()]
-    param (
-        [ArgumentCompleter({ ArgGitGetBranches @args })]
-        [string]$Branch,
-
-        [switch]$WhatIf,
-
-        [switch]$Quiet
-    )
-
-    # calculate command string
-    $cmnd = "git switch $(Get-GitResolvedBranch $Branch)"
-    # write command to be executed
-    if (-not $PSBoundParameters.Quiet) {
-        Write-Host $cmnd -ForegroundColor Magenta
-    }
-    # execute command
-    if (-not $PSBoundParameters.WhatIf) {
-        Invoke-Expression $cmnd
-    }
-}
-function gsw! {
-    [CmdletBinding()]
-    param (
-        [ArgumentCompleter({ ArgGitGetBranches @args })]
-        [string]$Branch,
-
-        [switch]$WhatIf,
-
-        [switch]$Quiet
-    )
-
-    # calculate command string
-    $cmnd = "git switch $(Get-GitResolvedBranch $Branch) --force"
-    # write command to be executed
-    if (-not $PSBoundParameters.Quiet) {
-        Write-Host $cmnd -ForegroundColor Magenta
-    }
-    # execute command
-    if (-not $PSBoundParameters.WhatIf) {
-        Invoke-Expression $cmnd
-    }
-}
 function gswc { Invoke-WriteExecCmd -Command 'git switch --create' -Arguments $args }
 function gswd { Invoke-WriteExecCmd -Command 'git switch --detach' -Arguments $args }
 function gswo { Invoke-WriteExecCmd -Command 'git switch --orphan' -Arguments $args }
