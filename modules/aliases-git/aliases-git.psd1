@@ -12,7 +12,7 @@
     RootModule           = 'aliases-git.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.13.1'
+    ModuleVersion        = '1.14.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -73,6 +73,11 @@
         # completers
         'ArgGitGetBranches'
         # helper
+        'gbd'
+        'gbd!'
+        'gbdo'
+        'gbdo!'
+        'gpushd'
         'gglo'
         'ggloa'
         'ggloc'
@@ -85,6 +90,8 @@
         'grunrepocmd'
         'grunrefresh'
         'gruncfl'
+        'gsw'
+        'gsw!'
         # alias
         'ga'
         'gaa'
@@ -93,8 +100,6 @@
         'gbl'
         'gb'
         'gba'
-        'gbd'
-        'gbd!'
         'gbdl'
         'gbdl!'
         'gbdm'
@@ -198,7 +203,6 @@
         'gpullrv'
         'gpush'
         'gpush!'
-        'gpushd'
         'gpushdr'
         'gpushoat'
         'gpushsup'
@@ -232,8 +236,6 @@
         'grtup'
         'grtupp'
         'grtv'
-        'gsw'
-        'gsw!'
         'gswc'
         'gswd'
         'gswo'
