@@ -318,7 +318,9 @@ function Invoke-GitRepoCommand {
         Set-Location $dir
         # set line separator for printing the following results
         $follow = $dir -eq $dirs[0] ? '' : "`n"
-        Write-Host "$follow$($dir.Name)" -ForegroundColor Cyan
+        if ($dirs.Count -gt 1) {
+            Write-Host "$follow$($dir.Name)" -ForegroundColor Cyan
+        }
         # execute commands
         Invoke-Command -ScriptBlock $Command
     }
