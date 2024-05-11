@@ -12,7 +12,7 @@
     RootModule           = 'aliases-git.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.14.1'
+    ModuleVersion        = '1.15.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -70,29 +70,52 @@
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
     FunctionsToExport    = @(
-        # completers
+        # :completer functions
         'ArgGitGetBranches'
-        # helper
+        'ArgGitGetStashList'
+        # :helper function
+        # branch delete
         'gbd'
         'gbd!'
         'gbdo'
         'gbdo!'
+        'gbdl'
+        'gbdl!'
+        'gbdm'
+        'gbdm!'
         'gpushd'
-        'gglo'
-        'ggloa'
-        'ggloc'
-        'ggloca'
-        'gglot'
+        # grep
         'ggrep'
         'ggrepa'
         'ggrepc'
         'ggrepca'
+        # log
+        'gglo'
+        'ggloa'
+        # log colored
+        'ggloc'
+        'ggloca'
+        'gglot'
+        # merge/rebase
+        'gmg'
+        'gmgo'
+        'grb'
+        'grbo'
+        'gmb'
+        'grmb'
+        # grun
         'grunrepocmd'
         'grunrefresh'
         'gruncfl'
+        # stash
+        'gstaap'
+        'gstad'
+        'gstas'
+        'gstast'
+        # switch
         'gsw'
         'gsw!'
-        # alias
+        # :alias functions
         'ga'
         'gaa'
         'gapa'
@@ -100,10 +123,6 @@
         'gbl'
         'gb'
         'gba'
-        'gbdl'
-        'gbdl!'
-        'gbdm'
-        'gbdm!'
         'gbnm'
         'gbr'
         'gbsu'
@@ -189,9 +208,6 @@
         'glosa'
         'glosp'
         'glospa'
-        'gmb'
-        'gmg'
-        'gmgo'
         'gmt'
         'gmtvim'
         'gpl'
@@ -209,18 +225,15 @@
         'gpusht'
         'gpusht!'
         'gpushv'
-        'grb'
         'grba'
         'grbc'
         'grbi'
-        'grbo'
         'grbs'
         'gr'
         'grh'
         'grho'
         'grs'
         'grl'
-        'grmb'
         'grmc'
         'grm!'
         'grmrc'
@@ -242,13 +255,11 @@
         'gsmi'
         'gsmu'
         'gsps'
+        'gsta'
         'gstaa'
         'gstac'
-        'gstad'
         'gstal'
         'gstap'
-        'gsta'
-        'gstast'
         'gst'
         'gstb'
         'gsts'

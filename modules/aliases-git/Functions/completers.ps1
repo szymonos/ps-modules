@@ -23,3 +23,18 @@ function ArgGitGetBranches {
     # return matching branches
     $possibleValues.Where({ $_ -like "$wordToComplete*" }).ForEach({ $_ })
 }
+function ArgGitGetStashList {
+    param (
+        $commandName,
+        $parameterName,
+        $wordToComplete,
+        $commandAst,
+        $fakeBoundParameters
+    )
+
+    # get list of stashes
+    $possibleValues = (git stash list).ForEach({ "'$($_.Split(':')[0])'" })
+
+    # return matching branches
+    $possibleValues.Where({ $_ -like "'stash@{$wordToComplete*" }).ForEach({ $_ })
+}
