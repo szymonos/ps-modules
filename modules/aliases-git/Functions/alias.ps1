@@ -207,7 +207,7 @@ function gstac { Invoke-WriteExecCmd -Command 'git stash clear' -Arguments $args
 function gstad { Invoke-WriteExecCmd -Command 'git stash drop' -Arguments $args }
 function gstal { Invoke-WriteExecCmd -Command 'git stash list' -Arguments $args }
 function gstap { Invoke-WriteExecCmd -Command 'git stash pop' -Arguments $args }
-function gstas { Invoke-WriteExecCmd -Command 'git stash save' -Arguments $args }
+function gsta { Invoke-WriteExecCmd -Command 'git stash push' -Arguments $args }
 function gstast { Invoke-WriteExecCmd -Command 'git stash show --text' -Arguments $args }
 function gst { Invoke-WriteExecCmd -Command 'git status' -Arguments $args }
 function gstb { Invoke-WriteExecCmd -Command 'git status --short --branch' -Arguments $args }
