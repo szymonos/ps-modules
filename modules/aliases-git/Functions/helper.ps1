@@ -473,8 +473,18 @@ function grunrepocmd ([scriptblock]$cmd) {
 Refresh all git repositories in subdirectories of the current folder.
 #>
 function grunrefresh {
+    # prepare commands to execute
     $cmd = {
-        gsw && gfa! && gmg && gbdm
+        # calculate arguments
+        $defaultBranch = Get-GitResolvedBranch
+        $remote = @(git remote)[0]
+        # run git commands
+        git fetch --all --tags --prune --prune-tags --force
+        $switch = git switch $defaultBranch
+        if ($switch -ne "Your branch is up to date with '$remote/$defaultBranch'.") {
+            git merge "$remote/$defaultBranch" --quiet
+        }
+        Remove-GitMergedBranches
     }
     Invoke-GitRepoCommand -Command $cmd
 }
