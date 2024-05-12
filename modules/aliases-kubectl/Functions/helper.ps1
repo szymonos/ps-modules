@@ -83,7 +83,7 @@ function Set-KubectlContextCurrentNamespace {
 
     process {
         # execute command
-        Invoke-WriteExecCmd -Command 'kubectl config set-context --current --namespace' -Arguments $namespace
+        Invoke-WriteExecCommand -Command 'kubectl config set-context --current --namespace' -Xargs $namespace
     }
 }
 
@@ -128,7 +128,7 @@ function Set-KubectlContext {
 
     process {
         # execute command
-        Invoke-WriteExecCmd -Command 'kubectl config use-context' -Arguments $ctx
+        Invoke-WriteExecCommand -Command 'kubectl config use-context' -Xargs $ctx
         # set kubectl binary to server version
         Set-KubectlLocal
     }
@@ -322,7 +322,7 @@ function Connect-KubernetesContainer {
 
     process {
         # execute command
-        Invoke-WriteExecCmd -Command $cmnd
+        Invoke-WriteExecCommand -Command $cmnd
     }
 }
 
@@ -404,48 +404,7 @@ function Debug-KubernetesPod {
 
     process {
         # execute command
-        Invoke-WriteExecCmd -Command $cmnd
-    }
-}
-
-<#
-.SYNOPSIS
-Get list of container names in the specified pod.
-
-.PARAMETER Pod
-Name of the pod to list the containers.
-.PARAMETER Namespace
-Specify namespace of the pod.
-#>
-function Get-KubectlPodContainers {
-    [CmdletBinding()]
-    param (
-        [Parameter(Position = 0, Mandatory = $true)]
-        [ArgumentCompleter({ ArgK8sGetPods @args })]
-        [string]$Pod,
-
-        [ArgumentCompleter({ ArgK8sGetNamespaces @args })]
-        [string]$Namespace
-    )
-
-    begin {
-        # build kubectl command string
-        $sb = [System.Text.StringBuilder]::new("kubectl get pods $($PSBoundParameters.Pod)")
-        if ($PSBoundParameters.Namespace) {
-            $sb.Append(" --namespace $($PSBoundParameters.Namespace)") | Out-Null
-        }
-        $sb.Append(' --output json | ConvertFrom-Json') | Out-Null
-        # get command string
-        $cmnd = $sb.ToString()
-    }
-
-    process {
-        # execute command
-        $result = Invoke-Expression -Command $cmnd
-    }
-
-    end {
-        return $result.spec.containers.name
+        Invoke-WriteExecCommand -Command $cmnd
     }
 }
 #endregion
@@ -465,5 +424,4 @@ New-Alias -Name kcsctxcns -Value Set-KubectlContextCurrentNamespace
 New-Alias -Name kn -Value Set-KubectlContextCurrentNamespace
 New-Alias -Name kex -Value Connect-KubernetesContainer
 New-Alias -Name kdbg -Value Debug-KubernetesPod
-New-Alias -Name kgpocntr -Value Get-KubectlPodContainers
 #endregion

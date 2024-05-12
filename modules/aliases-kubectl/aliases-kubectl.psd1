@@ -12,7 +12,7 @@
     RootModule           = 'aliases-kubectl.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '0.7.0'
+    ModuleVersion        = '0.8.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -89,9 +89,13 @@
         'Connect-KubernetesContainer'
         'Debug-KubernetesPod'
         'Get-KubectlPodContainers'
-        # alias
+        # pods
+        'kgpo'
+        'kdpo'
         'ktop'
         'ktopcntr'
+        'kgpocntr'
+        # alias
         'kinf'
         'kav'
         'kcv'
@@ -126,9 +130,7 @@
         'ksysrm'
         'krun'
         'ksysrun'
-        'kgpo'
         'ksysgpo'
-        'kdpo'
         'ksysdpo'
         'krmpo'
         'ksysrmpo'
