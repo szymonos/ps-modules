@@ -1,115 +1,137 @@
 #region helper git branch delete functions
 function gbd {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
+        [Parameter(Position = 0, Mandatory)]
         [ArgumentCompleter({ ArgGitGetBranches @args })]
         [string]$Branch,
 
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
 
+        [Parameter(ParameterSetName = 'quiet')]
         [switch]$Quiet
     )
 
     # calculate command string
     $cmnd = "git branch --delete $Branch"
-    if (-not $PSBoundParameters.Quiet) {
-        # write command to be executed
-        Write-Host $cmnd -ForegroundColor Magenta
-    }
-    if (-not $PSBoundParameters.WhatIf) {
-        # execute command
-        Invoke-Expression $cmnd
-    }
+    $PSBoundParameters.Remove('Branch') | Out-Null
+    # run command
+    Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
 }
 function gbd! {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
+        [Parameter(Position = 0, Mandatory)]
         [ArgumentCompleter({ ArgGitGetBranches @args })]
         [string]$Branch,
 
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
 
+        [Parameter(ParameterSetName = 'quiet')]
         [switch]$Quiet
     )
 
     # calculate command string
     $cmnd = "git branch -D $Branch"
-    # write command to be executed
-    if (-not $PSBoundParameters.Quiet) {
-        Write-Host $cmnd -ForegroundColor Magenta
-    }
-    # execute command
-    if (-not $PSBoundParameters.WhatIf) {
-        Invoke-Expression $cmnd
-    }
+    $PSBoundParameters.Remove('Branch') | Out-Null
+    # run command
+    Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
 }
 function gbdo {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
+        [Parameter(Position = 0, Mandatory)]
         [ArgumentCompleter({ ArgGitGetBranches @args })]
         [string]$Branch,
 
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
 
+        [Parameter(ParameterSetName = 'quiet')]
         [switch]$Quiet
     )
 
     # calculate command strings
-    $commands = [System.Collections.Generic.List[string]]::new([string[]]"git branch --delete $Branch")
-    if ($remote = git remote) {
+    if ($remote = @(git remote)[0]) {
+        $commands = [System.Collections.Generic.List[string]]::new()
+        $commands.Add("git branch --delete $Branch")
         $commands.Add("git push --delete $remote $Branch")
+        $PSBoundParameters.Remove('Branch') | Out-Null
     } else {
         Write-Host 'fatal: Remote repository not set.'
+        return
     }
 
     # run commands
     foreach ($cmnd in $commands) {
-        if (-not $PSBoundParameters.Quiet) {
-            # write command to be executed
-            Write-Host $cmnd -ForegroundColor Magenta
-        }
-        if (-not $PSBoundParameters.WhatIf) {
-            # execute command
-            Invoke-Expression $cmnd
-        }
+        Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
     }
 }
 function gbdo! {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
+        [Parameter(Position = 0, Mandatory)]
         [ArgumentCompleter({ ArgGitGetBranches @args })]
         [string]$Branch,
 
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
 
+        [Parameter(ParameterSetName = 'quiet')]
         [switch]$Quiet
     )
 
     # calculate command strings
-    $commands = [System.Collections.Generic.List[string]]::new([string[]]"git branch -D $Branch")
     if ($remote = @(git remote)[0]) {
+        $commands = [System.Collections.Generic.List[string]]::new()
+        $commands.Add("git branch -D $Branch")
         $commands.Add("git push --delete $remote $Branch")
+        $PSBoundParameters.Remove('Branch') | Out-Null
     } else {
         Write-Host 'fatal: Remote repository not set.'
+        return
     }
 
     # run commands
     foreach ($cmnd in $commands) {
-        if (-not $PSBoundParameters.Quiet) {
-            # write command to be executed
-            Write-Host $cmnd -ForegroundColor Magenta
-        }
-        if (-not $PSBoundParameters.WhatIf) {
-            # execute command
-            Invoke-Expression $cmnd
-        }
+        Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
     }
 }
 function gbdl {
-    Remove-GitLocalBranches
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+    Remove-GitLocalBranches @PSBoundParameters
 }
 function gbdl! {
-    Remove-GitLocalBranches -DeleteNoMerged
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+    Remove-GitLocalBranches -DeleteNoMerged @PSBoundParameters
 }
 function gbdm {
     Remove-GitMergedBranches
@@ -118,27 +140,28 @@ function gbdm! {
     Remove-GitMergedBranches -DeleteRemote
 }
 function gpushd {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
+        [Parameter(Position = 0, Mandatory)]
         [ArgumentCompleter({ ArgGitGetBranches @args })]
         [string]$Branch,
 
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
 
+        [Parameter(ParameterSetName = 'quiet')]
         [switch]$Quiet
     )
 
-    # calculate command string
-    if ($remote = git remote) {
+    if ($remote = @(git remote)[0]) {
+        # calculate command string
         $cmnd = "git push --delete $remote $Branch"
-        if (-not $PSBoundParameters.Quiet) {
-            # write command to be executed
-            Write-Host $cmnd -ForegroundColor Magenta
-        }
-        if (-not $PSBoundParameters.WhatIf) {
-            # execute command
-            Invoke-Expression $cmnd
-        }
+        $PSBoundParameters.Remove('Branch') | Out-Null
+        # run command
+        Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
     } else {
         Write-Host 'fatal: Remote repository not set.'
     }
@@ -286,44 +309,61 @@ function gglot {
 
 #region helper merge/rebase functions
 function gmg {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
+        [Parameter(Position = 0)]
         [ArgumentCompleter({ ArgGitGetBranches @args })]
         [string]$Branch,
 
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
 
+        [Parameter(ParameterSetName = 'quiet')]
         [switch]$Quiet
     )
 
     # calculate command string
-    $cmnd = "git merge $(Get-GitResolvedBranch $Branch)"
-
-    if (-not $PSBoundParameters.Quiet) {
-        # write command to be executed
-        Write-Host $cmnd -ForegroundColor Magenta
+    $rmt, $br = $Branch.Split('/', 2)
+    $resolvedBranch = if ($rmt -in (git remote)) {
+        "${rmt}/$(Get-GitResolvedBranch $br)"
+    } else {
+        Get-GitResolvedBranch $Branch
     }
-    if (-not $PSBoundParameters.WhatIf) {
-        # execute command
-        Invoke-Expression $cmnd
-    }
+    $cmnd = "git merge $resolvedBranch"
+    $PSBoundParameters.Remove('Branch') | Out-Null
+    # run command
+    Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
 }
 function gmgo {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
+        [Parameter(Position = 0)]
         [ArgumentCompleter({ ArgGitGetBranches @args })]
         [string]$Branch,
 
+        [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
 
+        [Parameter(ParameterSetName = 'quiet')]
         [switch]$Quiet
     )
 
     # calculate command strings
-    $commands = [System.Collections.Generic.List[string]]::new()
     if ($remote = @(git remote)[0]) {
+        # get current branch
+        $currentBranch = git branch --show-current
+        # resolve provided branch
         $resolvedBranch = Get-GitResolvedBranch $Branch
-        $commands.Add("git fetch $remote $resolvedBranch --quiet")
+        $PSBoundParameters.Remove('Branch') | Out-Null
+        # build list of commands to execute
+        $commands = [System.Collections.Generic.List[string]]::new()
+        $commands.Add("git fetch $remote --prune")
+        if ($currentBranch -ne $resolvedBranch) {
+            $commands.Add("git merge ${remote}/${currentBranch} --quiet")
+        }
         $commands.Add("git merge ${remote}/${resolvedBranch}")
     } else {
         Write-Host 'fatal: Remote repository not set.'
@@ -332,55 +372,65 @@ function gmgo {
 
     # run commands
     foreach ($cmnd in $commands) {
-        if (-not $PSBoundParameters.Quiet) {
-            # write command to be executed
-            Write-Host $cmnd -ForegroundColor Magenta
-        }
-        if (-not $PSBoundParameters.WhatIf) {
-            # execute command
-            Invoke-Expression $cmnd
-        }
+        Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
     }
 }
 function grb {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
+        [Parameter(Position = 0)]
         [ArgumentCompleter({ ArgGitGetBranches @args })]
         [string]$Branch,
 
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
 
+        [Parameter(ParameterSetName = 'quiet')]
         [switch]$Quiet
     )
 
     # calculate command string
-    $cmnd = "git rebase $(Get-GitResolvedBranch $Branch)"
-
-    if (-not $PSBoundParameters.Quiet) {
-        # write command to be executed
-        Write-Host $cmnd -ForegroundColor Magenta
+    $rmt, $br = $Branch.Split('/', 2)
+    $resolvedBranch = if ($rmt -in (git remote)) {
+        "${rmt}/$(Get-GitResolvedBranch $br)"
+    } else {
+        Get-GitResolvedBranch $Branch
     }
-    if (-not $PSBoundParameters.WhatIf) {
-        # execute command
-        Invoke-Expression $cmnd
-    }
+    $cmnd = "git rebase $resolvedBranch"
+    $PSBoundParameters.Remove('Branch') | Out-Null
+    # run command
+    Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
 }
 function grbo {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
+        [Parameter(Position = 0)]
         [ArgumentCompleter({ ArgGitGetBranches @args })]
         [string]$Branch,
 
+        [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
 
+        [Parameter(ParameterSetName = 'quiet')]
         [switch]$Quiet
     )
 
     # calculate command strings
-    $commands = [System.Collections.Generic.List[string]]::new()
     if ($remote = @(git remote)[0]) {
+        # get current branch
+        $currentBranch = git branch --show-current
+        # resolve provided branch
         $resolvedBranch = Get-GitResolvedBranch $Branch
-        $commands.Add("git fetch $remote $resolvedBranch --quiet")
+        $PSBoundParameters.Remove('Branch') | Out-Null
+        # build list of commands to execute
+        $commands = [System.Collections.Generic.List[string]]::new()
+        $commands.Add("git fetch $remote --prune")
+        if ($currentBranch -ne $resolvedBranch) {
+            $commands.Add("git rebase ${remote}/${currentBranch} --quiet")
+        }
         $commands.Add("git rebase ${remote}/${resolvedBranch}")
     } else {
         Write-Host 'fatal: Remote repository not set.'
@@ -389,61 +439,48 @@ function grbo {
 
     # run commands
     foreach ($cmnd in $commands) {
-        if (-not $PSBoundParameters.Quiet) {
-            # write command to be executed
-            Write-Host $cmnd -ForegroundColor Magenta
-        }
-        if (-not $PSBoundParameters.WhatIf) {
-            # execute command
-            Invoke-Expression $cmnd
-        }
+        Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
     }
 }
 function gmb {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
+        [Parameter(Position = 0)]
         [ArgumentCompleter({ ArgGitGetBranches @args })]
         [string]$Branch,
 
+        [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
 
+        [Parameter(ParameterSetName = 'quiet')]
         [switch]$Quiet
     )
 
     # calculate command string
     $cmnd = "git merge-base $(Get-GitResolvedBranch $Branch) HEAD"
-
-    if (-not $PSBoundParameters.Quiet) {
-        # write command to be executed
-        Write-Host $cmnd -ForegroundColor Magenta
-    }
-    if (-not $PSBoundParameters.WhatIf) {
-        # execute command
-        Invoke-Expression $cmnd
-    }
+    $PSBoundParameters.Remove('Branch') | Out-Null
+    # run command
+    Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
 }
 function grmb {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
+        [Parameter(Position = 0)]
         [ArgumentCompleter({ ArgGitGetBranches @args })]
         [string]$Branch,
 
+        [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
 
+        [Parameter(ParameterSetName = 'quiet')]
         [switch]$Quiet
     )
 
     # calculate command string
     $cmnd = "git reset `$(git merge-base $(Get-GitResolvedBranch $Branch) HEAD)"
-
-    if (-not $PSBoundParameters.Quiet) {
-        # write command to be executed
-        Write-Host $cmnd -ForegroundColor Magenta
-    }
-    if (-not $PSBoundParameters.WhatIf) {
-        # execute command
-        Invoke-Expression $cmnd
-    }
+    $PSBoundParameters.Remove('Branch') | Out-Null
+    # run command
+    Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
 }
 #endregion
 
@@ -478,14 +515,19 @@ function grunrefresh {
         # calculate arguments
         $defaultBranch = Get-GitResolvedBranch
         $remote = @(git remote)[0]
+
         # run git commands
         git fetch --all --tags --prune --prune-tags --force
-        $switch = git switch $defaultBranch
-        if ($switch -ne "Your branch is up to date with '$remote/$defaultBranch'.") {
-            git merge "$remote/$defaultBranch" --quiet
+        $switch = Invoke-WriteExecCommand -Command "git switch $defaultBranch"
+        # run commands if switched branch successfully
+        if ($?) {
+            if ($switch -ne "Your branch is up to date with '$remote/$defaultBranch'.") {
+                Invoke-WriteExecCommand -Command "git merge ${remote}/${defaultBranch}"
+            }
+            Remove-GitMergedBranches
         }
-        Remove-GitMergedBranches
     }
+    # run git repository command
     Invoke-GitRepoCommand -Command $cmd
 }
 
@@ -521,145 +563,129 @@ function gruncfl {
 
 #region git stash functions
 function gstaap {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
+        [Parameter(ValueFromRemainingArguments)]
         [ArgumentCompleter({ ArgGitGetStashList @args })]
-        [string]$Stash,
+        [string[]]$Xargs,
 
+        [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
 
+        [Parameter(ParameterSetName = 'quiet')]
         [switch]$Quiet
     )
 
-    # calculate command string
-    $cmnd = "git stash apply '$Stash' --force"
-
-    if (-not $PSBoundParameters.Quiet) {
-        # write command to be executed
-        Write-Host $cmnd -ForegroundColor Magenta
-    }
-    if (-not $PSBoundParameters.WhatIf) {
-        # execute command
-        Invoke-Expression $cmnd
-    }
+    # command string
+    $cmnd = 'git stash apply --force'
+    # run command
+    Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
 }
 function gstad {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
+        [Parameter(ValueFromRemainingArguments)]
         [ArgumentCompleter({ ArgGitGetStashList @args })]
-        [string]$Stash,
+        [string[]]$Xargs,
 
+        [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
 
+        [Parameter(ParameterSetName = 'quiet')]
         [switch]$Quiet
     )
 
-    # calculate command string
-    $cmnd = "git stash drop '$Stash'"
-
-    if (-not $PSBoundParameters.Quiet) {
-        # write command to be executed
-        Write-Host $cmnd -ForegroundColor Magenta
-    }
-    if (-not $PSBoundParameters.WhatIf) {
-        # execute command
-        Invoke-Expression $cmnd
-    }
+    # command string
+    $cmnd = 'git stash drop'
+    # run command
+    Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
 }
 function gstas {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
+        [Parameter(ValueFromRemainingArguments)]
         [ArgumentCompleter({ ArgGitGetStashList @args })]
-        [string]$Stash,
+        [string[]]$Xargs,
 
+        [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
 
+        [Parameter(ParameterSetName = 'quiet')]
         [switch]$Quiet
     )
 
-    # calculate command string
-    $cmnd = "git stash show '$Stash'"
-
-    if (-not $PSBoundParameters.Quiet) {
-        # write command to be executed
-        Write-Host $cmnd -ForegroundColor Magenta
-    }
-    if (-not $PSBoundParameters.WhatIf) {
-        # execute command
-        Invoke-Expression $cmnd
-    }
+    # command string
+    $cmnd = 'git stash show'
+    # run command
+    Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
 }
 function gstast {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
+        [Parameter(ValueFromRemainingArguments)]
         [ArgumentCompleter({ ArgGitGetStashList @args })]
-        [string]$Stash,
+        [string[]]$Xargs,
 
+        [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
 
+        [Parameter(ParameterSetName = 'quiet')]
         [switch]$Quiet
     )
 
-    # calculate command string
-    $cmnd = "git stash show '$Stash' --text"
-
-    if (-not $PSBoundParameters.Quiet) {
-        # write command to be executed
-        Write-Host $cmnd -ForegroundColor Magenta
-    }
-    if (-not $PSBoundParameters.WhatIf) {
-        # execute command
-        Invoke-Expression $cmnd
-    }
+    # command string
+    $cmnd = 'git stash show --text'
+    # run command
+    Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
 }
 #endregion
 
 
 #region helper switch functions
 function gsw {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
+        [Parameter(Position = 0)]
         [ArgumentCompleter({ ArgGitGetBranches @args })]
         [string]$Branch,
 
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
 
+        [Parameter(ParameterSetName = 'quiet')]
         [switch]$Quiet
     )
 
     # calculate command string
     $cmnd = "git switch $(Get-GitResolvedBranch $Branch)"
-
-    if (-not $PSBoundParameters.Quiet) {
-        # write command to be executed
-        Write-Host $cmnd -ForegroundColor Magenta
-    }
-    if (-not $PSBoundParameters.WhatIf) {
-        # execute command
-        Invoke-Expression $cmnd
-    }
+    $PSBoundParameters.Remove('Branch') | Out-Null
+    # run command
+    Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
 }
 function gsw! {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
+        [Parameter(Position = 0)]
         [ArgumentCompleter({ ArgGitGetBranches @args })]
         [string]$Branch,
 
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
 
+        [Parameter(ParameterSetName = 'quiet')]
         [switch]$Quiet
     )
 
     # calculate command string
     $cmnd = "git switch $(Get-GitResolvedBranch $Branch) --force"
-
-    if (-not $PSBoundParameters.Quiet) {
-        # write command to be executed
-        Write-Host $cmnd -ForegroundColor Magenta
-    }
-    if (-not $PSBoundParameters.WhatIf) {
-        # execute command
-        Invoke-Expression $cmnd
-    }
+    $PSBoundParameters.Remove('Branch') | Out-Null
+    # run command
+    Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
 }
 #endregion
