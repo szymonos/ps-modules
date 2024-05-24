@@ -75,43 +75,50 @@ You can suppress executing the command by providing -WhatIf as one of the argume
 
 .PARAMETER Command
 Command to be executed.
-.PARAMETER Arguments
+.PARAMETER Xargs
 Command arguments to be passed to the provided command.
-.PARAMETER Parameters
-Control parameters: WhatIf, Quiet.
+.PARAMETER WhatIf
+Do not execute the command.
+.PARAMETER Quiet
+Do not print the command string.
 #>
-function Invoke-WriteExecCmd {
+function Invoke-WriteExecCommand {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
         [Parameter(Mandatory, Position = 0)]
         [string]$Command,
 
-        [Parameter(ParameterSetName = 'Arguments')]
-        [string[]]$Arguments,
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
 
-        [Parameter(ParameterSetName = 'Parameters')]
-        [string[]]$Parameters
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
     )
 
     begin {
-        # clean up command from control parameters
-        $Command = $Command -replace (' -WhatIf| -Quiet')
-        # calculate control parameters
-        $Parameters = $($Parameters ? $Parameters : $Arguments).Where({ $_ -match '^-WhatIf$|^-Quiet$' })
-        # remove control parameters from arguments and quote arguments with spaces
-        $Arguments = $Arguments.Where({ $_ -notmatch '^-WhatIf$|^-Quiet$' }).ForEach({ $_ -match '\s|''|"' ? "'$($_.Replace("'", "''"))'" : $_ })
-        # build the command expression
-        $cmd = "$Command $Arguments"
+        # build command
+        $sb = [System.Text.StringBuilder]::new($Command)
+        if ($PSBoundParameters.Xargs) {
+            $Xargs | ForEach-Object {
+                $arg = $_ -match '\s|@' ? "'$_'" : $_
+                $sb.Append(" $arg") | Out-Null
+            }
+        }
+        # get command string
+        $cmnd = $sb.ToString()
     }
 
     process {
-        if ('-Quiet' -notin $Parameters) {
-            # write the command
-            Write-Host $cmd -ForegroundColor Magenta
+        if (-not $PSBoundParameters.Quiet) {
+            # write command
+            Write-Host $cmnd -ForegroundColor Magenta
         }
-        if ('-WhatIf' -notin $Parameters) {
-            # execute the command
-            Invoke-Expression $cmd
+        if (-not $PSBoundParameters.WhatIf) {
+            # execute command
+            return Invoke-Expression $cmnd
         }
     }
 }
@@ -141,7 +148,9 @@ function Get-GitResolvedBranch {
 
     begin {
         if (git rev-parse --is-inside-work-tree) {
-            [string]$BranchName = $BranchName.Where({ $_ -notmatch '^-WhatIf$|^-Quiet$' })
+            # build remote names filter
+            $remoteFilter = [string]::Join('|', (git remote).ForEach({ "$_/?" }))
+            [string]$BranchName = $BranchName -replace $remoteFilter
             $match = @{
                 d = @('^dev(|el|elop|elopment)$')
                 m = @('^ma(in|ster)$', '^prod(uction)?$')
@@ -156,32 +165,31 @@ function Get-GitResolvedBranch {
                 t { $match.t; continue }
                 Default { @("(^|/)$BranchName$") }
             }
-            # instantiate HashSet
-            $matched = [System.Collections.Generic.HashSet[string]]::new()
+            # instantiate collections
+            $matched = [System.Collections.Generic.List[string]]::new()
+            $branches = [System.Collections.Generic.SortedSet[string]]::new()
         } else {
             break
         }
     }
 
     process {
-        # build remote names filter
-        $remoteFilter = [string]::Join('|', (git remote).ForEach({ "$_/?" }))
         # get list of branches without remote name indicator
-        [string[]]$branches = ((git branch --all --format='%(refname:short)') -replace $remoteFilter).Where({ $_ })
+        $allBranches = git branch --all --format='%(refname:short)'
+        ($allBranches -replace $remoteFilter).Where({ $_ }).ForEach({ $branches.Add($_) | Out-Null })
         # get set of matching branches in specified order
         $branchMatch.ForEach({
-                ($branches -match $_).ForEach({ $matched.Add($_) | Out-Null })
+                ($branches -match $_).ForEach({ $matched.Add($_) })
             }
         )
 
         # return if no matching branches found
         if ($matched.Count -eq 0) {
             if ($BranchName) {
-                Write-Host "`e[92mInvalid reference  :`e[0m $BranchName"
-                Write-Host "`e[92mValid branch names :`e[0m $([string]::Join(', ', $branches))"
+                Write-Warning "Invalid reference: '$BranchName'. Valid reference values are: `e[0;1m$([string]::Join(', ', $branches))"
                 break
             } else {
-                $matched.Add($(git branch --format='%(refname:short)')) | Out-Null
+                $matched.Add($(git branch --format='%(refname:short)'))
             }
         }
     }
@@ -202,8 +210,15 @@ If DeleteNoMerged parameter is not specified, all local merged branches will be 
 Switch whether to delete non merged branches.
 #>
 function Remove-GitLocalBranches {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
-        [switch]$DeleteNoMerged
+        [switch]$DeleteNoMerged,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
     )
 
     begin {
@@ -221,13 +236,13 @@ function Remove-GitLocalBranches {
         $merged = git branch --format='%(refname:short)' --merged | branchFilter
         # delete branches
         foreach ($branch in $merged) {
-            Invoke-WriteExecCmd -Command "git branch --delete $branch" @PSBoundParameters
+            Invoke-WriteExecCommand -Command "git branch --delete $branch" @PSBoundParameters
         }
         if ($DeleteNoMerged) {
             $no_merged = git branch --format='%(refname:short)' --no-merged | branchFilter
             foreach ($branch in $no_merged) {
                 if ((Read-Host -Prompt "Do you want to remove branch: `e[1;97m$branch`e[0m? [y/N]") -eq 'y') {
-                    Invoke-WriteExecCmd -Command "git branch -D $branch" @PSBoundParameters
+                    Invoke-WriteExecCommand -Command "git branch -D $branch" @PSBoundParameters
                 }
             }
         }

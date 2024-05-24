@@ -1,207 +1,2351 @@
-function ga { Invoke-WriteExecCmd -Command 'git add' -Arguments $args }
-function gaa { Invoke-WriteExecCmd -Command 'git add --all' -Arguments $args }
-function gapa { Invoke-WriteExecCmd -Command 'git add --patch' -Arguments $args }
-function gau { Invoke-WriteExecCmd -Command 'git add --update' -Arguments $args }
-function gbl { Invoke-WriteExecCmd -Command 'git blame -b -w' -Arguments $args }
-function gb { Invoke-WriteExecCmd -Command 'git branch' -Arguments $args }
-function gba { Invoke-WriteExecCmd -Command 'git branch --all' -Arguments $args }
-function gbnm { Invoke-WriteExecCmd -Command 'git branch --no-merged' -Arguments $args }
-function gbr { Invoke-WriteExecCmd -Command 'git branch --remote' -Arguments $args }
-function gbsu { Invoke-WriteExecCmd -Command "git branch --set-upstream-to=origin/$(Get-GitCurrentBranch)" -Arguments $args }
-function gbs { Invoke-WriteExecCmd -Command 'git bisect' -Arguments $args }
-function gbsb { Invoke-WriteExecCmd -Command 'git bisect bad' -Arguments $args }
-function gbsg { Invoke-WriteExecCmd -Command 'git bisect good' -Arguments $args }
-function gbsr { Invoke-WriteExecCmd -Command 'git bisect reset' -Arguments $args }
-function gbss { Invoke-WriteExecCmd -Command 'git bisect start' -Arguments $args }
-function gcv { Invoke-WriteExecCmd -Command 'git commit --verbose' -Arguments $args }
-function gc! { Invoke-WriteExecCmd -Command 'git commit --verbose --amend' -Arguments $args }
-function gca { Invoke-WriteExecCmd -Command 'git commit --verbose --all' -Arguments $args }
-function gcap { gca @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
-function gac { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gcv @args }
-function gacp { gac @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
-function gca! { Invoke-WriteExecCmd -Command 'git commit --verbose --all --amend' -Arguments $args }
-function gac! { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gca! @args }
-function gcam { Invoke-WriteExecCmd -Command 'git commit --all -m' -Arguments $args }
-function gcamp { gcam @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
-function gacm { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gcmsg @args }
-function gacmp { gacm @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
-function gcan! { Invoke-WriteExecCmd -Command 'git commit --verbose --all --no-edit --amend' -Arguments $args }
-function gcanp! { gcan! @args; Invoke-WriteExecCmd 'git push --force-with-lease' -Parameters $args }
-function gcempty { Invoke-WriteExecCmd 'git commit --allow-empty -m' -Arguments $args }
-function gacn! { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gcn! @args }
-function gacnp! { gacn! @args; Invoke-WriteExecCmd 'git push --force-with-lease' -Parameters $args }
-function gcns! { Invoke-WriteExecCmd -Command 'git commit --verbose --signoff --no-edit --amend' -Arguments $args }
-function gcans! { Invoke-WriteExecCmd -Command 'git commit --verbose --all --signoff --no-edit --amend' -Arguments $args }
-function gacns! { Invoke-WriteExecCmd 'git add --all' -Parameters $args; gcns! @args }
-function gcmsg { Invoke-WriteExecCmd -Command 'git commit -m' -Arguments $args }
-function gcmsgp { gcmsg @args; Invoke-WriteExecCmd 'git push' -Parameters $args }
-function gcn! { Invoke-WriteExecCmd -Command 'git commit --verbose --no-edit --amend' -Arguments $args }
-function gcnp! { gcn! @args; Invoke-WriteExecCmd 'git push --force-with-lease' -Parameters $args }
-function gcsm { Invoke-WriteExecCmd -Command 'git commit --signoff -m' -Arguments $args }
+function ga {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git add' @PSBoundParameters
+}
+function gaa {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git add --all' @PSBoundParameters
+}
+function gapa {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git add --patch' @PSBoundParameters
+}
+function gau {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git add --update' @PSBoundParameters
+}
+function gbl {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git blame -b -w' @PSBoundParameters
+}
+function gb {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git branch' @PSBoundParameters
+}
+function gba {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git branch --all' @PSBoundParameters
+}
+function gbnm {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git branch --no-merged' @PSBoundParameters
+}
+function gbr {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git branch --remote' @PSBoundParameters
+}
+function gbsu {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    if ($remote = @(git remote)[0]) {
+        # calculate command string
+        $cmnd = "git branch --set-upstream-to=${remote}/$(Get-GitCurrentBranch)"
+        # run command
+        Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
+    } else {
+        Write-Host 'fatal: Remote repository not set.'
+        return
+    }
+}
+function gbs {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git bisect' @PSBoundParameters
+}
+function gbsb {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git bisect bad' @PSBoundParameters
+}
+function gbsg {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git bisect good' @PSBoundParameters
+}
+function gbsr {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git bisect reset' @PSBoundParameters
+}
+function gbss {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git bisect start' @PSBoundParameters
+}
+function gcv {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git commit --verbose' @PSBoundParameters
+}
+function gc! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git commit --verbose --amend' @PSBoundParameters
+}
+function gca {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git commit --verbose --all' @PSBoundParameters
+}
+function gcap {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    gca @PSBoundParameters
+
+    $PSBoundParameters.Remove('Xargs') | Out-Null
+    gpush @PSBoundParameters
+}
+function gac {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    $PSBoundParameters.Remove('Xargs') | Out-Null
+    gaa @PSBoundParameters
+
+    gcv -Xargs $Xargs @PSBoundParameters
+}
+function gacp {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    gac @PSBoundParameters
+
+    $PSBoundParameters.Remove('Xargs') | Out-Null
+    gpush @PSBoundParameters
+}
+function gca! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git commit --verbose --all --amend' @PSBoundParameters
+}
+function gac! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    $PSBoundParameters.Remove('Xargs') | Out-Null
+    gaa @PSBoundParameters
+
+    gca! -Xargs $Xargs @PSBoundParameters
+}
+function gcam {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git commit --all -m' @PSBoundParameters
+}
+function gcamp {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    gcam @PSBoundParameters
+
+    $PSBoundParameters.Remove('Xargs') | Out-Null
+    gpush @PSBoundParameters
+}
+function gacm {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    $PSBoundParameters.Remove('Xargs') | Out-Null
+    gaa @PSBoundParameters
+
+    gcmsg -Xargs $Xargs @PSBoundParameters
+}
+function gacmp {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    gacm @PSBoundParameters
+
+    $PSBoundParameters.Remove('Xargs') | Out-Null
+    gpush @PSBoundParameters
+}
+function gcan! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git commit --verbose --all --no-edit --amend' @PSBoundParameters
+}
+function gcanp! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    gcan! @PSBoundParameters
+
+    $PSBoundParameters.Remove('Xargs') | Out-Null
+    gpush! @PSBoundParameters
+}
+function gcempty {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand 'git commit --allow-empty -m' @PSBoundParameters
+}
+function gacn! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    $PSBoundParameters.Remove('Xargs') | Out-Null
+    gaa @PSBoundParameters
+
+    gcn! -Xargs $Xargs @PSBoundParameters
+}
+function gacnp! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    gacn! @PSBoundParameters
+
+    $PSBoundParameters.Remove('Xargs') | Out-Null
+    gpush! @PSBoundParameters
+}
+function gcns! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git commit --verbose --signoff --no-edit --amend' @PSBoundParameters
+}
+function gcans! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git commit --verbose --all --signoff --no-edit --amend' @PSBoundParameters
+}
+function gacns! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    $PSBoundParameters.Remove('Xargs') | Out-Null
+    gaa @PSBoundParameters
+
+    gcns! -Xargs $Xargs @PSBoundParameters
+}
+function gcmsg {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git commit -m' @PSBoundParameters
+}
+function gcmsgp {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    gcmsg @PSBoundParameters
+
+    $PSBoundParameters.Remove('Xargs') | Out-Null
+    gpush @PSBoundParameters
+}
+function gcn! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git commit --verbose --no-edit --amend' @PSBoundParameters
+}
+function gcnp! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    gcn! @PSBoundParameters
+
+    $PSBoundParameters.Remove('Xargs') | Out-Null
+    gpush! @PSBoundParameters
+}
+function gcsm {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git commit --signoff -m' @PSBoundParameters
+}
 function gcd { Set-Location $(git rev-parse --show-toplevel 2>$null || '.') }
-function gcf { Invoke-WriteExecCmd -Command 'git config' -Arguments $args }
-function gcfg { Invoke-WriteExecCmd -Command 'git config --global' -Arguments $args }
-function gcfge { Invoke-WriteExecCmd -Command 'git config --global --edit' -Arguments $args }
-function gcfgl { Invoke-WriteExecCmd -Command 'git config --global --list' -Arguments $args }
-function gcfl { Invoke-WriteExecCmd -Command 'git config --local' -Arguments $args }
-function gcfle { Invoke-WriteExecCmd -Command 'git config --local --edit' -Arguments $args }
-function gcfll { Invoke-WriteExecCmd -Command 'git config --local --list' -Arguments $args }
-function gcl { Invoke-WriteExecCmd -Command 'git clone --recursive' -Arguments $args }
-function gclean { Invoke-WriteExecCmd -Command 'git clean --force -d' -Arguments $args }
-function gclean! { Invoke-WriteExecCmd 'git reset --hard' -Parameters $args; gclean @args }
-function gpristine { Invoke-WriteExecCmd 'git reset --hard' -Parameters $args; gclean -x @args }
-function gco { Invoke-WriteExecCmd -Command 'git checkout' -Arguments $args }
-function gcount { Invoke-WriteExecCmd -Command 'git shortlog --summary --numbered' -Arguments $args }
-function gcp { Invoke-WriteExecCmd -Command 'git cherry-pick' -Arguments $args }
-function gcpa { Invoke-WriteExecCmd -Command 'git cherry-pick --abort' -Arguments $args }
-function gcpc { Invoke-WriteExecCmd -Command 'git cherry-pick --continue' -Arguments $args }
-function gcps { Invoke-WriteExecCmd -Command 'git cherry-pick --signoff' -Arguments $args }
-function gd { Invoke-WriteExecCmd -Command 'git diff' -Arguments $args }
-function gdca { Invoke-WriteExecCmd -Command 'git diff --cached' -Arguments $args }
-function gdt { Invoke-WriteExecCmd -Command 'git diff-tree --no-commit-id --name-only -r' -Arguments $args }
-function gdw { Invoke-WriteExecCmd -Command 'git diff --word-diff' -Arguments $args }
-function gdct { Invoke-WriteExecCmd -Command 'git describe --tags `git rev-list --tags --max-count=1`' -Arguments $args }
-function gf { Invoke-WriteExecCmd -Command 'git fetch' -Arguments $args }
-function gfa { Invoke-WriteExecCmd -Command 'git fetch --all --prune' -Arguments $args }
-function gfa! { Invoke-WriteExecCmd -Command 'git fetch --all --tags --prune --prune-tags --force' -Arguments $args }
+function gcf {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git config' @PSBoundParameters
+}
+function gcfg {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git config --global' @PSBoundParameters
+}
+function gcfge {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git config --global --edit' @PSBoundParameters
+}
+function gcfgl {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git config --global --list' @PSBoundParameters
+}
+function gcfl {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git config --local' @PSBoundParameters
+}
+function gcfle {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git config --local --edit' @PSBoundParameters
+}
+function gcfll {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git config --local --list' @PSBoundParameters
+}
+function gcl {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git clone --recursive' @PSBoundParameters
+}
+function gclean {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git clean --force -d' @PSBoundParameters
+}
+function gclean! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    $PSBoundParameters.Remove('Xargs') | Out-Null
+    grh @PSBoundParameters
+
+    gclean -Xargs $Xargs @PSBoundParameters
+}
+function gpristine {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    $PSBoundParameters.Remove('Xargs') | Out-Null
+    grh @PSBoundParameters
+
+    $Xargs = @('-x') + $Xargs
+    gclean -Xargs $Xargs @PSBoundParameters
+}
+function gco {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git checkout' @PSBoundParameters
+}
+function gcount {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git shortlog --summary --numbered' @PSBoundParameters
+}
+function gcp {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git cherry-pick' @PSBoundParameters
+}
+function gcpa {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git cherry-pick --abort' @PSBoundParameters
+}
+function gcpc {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git cherry-pick --continue' @PSBoundParameters
+}
+function gcps {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git cherry-pick --signoff' @PSBoundParameters
+}
+function gd {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git diff' @PSBoundParameters
+}
+function gdca {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git diff --cached' @PSBoundParameters
+}
+function gdt {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git diff-tree --no-commit-id --name-only -r' @PSBoundParameters
+}
+function gdw {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git diff --word-diff' @PSBoundParameters
+}
+function gdct {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git describe --tags `git rev-list --tags --max-count=1`' @PSBoundParameters
+}
+function gf {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git fetch' @PSBoundParameters
+}
+function gfa {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git fetch --all --prune' @PSBoundParameters
+}
+function gfa! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git fetch --all --tags --prune --prune-tags --force' @PSBoundParameters
+}
 function gfo {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
     if ($remote = @(git remote)[0]) {
-        Invoke-WriteExecCmd -Command "git fetch $remote" -Arguments $args
+        Invoke-WriteExecCommand -Command "git fetch $remote" @PSBoundParameters
     } else {
         Write-Host 'fatal: Remote repository not set.'
     }
 }
-function gg { Invoke-WriteExecCmd -Command 'git grep --ignore-case' -Arguments $args }
-function ggc { Invoke-WriteExecCmd -Command 'git gc' -Arguments $args }
-function ggca { Invoke-WriteExecCmd -Command 'git gc --aggressive' -Arguments $args }
-function gge { Invoke-WriteExecCmd -Command 'git grep --ignore-case --extended-regexp' -Arguments $args }
-function ggp { Invoke-WriteExecCmd -Command 'git grep --ignore-case --perl-regexp' -Arguments $args }
-function ghh { Invoke-WriteExecCmd -Command 'git help' -Arguments $args }
-function gignore { Invoke-WriteExecCmd -Command 'git update-index --assume-unchanged' -Arguments $args }
-function gignored { Invoke-WriteExecCmd -Command 'git ls-files -v | Select-String "^[a-z]" -CaseSensitive' -Parameters $args }
-function glo { Invoke-WriteExecCmd -Command 'git log --date=rfc' -Arguments $args }
-function gloa { Invoke-WriteExecCmd -Command 'git log --date=rfc --all' -Arguments $args }
-function glog { Invoke-WriteExecCmd -Command 'git log --date=rfc --graph' -Arguments $args }
-function gloga { Invoke-WriteExecCmd -Command 'git log --date=rfc --graph --decorate --all' -Arguments $args }
-function glol { Invoke-WriteExecCmd -Command 'git log --graph --pretty="%C(yellow)%h%C(reset) %C(green)(%cr)%C(reset)%C(red)%d%C(reset) %s %C(bold blue)<%an>%C(reset)" --abbrev-commit -Quiet' -Arguments @($args, '-Quiet') }
-function glola { Invoke-WriteExecCmd -Command 'git log --graph --pretty="%C(yellow)%h%C(reset) %C(green)(%cr)%C(reset)%C(red)%d%C(reset) %s %C(bold blue)<%an>%C(reset)" --abbrev-commit --all' -Arguments @($args, '-Quiet') }
-function glon { Invoke-WriteExecCmd -Command 'git log --oneline --decorate' -Arguments $args }
-function glona { Invoke-WriteExecCmd -Command 'git log --oneline --decorate --all' -Arguments $args }
-function glong { Invoke-WriteExecCmd -Command 'git log --oneline --decorate --graph' -Arguments $args }
-function glonga { Invoke-WriteExecCmd -Command 'git log --oneline --decorate --graph --all' -Arguments $args }
-function glont { Invoke-WriteExecCmd -Command 'git log --oneline --decorate --no-walk --tags="*"' -Arguments $args }
-function glop { Invoke-WriteExecCmd -Command 'git log --pretty=format:"%C(yellow)%h%C(reset) %C(green)(%ai)%C(reset)%C(red)%d%C(reset) %s %C(bold blue)<%ae>%C(reset)" --abbrev-commit' -Arguments @($args, '-Quiet') }
-function glopa { Invoke-WriteExecCmd -Command 'git log --pretty=format:"%C(yellow)%h%C(reset) %C(green)(%ai)%C(reset)%C(red)%d%C(reset) %s %C(bold blue)<%ae>%C(reset)" --abbrev-commit --all' -Arguments @($args, '-Quiet') }
-function glos { Invoke-WriteExecCmd -Command 'git log --date=rfc --stat' -Arguments $args }
-function glosa { Invoke-WriteExecCmd -Command 'git log --date=rfc --stat --all' -Arguments $args }
-function glosp { Invoke-WriteExecCmd -Command 'git log --date=rfc --stat --patch' -Arguments $args }
-function glospa { Invoke-WriteExecCmd -Command 'git log --date=rfc --stat --patch --all' -Arguments $args }
-function gmgo {
-    if ($remote = @(git remote)[0]) {
-        Invoke-WriteExecCmd -Command "git fetch $remote $(Get-GitCurrentBranch) --quiet" -Parameters $args
-        Invoke-WriteExecCmd -Command "git merge $remote/$(Get-GitCurrentBranch)" -Arguments $args
-    } else {
-        Write-Host 'fatal: Remote repository not set.'
-    }
+function gg {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git grep --ignore-case' @PSBoundParameters
 }
-function gmt { Invoke-WriteExecCmd -Command 'git mergetool --no-prompt' -Arguments $args }
-function gmtvim { Invoke-WriteExecCmd -Command 'git mergetool --no-prompt --tool=vimdiff' -Arguments $args }
+function ggc {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git gc' @PSBoundParameters
+}
+function ggca {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git gc --aggressive' @PSBoundParameters
+}
+function gge {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git grep --ignore-case --extended-regexp' @PSBoundParameters
+}
+function ggp {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git grep --ignore-case --perl-regexp' @PSBoundParameters
+}
+function ghh {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git help' @PSBoundParameters
+}
+function gignore {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git update-index --assume-unchanged' @PSBoundParameters
+}
+function gignored {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git ls-files -v | Select-String "^[a-z]" -CaseSensitive' -Parameters $args
+}
+function glo {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git log --date=rfc' @PSBoundParameters
+}
+function gloa {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git log --date=rfc --all' @PSBoundParameters
+}
+function glog {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git log --date=rfc --graph' @PSBoundParameters
+}
+function gloga {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git log --date=rfc --graph --decorate --all' @PSBoundParameters
+}
+function glol {
+    # command string
+    $cmnd = 'git log --graph --pretty="%C(yellow)%h%C(reset) %C(green)(%cr)%C(reset)%C(red)%d%C(reset) %s %C(bold blue)<%an>%C(reset)" --abbrev-commit'
+    # run command
+    Invoke-WriteExecCommand -Command $cmnd -Quiet
+}
+function glola {
+    # command string
+    $cmnd = 'git log --graph --pretty="%C(yellow)%h%C(reset) %C(green)(%cr)%C(reset)%C(red)%d%C(reset) %s %C(bold blue)<%an>%C(reset)" --abbrev-commit --all'
+    # run command
+    Invoke-WriteExecCommand -Command $cmnd -Quiet
+}
+function glon {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git log --oneline --decorate' @PSBoundParameters
+}
+function glona {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git log --oneline --decorate --all' @PSBoundParameters
+}
+function glong {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git log --oneline --decorate --graph' @PSBoundParameters
+}
+function glonga {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git log --oneline --decorate --graph --all' @PSBoundParameters
+}
+function glont {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git log --oneline --decorate --no-walk --tags="*"' @PSBoundParameters
+}
+function glop {
+    # command string
+    $cmnd = 'git log --pretty=format:"%C(yellow)%h%C(reset) %C(green)(%ai)%C(reset)%C(red)%d%C(reset) %s %C(bold blue)<%ae>%C(reset)" --abbrev-commit'
+    # run command
+    Invoke-WriteExecCommand -Command $cmnd -Quiet
+}
+function glopa {
+    # command string
+    $cmnd = 'git log --pretty=format:"%C(yellow)%h%C(reset) %C(green)(%ai)%C(reset)%C(red)%d%C(reset) %s %C(bold blue)<%ae>%C(reset)" --abbrev-commit --all'
+    # run command
+    Invoke-WriteExecCommand -Command $cmnd -Quiet
+}
+function glos {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git log --date=rfc --stat' @PSBoundParameters
+}
+function glosa {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git log --date=rfc --stat --all' @PSBoundParameters
+}
+function glosp {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git log --date=rfc --stat --patch' @PSBoundParameters
+}
+function glospa {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git log --date=rfc --stat --patch --all' @PSBoundParameters
+}
+function gmt {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git mergetool --no-prompt' @PSBoundParameters
+}
+function gmtvim {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git mergetool --no-prompt --tool=vimdiff' @PSBoundParameters
+}
 function gpl {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
     if ($remote = @(git remote)[0]) {
-        Invoke-WriteExecCmd -Command "git pull $remote $(Get-GitCurrentBranch) --tags --prune" -Arguments $args
+        # calculate command string
+        $cmnd = "git pull $remote $(Get-GitCurrentBranch) --tags --prune"
+        # run command
+        Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
     } else {
         Write-Host 'fatal: Remote repository not set.'
     }
 }
-function gpl! { gpl --force @args }
-function gpull { Invoke-WriteExecCmd -Command 'git pull' -Arguments $args }
-function gpullr { Invoke-WriteExecCmd -Command 'git pull --rebase' -Arguments $args }
-function gpullra { Invoke-WriteExecCmd -Command 'git pull --rebase --autostash' -Arguments $args }
-function gpullrav { Invoke-WriteExecCmd -Command 'git pull --rebase --autostash --verbose' -Arguments $args }
-function gpullrv { Invoke-WriteExecCmd -Command 'git pull --rebase --verbose' -Arguments $args }
-function gpush { Invoke-WriteExecCmd -Command 'git push' -Arguments $args }
-function gpush! { Invoke-WriteExecCmd -Command 'git push --force-with-lease' -Arguments $args }
-function gpushdr { Invoke-WriteExecCmd -Command 'git push --dry-run' -Arguments $args }
+function gpl! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    $PSBoundParameters.Xargs = @('--force') + $Xargs
+    gpl @PSBoundParameters
+}
+function gpull {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git pull' @PSBoundParameters
+}
+function gpullr {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git pull --rebase' @PSBoundParameters
+}
+function gpullra {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git pull --rebase --autostash' @PSBoundParameters
+}
+function gpullrav {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git pull --rebase --autostash --verbose' @PSBoundParameters
+}
+function gpullrv {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git pull --rebase --verbose' @PSBoundParameters
+}
+function gpush {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git push' @PSBoundParameters
+}
+function gpush! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git push --force-with-lease' @PSBoundParameters
+}
+function gpushdr {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git push --dry-run' @PSBoundParameters
+}
 function gpushoat {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(Position = 0)]
+        [ArgumentCompleter({ ArgGitGetBranches @args })]
+        [string]$Branch,
+
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
     if ($remote = @(git remote)[0]) {
-        Invoke-WriteExecCmd -Command "git push $remote --all && git push $remote --tags" -Parameters $args
+        # calculate command string
+        $cmnd = "git push $remote --all && git push $remote --tags"
+        # run command
+        Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
     } else {
         Write-Host 'fatal: Remote repository not set.'
     }
 }
-function gpushsup { Invoke-WriteExecCmd -Command "git push --set-upstream origin $(Get-GitCurrentBranch)" -Arguments $args }
-function gpusht { Invoke-WriteExecCmd -Command 'git push --tags' -Arguments $args }
-function gpusht! { Invoke-WriteExecCmd -Command 'git push --tags --force' -Arguments $args }
-function gpushv { Invoke-WriteExecCmd -Command 'git push --verbose' -Arguments $args }
-function grba { Invoke-WriteExecCmd -Command 'git rebase --abort' -Arguments $args }
-function grbc { Invoke-WriteExecCmd -Command 'git rebase --continue' -Arguments $args }
-function grbi { Invoke-WriteExecCmd -Command 'git rebase --interactive' -Arguments $args }
-function grbo {
-    if ($remote = @(git remote)[0]) {
-        Invoke-WriteExecCmd -Command "git fetch $remote $(Get-GitCurrentBranch) --quiet" -Parameters $args
-        Invoke-WriteExecCmd -Command "git rebase $remote/$(Get-GitCurrentBranch)" -Arguments $args
-    } else {
-        Write-Host 'fatal: Remote repository not set.'
-    }
+function gpushsup {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command "git push --set-upstream origin $(Get-GitCurrentBranch)" @PSBoundParameters
 }
-function grbs { Invoke-WriteExecCmd -Command 'git rebase --skip' -Arguments $args }
-function gr { Invoke-WriteExecCmd -Command 'git reset' -Arguments $args }
-function grh { Invoke-WriteExecCmd -Command 'git reset --hard' -Arguments $args }
+function gpusht {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git push --tags' @PSBoundParameters
+}
+function gpusht! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git push --tags --force' @PSBoundParameters
+}
+function gpushv {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git push --verbose' @PSBoundParameters
+}
+function grba {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git rebase --abort' @PSBoundParameters
+}
+function grbc {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git rebase --continue' @PSBoundParameters
+}
+function grbi {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git rebase --interactive' @PSBoundParameters
+}
+function grbs {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git rebase --skip' @PSBoundParameters
+}
+function gr {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git reset' @PSBoundParameters
+}
+function grh {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git reset --hard' @PSBoundParameters
+}
 function grho {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
     if ($remote = @(git remote)[0]) {
-        Invoke-WriteExecCmd -Command "git fetch --tags --prune --prune-tags --force $remote" -Parameters $args
-        Invoke-WriteExecCmd -Command "git reset --hard $remote/$(Get-GitCurrentBranch)" -Parameters $args
+        $PSBoundParameters.Remove('Xargs') | Out-Null
+        $cmnd = "git fetch $remote --tags --prune --prune-tags --force"
+        Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
+
+        $cmnd = "git reset --hard $remote/$(Get-GitCurrentBranch)"
+        Invoke-WriteExecCommand -Command $cmnd -Xargs $Xargs @PSBoundParameters
     } else {
         Write-Host 'fatal: Remote repository not set.'
     }
 }
-function grs { Invoke-WriteExecCmd -Command 'git reset --soft' -Arguments $args }
-function grl { Invoke-WriteExecCmd -Command 'git reflog' -Arguments $args }
-function grmc { Invoke-WriteExecCmd -Command 'git rm --cached' -Arguments $args }
-function grm! { Invoke-WriteExecCmd -Command 'git rm --force' -Arguments $args }
-function grmrc { Invoke-WriteExecCmd -Command 'git rm -r --cached' -Arguments $args }
-function grmr! { Invoke-WriteExecCmd -Command 'git rm -r --force' -Arguments $args }
-function grr { Invoke-WriteExecCmd -Command 'git restore' -Arguments $args }
-function grp { Invoke-WriteExecCmd -Command 'git rev-parse' -Arguments $args }
-function grrs { Invoke-WriteExecCmd -Command 'git restore --source' -Arguments $args }
-function grt { Invoke-WriteExecCmd -Command 'git remote' -Arguments $args }
-function grta { Invoke-WriteExecCmd -Command 'git remote add' -Arguments $args }
-function grtrm { Invoke-WriteExecCmd -Command 'git remote remove' -Arguments $args }
-function grtrn { Invoke-WriteExecCmd -Command 'git remote rename' -Arguments $args }
-function grtsu { Invoke-WriteExecCmd -Command 'git remote set-url' -Arguments $args }
+function grs {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git reset --soft' @PSBoundParameters
+}
+function grl {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git reflog' @PSBoundParameters
+}
+function grmc {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git rm --cached' @PSBoundParameters
+}
+function grm! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git rm --force' @PSBoundParameters
+}
+function grmrc {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git rm -r --cached' @PSBoundParameters
+}
+function grmr! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git rm -r --force' @PSBoundParameters
+}
+function grr {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git restore' @PSBoundParameters
+}
+function grp {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git rev-parse' @PSBoundParameters
+}
+function grrs {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git restore --source' @PSBoundParameters
+}
+function grt {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git remote' @PSBoundParameters
+}
+function grta {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git remote add' @PSBoundParameters
+}
+function grtrm {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git remote remove' @PSBoundParameters
+}
+function grtrn {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git remote rename' @PSBoundParameters
+}
+function grtsu {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git remote set-url' @PSBoundParameters
+}
 function grtup {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
     if ($remote = @(git remote)[0]) {
-        Invoke-WriteExecCmd -Command "git remote update $remote" -Arguments $args
+        # calculate command string
+        $cmnd = "git remote update $remote"
+        # run command
+        Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
     } else {
         Write-Host 'fatal: Remote repository not set.'
     }
 }
 function grtupp {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
     if ($remote = @(git remote)[0]) {
-        Invoke-WriteExecCmd -Command "git remote update $remote --prune" -Arguments $args
+        # calculate command string
+        $cmnd = "git remote update $remote --prune"
+        # run command
+        Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
     } else {
         Write-Host 'fatal: Remote repository not set.'
     }
 }
-function grtv { Invoke-WriteExecCmd -Command 'git remote --verbose' -Arguments $args }
-function gswc { Invoke-WriteExecCmd -Command 'git switch --create' -Arguments $args }
-function gswd { Invoke-WriteExecCmd -Command 'git switch --detach' -Arguments $args }
-function gswo { Invoke-WriteExecCmd -Command 'git switch --orphan' -Arguments $args }
-function gsmi { Invoke-WriteExecCmd -Command 'git submodule init' -Arguments $args }
-function gsmu { Invoke-WriteExecCmd -Command 'git submodule update' -Arguments $args }
-function gsps { Invoke-WriteExecCmd -Command 'git show --pretty=short --show-signature' -Arguments $args }
-function gsta { Invoke-WriteExecCmd -Command 'git stash push' -Arguments $args }
-function gstaa { Invoke-WriteExecCmd -Command 'git stash push --all' -Arguments $args }
-function gstac { Invoke-WriteExecCmd -Command 'git stash clear' -Arguments $args }
-function gstal { Invoke-WriteExecCmd -Command 'git stash list' -Arguments $args }
-function gstap { Invoke-WriteExecCmd -Command 'git stash pop' -Arguments $args }
-function gst { Invoke-WriteExecCmd -Command 'git status' -Arguments $args }
-function gstb { Invoke-WriteExecCmd -Command 'git status --short --branch' -Arguments $args }
-function gsts { Invoke-WriteExecCmd -Command 'git status --short' -Arguments $args }
-function gsvnd { Invoke-WriteExecCmd -Command 'git svn dcommit' -Arguments $args }
-function gsvnr { Invoke-WriteExecCmd -Command 'git svn rebase' -Arguments $args }
-function gt { Invoke-WriteExecCmd -Command 'git tag --sort=-v:refname' -Arguments $args }
-function gts { Invoke-WriteExecCmd -Command 'git tag --sign' -Arguments $args }
-function gtr { Invoke-WriteExecCmd -Command "git for-each-ref refs/tags/ --sort=-v:refname --format='%1B[33m%(objectname:short)%1B[m %1B[31m%(refname:short)%1B[m %(subject) %1B[1;94m%(authorname)%1B[m %1B[36m%(authoremail)%1B[m'" -Arguments @($args, '-Quiet') }
-function gunignore { Invoke-WriteExecCmd -Command 'git update-index --no-assume-unchanged' -Arguments $args }
-function gwch { Invoke-WriteExecCmd -Command 'git whatchanged -p --abbrev-commit --pretty=medium' -Arguments $args }
+function grtv {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git remote --verbose' @PSBoundParameters
+}
+function gswc {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git switch --create' @PSBoundParameters
+}
+function gswd {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git switch --detach' @PSBoundParameters
+}
+function gswo {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git switch --orphan' @PSBoundParameters
+}
+function gsmi {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git submodule init' @PSBoundParameters
+}
+function gsmu {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git submodule update' @PSBoundParameters
+}
+function gsps {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git show --pretty=short --show-signature' @PSBoundParameters
+}
+function gsta {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git stash push' @PSBoundParameters
+}
+function gstaa {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git stash push --all' @PSBoundParameters
+}
+function gstac {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git stash clear' @PSBoundParameters
+}
+function gstal {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git stash list' @PSBoundParameters
+}
+function gstap {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git stash pop' @PSBoundParameters
+}
+function gst {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git status' @PSBoundParameters
+}
+function gstb {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git status --short --branch' @PSBoundParameters
+}
+function gsts {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git status --short' @PSBoundParameters
+}
+function gsvnd {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git svn dcommit' @PSBoundParameters
+}
+function gsvnr {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git svn rebase' @PSBoundParameters
+}
+function gt {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git tag --sort=-v:refname' @PSBoundParameters
+}
+function gts {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git tag --sign' @PSBoundParameters
+}
+function gtr {
+    # command string
+    $cmnd = "git for-each-ref refs/tags/ --sort=-v:refname --format='%1B[33m%(objectname:short)%1B[m %1B[31m%(refname:short)%1B[m %(subject) %1B[1;94m%(authorname)%1B[m %1B[36m%(authoremail)%1B[m'"
+    # run command
+    Invoke-WriteExecCommand -Command $cmnd -Quiet
+}
+function gunignore {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git update-index --no-assume-unchanged' @PSBoundParameters
+}
+function gwch {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git whatchanged -p --abbrev-commit --pretty=medium' @PSBoundParameters
+}
