@@ -2,6 +2,7 @@
 . $PSScriptRoot/Functions/completers.ps1
 . $PSScriptRoot/Functions/helper.ps1
 . $PSScriptRoot/Functions/internal.ps1
+. $PSScriptRoot/Functions/pods.ps1
 
 $exportModuleMemberParams = @{
     Function = @(
@@ -23,9 +24,13 @@ $exportModuleMemberParams = @{
         'Connect-KubernetesContainer'
         'Debug-KubernetesPod'
         'Get-KubectlPodContainers'
-        # alias
+        # pods
+        'kgpo'
+        'kdpo'
         'ktop'
         'ktopcntr'
+        'kgpocntr'
+        # alias
         'kinf'
         'kav'
         'kcv'
@@ -60,9 +65,7 @@ $exportModuleMemberParams = @{
         'ksysrm'
         'krun'
         'ksysrun'
-        'kgpo'
         'ksysgpo'
-        'kdpo'
         'ksysdpo'
         'krmpo'
         'ksysrmpo'
@@ -844,7 +847,6 @@ $exportModuleMemberParams = @{
         'kn'
         'kex'
         'kdbg'
-        'kgpocntr'
     )
 }
 
