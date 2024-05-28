@@ -18,6 +18,8 @@ $exportModuleMemberParams = @{
         'Get-AzGraphResourceGroupByName'
         'Get-AzGraphResource'
         'Get-AzGraphResourceByName'
+        # completers
+        'ArgAzGetSubscriptions'
     )
     Variable = @()
     Alias    = @(
