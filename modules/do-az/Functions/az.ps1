@@ -184,11 +184,12 @@ function Set-SubscriptionMenu {
         $subscription = if ($PsBoundParameters.Subscription) {
             $PsBoundParameters.Subscription
         } else {
-            $query = "ResourceContainers | where type =~ 'microsoft.resources/subscriptions' | project name"
-            Invoke-AzGraph -Query $query `
-            | Select-Object subscriptionId, name `
-            | Get-ArrayIndexMenu -Value `
-            | Select-Object -ExpandProperty name
+            $query = [string]::Join(' | ',
+                'ResourceContainers',
+                'where type =~ "microsoft.resources/subscriptions"',
+                'project subscriptionId, name'
+            )
+            Invoke-AzGraph -Query $query | Get-ArrayIndexMenu -Value | Select-Object -ExpandProperty name
         }
     }
 
