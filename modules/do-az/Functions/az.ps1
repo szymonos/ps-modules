@@ -291,20 +291,26 @@ function Invoke-AzApiRequest {
         # get the latest stable Azure REST API version for the specified Path provided
         if (-not $ApiVersion -and $Endpoint -eq 'management.azure.com') {
             $split = $Path.Split('/')
-            if ($split[5] -eq 'providers') {
+            $idx = [array]::IndexOf($split, 'providers')
+            if ($idx -gt 0) {
                 Write-Warning 'Missing ApiVersion parameter. Getting the latest stable API version.' -WarningAction Continue
-                $ApiVersion = Invoke-CommandRetry {
-                    Get-AzResourceProvider -ProviderNamespace $split[6] -ErrorAction 'Stop' `
+                $namespace, $type = $split[($idx + 1)..($idx + 2)]
+                [string[]]$ApiVersions = Invoke-CommandRetry {
+                    Get-AzResourceProvider -ProviderNamespace $namespace -ErrorAction 'Stop' `
                     | Select-Object -ExpandProperty ResourceTypes `
-                    | Where-Object { $_.ResourceTypeName -eq $split[7] } `
-                    | Select-Object -ExpandProperty ApiVersions `
-                    | Where-Object { $_ -notmatch '-preview$' } `
-                    | Select-Object -First 1
+                    | Where-Object { $_.ResourceTypeName -eq $type } `
+                    | Select-Object -ExpandProperty ApiVersions
+                }
+                $ApiVersion = if ($stable = $ApiVersions -notmatch '-preview$') {
+                    $stable[0]
+                } elseif ($ApiVersions.Count -gt 0) {
+                    Write-Host "`t `e[1mStable API version not found, falling back to preview.`e[0m" -ForegroundColor Yellow
+                    $ApiVersions[0]
                 }
                 if ($ApiVersion) {
-                    Write-Host "`nLatest stable API version for `e[1m$($split[6])/$($split[7])`e[22m: `e[1m${ApiVersion}`e[22m" -ForegroundColor Yellow
+                    Write-Host "`nLatest API version for `e[4m$namespace/$type`e[24m: `e[1m${ApiVersion}`e[22m" -ForegroundColor Yellow
                 } else {
-                    Write-Warning "Latest stable API version for `e[1m$($split[6])/$($split[7])`e[21m not found."
+                    Write-Warning "API version for `e[4m$namespace/$type`e[24m not found."
                     break
                 }
             } else {
