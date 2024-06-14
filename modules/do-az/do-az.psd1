@@ -4,7 +4,7 @@
     RootModule           = 'do-az.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.12.22'
+    ModuleVersion        = '1.13.00'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -40,6 +40,7 @@
     FunctionsToExport    = @(
         # az
         'Connect-AzContext'
+        'Get-AzCtx'
         'Get-MsoToken'
         'Set-SubscriptionMenu'
         'Invoke-AzApiRequest'

@@ -58,6 +58,74 @@ function Connect-AzContext {
 
 <#
 .SYNOPSIS
+Get Azure context properties.
+.DESCRIPTION
+Get Azure context properties for the current user or service principal.
+
+.PARAMETER AzureCli
+Switch whether to get context properties for azure-cli.
+#>
+function Get-AzCtx {
+    [CmdletBinding()]
+    param (
+        [Alias('cli')]
+        [switch]$AzureCli
+    )
+
+    begin {
+        # get current Azure context and store it in a dictionary
+        if ($AzureCli) {
+            $ctx = az account show -o json | ConvertFrom-Json
+            $dict = [ordered]@{
+                TenantId         = $ctx.tenantId
+                SubscriptionId   = $ctx.id
+                SubscriptionName = $ctx.name
+                UserType         = $ctx.user.type
+            }
+        } else {
+            $ctx = Get-AzContext
+            $dict = [ordered]@{
+                TenantId         = $ctx.Tenant.Id
+                SubscriptionId   = $ctx.Subscription.Id
+                SubscriptionName = $ctx.Subscription.Name
+                UserType         = $ctx.Account.Type
+            }
+        }
+    }
+
+    process {
+        # add user or service principal properties to the dictionary
+        if ($AzureCli) {
+            if ($ctx.user.type -eq 'servicePrincipal') {
+                $dict.PrincipalName = Invoke-CommandRetry {
+                    Get-AzADServicePrincipal -ApplicationId $ctx.user.name -ErrorAction Stop
+                } | Select-Object -ExpandProperty DisplayName
+                $dict.PrincipalId = $ctx.user.name
+            } else {
+                $dict.UserName = $ctx.user.name
+            }
+        } else {
+            if ($ctx.Account.Type -eq 'servicePrincipal') {
+                $dict.PrincipalName = Invoke-CommandRetry {
+                    Get-AzADServicePrincipal -ApplicationId $ctx.Account.Id -ErrorAction Stop
+                } | Select-Object -ExpandProperty DisplayName
+                $dict.PrincipalId = $ctx.Account.Id
+            } else {
+                $dict.UserName = $ctx.Account.Id
+                $dict.UserId = ($ctx.Account.ExtendedProperties.HomeAccountId).Split('.')[0]
+            }
+        }
+    }
+
+    end {
+        # return context dictionary
+        [PSCustomObject]$dict
+    }
+}
+
+
+<#
+.SYNOPSIS
 Get OAuth2 access token from login.microsoftonline.com for the current user or specified Service Principal.
 
 .PARAMETER ResourceTypeName

@@ -8,6 +8,7 @@ $exportModuleMemberParams = @{
     Function = @(
         # az
         'Connect-AzContext'
+        'Get-AzCtx'
         'Get-MsoToken'
         'Set-SubscriptionMenu'
         'Invoke-AzApiRequest'
