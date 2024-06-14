@@ -5,6 +5,7 @@ Azure Resource Graph functions.
 https://learn.microsoft.com/en-gb/azure/governance/resource-graph/reference/supported-tables-resources
 #>
 
+
 <#
 .SYNOPSIS
 Generic Search-AzGraph request.
@@ -93,6 +94,7 @@ function Get-AzGraphSubscription {
         [Alias('c')]
         [Parameter(Mandatory, ParameterSetName = 'ByCondition')]
         [Parameter(ParameterSetName = 'InMngmtGroup')]
+        [ValidateScript({ $_ -notmatch '\s*where\b' }, ErrorMessage = "`e[4mWHERE`e[24m keyword is not allowed.")]
         [string]$Condition
     )
 
@@ -121,6 +123,7 @@ function Get-AzGraphSubscription {
     }
 
     process {
+        Write-Verbose "Query`n`n$($param.Query)`n"
         $response = Invoke-AzGraph @param
     }
 
@@ -163,6 +166,7 @@ function Get-AzGraphResourceGroup {
         [Parameter(Mandatory, ParameterSetName = 'ByCondition')]
         [Parameter(ParameterSetName = 'InSubscription')]
         [Parameter(ParameterSetName = 'InMngmtGroup')]
+        [ValidateScript({ $_ -notmatch '\s*where\b' }, ErrorMessage = "`e[4mWHERE`e[24m keyword is not allowed.")]
         [string]$Condition,
 
         [Alias('s')]
@@ -211,6 +215,7 @@ function Get-AzGraphResourceGroup {
     }
 
     process {
+        Write-Verbose "Query`n`n$($param.Query)`n"
         $response = Invoke-AzGraph @param
     }
 
@@ -315,7 +320,7 @@ function Get-AzGraphResource {
         [Parameter(Mandatory, ParameterSetName = 'GroupType')]
         [Parameter(ParameterSetName = 'InSubscription')]
         [Parameter(ParameterSetName = 'InMngmtGroup')]
-        [ValidateScript({ $_ -match '\w+\.\w+/\w+' }, ErrorMessage = "`e[1;4m{0}`e[22;24m is not valid type")]
+        [ValidateScript({ $_ -match '\w+\.\w+/\w+' }, ErrorMessage = "`e[4m{0}`e[24m is not valid type.")]
         [string]$ResourceType,
 
         [Alias('n')]
@@ -333,6 +338,7 @@ function Get-AzGraphResource {
         [Parameter(ParameterSetName = 'Type')]
         [Parameter(ParameterSetName = 'InSubscription')]
         [Parameter(ParameterSetName = 'InMngmtGroup')]
+        [ValidateScript({ $_ -notmatch '\s*where\b' }, ErrorMessage = "`e[4mWHERE`e[24m keyword is not allowed.")]
         [string]$Condition,
 
         [Alias('s')]
@@ -379,6 +385,7 @@ function Get-AzGraphResource {
     }
 
     process {
+        Write-Verbose "Query`n`n$($param.Query)`n"
         $response = Invoke-AzGraph @param
     }
 
@@ -421,7 +428,7 @@ function Get-AzGraphResourceByName {
         [Parameter(Mandatory, ParameterSetName = 'ByCondition')]
         [Parameter(ParameterSetName = 'InSubscription')]
         [Parameter(ParameterSetName = 'InMngmtGroup')]
-        [ValidateScript({ $false -notin $_.ForEach{ $_ -match '\w+\.\w+/\w+' } }, ErrorMessage = "`e[1;4m{0}`e[22;24m is not valid type")]
+        [ValidateScript({ $false -notin $_.ForEach{ $_ -match '\w+\.\w+/\w+' } }, ErrorMessage = "`e[4m{0}`e[24m is not valid type.")]
         [string[]]$ExcludeTypes,
 
         [Alias('s')]
