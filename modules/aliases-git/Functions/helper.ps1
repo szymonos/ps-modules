@@ -359,20 +359,16 @@ function gmgo {
         $resolvedBranch = Get-GitResolvedBranch $Branch
         $PSBoundParameters.Remove('Branch') | Out-Null
         # build list of commands to execute
-        $commands = [System.Collections.Generic.List[string]]::new()
-        $commands.Add("git fetch $remote --prune")
+        Invoke-WriteExecCommand -Command "git fetch $remote --prune" @PSBoundParameters
         if ($currentBranch -ne $resolvedBranch) {
-            $commands.Add("git merge ${remote}/${currentBranch} --quiet")
+            Invoke-WriteExecCommand -Command "git merge ${remote}/${currentBranch} --quiet" @PSBoundParameters
         }
-        $commands.Add("git merge ${remote}/${resolvedBranch}")
+        Invoke-WriteExecCommand -Command "git merge ${remote}/${resolvedBranch}" @PSBoundParameters | Tee-Object -Variable merge
+        if ($merge | Select-String 'Fast-forward' -Quiet) {
+            Invoke-WriteExecCommand -Command "git push ${remote}" @PSBoundParameters
+        }
     } else {
         Write-Host 'fatal: Remote repository not set.'
-        return
-    }
-
-    # run commands
-    foreach ($cmnd in $commands) {
-        Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
     }
 }
 function grb {
