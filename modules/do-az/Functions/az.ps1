@@ -139,8 +139,8 @@ Service Principal application id.
 Service Principal credential.
 .PARAMETER Credential
 PSCredential object with username and password.
-.PARAMETER AsSecureString
-Return token as a secure string.
+.PARAMETER AsPlainText
+When set, the function will convert secret in secure string to the decrypted plaintext string as output.
 #>
 function Get-MsoToken {
     [CmdletBinding(DefaultParameterSetName = 'ByType')]
@@ -169,7 +169,7 @@ function Get-MsoToken {
         [Parameter(ParameterSetName = 'ByUrl')]
         [System.Management.Automation.PSCredential]$Credential,
 
-        [switch]$AsSecureString
+        [switch]$AsPlainText
     )
 
     begin {
@@ -187,7 +187,8 @@ function Get-MsoToken {
         $token = if ($PsCmdlet.ParameterSetName -eq 'ByType') {
             # get token for the logged-in user by ResourceTypeName
             Invoke-CommandRetry {
-                Get-AzAccessToken -ResourceTypeName $ResourceTypeName
+                # todo - remove WarningAction on Az 13.0.0 release
+                Get-AzAccessToken -ResourceTypeName $ResourceTypeName -AsSecureString -WarningAction SilentlyContinue
             }
         } elseif ($ClientId) {
             # get token for the specified Url and Client
@@ -207,22 +208,30 @@ function Get-MsoToken {
                 Invoke-RestMethod @params
             }
             [PSCustomObject]@{
-                Token     = $oauth2Token.access_token
+                Token     = $oauth2Token.access_token | ConvertTo-SecureString -AsPlainText
                 ExpiresOn = Get-Date -UnixTimeSeconds $oauth2Token.expires_on
-                Type      = 'Bearer'
                 TenantId  = $tenantId
                 UserId    = $ClientId
+                Type      = 'Bearer'
             }
         } else {
+            # get token for the logged-in user for the specified Url
             Invoke-CommandRetry {
-                # get token for the logged-in user for the specified Url
-                Get-AzAccessToken -ResourceUrl $ResourceUrl
+                # todo - remove WarningAction on Az 13.0.0 release
+                Get-AzAccessToken -ResourceUrl $ResourceUrl -AsSecureString -WarningAction SilentlyContinue
             }
         }
 
-        if ($AsSecureString) {
-            # convert token to secure string
-            $token = ConvertTo-SecureString -String $token.Token -AsPlainText -Force
+        if ($AsPlainText) {
+            # convert token from secure string
+            $props = @(
+                @{ Name = 'Token'; Expression = { $_.Token | ConvertFrom-SecureString -AsPlainText } }
+                'ExpiresOn'
+                'TenantId'
+                'UserId'
+                'Type'
+            )
+            $token = $token | Select-Object $props
         }
     }
 
@@ -345,7 +354,7 @@ function Invoke-AzApiRequest {
     begin {
         # get Azure ARM access token if not prvided
         if (-not $Token) {
-            $Token = Get-MsoToken -AsSecureString
+            $Token = (Get-MsoToken).Token
         }
         # build Azure REST API request parameters for splatting
         $params = @{
