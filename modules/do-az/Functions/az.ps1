@@ -176,11 +176,10 @@ function Get-AzResourceTypeApiVersions {
             ById {
                 $split = $Id.Split('/')
                 $idx = [array]::IndexOf($split, 'providers')
-                if ($idx -ge 0) {
+                if ($idx -ge 0 -and $split[$idx + 1] -match '^microsoft\.\w+$' -and $split[$idx + 2]) {
                     $namespace, $type = $split[($idx + 1)..($idx + 2)]
                 } else {
-                    Write-Warning 'Cannot determine resource type. Provide correct Azure resource id.'
-                    exit 1
+                    Write-Error "Cannot determine resource type. ResourceId is incorrect ($Id)."
                 }
             }
             ByType {
@@ -188,8 +187,7 @@ function Get-AzResourceTypeApiVersions {
                 if ($split.Count -eq 2 -and $split[0] -match '^microsoft\.\w+$') {
                     $namespace, $type = $split
                 } else {
-                    Write-Warning 'Provider resource type is incorrect.'
-                    exit 1
+                    Write-Error "Provider resource type is incorrect ($Type)."
                 }
             }
         }
