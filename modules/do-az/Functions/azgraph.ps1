@@ -27,12 +27,19 @@ function Invoke-AzGraph {
         [guid]$SubscriptionId,
 
         [Parameter(Mandatory, ParameterSetName = 'InMngmtGroup')]
-        [guid]$ManagementGroup
+        [guid]$ManagementGroup,
+
+        [int]$PageSize = 1000,
+
+        [switch]$SkipPagination,
+
+        [switch]$JsonOutput
     )
 
     begin {
         $param = @{
-            First = 100
+            Query = $Query
+            First = $PageSize
         }
         if ($PSBoundParameters.SubscriptionId) {
             $param.Subscription = $SubscriptionId
@@ -46,17 +53,30 @@ function Invoke-AzGraph {
     }
 
     process {
+        Write-Verbose "Query`n`n$($param.Query)`n"
         $response = $null
         do {
             $response = Invoke-CommandRetry {
-                Search-AzGraph @param -Query $Query -SkipToken $response.SkipToken
+                Search-AzGraph @param -SkipToken $response.SkipToken
+            }
+            if ($SkipPagination) {
+                $response.SkipToken = $null
             }
             $response.ForEach({ $result.Add($_) })
         } while ($response.SkipToken)
     }
 
     end {
-        return $result
+        # return response
+        if ($JsonOutput) {
+            if (Get-Command jq -CommandType Application -ErrorAction SilentlyContinue) {
+                return $result | ConvertTo-Json -Depth 99 | jq
+            } else {
+                return $result | ConvertTo-Json -Depth 99
+            }
+        } else {
+            return $result
+        }
     }
 }
 
@@ -95,7 +115,11 @@ function Get-AzGraphSubscription {
         [Parameter(Mandatory, ParameterSetName = 'ByCondition')]
         [Parameter(ParameterSetName = 'InMngmtGroup')]
         [ValidateScript({ $_ -notmatch '\s*where\b' }, ErrorMessage = "`e[4mWHERE`e[24m keyword is not allowed.")]
-        [string]$Condition
+        [string]$Condition,
+
+        [int]$PageSize = 1000,
+
+        [switch]$SkipPagination
     )
 
     begin {
@@ -105,26 +129,22 @@ function Get-AzGraphSubscription {
         } elseif ($PSBoundParameters.Condition) {
             " and $($PSBoundParameters.Condition)"
         }
+        # calculate query
+        $query = [string]::Join("`n",
+            'ResourceContainers',
+            "| where type == 'microsoft.resources/subscriptions'$filter",
+            '| project id, name, type, tenantId, subscriptionId, properties'
+        )
 
-        # splat parameters
-        $param = @{
-            Query = [string]::Join("`n",
-                'ResourceContainers',
-                "| where type == 'microsoft.resources/subscriptions'$filter",
-                '| project id, name, type, tenantId, subscriptionId, properties'
-            )
-        }
-
-        if ($PSBoundParameters.ManagementGroup) {
-            $param.ManagementGroup = $ManagementGroup
-        } elseif ($PSBoundParameters.SubscriptionId) {
-            $param.SubscriptionId = $SubscriptionId
-        }
+        # add PSBoundParameters for the Invoke-AzGraph function
+        $PSBoundParameters.Add('Query', $query)
+        # remove unused PSBoundParameters in the Invoke-AzGraph function
+        $PSBoundParameters.Remove('SubscriptionName') | Out-Null
+        $PSBoundParameters.Remove('Condition') | Out-Null
     }
 
     process {
-        Write-Verbose "Query`n`n$($param.Query)`n"
-        $response = Invoke-AzGraph @param
+        $response = Invoke-AzGraph @PSBoundParameters
     }
 
     end {
@@ -149,7 +169,7 @@ Specifies the name of the resource group to get.
 Optional query condition.
 #>
 function Get-AzGraphResourceGroup {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     [OutputType([AzGraphResourceGroup[]])]
     param (
         [Alias('i')]
@@ -175,17 +195,20 @@ function Get-AzGraphResourceGroup {
 
         [Alias('m')]
         [Parameter(Mandatory, ParameterSetName = 'InMngmtGroup')]
-        [guid]$ManagementGroup
+        [guid]$ManagementGroup,
+
+        [int]$PageSize = 1000,
+
+        [switch]$SkipPagination
     )
 
     begin {
-        # initialize parameter splat
-        $param = @{}
-
         # build filter
         if ($PSBoundParameters.ResourceId) {
-            $filter = $PSBoundParameters.ResourceId ? "id =~ '$ResourceId'" : ''
-            $param.Subscription = ([AzGraphResourceGroup]$PSBoundParameters.ResourceId).SubscriptionId
+            $filter = "id =~ '$ResourceId'"
+            $PSBoundParameters.TryAdd('SubscriptionId', ([AzResource]$PSBoundParameters.ResourceId).SubscriptionId)
+            $PSBoundParameters.TryAdd('PageSize', 10)
+            $PSBoundParameters.Remove('ResourceId') | Out-Null
         } else {
             $filter = "type == 'microsoft.resources/subscriptions/resourcegroups'"
             $filter += if ($PSBoundParameters.ResourceGroupName) {
@@ -194,9 +217,8 @@ function Get-AzGraphResourceGroup {
                 " and $($PSBoundParameters.Condition)"
             }
         }
-
-        # splat parameters
-        $param.Query = [string]::Join("`n",
+        # calculate query
+        $query = [string]::Join("`n",
             'ResourceContainers',
             "| where $filter",
             '| join kind=leftouter (',
@@ -207,16 +229,15 @@ function Get-AzGraphResourceGroup {
             '| project id, name, type, tenantId, location, resourceGroup, subscriptionId, subscription, properties, tags'
         )
 
-        if ($PSBoundParameters.ManagementGroup) {
-            $param.ManagementGroup = $ManagementGroup
-        } elseif ($PSBoundParameters.SubscriptionId) {
-            $param.SubscriptionId = $SubscriptionId
-        }
+        # add PSBoundParameters for the Invoke-AzGraph function
+        $PSBoundParameters.Add('Query', $query)
+        # remove unused PSBoundParameters in the Invoke-AzGraph function
+        $PSBoundParameters.Remove('ResourceGroupName') | Out-Null
+        $PSBoundParameters.Remove('Condition') | Out-Null
     }
 
     process {
-        Write-Verbose "Query`n`n$($param.Query)`n"
-        $response = Invoke-AzGraph @param
+        $response = Invoke-AzGraph @PSBoundParameters
     }
 
     end {
@@ -253,20 +274,8 @@ function Get-AzGraphResourceGroupByName {
         [guid]$ManagementGroup
     )
 
-    begin {
-        $param = @{
-            ResourceGroupName = $PSBoundParameters.ResourceGroupName
-        }
-
-        if ($PSBoundParameters.SubscriptionId) {
-            $param.SubscriptionId = $SubscriptionId
-        } elseif ($PSBoundParameters.ManagementGroup) {
-            $param.ManagementGroup = $ManagementGroup
-        }
-    }
-
     process {
-        $rg = Get-AzGraphResourceGroup @param | Sort-Object subscription
+        $rg = Get-AzGraphResourceGroup @PSBoundParameters -PageSize 100 | Sort-Object subscription
         # select resource if query returned more than one result
         if ($rg.Count -gt 1) {
             Write-Warning 'Found more than one resource group matching the criteria!'
@@ -347,26 +356,28 @@ function Get-AzGraphResource {
 
         [Alias('m')]
         [Parameter(Mandatory, ParameterSetName = 'InMngmtGroup')]
-        [guid]$ManagementGroup
+        [guid]$ManagementGroup,
+
+        [int]$PageSize = 1000,
+
+        [switch]$SkipPagination
     )
 
     begin {
-        # initialize parameter splat
-        $param = @{}
-
         # build filter
         if ($PSBoundParameters.ResourceId) {
-            $filter = $PSBoundParameters.ResourceId ? "id =~ '$ResourceId'" : ''
-            $param.Subscription = ([AzResource]$PSBoundParameters.ResourceId).SubscriptionId
+            $filter = "id =~ '$ResourceId'"
+            $PSBoundParameters.TryAdd('SubscriptionId', ([AzResource]$PSBoundParameters.ResourceId).SubscriptionId)
+            $PSBoundParameters.TryAdd('PageSize', 10)
+            $PSBoundParameters.Remove('ResourceId') | Out-Null
         } else {
             $filter = $PSBoundParameters.ResourceGroupName ? "resourceGroup =~ '$($PSBoundParameters.ResourceGroupName)'" : ''
             $filter += $PSBoundParameters.ResourceType ? ($filter ? ' and ' : '') + "type =~ '$($PSBoundParameters.ResourceType)'" : ''
             $filter += $PSBoundParameters.ResourceName ? ($filter ? ' and ' : '') + "name =~ '$($PSBoundParameters.ResourceName)'" : ''
             $filter += $PSBoundParameters.Condition ? ($filter ? ' and ' : '') + $PSBoundParameters.Condition : ''
         }
-
-        # splat parameters
-        $param.Query = [string]::Join("`n",
+        # calculate query
+        $query = [string]::Join("`n",
             'Resources',
             "| where $filter",
             '| join kind=leftouter (',
@@ -377,16 +388,17 @@ function Get-AzGraphResource {
             '| project id, name, type, tenantId, kind, location, resourceGroup, subscriptionId, subscription, sku, properties, tags, identity'
         )
 
-        if ($PSBoundParameters.SubscriptionId) {
-            $param.SubscriptionId = $SubscriptionId
-        } elseif ($PSBoundParameters.ManagementGroup) {
-            $param.ManagementGroup = $ManagementGroup
-        }
+        # add PSBoundParameters for the Invoke-AzGraph function
+        $PSBoundParameters.Add('Query', $query)
+        # remove unused PSBoundParameters in the Invoke-AzGraph function
+        $PSBoundParameters.Remove('ResourceGroupName') | Out-Null
+        $PSBoundParameters.Remove('ResourceType') | Out-Null
+        $PSBoundParameters.Remove('ResourceName') | Out-Null
+        $PSBoundParameters.Remove('Condition') | Out-Null
     }
 
     process {
-        Write-Verbose "Query`n`n$($param.Query)`n"
-        $response = Invoke-AzGraph @param
+        $response = Invoke-AzGraph @PSBoundParameters
     }
 
     end {
@@ -425,9 +437,6 @@ function Get-AzGraphResourceByName {
         [string]$ResourceType,
 
         [Alias('e')]
-        [Parameter(Mandatory, ParameterSetName = 'ByCondition')]
-        [Parameter(ParameterSetName = 'InSubscription')]
-        [Parameter(ParameterSetName = 'InMngmtGroup')]
         [ValidateScript({ $false -notin $_.ForEach{ $_ -match '\w+\.\w+/\w+' } }, ErrorMessage = "`e[4m{0}`e[24m is not valid type.")]
         [string[]]$ExcludeTypes,
 
@@ -441,26 +450,16 @@ function Get-AzGraphResourceByName {
     )
 
     begin {
-        $param = @{
-            ResourceName = $PSBoundParameters.ResourceName
-        }
-
-        if ($PSBoundParameters.ResourceType) {
-            $param.ResourceType = $PSBoundParameters.ResourceType
-        } elseif ($PSBoundParameters.ExcludeTypes) {
-            $typesList = $PSBoundParameters.ExcludeTypes.ForEach{ "`"$_`"" } -join ', '
-            $param.Condition = "type !in~ ($typesList)"
-        }
-
-        if ($PSBoundParameters.SubscriptionId) {
-            $param.SubscriptionId = $SubscriptionId
-        } elseif ($PSBoundParameters.ManagementGroup) {
-            $param.ManagementGroup = $ManagementGroup
+        # add PSBoundParameters for the Get-AzGraphResource function
+        if ($PSBoundParameters.ExcludeTypes) {
+            $typesList = $PSBoundParameters.ExcludeTypes | Join-String -Separator ', ' -DoubleQuote
+            $PSBoundParameters.Add('Condition', "type !in~ ($typesList)")
+            $PSBoundParameters.Remove('ExcludeTypes') | Out-Null
         }
     }
 
     process {
-        $resource = Get-AzGraphResource @param | Sort-Object subscription, resourceGroup, type
+        $resource = Get-AzGraphResource @PSBoundParameters -PageSize 100 | Sort-Object subscription, resourceGroup, type
         # select resource if query returned more than one result
         if ($resource.Count -gt 1) {
             Write-Warning 'Found more than one resource matching the criteria!'

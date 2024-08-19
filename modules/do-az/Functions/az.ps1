@@ -126,6 +126,112 @@ function Get-AzCtx {
 
 <#
 .SYNOPSIS
+Retrieves the available API versions for Azure resource types.
+
+.DESCRIPTION
+This function queries Azure to get a list of all available API versions for the specified Azure resource types.
+It can be used to ensure that scripts or deployments target compatible API versions.
+
+.PARAMETER Type
+Specifies the resource type to get the Azure REST API versions for.
+.PARAMETER Id
+Specifies the resource id to get the Azure REST API versions for.
+.PARAMETER Option
+Specifes the option to retrieve API versions:
+- Def:   : latest stable and if not found latest preview (default option)
+- Latest : latest version
+- Stable : latest stable version
+- All    : all versions
+
+.EXAMPLE
+# :get api versions by resource type
+$Type = 'Microsoft.MachineLearningServices/workspaces'
+Get-AzResourceTypeApiVersions $Type
+Get-AzResourceTypeApiVersions $Type -Option 'Latest'
+Get-AzResourceTypeApiVersions $Type -Option 'Stable'
+Get-AzResourceTypeApiVersions $Type -Option 'All'
+# :get AIP versions by resource id
+$Id = '/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Authorization/roleAssignmentsUsageMetrics'
+Get-AzResourceTypeApiVersions -Id $Id
+
+.NOTES
+Requires the Azure PowerShell module to be installed and an active Azure subscription login.
+#>
+function Get-AzResourceTypeApiVersions {
+    [CmdletBinding(DefaultParameterSetName = 'ByType')]
+    param (
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'ByType')]
+        [string]$Type,
+
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'ById')]
+        [string]$Id,
+
+        [ValidateSet('Def', 'Latest', 'Stable', 'All')]
+        [string]$Option = 'Def'
+    )
+
+    process {
+        # determina provider namespace and resource type
+        switch ($PSCmdlet.ParameterSetName) {
+            ById {
+                $split = $Id.Split('/')
+                $idx = [array]::IndexOf($split, 'providers')
+                if ($idx -ge 0 -and $split[$idx + 1] -match '^microsoft\.\w+$' -and $split[$idx + 2]) {
+                    $namespace, $type = $split[($idx + 1)..($idx + 2)]
+                } else {
+                    Write-Error "Cannot determine resource type. ResourceId is incorrect ($Id)."
+                }
+            }
+            ByType {
+                $split = $Type.Split('/')
+                if ($split.Count -eq 2 -and $split[0] -match '^microsoft\.\w+$') {
+                    $namespace, $type = $split
+                } else {
+                    Write-Error "Provider resource type is incorrect ($Type)."
+                }
+            }
+        }
+
+        [string[]]$ApiVersions = Invoke-CommandRetry {
+            Get-AzResourceProvider -ProviderNamespace $namespace -ErrorAction 'Stop' `
+            | Select-Object -ExpandProperty ResourceTypes `
+            | Where-Object { $_.ResourceTypeName -eq $type } `
+            | Select-Object -ExpandProperty ApiVersions
+        }
+
+        if (-not $ApiVersions) {
+            Write-Warning "API version for `e[4m$namespace/$type`e[24m not found."
+            break
+        } elseif ($Option -in @('Stable', 'Def')) {
+            $stable = $ApiVersions -notmatch '-preview$'
+        }
+    }
+
+    end {
+        switch ($Option) {
+            All {
+                $ApiVersions
+                continue
+            }
+            Latest {
+                $ApiVersions[0]
+                continue
+            }
+            Stable {
+                $stable[0]
+                continue
+            }
+            Def {
+                $stable.Count -gt 0 ? $stable[0] : $ApiVersions[0]
+                continue
+            }
+        }
+    }
+}
+
+
+<#
+.SYNOPSIS
 Get OAuth2 access token from login.microsoftonline.com for the current user or specified Service Principal.
 
 .PARAMETER ResourceTypeName
@@ -367,33 +473,7 @@ function Invoke-AzApiRequest {
 
         # get the latest stable Azure REST API version for the specified Path provided
         if (-not $ApiVersion -and $Endpoint -eq 'management.azure.com') {
-            $split = $Path.Split('/')
-            $idx = [array]::IndexOf($split, 'providers')
-            if ($idx -gt 0) {
-                Write-Warning 'Missing ApiVersion parameter. Getting the latest stable API version.' -WarningAction Continue
-                $namespace, $type = $split[($idx + 1)..($idx + 2)]
-                [string[]]$ApiVersions = Invoke-CommandRetry {
-                    Get-AzResourceProvider -ProviderNamespace $namespace -ErrorAction 'Stop' `
-                    | Select-Object -ExpandProperty ResourceTypes `
-                    | Where-Object { $_.ResourceTypeName -eq $type } `
-                    | Select-Object -ExpandProperty ApiVersions
-                }
-                $ApiVersion = if ($stable = $ApiVersions -notmatch '-preview$') {
-                    $stable[0]
-                } elseif ($ApiVersions.Count -gt 0) {
-                    Write-Host "`t `e[1mStable API version not found, falling back to preview.`e[0m" -ForegroundColor Yellow
-                    $ApiVersions[0]
-                }
-                if ($ApiVersion) {
-                    Write-Host "`nLatest API version for `e[4m$namespace/$type`e[24m: `e[1m${ApiVersion}`e[22m" -ForegroundColor Yellow
-                } else {
-                    Write-Warning "API version for `e[4m$namespace/$type`e[24m not found."
-                    break
-                }
-            } else {
-                Write-Warning 'Missing ApiVersion parameter. Provide correct API version.'
-                break
-            }
+            $ApiVersion = Get-AzResourceTypeApiVersions -Id $Path
         }
 
         # add payload
