@@ -232,7 +232,8 @@ function Remove-GitLocalBranches {
 
     process {
         # get list of branches
-        filter branchFilter { $_.Where({ $_ -notmatch '^ma(in|ster)$|^dev(|el|elop)$|^qa$|^stage$|^trunk$' }) }
+        $regex = '^ma(in|ster)$|^(non)?prod(uction)?$|^dev(|el|elop|elopment)$|^qa$|^stag(e|ing)$|^trunk$'
+        filter branchFilter { $_.Where({ $_ -notmatch $regex }) }
         $merged = git branch --format='%(refname:short)' --merged | branchFilter
         # delete branches
         foreach ($branch in $merged) {
@@ -269,11 +270,12 @@ function Remove-GitMergedBranches {
         git remote update --prune
 
         # build branch filters
-        filter localFilter { $_.Where({ $_ -notmatch '^ma(in|ster)$|^dev(|el|elop)$|^qa$|^stage$|^trunk$' }) }
+        $regex = '^ma(in|ster)$|^(non)?prod(uction)?$|^dev(|el|elop|elopment)$|^qa$|^stag(e|ing)$|^trunk$'
+        filter localFilter { $_.Where({ $_ -notmatch $regex }) }
         if ($DeleteRemote) {
             [string[]]$remotes = git remote
             $remoteFilter = $remotes.ForEach({ "^$_/" }) | Join-String -Separator '|'
-            $knownFilter = "($remoteFilter)(ma(in|ster)$|dev(|el|elop)$|qa$|stage$|trunk$)"
+            $knownFilter = "($remoteFilter)($($regex.Replace('^', '')))"
             filter remoteFilter { $_.Where({ $_ -match $remoteFilter -and $_ -notmatch $knownFilter }) }
         }
     }
