@@ -206,8 +206,8 @@ function Get-AzGraphResourceGroup {
         # build filter
         if ($PSBoundParameters.ResourceId) {
             $filter = "id =~ '$ResourceId'"
-            $PSBoundParameters.TryAdd('SubscriptionId', ([AzResource]$PSBoundParameters.ResourceId).SubscriptionId)
-            $PSBoundParameters.TryAdd('PageSize', 10)
+            $PSBoundParameters.TryAdd('SubscriptionId', ([AzResource]$PSBoundParameters.ResourceId).SubscriptionId) | Out-Null
+            $PSBoundParameters.TryAdd('PageSize', 10) | Out-Null
             $PSBoundParameters.Remove('ResourceId') | Out-Null
         } else {
             $filter = "type == 'microsoft.resources/subscriptions/resourcegroups'"
@@ -367,8 +367,8 @@ function Get-AzGraphResource {
         # build filter
         if ($PSBoundParameters.ResourceId) {
             $filter = "id =~ '$ResourceId'"
-            $PSBoundParameters.TryAdd('SubscriptionId', ([AzResource]$PSBoundParameters.ResourceId).SubscriptionId)
-            $PSBoundParameters.TryAdd('PageSize', 10)
+            $PSBoundParameters.TryAdd('SubscriptionId', ([AzResource]$PSBoundParameters.ResourceId).SubscriptionId) | Out-Null
+            $PSBoundParameters.TryAdd('PageSize', 10) | Out-Null
             $PSBoundParameters.Remove('ResourceId') | Out-Null
         } else {
             $filter = $PSBoundParameters.ResourceGroupName ? "resourceGroup =~ '$($PSBoundParameters.ResourceGroupName)'" : ''
