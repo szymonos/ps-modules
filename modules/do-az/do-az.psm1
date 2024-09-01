@@ -1,5 +1,7 @@
 $ErrorActionPreference = 'Stop'
-
+# classes
+. $PSScriptRoot/Classes/do-az.ps1
+# functions
 . $PSScriptRoot/Functions/az.ps1
 . $PSScriptRoot/Functions/azgraph.ps1
 . $PSScriptRoot/Functions/completers.ps1

@@ -4,7 +4,7 @@
     RootModule           = 'do-az.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.15.00'
+    ModuleVersion        = '1.15.1'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -37,24 +37,7 @@
     )
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport    = @(
-        # az
-        'Connect-AzContext'
-        'Get-AzCtx'
-        'Get-AzResourceTypeApiVersions'
-        'Get-MsoToken'
-        'Set-SubscriptionMenu'
-        'Invoke-AzApiRequest'
-        # azgraph
-        'Invoke-AzGraph'
-        'Get-AzGraphSubscription'
-        'Get-AzGraphResourceGroup'
-        'Get-AzGraphResourceGroupByName'
-        'Get-AzGraphResource'
-        'Get-AzGraphResourceByName'
-        # completers
-        'ArgAzGetSubscriptions'
-    )
+    FunctionsToExport    = '*'
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport      = @()
@@ -63,9 +46,7 @@
     VariablesToExport    = '*'
 
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-    AliasesToExport      = @(
-        'ssm'
-    )
+    AliasesToExport      = '*'
 
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
     PrivateData          = @{
