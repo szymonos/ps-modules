@@ -4,7 +4,7 @@
     RootModule           = 'do-win.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '0.7.0'
+    ModuleVersion        = '0.8.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -32,20 +32,7 @@
     ScriptsToProcess     = @()
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport    = @(
-        # common
-        'Get-CommandSource'
-        'Get-DiskUsage'
-        'Get-SysInfo'
-        'New-File'
-        'Update-SessionEnvironmentPath'
-        # forms
-        'Get-FileName'
-        'Get-FolderPath'
-        # winget
-        'Get-WingetResult'
-        'Invoke-WingetUpgrade'
-    )
+    FunctionsToExport    = '*'
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport      = @()
@@ -54,13 +41,7 @@
     VariablesToExport    = '*'
 
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-    AliasesToExport      = @(
-        'du'
-        'gsi'
-        'refreshenvpath'
-        'touch'
-        'which'
-    )
+    AliasesToExport      = '*'
 
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
     PrivateData          = @{
