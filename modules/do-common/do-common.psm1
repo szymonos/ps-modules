@@ -3,6 +3,7 @@ $ErrorActionPreference = 'Stop'
 . $PSScriptRoot/Functions/certs.ps1
 . $PSScriptRoot/Functions/common.ps1
 . $PSScriptRoot/Functions/dotnet.ps1
+. $PSScriptRoot/Functions/logs.ps1
 . $PSScriptRoot/Functions/net.ps1
 . $PSScriptRoot/Functions/python.ps1
 
@@ -40,6 +41,10 @@ $exportModuleMemberParams = @{
         'Get-DotnetCurrentDirectory'
         'Set-DotnetCurrentDirectory'
         'Set-DotnetLocation'
+        # logs
+        'Set-LogFile'
+        'Show-LogContext'
+        'Write-LogContext'
         # net
         'ConvertFrom-CIDR'
         'Invoke-DownloadFile'
