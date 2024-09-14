@@ -133,96 +133,6 @@ function krmk {
 
     Invoke-WriteExecCommand -Command 'kubectl delete -k' @PSBoundParameters
 }
-function kex {
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
-    param (
-        [Parameter(ValueFromRemainingArguments)]
-        [string[]]$Xargs,
-
-        [Parameter(ParameterSetName = 'whatif')]
-        [switch]$WhatIf,
-
-        [Parameter(ParameterSetName = 'quiet')]
-        [switch]$Quiet
-    )
-
-    Invoke-WriteExecCommand -Command 'kubectl exec -i -t' @PSBoundParameters
-}
-function kexsh {
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
-    param (
-        [Parameter(ValueFromRemainingArguments)]
-        [string[]]$Xargs,
-
-        [Parameter(ParameterSetName = 'whatif')]
-        [switch]$WhatIf,
-
-        [Parameter(ParameterSetName = 'quiet')]
-        [switch]$Quiet
-    )
-
-    Invoke-WriteExecCommand -Command "kubectl exec -i -t $args -- sh" -Parameters $args
-}
-function kexbash {
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
-    param (
-        [Parameter(ValueFromRemainingArguments)]
-        [string[]]$Xargs,
-
-        [Parameter(ParameterSetName = 'whatif')]
-        [switch]$WhatIf,
-
-        [Parameter(ParameterSetName = 'quiet')]
-        [switch]$Quiet
-    )
-
-    Invoke-WriteExecCommand -Command "kubectl exec -i -t $args -- bash" -Parameters $args
-}
-function kexpwsh {
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
-    param (
-        [Parameter(ValueFromRemainingArguments)]
-        [string[]]$Xargs,
-
-        [Parameter(ParameterSetName = 'whatif')]
-        [switch]$WhatIf,
-
-        [Parameter(ParameterSetName = 'quiet')]
-        [switch]$Quiet
-    )
-
-    Invoke-WriteExecCommand -Command "kubectl exec -i -t $args -- pwsh" -Parameters $args
-}
-function kexpy {
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
-    param (
-        [Parameter(ValueFromRemainingArguments)]
-        [string[]]$Xargs,
-
-        [Parameter(ParameterSetName = 'whatif')]
-        [switch]$WhatIf,
-
-        [Parameter(ParameterSetName = 'quiet')]
-        [switch]$Quiet
-    )
-
-    Invoke-WriteExecCommand -Command "kubectl exec -i -t $args -- python" -Parameters $args
-}
-function kexipy {
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
-    param (
-        [Parameter(ValueFromRemainingArguments)]
-        [string[]]$Xargs,
-
-        [Parameter(ParameterSetName = 'whatif')]
-        [switch]$WhatIf,
-
-        [Parameter(ParameterSetName = 'quiet')]
-        [switch]$Quiet
-    )
-
-    Invoke-WriteExecCommand -Command "kubectl exec -i -t $args -- ipython" -Parameters $args
-}
 function kre {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
@@ -10542,21 +10452,6 @@ function ksysgdepwslowidel {
     )
 
     Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --watch --show-labels -o=wide -l' @PSBoundParameters
-}
-function kexn {
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
-    param (
-        [Parameter(ValueFromRemainingArguments)]
-        [string[]]$Xargs,
-
-        [Parameter(ParameterSetName = 'whatif')]
-        [switch]$WhatIf,
-
-        [Parameter(ParameterSetName = 'quiet')]
-        [switch]$Quiet
-    )
-
-    Invoke-WriteExecCommand -Command 'kubectl exec -i -t --namespace' @PSBoundParameters
 }
 function klon {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
