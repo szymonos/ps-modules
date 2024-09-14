@@ -208,21 +208,6 @@ function ksysex {
 
     Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system exec -i -t' @PSBoundParameters
 }
-function klo {
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
-    param (
-        [Parameter(ValueFromRemainingArguments)]
-        [string[]]$Xargs,
-
-        [Parameter(ParameterSetName = 'whatif')]
-        [switch]$WhatIf,
-
-        [Parameter(ParameterSetName = 'quiet')]
-        [switch]$Quiet
-    )
-
-    Invoke-WriteExecCommand -Command 'kubectl logs -f' @PSBoundParameters
-}
 function ksyslo {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
@@ -237,21 +222,6 @@ function ksyslo {
     )
 
     Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system logs -f' @PSBoundParameters
-}
-function klop {
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
-    param (
-        [Parameter(ValueFromRemainingArguments)]
-        [string[]]$Xargs,
-
-        [Parameter(ParameterSetName = 'whatif')]
-        [switch]$WhatIf,
-
-        [Parameter(ParameterSetName = 'quiet')]
-        [switch]$Quiet
-    )
-
-    Invoke-WriteExecCommand -Command 'kubectl logs -f -p' @PSBoundParameters
 }
 function ksyslop {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10452,21 +10422,6 @@ function ksysgdepwslowidel {
     )
 
     Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --watch --show-labels -o=wide -l' @PSBoundParameters
-}
-function klon {
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
-    param (
-        [Parameter(ValueFromRemainingArguments)]
-        [string[]]$Xargs,
-
-        [Parameter(ParameterSetName = 'whatif')]
-        [switch]$WhatIf,
-
-        [Parameter(ParameterSetName = 'quiet')]
-        [switch]$Quiet
-    )
-
-    Invoke-WriteExecCommand -Command 'kubectl logs -f --namespace' @PSBoundParameters
 }
 function kpfn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
