@@ -250,7 +250,7 @@ Name of the pod to connect to.
 .PARAMETER Container
 Explicitly specify the container in the pod to connect to.
 .PARAMETER Namespace
-Specify namespace of the pod to connect to.
+Specify namespace of the pod.
 .PARAMETER Command
 Specify to run any specified command.
 .PARAMETER bash
@@ -334,7 +334,7 @@ Debug cluster pods using interactive debugging containers.
 .PARAMETER Pod
 Name of the pod to be debugged.
 .PARAMETER Namespace
-Specify namespace of the pod to debug.
+Specify namespace of the pod.
 .PARAMETER Command
 Specify to run any specified command in the debug container.
 .PARAMETER bash
@@ -407,6 +407,54 @@ function Debug-KubernetesPod {
         Invoke-WriteExecCommand -Command $cmnd
     }
 }
+
+
+<#
+.SYNOPSIS
+Get logs from the specified pod.
+
+.PARAMETER Pod
+Name of the pod to get logs from.
+.PARAMETER Container
+Specify container in the pod to get logs from.
+.PARAMETER Namespace
+Specify namespace of the pod.
+#>
+function Get-KubectlPodLogs {
+    [CmdletBinding(DefaultParameterSetName = 'Shell')]
+    param (
+        [Alias('p')]
+        [Parameter(Position = 0, Mandatory = $true)]
+        [ArgumentCompleter({ ArgK8sGetPods @args })]
+        [string]$Pod,
+
+        [Alias('c')]
+        [Parameter(Position = 1)]
+        [ArgumentCompleter({ ArgK8sGetPodContainers @args })]
+        [string]$Container,
+
+        [ArgumentCompleter({ ArgK8sGetNamespaces @args })]
+        [string]$Namespace
+    )
+
+    begin {
+        # build kubectl command string
+        $sb = [System.Text.StringBuilder]::new("kubectl logs -f $($PSBoundParameters.Pod)")
+        if ($PSBoundParameters.Namespace) {
+            $sb.Append(" --namespace $($PSBoundParameters.Namespace)") | Out-Null
+        }
+        if ($PSBoundParameters.Container) {
+            $sb.Append(" --container $($PSBoundParameters.Container)") | Out-Null
+        }
+        # get the command string
+        $cmnd = $sb.ToString()
+    }
+
+    process {
+        # execute command
+        Invoke-WriteExecCommand -Command $cmnd
+    }
+}
 #endregion
 
 
@@ -424,4 +472,5 @@ New-Alias -Name kcsctxcns -Value Set-KubectlContextCurrentNamespace
 New-Alias -Name kn -Value Set-KubectlContextCurrentNamespace
 New-Alias -Name kex -Value Connect-KubernetesContainer
 New-Alias -Name kdbg -Value Debug-KubernetesPod
+New-Alias -Name klo -Value Get-KubectlPodLogs
 #endregion
