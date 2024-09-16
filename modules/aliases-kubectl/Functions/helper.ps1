@@ -202,6 +202,7 @@ function Set-KubectlLocal {
     # calculate paths
     $LOCAL_BIN = [IO.Path]::Combine($HOME, '.local', 'bin')
     $KUBECTL_LOCAL = [IO.Path]::Combine($LOCAL_BIN, $KUBECTL)
+    $KUBECTL_ALIAS = [IO.Path]::Combine($LOCAL_BIN, $KUBECTL.Replace('ubectl', ''))
     $KUBECTL_DIR = [IO.Path]::Combine($HOME, '.local', 'share', 'kubectl')
 
     # check kubernetes server version
@@ -235,8 +236,9 @@ function Set-KubectlLocal {
             }
         }
         # replace existing ~/.local/bin/kubectl symbolic link
-        Remove-Item $KUBECTL_LOCAL -Force -ErrorAction SilentlyContinue
-        New-Item -ItemType SymbolicLink -Path $KUBECTL_LOCAL -Target $kctlVer | Out-Null
+        New-Item -ItemType SymbolicLink -Path $KUBECTL_LOCAL -Target $kctlVer -Force | Out-Null
+        # replace existing ~/.local/bin/k symbolic link
+        New-Item -ItemType SymbolicLink -Path $KUBECTL_ALIAS -Target $kctlVer -Force | Out-Null
     }
 }
 
@@ -459,7 +461,6 @@ function Get-KubectlPodLogs {
 
 
 #region aliases
-New-Alias -Name k -Value kubectl
 New-Alias -Name kv -Value Get-KubectlVersion
 New-Alias -Name kvc -Value Get-KubectlClientVersion
 New-Alias -Name kvs -Value Get-KubectlServerVersion
