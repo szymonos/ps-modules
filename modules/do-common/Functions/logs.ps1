@@ -62,7 +62,7 @@ function Show-LogContext {
         # get the caller function name
         $callerFunction = $caller.FunctionName
         # get the caller script name
-        $callerScript = $caller.ScriptName | Split-Path -Leaf
+        $callerScript = $caller.ScriptName ? (Split-Path -Path $caller.ScriptName -Leaf) : $caller.Location
         # get the caller line number
         $callerLine = $caller.ScriptLineNumber
     }
@@ -145,7 +145,7 @@ function Write-LogContext {
         # get the caller function name
         $callerFunction = $caller.FunctionName
         # get the caller script name
-        $callerScript = $caller.ScriptName | Split-Path -Leaf
+        $callerScript = $caller.ScriptName ? (Split-Path -Path $caller.ScriptName -Leaf) : $caller.Location
         # get the caller line number
         $callerLine = $caller.ScriptLineNumber
 

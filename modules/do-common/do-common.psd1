@@ -4,7 +4,7 @@
     RootModule           = 'do-common.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.2.0'
+    ModuleVersion        = '1.2.1'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -31,7 +31,51 @@
     ScriptsToProcess     = @()
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport    = '*'
+    FunctionsToExport    = @(
+        # certs
+        'Add-CertificateProperties'
+        'ConvertFrom-PEM'
+        'ConvertTo-PEM'
+        'Get-Certificate'
+        'Get-CertificateOpenSSL'
+        'Get-RootCertificates'
+        'Show-Certificate'
+        'Show-CertificateChain'
+        # common
+        'ConvertFrom-Base64'
+        'ConvertTo-Base64'
+        'ConvertFrom-Cfg'
+        'ConvertTo-Cfg'
+        'ConvertTo-UTF8LF'
+        'Convert-ROT13'
+        'ConvertTo-JsonFormatted'
+        'Get-ArrayIndexMenu'
+        'Get-CmdletAlias'
+        'Get-DotEnv'
+        'Get-LogMessage'
+        'Format-Duration'
+        'Invoke-CommandRetry'
+        'Invoke-ExampleScriptSave'
+        'New-Password'
+        'Set-DotEnv'
+        'Show-Object'
+        'Test-IsAdmin'
+        # dotnet
+        'Get-DotnetCurrentDirectory'
+        'Set-DotnetCurrentDirectory'
+        'Set-DotnetLocation'
+        # logs
+        'Set-LogFile'
+        'Show-LogContext'
+        'Write-LogContext'
+        # net
+        'ConvertFrom-CIDR'
+        'Invoke-DownloadFile'
+        # python
+        'Invoke-CertifiFixFromChain'
+        'Invoke-CondaSetup'
+        'Invoke-PySetup'
+    )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport      = @()
@@ -40,7 +84,22 @@
     VariablesToExport    = '*'
 
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-    AliasesToExport      = '*'
+    AliasesToExport      = @(
+        # common
+        'alias'
+        'egsave'
+        'json'
+        # dotnet
+        'swd'
+        'sswd'
+        'cds'
+        # net
+        'idf'
+        # python
+        'fxcertpy'
+        'ics'
+        'ips'
+    )
 
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
     PrivateData          = @{
