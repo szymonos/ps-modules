@@ -825,7 +825,6 @@ $exportModuleMemberParams = @{
     )
     Variable = @()
     Alias    = @(
-        'k'
         'kv'
         'kvc'
         'kvs'
