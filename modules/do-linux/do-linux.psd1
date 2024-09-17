@@ -12,7 +12,7 @@
     RootModule           = 'do-linux.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '0.5.0'
+    ModuleVersion        = '0.5.1'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -72,7 +72,13 @@
     # NestedModules = @()
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport    = '*'
+    FunctionsToExport    = @(
+        # common
+        'Get-SysInfo'
+        'Invoke-Sudo'
+        'Invoke-SudoPS'
+        'Invoke-ExecutableBitFix'
+    )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport      = @()
@@ -81,7 +87,13 @@
     VariablesToExport    = '*'
 
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-    AliasesToExport      = '*'
+    AliasesToExport      = @(
+        # common
+        'gsi'
+        '_'
+        'sps'
+        'fxmod'
+    )
 
     # DSC resources to export from this module
     # DscResourcesToExport = @()
