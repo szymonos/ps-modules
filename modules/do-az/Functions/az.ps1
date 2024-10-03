@@ -516,6 +516,8 @@ function Invoke-AzApiRequest {
         Write-Verbose "$($params.Method.ToUpper()) $($params.Uri)"
         if ($params.Body) {
             Write-Verbose "Body`n$($params.Body)"
+        } elseif ($params.InFile) {
+            Write-Verbose "Body`n$(Get-Content $params.InFile | Join-String -Separator "`n")" -Verbose
         }
         do {
             # send API request
