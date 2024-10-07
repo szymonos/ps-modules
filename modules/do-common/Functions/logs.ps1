@@ -37,12 +37,86 @@ function Set-LogFile {
 
 <#
 .SYNOPSIS
+Function to get the log context from the caller.
+
+.PARAMETER Caller
+The caller function stack frame.
+.PARAMETER ErrorStackTrace
+The error stack trace.
+#>
+function Get-LogContext {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory, Position = 0)]
+        [System.Management.Automation.CallStackFrame]$Caller,
+
+        [ValidateScript({ $_ -match '\sline\s(\d+)' })]
+        [string]$ErrorStackTrace
+    )
+
+    begin {
+        # get the function call timestamp
+        $ts = Get-Date
+    }
+
+    process {
+        # get the caller function name
+        $callerFunction = $Caller.FunctionName -eq '<ScriptBlock>' ? '<ScriptBlock>' : "$($Caller.FunctionName)()"
+        # get the caller script name
+        $callerScript = $Caller.ScriptName ? (Split-Path -Path $Caller.ScriptName -Leaf) : $Caller.Location
+        # get the invocation and function line numbers
+        if ($ErrorStackTrace) {
+            # get the line numbers from the error stack trace
+            $stackSplit = $ErrorStackTrace.Split("`n")
+            if ($callerFunction -eq '<ScriptBlock>') {
+                $invocationLine = $stackSplit `
+                    -match '\sline\s(\d+)' `
+                    -replace '.*\sline\s(\d+).*', '$1' `
+                | Select-Object -First 1
+            } else {
+                $funcLine = $stackSplit `
+                    -match "$callerFunction,.*:\sline\s(\d+)" `
+                    -replace '.*\sline\s(\d+).*', '$1'`
+                | Select-Object -First 1
+                $invocationLine = $stackSplit `
+                    -notmatch "$callerFunction" `
+                    -match '\sline\s(\d+)' `
+                    -replace '.*\sline\s(\d+).*', '$1' `
+                | Select-Object -First 1
+            }
+        } else {
+            # get the line numbers from the caller
+            if ($callerFunction -eq '<ScriptBlock>') {
+                $invocationLine = $caller.ScriptLineNumber
+            } else {
+                $funcLine = $caller.ScriptLineNumber
+                $invocationLine = $caller.InvocationInfo.ScriptLineNumber
+            }
+        }
+    }
+
+    end {
+        # return the log context
+        return [PSCustomObject]@{
+            TimeStamp  = $ts
+            Invocation = "${callerScript}:${invocationLine}"
+            Function   = "${callerFunction}$($funcLine ? ":$funcLine" : '')"
+            IsVerbose  = $Caller.InvocationInfo.BoundParameters.Verbose.IsPresent
+            IsDebug    = $Caller.InvocationInfo.BoundParameters.Debug.IsPresent
+        }
+    }
+}
+
+<#
+.SYNOPSIS
 Functions to log messages to the console.
 
 .PARAMETER Message
 The message to log.
-.PARAMETER Type
-The type of the log message.
+.PARAMETER Level
+The level of the log message.
+.PARAMETER ErrorStackTrace
+The error stack trace.
 #>
 function Show-LogContext {
     [CmdletBinding()]
@@ -51,62 +125,63 @@ function Show-LogContext {
         [string]$Message,
 
         [ValidateSet('INFO', 'ERROR', 'WARNING', 'VERBOSE', 'DEBUG')]
-        [string]$Level = 'INFO'
+        [string]$Level = 'INFO',
+
+        [ValidateScript({ $Level -eq 'ERROR' }, ErrorMessage = 'ErrorStackTrace is allowed for ERROR messages only.')]
+        [string]$ErrorStackTrace
     )
 
     begin {
         # *capitalize the Type
         $Level = $Level.ToUpper()
-        # *get the caller context outside of the function
-        $caller = (Get-PSCallStack)[1]
-        # get the caller function name
-        $callerFunction = $caller.FunctionName
-        # get the caller script name
-        $callerScript = $caller.ScriptName ? (Split-Path -Path $caller.ScriptName -Leaf) : $caller.Location
-        # get the caller line number
-        $callerLine = $caller.ScriptLineNumber
+
+        # *get the function caller context
+        $callerParam = @{
+            Caller = (Get-PSCallStack)[1]
+        }
+        if ($PSBoundParameters.ErrorStackTrace -match '\sline\s(\d+)') {
+            $callerParam.ErrorStackTrace = $PSBoundParameters.ErrorStackTrace
+        }
+        $ctx = Get-LogContext @callerParam
+
+        # *determine Debug/Verbose preference
+        $isVerbose = $ctx.isVerbose -or $VerbosePreference -ge 'Continue'
+        $isDebug = $ctx.isDebug -or $DebugPreference -ge 'Continue'
+        # calculate if the message should be logged
+        $shouldLog = if (($Level -eq 'VERBOSE' -and -not $isVerbose) -or ($Level -eq 'DEBUG' -and -not $isDebug)) {
+            $false
+        } else {
+            $true
+        }
     }
 
     process {
-        # get the function call timestamp
-        $ts = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-
-        # format message based on the Type
-        $Message = switch ($Level) {
-            'INFO' {
-                "`e[94m$Message`e[0m"
-            }
-            'ERROR' {
-                "`e[91m$Message`e[0m"
-            }
-            'WARNING' {
-                "`e[93m$Message`e[0m"
-            }
-            'VERBOSE' {
-                "`e[96m$Message`e[0m"
-            }
-            'DEBUG' {
-                "`e[35m$Message`e[0m"
-            }
+        if (-not $shouldLog) {
+            return
         }
 
-        # build the caller context and message
-        $callerMsg = [string]::Join('',
-            $callerScript ? "${callerScript}:${callerLine}|" : '',
-            $callerFunction ? "${callerFunction}" : '',
-            ": $Message"
-        )
+        # format log level
+        $lvlColor = switch ($Level) {
+            'INFO' { "`e[94m" }
+            'ERROR' { "`e[91m" }
+            'WARNING' { "`e[93m" }
+            'VERBOSE' { "`e[96m" }
+            'DEBUG' { "`e[35m" }
+        }
 
         # build the log line
         $logLine = [string]::Join('|',
-            "`e[32m$ts`e[0m",
-            "`e[90m$Level`e[0m",
-            $callerMsg
+            "`e[32m$($ctx.TimeStamp.ToString('yyyy-MM-dd HH:mm:ss'))`e[0m",
+            "${lvlColor}${Level}`e[0m",
+            "`e[90m$($ctx.Invocation)`e[0m",
+            "`e[90m$($ctx.Function)`e[0m: $Message"
         )
     }
 
     end {
-        Write-Host $logLine
+        if ($shouldLog) {
+            Write-Host $logLine
+        }
     }
 }
 
@@ -115,12 +190,14 @@ function Show-LogContext {
 .SYNOPSIS
 Function to log messages to a log file.
 
-.PARAMETER Message
-The message to log.
-.PARAMETER Type
-The type of the log message.
 .PARAMETER Path
 The path to the log file.
+.PARAMETER Message
+The message to log.
+.PARAMETER Level
+The level of the log message.
+.PARAMETER ErrorStackTrace
+The error stack trace.
 #>
 function Write-LogContext {
     [CmdletBinding()]
@@ -133,39 +210,34 @@ function Write-LogContext {
         [string]$Message,
 
         [ValidateSet('INFO', 'ERROR', 'WARNING', 'VERBOSE', 'DEBUG')]
-        [string]$Level = 'INFO'
+        [string]$Level = 'INFO',
+
+        [ValidateScript({ $Level -eq 'ERROR' }, ErrorMessage = 'ErrorStackTrace is allowed for ERROR messages only.')]
+        [string]$ErrorStackTrace
     )
 
     begin {
-        # *get the function call timestamp
-        $ts = Get-Date -Format 'yyyy-MM-dd HH:mm:ss.fff'
-
-        # *get the caller context outside of the function
-        $caller = (Get-PSCallStack)[1]
-        # get the caller function name
-        $callerFunction = $caller.FunctionName
-        # get the caller script name
-        $callerScript = $caller.ScriptName ? (Split-Path -Path $caller.ScriptName -Leaf) : $caller.Location
-        # get the caller line number
-        $callerLine = $caller.ScriptLineNumber
-
         # *capitalize the Type
         $Level = $Level.ToUpper()
+
+        # *get the function caller context
+        $callerParam = @{
+            Caller = (Get-PSCallStack)[1]
+        }
+        if ($PSBoundParameters.ErrorStackTrace -match '\sline\s(\d+)') {
+            $callerParam.ErrorStackTrace = $PSBoundParameters.ErrorStackTrace
+        }
+        $ctx = Get-LogContext @callerParam
     }
 
     process {
-        # build the caller context and message
-        $callerMsg = [string]::Join('',
-            $callerScript ? "${callerScript}:${callerLine}|" : '',
-            $callerFunction ? "${callerFunction}" : '',
-            ": $Message"
-        )
-
         # build the log line
         [string[]]$logLine = [string]::Join('|',
-            "$ts",
-            "$Level",
-            $callerMsg
+            $ctx.TimeStamp.ToString('yyyy-MM-dd HH:mm:ss.fff'),
+            $Level,
+            $ctx.Invocation,
+            $ctx.Function,
+            $Message
         )
     }
 
