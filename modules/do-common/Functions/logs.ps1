@@ -61,14 +61,14 @@ function Get-LogContext {
 
     process {
         # get the caller function name
-        $callerFunction = $Caller.FunctionName -eq '<ScriptBlock>' ? '<ScriptBlock>' : "$($Caller.FunctionName)()"
+        $callerFunction = $Caller.FunctionName -like '<ScriptBlock>*' ? $Caller.FunctionName : "$($Caller.FunctionName)()"
         # get the caller script name
         $callerScript = $Caller.ScriptName ? (Split-Path -Path $Caller.ScriptName -Leaf) : $Caller.Location
         # get the invocation and function line numbers
         if ($ErrorStackTrace) {
             # get the line numbers from the error stack trace
             $stackSplit = $ErrorStackTrace.Split("`n")
-            if ($callerFunction -eq '<ScriptBlock>') {
+            if ($callerFunction -like '<ScriptBlock>*') {
                 $invocationLine = $stackSplit `
                     -match '\sline\s(\d+)' `
                     -replace '.*\sline\s(\d+).*', '$1' `
@@ -86,7 +86,7 @@ function Get-LogContext {
             }
         } else {
             # get the line numbers from the caller
-            if ($callerFunction -eq '<ScriptBlock>') {
+            if ($callerFunction -like '<ScriptBlock>*') {
                 $invocationLine = $caller.ScriptLineNumber
             } else {
                 $funcLine = $caller.ScriptLineNumber
