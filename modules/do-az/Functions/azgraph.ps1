@@ -344,6 +344,7 @@ function Get-AzGraphResource {
         [Alias('c')]
         [Parameter(Mandatory, ParameterSetName = 'Condition')]
         [Parameter(ParameterSetName = 'Group')]
+        [Parameter(ParameterSetName = 'GroupType')]
         [Parameter(ParameterSetName = 'Type')]
         [Parameter(ParameterSetName = 'InSubscription')]
         [Parameter(ParameterSetName = 'InMngmtGroup')]

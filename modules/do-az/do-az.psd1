@@ -4,7 +4,7 @@
     RootModule           = 'do-az.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.15.2'
+    ModuleVersion        = '1.15.3'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
