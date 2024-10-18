@@ -25,6 +25,24 @@ class AzGraphSubscription {
         $this.properties = $obj.properties
         $this.ResourceId = $this.id
     }
+
+    AzGraphSubscription ([string]$id) {
+        if ($id) {
+            $idSplit = $id.Split('/')
+            if ($idSplit.Count -eq 3 -and $idSplit[1] -eq 'subscriptions') {
+                $this.id = $id
+                $this.type = 'microsoft.resources/subscriptions'
+                $this.subscriptionId = $idSplit[2]
+                $this.ResourceId = $id
+            } else {
+                throw("Wrong ResourceId provided!`n$id")
+            }
+        }
+    }
+
+    [string] ToString() {
+        return $this.ResourceId
+    }
 }
 # Specify AzGraphResource DefaultDisplayPropertySet
 Update-TypeData -TypeName 'AzGraphSubscription' -DefaultDisplayPropertySet 'name', 'type', 'subscriptionId', 'id' -ErrorAction SilentlyContinue
@@ -67,6 +85,10 @@ class AzGraphResourceGroup : AzGraphSubscription {
         $this.properties = $obj.properties
         $this.tags = $obj.tags
         $this.ResourceId = $this.id
+    }
+
+    [string] ToString() {
+        return $this.ResourceId
     }
 }
 # Specify AzGraphResourceGroup DefaultDisplayPropertySet
@@ -144,6 +166,10 @@ class AzGraphResource : AzGraphResourceGroup {
         $this.subscription = (Get-AzGraphSubscription -SubscriptionId $this.subscriptionId).name
 
         return [AzGraphResource]::new($this)
+    }
+
+    [string] ToString() {
+        return $this.ResourceId
     }
 }
 # Specify AzGraphResource DefaultDisplayPropertySet
@@ -243,6 +269,10 @@ class AzResource {
         $this.SubscriptionName = (Get-AzGraphSubscription -SubscriptionId $this.SubscriptionId).name
 
         return [AzResource]::new($this)
+    }
+
+    [string] ToString() {
+        return $this.ResourceId
     }
 }
 # Specify AzResource DefaultDisplayPropertySet
