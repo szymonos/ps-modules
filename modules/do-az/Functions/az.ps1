@@ -6,6 +6,8 @@ Set Az Context and eventually connect to Azure.
 Subscription Name or ID.
 .PARAMETER Tenant
 Tenant Name or ID.
+.PARAMETER AzureCli
+Switch whether to connect using the current azure-cli context with user/password authentication.
 #>
 function Connect-AzContext {
     [CmdletBinding()]
@@ -14,37 +16,84 @@ function Connect-AzContext {
         [string]$Subscription,
 
         [Alias('t')]
-        [string]$Tenant
+        [string]$Tenant,
+
+        [Alias('cli')]
+        [switch]$AzureCli
     )
 
     begin {
-        $ctx = Get-AzContext
+        if ($PSBoundParameters.AzureCli) {
+            try {
+                Get-Command az -CommandType Application -ErrorAction Stop | Out-Null
+                $account = az account show --out json | ConvertFrom-Json
+                if ($account) {
+                    if ($account.user.type -eq 'user') {
+                        while (Get-AzContext) {
+                            Disconnect-AzAccount | Out-Null
+                        }
+                        $ctx = $null
+                    } else {
+                        Write-Warning 'Service principal login not supported.'
+                        $abort = $true
+                        return
+                    }
+                } else {
+                    $abort = $true
+                    return
+                }
+            } catch {
+                Write-Warning 'Azure CLI not found.'
+                $abort = $true
+                return
+            }
+        } else {
+            $ctx = Get-AzContext
+        }
     }
 
     process {
-        if ($ctx) {
-            if ($PSBoundParameters.Subscription -and $PSBoundParameters.Subscription -notin @($ctx.Subscription.Id, $ctx.Subscription.Name)) {
-                $ctx = Invoke-CommandRetry {
-                    Set-AzContext -Subscription $Subscription -Tenant $ctx.Tenant.Id
-                }
-            }
+        if ($abort) {
+            $ctx = $null
         } else {
-            $param = @{}
-            if ($PSBoundParameters.Subscription) {
-                $param.Subscription = $Subscription
-            }
-            if ($PSBoundParameters.Tenant) {
-                $param.Tenant = $Tenant
-            }
+            if ($ctx) {
+                if ($PSBoundParameters.Subscription -and $PSBoundParameters.Subscription -notin @($ctx.Subscription.Id, $ctx.Subscription.Name)) {
+                    $ctx = Invoke-CommandRetry {
+                        Set-AzContext -Subscription $Subscription -Tenant $ctx.Tenant.Id
+                    }
+                }
+            } else {
+                $param = @{}
+                if ($PSBoundParameters.Subscription) {
+                    $param.Subscription = $Subscription
+                } elseif ($PSBoundParameters.AzureCli) {
+                    $param.Subscription = $account.id
+                }
+                if ($PSBoundParameters.Tenant) {
+                    $param.Tenant = $Tenant
+                } elseif ($PSBoundParameters.AzureCli) {
+                    $param.Tenant = $account.tenantId
+                }
 
-            $ctx = Invoke-CommandRetry {
-                try {
-                    (Connect-AzAccount @param -WarningAction Stop 3>$null).Context
-                } catch [System.Management.Automation.ActionPreferenceStopException] {
-                    (Connect-AzAccount @param -UseDeviceAuthentication).Context
-                } catch {
-                    Write-Verbose $_.Exception.GetType().FullName
-                    Write-Error $_
+                $ctx = Invoke-CommandRetry {
+                    if ($PSBoundParameters.AzureCli) {
+                        Update-AzConfig -DefaultSubscriptionForLogin $param.Subscription | Out-Null
+                        $param.Credential = Get-Credential -UserName $account.user.name
+                        $param.WarningAction = 'SilentlyContinue'
+                        Connect-AzAccount @param | Select-Object -ExpandProperty Context
+                    } else {
+                        try {
+                            $param.WarningAction = 'Stop'
+                            Connect-AzAccount @param 3>$null | Select-Object -ExpandProperty Context
+                        } catch [System.Management.Automation.ActionPreferenceStopException] {
+                            $param.WarningAction = 'SilentlyContinue'
+                            $param.UseDeviceAuthentication = $true
+                            Connect-AzAccount @param | Select-Object -ExpandProperty Context
+                        } catch {
+                            Write-Verbose $_.Exception.GetType().FullName
+                            Write-Error $_
+                        }
+                    }
                 }
             }
         }
@@ -74,7 +123,7 @@ function Get-AzCtx {
 
     begin {
         # get current Azure context and store it in a dictionary
-        if ($AzureCli) {
+        if ($PSBoundParameters.AzureCli) {
             $ctx = az account show -o json | ConvertFrom-Json
             $dict = [ordered]@{
                 TenantId         = $ctx.tenantId
@@ -95,7 +144,7 @@ function Get-AzCtx {
 
     process {
         # add user or service principal properties to the dictionary
-        if ($AzureCli) {
+        if ($PSBoundParameters.AzureCli) {
             if ($ctx.user.type -eq 'servicePrincipal') {
                 $dict.PrincipalName = Invoke-CommandRetry {
                     Get-AzADServicePrincipal -ApplicationId $ctx.user.name -ErrorAction Stop
