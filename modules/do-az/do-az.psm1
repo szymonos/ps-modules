@@ -13,6 +13,7 @@ $exportModuleMemberParams = @{
         'Get-AzCtx'
         'Get-AzResourceTypeApiVersions'
         'Get-MsoToken'
+        'Get-PrivateEndpoint'
         'Set-SubscriptionMenu'
         'Invoke-AzApiRequest'
         # azgraph

@@ -398,6 +398,228 @@ function Get-MsoToken {
 
 <#
 .SYNOPSIS
+Get Azure Private Endpoint by specifying the endpoint name, virtual network or resource it connects to.
+
+.PARAMETER PrivateEndpoint
+Private Endpoint id or name.
+.PARAMETER VirtualNetwork
+Virtual Network id or name of the private endpoint.
+.PARAMETER SubnetName
+The subnet name of the private endpoint.
+.PARAMETER Resource
+Id or name of the resource, private endpoint is connected to.
+.PARAMETER GetIP
+Switch to get private endpoint IP configurations.
+
+.EXAMPLE
+# :by private endpoint name
+$PrivateEndpoint = '<private_endpoint_name>'
+Get-PrivateEndpoint -e $PrivateEndpoint | Tee-Object -Variable pe
+Get-PrivateEndpoint -e $PrivateEndpoint -GetIP | Tee-Object -Variable pe
+# :by vnet
+$VirtualNetwork = '<virtual_network_name>'
+$pe = Get-PrivateEndpoint -n $VirtualNetwork
+$pe = Get-PrivateEndpoint -n $VirtualNetwork -GetIP
+# :by resource
+$Resource = '<target_resource_name>'
+$pe = Get-PrivateEndpoint -r $Resource
+$pe = Get-PrivateEndpoint -r $Resource -GetIP
+# :by connection
+$VirtualNetwork = '<virtual_network_name>'
+$Resource = '<target_resource_name>'
+Get-PrivateEndpoint -n $VirtualNetwork -r $Resource | Tee-Object -Variable pe
+Get-PrivateEndpoint -n $VirtualNetwork -r $Resource -GetIP | Tee-Object -Variable pe
+# :explore private endpoint result
+# list private endpoints
+$pe | Select-Object name, resourceGroup, subscription, @{ N = 'primaryIP'; E = { $_.properties.primaryIP } }
+# write private endpoint IP configurations
+$pe[0].properties.networkInterfaces.ipConfigurations
+# explore all properties of the private endpoint as json
+$pe[0] | json
+#>
+function Get-PrivateEndpoint {
+    [CmdletBinding()]
+    param (
+        [Alias('e')]
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'ByEndpoint')]
+        [string]$PrivateEndpoint,
+
+        [Alias('n')]
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'ByConnection')]
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'ByVNet')]
+        [string]$VirtualNetwork,
+
+        [Parameter(ParameterSetName = 'ByConnection')]
+        [ValidateNotNullorEmpty()]
+        [string]$SubnetName,
+
+        [Parameter(Mandatory, ParameterSetName = 'ByConnection')]
+        [Parameter(Mandatory, ParameterSetName = 'ByResource')]
+        [string]$Resource,
+
+        [switch]$GetIP
+    )
+
+    begin {
+        Show-LogContext "ParameterSetName: $($PsCmdlet.ParameterSetName)" -Level VERBOSE
+        switch -Regex ($PsCmdlet.ParameterSetName) {
+            '^(ByConnection|ByVNet)$' {
+                Show-LogContext 'looking for VNet...' -Level VERBOSE
+                $split = $VirtualNetwork.Split('/')
+                switch ($split.Count) {
+                    1 {
+                        $vnet = Get-AzGraphResourceByName -ResourceName $VirtualNetwork -ResourceType 'Microsoft.Network/virtualNetworks'
+                        $subnetId = $null
+                        break
+                    }
+                    2 {
+                        $vnet = Get-AzGraphResourceByName -ResourceName $split[0] -ResourceType 'Microsoft.Network/virtualNetworks'
+                        if ($vnet) {
+                            $subnetId = ($vnet.properties.subnets).Where({ $_.name -eq $split[1] }).id
+                            if (-not $subnetId) {
+                                Write-Warning "Subnet `e[4m$($split[1])`e[24m doesn't exist in the `e[4m$($split[0])`e[24m VNet."
+                                return
+                            }
+                        }
+                        break
+                    }
+                    9 {
+                        try {
+                            $vnet = Get-AzGraphResource -ResourceId $VirtualNetwork
+                        } catch {
+                            $vnet = $null
+                        }
+                        $subnetId = $null
+                        break
+                    }
+                }
+                if ($vnet) {
+                    Show-LogContext "Found VNet: $($vnet.id)" -Level VERBOSE
+                } else {
+                    Write-Warning "Virtual network doesn't exist ($VirtualNetwork)."
+                    return
+                }
+            }
+            '^(ByConnection|ByResource)$' {
+                Show-LogContext 'looking for resource...' -Level VERBOSE
+                $targetId = try {
+                    Get-AzGraphResource -ResourceId $Resource | Select-Object -ExpandProperty id
+                } catch {
+                    $peParam = @{
+                        ResourceName = $Resource
+                        ExcludeTypes = @(
+                            'microsoft.network/virtualnetworks'
+                            'microsoft.network/privateendpoints'
+                            'microsoft.network/privatednszones/virtualnetworklinks'
+                        )
+                    }
+                    Get-AzGraphResourceByName @peParam | Select-Object -ExpandProperty id
+                }
+                if ($targetId) {
+                    Show-LogContext "Found resource: $targetId" -Level VERBOSE
+                } else {
+                    Write-Warning "Resource doesn't exist ($Resource)."
+                    return
+                }
+            }
+        }
+    }
+
+    process {
+        # get private endpoint(s) based on the parameter set
+        switch ($PsCmdlet.ParameterSetName) {
+            ByEndpoint {
+                Show-LogContext 'getting private endpoint by name/id...' -Level VERBOSE
+                $pe = try {
+                    Get-AzGraphResource -ResourceId $PrivateEndpoint
+                } catch {
+                    Get-AzGraphResourceByName -ResourceName $PrivateEndpoint -ResourceType 'microsoft.network/privateendpoints'
+                }
+                break
+            }
+            ByConnection {
+                Show-LogContext 'getting private endpoint by connection...' -Level VERBOSE
+                $pe = if ($vnet -and $targetId) {
+                    $peParam = @{
+                        SubscriptionId = $vnet.subscriptionId
+                        ResourceType   = 'Microsoft.Network/privateEndpoints'
+                        Condition      = [string]::Join(' and ',
+                            $subnetId ? "properties.subnet.id =~ '$subnetId'" : "properties.subnet.id matches regex '^(?i)$($vnet.id)/subnets/'",
+                            "properties.privateLinkServiceConnections[0].properties.privateLinkServiceId =~ '$targetId'"
+                        )
+                    }
+                    Get-AzGraphResource @peParam
+                } else {
+                    $null
+                }
+                break
+            }
+            ByVNet {
+                Show-LogContext 'getting private endpoint by VNet...' -Level VERBOSE
+                $pe = if ($vnet) {
+                    $peParam = @{
+                        SubscriptionId = $vnet.subscriptionId
+                        ResourceType   = 'Microsoft.Network/privateEndpoints'
+                        Condition      = $subnetId ? "properties.subnet.id =~ '$subnetId'" : "properties.subnet.id matches regex '^(?i)$($vnet.id)/subnets/'"
+                    }
+                    Get-AzGraphResource @peParam
+                } else {
+                    $null
+                }
+                break
+            }
+            ByResource {
+                Show-LogContext 'getting private endpoint by resource...' -Level VERBOSE
+                $pe = if ($targetId) {
+                    $peParam = @{
+                        ResourceType = 'Microsoft.Network/privateEndpoints'
+                        Condition    = "properties.privateLinkServiceConnections[0].properties.privateLinkServiceId =~ '$targetId'"
+                    }
+                    Get-AzGraphResource @peParam
+                } else {
+                    $null
+                }
+                break
+            }
+        }
+        Show-LogContext "Found $($pe.Count) private endpoints." -Level VERBOSE
+
+        # add ipConfigurations to the private endpoint networkInterfaces property
+        if ($GetIP -and $pe) {
+            # instantiate list variable to store private endpoint corresponding NICs
+            $nicIds = [System.Collections.Generic.List[string]]::new()
+            $pe.properties.networkInterfaces.id.ForEach({ $nicIds.Add( $_ ) })
+            # create parameters splat hashtable to get list of NICs
+            $nicParam = @{
+                ResourceType = 'Microsoft.Network/networkInterfaces'
+                Condition    = "id in ($($nicIds.ToArray() | Join-String -Separator ',' -SingleQuote))"
+            }
+            # add subscription to graph request for improved performance
+            if ($vnet) {
+                $nicParam.SubscriptionId = $vnet.subscriptionId
+            }
+            Show-LogContext 'getting private endpoint corresponding network interfaces...' -Level VERBOSE
+            $nics = Get-AzGraphResource @nicParam
+            Show-LogContext "Found $($nics.Count) NICs." -Level VERBOSE
+
+            # add ipConfigurations to the private endpoint object
+            foreach ($peObj in $pe) {
+                $ipConfigurations = $nics.Where({ $_.id -eq $peObj.properties.networkInterfaces.id }).properties.ipConfigurations.properties
+                $peObj.properties.networkInterfaces | Add-Member -NotePropertyName 'ipConfigurations' -NotePropertyValue $ipConfigurations
+                $peObj.properties | Add-Member -NotePropertyName 'primaryIP' -NotePropertyValue $ipConfigurations.Where({ $_.primary }).privateIPAddress
+            }
+        }
+    }
+
+    end {
+        Write-Host "Found $($pe.Count) private endpiont$($pe.Count -gt 1 ? 's': '')."
+        return $pe
+    }
+}
+
+
+<#
+.SYNOPSIS
 Set subscription context from selection menu.
 
 .PARAMETER cli
