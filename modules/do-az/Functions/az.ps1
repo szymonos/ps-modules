@@ -544,7 +544,7 @@ function Get-PrivateEndpoint {
                         SubscriptionId = $vnet.subscriptionId
                         ResourceType   = 'Microsoft.Network/privateEndpoints'
                         Condition      = [string]::Join(' and ',
-                            $subnetId ? "properties.subnet.id =~ '$subnetId'" : "properties.subnet.id matches regex '^(?i)$($vnet.id)/subnets/'",
+                            $subnetId ? "properties.subnet.id =~ '$subnetId'" : "properties.subnet.id startswith '$($vnet.id)/subnets/'",
                             "properties.privateLinkServiceConnections[0].properties.privateLinkServiceId =~ '$targetId'"
                         )
                     }
@@ -560,7 +560,7 @@ function Get-PrivateEndpoint {
                     $peParam = @{
                         SubscriptionId = $vnet.subscriptionId
                         ResourceType   = 'Microsoft.Network/privateEndpoints'
-                        Condition      = $subnetId ? "properties.subnet.id =~ '$subnetId'" : "properties.subnet.id matches regex '^(?i)$($vnet.id)/subnets/'"
+                        Condition      = $subnetId ? "properties.subnet.id =~ '$subnetId'" : "properties.subnet.id startswith '$($vnet.id)/subnets/'"
                     }
                     Get-AzGraphResource @peParam
                 } else {
@@ -612,7 +612,7 @@ function Get-PrivateEndpoint {
     }
 
     end {
-        Write-Host "Found $($pe.Count) private endpiont$($pe.Count -gt 1 ? 's': '')."
+        Write-Host "Found $($pe.Count) private endpiont$($pe.Count -eq 1 ? '': 's')."
         return $pe
     }
 }
