@@ -1864,21 +1864,6 @@ function grmr! {
 
     Invoke-WriteExecCommand -Command 'git rm -r --force' @PSBoundParameters
 }
-function grr {
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
-    param (
-        [Parameter(ValueFromRemainingArguments)]
-        [string[]]$Xargs,
-
-        [Parameter(ParameterSetName = 'whatif')]
-        [switch]$WhatIf,
-
-        [Parameter(ParameterSetName = 'quiet')]
-        [switch]$Quiet
-    )
-
-    Invoke-WriteExecCommand -Command 'git restore' @PSBoundParameters
-}
 function grp {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
@@ -1894,7 +1879,22 @@ function grp {
 
     Invoke-WriteExecCommand -Command 'git rev-parse' @PSBoundParameters
 }
-function grrs {
+function grr {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git restore' @PSBoundParameters
+}
+function grrsrc {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
         [Parameter(ValueFromRemainingArguments)]
@@ -1908,6 +1908,21 @@ function grrs {
     )
 
     Invoke-WriteExecCommand -Command 'git restore --source' @PSBoundParameters
+}
+function grrstg {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git restore --staged' @PSBoundParameters
 }
 function grt {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
