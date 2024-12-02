@@ -600,7 +600,7 @@ function Get-PrivateEndpoint {
             # create parameters splat hashtable to get list of NICs
             $nicParam = @{
                 ResourceType = 'Microsoft.Network/networkInterfaces'
-                Condition    = "id in ($($nicIds.ToArray() | Join-String -Separator ',' -SingleQuote))"
+                Condition    = "id in~ ($($nicIds.ToArray() | Join-String -Separator ',' -SingleQuote))"
             }
             # add subscription to graph request for improved performance
             if ($vnet) {
