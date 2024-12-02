@@ -398,14 +398,14 @@ function Get-MsoToken {
 
 <#
 .SYNOPSIS
-Get Azure Private Endpoint by specifying the endpoint name, virtual network or resource it connects to.
+Get Azure Private Endpoint by specifying the endpoint name, virtual network, IP or resource it connects to.
 
 .PARAMETER PrivateEndpoint
 Private Endpoint id or name.
 .PARAMETER VirtualNetwork
 Virtual Network id or name of the private endpoint.
-.PARAMETER SubnetName
-The subnet name of the private endpoint.
+.PARAMETER IP
+The IP of the private endpoint network interface.
 .PARAMETER Resource
 Id or name of the resource, private endpoint is connected to.
 .PARAMETER GetIP
@@ -419,7 +419,9 @@ Get-PrivateEndpoint -e $PrivateEndpoint -GetIP | Tee-Object -Variable pe
 # :by vnet
 $VirtualNetwork = '<virtual_network_name>'
 $pe = Get-PrivateEndpoint -n $VirtualNetwork
+# get PE with the specified IP
 $pe = Get-PrivateEndpoint -n $VirtualNetwork -GetIP
+Get-PrivateEndpoint -n $VirtualNetwork -IP '10.99.0.4' | Tee-Object -Variable pe
 # :by resource
 $Resource = '<target_resource_name>'
 $pe = Get-PrivateEndpoint -r $Resource
@@ -449,9 +451,9 @@ function Get-PrivateEndpoint {
         [Parameter(Mandatory, Position = 0, ParameterSetName = 'ByVNet')]
         [string]$VirtualNetwork,
 
-        [Parameter(ParameterSetName = 'ByConnection')]
+        [Parameter(ParameterSetName = 'ByVNet')]
         [ValidateNotNullorEmpty()]
-        [string]$SubnetName,
+        [string]$IP,
 
         [Parameter(Mandatory, ParameterSetName = 'ByConnection')]
         [Parameter(Mandatory, ParameterSetName = 'ByResource')]
@@ -461,6 +463,12 @@ function Get-PrivateEndpoint {
     )
 
     begin {
+        # validate if the provided IP is valid
+        if ($PSBoundParameters.IP -and $null -eq ($IP -as [System.Net.IPAddress])) {
+            Write-Warning "IP address is incorrect ($IP)."
+            return
+        }
+        # get VNet and resource details based on the parameter set
         Show-LogContext "ParameterSetName: $($PsCmdlet.ParameterSetName)" -Level VERBOSE
         switch -Regex ($PsCmdlet.ParameterSetName) {
             '^(ByConnection|ByVNet)$' {
@@ -585,7 +593,7 @@ function Get-PrivateEndpoint {
         Show-LogContext "Found $($pe.Count) private endpoints." -Level VERBOSE
 
         # add ipConfigurations to the private endpoint networkInterfaces property
-        if ($GetIP -and $pe) {
+        if ($pe -and ($PSBoundParameters.GetIP -or $PSBoundParameters.IP)) {
             # instantiate list variable to store private endpoint corresponding NICs
             $nicIds = [System.Collections.Generic.List[string]]::new()
             $pe.properties.networkInterfaces.id.ForEach({ $nicIds.Add( $_ ) })
@@ -608,11 +616,15 @@ function Get-PrivateEndpoint {
                 $peObj.properties.networkInterfaces | Add-Member -NotePropertyName 'ipConfigurations' -NotePropertyValue $ipConfigurations
                 $peObj.properties | Add-Member -NotePropertyName 'primaryIP' -NotePropertyValue $ipConfigurations.Where({ $_.primary }).privateIPAddress
             }
+            # return private endpoints with specifed IP
+            if ($PSBoundParameters.IP) {
+                $pe = $pe.Where({ $IP -in $_.properties.networkInterfaces.ipConfigurations.privateIPAddress })
+            }
         }
     }
 
     end {
-        Write-Host "Found $($pe.Count) private endpiont$($pe.Count -eq 1 ? '': 's')."
+        Write-Host "Found $($pe.Count) private endpoint$($pe.Count -eq 1 ? '': 's')."
         return $pe
     }
 }
