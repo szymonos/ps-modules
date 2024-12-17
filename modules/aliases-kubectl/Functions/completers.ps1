@@ -1,6 +1,34 @@
 <#
 .SYNOPSIS
-Get list of kubernetes namespaces for the function ArgumentCompleter attribute.
+Get list of kubectl config clusters for the function ArgumentCompleter attribute.
+#>
+function ArgK8sGetClusters {
+    param (
+        $commandName,
+        $parameterName,
+        $wordToComplete,
+        $commandAst,
+        $fakeBoundParameters
+    )
+
+    # build kubectl command string
+    $sb = [System.Text.StringBuilder]::new('kubectl config view')
+    # convert kubectl command results to object
+    $sb.Append(' --output json | ConvertFrom-Json') | Out-Null
+    # get command string
+    $cmnd = $sb.ToString()
+
+    # get clusters
+    [string[]]$possibleValues = (Invoke-Expression $cmnd).clusters.name
+
+    # return matching clusters
+    $possibleValues.Where({ $_ -like "$wordToComplete*" }).ForEach({ $_ })
+}
+
+
+<#
+.SYNOPSIS
+Get list of kubectl config contexts for the function ArgumentCompleter attribute.
 #>
 function ArgK8sGetContexts {
     param (
@@ -18,10 +46,10 @@ function ArgK8sGetContexts {
     # get command string
     $cmnd = $sb.ToString()
 
-    # get namespaces
+    # get contexts
     [string[]]$possibleValues = (Invoke-Expression $cmnd).contexts.name
 
-    # return matching namespaces
+    # return matching contexts
     $possibleValues.Where({ $_ -like "$wordToComplete*" }).ForEach({ $_ })
 }
 

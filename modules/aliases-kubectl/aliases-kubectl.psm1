@@ -7,6 +7,7 @@
 $exportModuleMemberParams = @{
     Function = @(
         # completers
+        'ArgK8sGetClusters'
         'ArgK8sGetContexts'
         'ArgK8sGetNamespaces'
         'ArgK8sGetPods'
