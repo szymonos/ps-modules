@@ -236,9 +236,6 @@ function Set-KubectlLocal {
                     [Net.WebClient]::new().DownloadFile("https://dl.k8s.io/release/${serverVersion}/bin/$dlSysArch/$KUBECTL", $kctlVer)
                     $RETRY_COUNT++
                 } until ((Test-Path $kctlVer -PathType Leaf) -or $RETRY_COUNT -ge 2)
-                if (-not $IsWindows) {
-                    chmod +x $kctlVer
-                }
             }
 
             # replace existing ~/.local/bin/kubectl symbolic link
@@ -249,8 +246,13 @@ function Set-KubectlLocal {
     }
 
     clean {
+        # add executable bit to the kubectl binary
+        if (-not $IsWindows -and (Test-Path $kctlVer -PathType Leaf) -and ((Get-Item $kctlVer).UnixMode -ne '-rwxr-xr-x')) {
+            chmod +x $kctlVer
+        }
+
         # check if the symbolic link points to the existing file and remove otherwise
-        if (Test-Path $KUBECTL_LOCAL -PathType Leaf -and (Get-ItemPropertyValue $KUBECTL_LOCAL -Name 'LinkType')) {
+        if ((Test-Path $KUBECTL_LOCAL -PathType Leaf) -and (Get-ItemPropertyValue $KUBECTL_LOCAL -Name 'LinkType')) {
             $linkTarget = Get-ItemPropertyValue $KUBECTL_LOCAL -Name LinkTarget
             if (-not (Test-Path $linkTarget -PathType Leaf)) {
                 Remove-Item $KUBECTL_LOCAL -Force
