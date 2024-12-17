@@ -240,15 +240,21 @@ function Set-KubectlLocal {
                     chmod +x $kctlVer
                 }
             }
+
             # replace existing ~/.local/bin/kubectl symbolic link
-            New-Item -ItemType SymbolicLink -Path $KUBECTL_LOCAL -Target $kctlVer -Force | Out-Null
+            if (Test-Path $kctlVer -PathType Leaf) {
+                New-Item -ItemType SymbolicLink -Path $KUBECTL_LOCAL -Target $kctlVer -Force | Out-Null
+            }
         }
     }
 
     clean {
-        # remove symbolic link if target does not exist
-        if (-not (Test-Path $kctlVer -PathType Leaf)) {
-            Remove-Item $KUBECTL_LOCAL -Force
+        # check if the symbolic link points to the existing file and remove otherwise
+        if (Test-Path $KUBECTL_LOCAL -PathType Leaf -and (Get-ItemPropertyValue $KUBECTL_LOCAL -Name 'LinkType')) {
+            $linkTarget = Get-ItemPropertyValue $KUBECTL_LOCAL -Name LinkTarget
+            if (-not (Test-Path $linkTarget -PathType Leaf)) {
+                Remove-Item $KUBECTL_LOCAL -Force
+            }
         }
     }
 }
