@@ -197,48 +197,59 @@ to the client in $HOME/.local/bin directory.
 Function requires the $HOME/.local/bin directory to be preceding path in $PATH environment variable.
 #>
 function Set-KubectlLocal {
-    # determine kubectl binary name
-    $KUBECTL = $IsWindows ? 'kubectl.exe' : 'kubectl'
-    # calculate paths
-    $LOCAL_BIN = [IO.Path]::Combine($HOME, '.local', 'bin')
-    $KUBECTL_LOCAL = [IO.Path]::Combine($LOCAL_BIN, $KUBECTL)
-    $KUBECTL_ALIAS = [IO.Path]::Combine($LOCAL_BIN, $KUBECTL.Replace('ubectl', ''))
-    $KUBECTL_DIR = [IO.Path]::Combine($HOME, '.local', 'share', 'kubectl')
-
-    # check kubernetes server version
-    $serverVersion = Get-KubectlServerVersion
-    if (-not $serverVersion) {
-        Write-Warning 'Server not available.'
-        break
+    begin {
+        # determine kubectl binary name
+        $KUBECTL = $IsWindows ? 'kubectl.exe' : 'kubectl'
+        # calculate paths
+        $LOCAL_BIN = [IO.Path]::Combine($HOME, '.local', 'bin')
+        $KUBECTL_LOCAL = [IO.Path]::Combine($LOCAL_BIN, $KUBECTL)
+        $KUBECTL_DIR = [IO.Path]::Combine($HOME, '.local', 'share', 'kubectl')
+        # initialize retry variable for kubectl download loop
+        $RETRY_COUNT = 0
     }
-    # calculate kubectl path corresponding to server version
-    $kctlVer = [IO.Path]::Combine($KUBECTL_DIR, $serverVersion, $KUBECTL)
 
-    # check if ~/.local/bin/kubectl symbolic link points to the above path
-    if ((Get-ItemPropertyValue $KUBECTL_LOCAL -Name LinkTarget -ErrorAction SilentlyContinue) -ne $kctlVer) {
-        if (-not (Test-Path $LOCAL_BIN)) {
-            New-Item $LOCAL_BIN -ItemType Directory | Out-Null
+    process {
+        # check kubernetes server version
+        $serverVersion = Get-KubectlServerVersion
+        if (-not $serverVersion) {
+            Write-Warning 'Server not available.'
+            break
         }
+        # calculate kubectl path corresponding to server version
+        $kctlVer = [IO.Path]::Combine($KUBECTL_DIR, $serverVersion, $KUBECTL)
+
+        # check if ~/.local/bin/kubectl symbolic link points to the above path
+        if ((Get-ItemPropertyValue $KUBECTL_LOCAL -Name LinkTarget -ErrorAction SilentlyContinue) -ne $kctlVer) {
+            if (-not (Test-Path $LOCAL_BIN)) {
+                New-Item $LOCAL_BIN -ItemType Directory | Out-Null
+            }
+            if (-not (Test-Path $kctlVer -PathType Leaf)) {
+                New-Item $([IO.Path]::Combine($KUBECTL_DIR, $serverVersion)) -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
+                $dlSysArch = if ($IsWindows) {
+                    'windows/amd64'
+                } elseif ($IsLinux) {
+                    'linux/amd64'
+                } elseif ($IsMacOS) {
+                    'darwin/arm64'
+                }
+                do {
+                    [Net.WebClient]::new().DownloadFile("https://dl.k8s.io/release/${serverVersion}/bin/$dlSysArch/$KUBECTL", $kctlVer)
+                    $RETRY_COUNT++
+                } until ((Test-Path $kctlVer -PathType Leaf) -or $RETRY_COUNT -ge 2)
+                if (-not $IsWindows) {
+                    chmod +x $kctlVer
+                }
+            }
+            # replace existing ~/.local/bin/kubectl symbolic link
+            New-Item -ItemType SymbolicLink -Path $KUBECTL_LOCAL -Target $kctlVer -Force | Out-Null
+        }
+    }
+
+    clean {
+        # remove symbolic link if target does not exist
         if (-not (Test-Path $kctlVer -PathType Leaf)) {
-            New-Item $([IO.Path]::Combine($KUBECTL_DIR, $serverVersion)) -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
-            $dlSysArch = if ($IsWindows) {
-                'windows/amd64'
-            } elseif ($IsLinux) {
-                'linux/amd64'
-            } elseif ($IsMacOS) {
-                'darwin/arm64'
-            }
-            do {
-                [Net.WebClient]::new().DownloadFile("https://dl.k8s.io/release/${serverVersion}/bin/$dlSysArch/$KUBECTL", $kctlVer)
-            } until (Test-Path $kctlVer -PathType Leaf)
-            if (-not $IsWindows) {
-                chmod +x $kctlVer
-            }
+            Remove-Item $KUBECTL_LOCAL -Force
         }
-        # replace existing ~/.local/bin/kubectl symbolic link
-        New-Item -ItemType SymbolicLink -Path $KUBECTL_LOCAL -Target $kctlVer -Force | Out-Null
-        # replace existing ~/.local/bin/k symbolic link
-        New-Item -ItemType SymbolicLink -Path $KUBECTL_ALIAS -Target $kctlVer -Force | Out-Null
     }
 }
 
