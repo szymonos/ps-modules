@@ -108,18 +108,30 @@ function Get-KubectlSecretDecodedData {
 Change kubernetes context and sets the corresponding kubectl client version.
 #>
 function Set-KubectlContext {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'context')]
     param (
+        [Alias('n')]
+        [Parameter(Position = 0, ParameterSetName = 'context')]
         [ArgumentCompleter({ ArgK8sGetContexts @args })]
-        [string]$Context
+        [string]$Context,
+
+        [Alias('c')]
+        [Parameter(Position = 0, ParameterSetName = 'cluster')]
+        [ArgumentCompleter({ ArgK8sGetClusters @args })]
+        [string]$Cluster
     )
 
     begin {
+        # get kubectl contexts
+        $ctxs = Get-KubectlContext -Object
+
         # get context name
         $ctx = if ($PSBoundParameters.Context) {
-            $PSBoundParameters.Context
+            $ctxs.Where({ $_.name -eq $Context }).name
+        } elseif ($PSBoundParameters.Cluster) {
+            $ctxs.Where({ $_.cluster -eq $Cluster }).name
         } else {
-            Get-KubectlContext -Output 'object' `
+            Get-KubectlContext -Object `
             | Select-Object name, cluster, namespace `
             | Get-ArrayIndexMenu -Value -Message 'Select kubernetes context to switch to.' `
             | Select-Object -ExpandProperty name
@@ -127,10 +139,14 @@ function Set-KubectlContext {
     }
 
     process {
-        # execute command
-        Invoke-WriteExecCommand -Command 'kubectl config use-context' -Xargs $ctx
-        # set kubectl binary to server version
-        Set-KubectlLocal
+        if ($ctx) {
+            # execute command
+            Invoke-WriteExecCommand -Command 'kubectl config use-context' -Xargs $ctx
+            # set kubectl binary to server version
+            Set-KubectlLocal
+        } else {
+            Write-Warning "$($Context ? "Context '$Context'" : "Cluster '$Cluster'") not found."
+        }
     }
 }
 
@@ -140,7 +156,7 @@ function Set-KubectlContext {
 Get list of available kubernetes contexts.
 #>
 function Remove-KubectlContext {
-    $ctx = Get-KubectlContext -Output 'object' | Select-Object name, cluster, user | Get-ArrayIndexMenu -Value
+    $ctx = Get-KubectlContext -Object | Select-Object name, cluster, user | Get-ArrayIndexMenu -Value
 
     # unset context
     kubectl config unset "contexts.$($ctx.name)"
@@ -154,36 +170,74 @@ function Remove-KubectlContext {
 Get list of available kubernetes contexts.
 #>
 function Get-KubectlContext {
+    [CmdletBinding(DefaultParameterSetName = 'table')]
     param (
-        [ValidateNotNullOrEmpty()]
-        [ValidateSet('json', 'object', 'table')]
-        [string]$Output = 'table'
+        [Parameter(ParameterSetName = 'table')]
+        [switch]$Table,
+
+        [Parameter(ParameterSetName = 'json')]
+        [switch]$Json,
+
+        [Parameter(ParameterSetName = 'object')]
+        [switch]$Object,
+
+        [Alias('n')]
+        [Parameter(ParameterSetName = 'context')]
+        [Parameter(ParameterSetName = 'table')]
+        [Parameter(ParameterSetName = 'json')]
+        [Parameter(ParameterSetName = 'object')]
+        [string]$Context,
+
+        [Alias('c')]
+        [Parameter(ParameterSetName = 'cluster')]
+        [Parameter(ParameterSetName = 'table')]
+        [Parameter(ParameterSetName = 'json')]
+        [Parameter(ParameterSetName = 'object')]
+        [string]$Cluster
     )
 
-    $config = kubectl config view --output json | ConvertFrom-Json
-    $ctxs = foreach ($ctx in $config.contexts) {
-        [PSCustomObject]@{
-            '@'       = $ctx.name -eq $config.'current-context' ? '*' : $null
-            name      = $ctx.name
-            cluster   = $ctx.context.cluster
-            namespace = $ctx.context.namespace
-            user      = $ctx.context.user
-        }
+    begin {
+        # get kubectl config
+        $config = kubectl config view --output json | ConvertFrom-Json
     }
 
-    switch ($Output) {
-        json {
-            if (Get-Command jq -CommandType Application -ErrorAction SilentlyContinue) {
-                $ctxs | ConvertTo-Json | jq
-            } else {
-                $ctxs | ConvertTo-Json
+    process {
+        # create context objects
+        $ctxs = foreach ($ctx in $config.contexts) {
+            [PSCustomObject]@{
+                '@'       = $ctx.name -eq $config.'current-context' ? '*' : $null
+                name      = $ctx.name
+                cluster   = $ctx.context.cluster
+                namespace = $ctx.context.namespace
+                user      = $ctx.context.user
             }
         }
-        object {
-            $ctxs
+
+        # filter contexts
+        if ($PSBoundParameters.Cluster) {
+            $ctxs = $ctxs.Where({ $_.cluster -eq $Cluster })
+        } elseif ($PSBoundParameters.Context) {
+            $ctxs = $ctxs.Where({ $_.name -eq $Context })
         }
-        table {
-            $ctxs | Format-Table
+
+    }
+
+    end {
+        # return output
+        switch ($PsCmdlet.ParameterSetName) {
+            json {
+                if (Get-Command jq -CommandType Application -ErrorAction SilentlyContinue) {
+                    $ctxs | ConvertTo-Json | jq
+                } else {
+                    $ctxs | ConvertTo-Json
+                }
+            }
+            object {
+                $ctxs
+            }
+            table {
+                $ctxs | Format-Table
+            }
         }
     }
 }
