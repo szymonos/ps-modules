@@ -12,7 +12,7 @@
     RootModule           = 'aliases-kubectl.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '0.8.2'
+    ModuleVersion        = '0.8.3'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -34,7 +34,7 @@
 
     # Minimum version of the PowerShell engine required by this module
     CompatiblePSEditions = @('Core')
-    PowerShellVersion    = '7.0'
+    PowerShellVersion    = '7.3'
 
     # Name of the PowerShell host required by this module
     # PowerShellHostName = ''
