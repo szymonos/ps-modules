@@ -336,11 +336,11 @@ function Invoke-PySetup {
                     "  `e[1;97mactivate`e[0m    Activate virtual environment",
                     "  `e[1;97mclean`e[0m       Delete all cache folders",
                     "  `e[1;97mdeactivate`e[0m  Deactivate virtual environment",
-                    "  `e[1;97mdelvenv`e[0m     Delete python virtual environment",
                     "  `e[1;97mgetenv`e[0m      Get environment variables",
+                    "  `e[1;97minstall`e[0m     Install requirements",
                     "  `e[1;97mlist`e[0m        List installed modules",
                     "  `e[1;97mpurge`e[0m       Purge pip cache",
-                    "  `e[1;97mreqs`e[0m        Install requirements",
+                    "  `e[1;97mremove`e[0m      Remove python virtual environment",
                     "  `e[1;97msetenv`e[0m      Set environment variables",
                     "  `e[1;97msshkey`e[0m      Generate key pairs for SSH",
                     "  `e[1;97mssltrust`e[0m    Trust SSL connection to pypi.org",
@@ -351,7 +351,7 @@ function Invoke-PySetup {
             return
         }
         # evaluate Option parameter abbreviations
-        $optSet = @('venv', 'delvenv', 'clean', 'purge', 'reqs', 'update', 'sshkey', 'ssltrust', 'setenv', 'getenv', 'list', 'activate', 'deactivate')
+        $optSet = @('activate', 'clean', 'deactivate', 'getenv', 'install', 'list', 'purge', 'remove', 'setenv', 'sshkey', 'ssltrust', 'update', 'venv')
         $opt = $optSet -match "^$Option"
         if ($opt.Count -eq 0) {
             Write-Warning "Option parameter name '$Option' is invalid. Valid Option values are:`n`t $($optSet -join ', ')"
@@ -379,8 +379,8 @@ function Invoke-PySetup {
         }
         $localSettings = [IO.Path]::Combine($AppPath, 'local.settings.json')
         $activateDir = [IO.Path]::Combine($VENV_DIR, ($IsWindows ? 'Scripts' : 'bin'))
-        $activateScript = (Get-ChildItem -Path $activateDir -Filter 'activate.ps1').FullName
-        $venvCreated = Test-Path $activateScript
+        $activateScript = (Test-Path $activateDir) ? (Get-ChildItem -Path $activateDir -Filter 'activate.ps1').FullName : $null
+        $venvCreated = $activateScript ? $true : $false
         $initScript = [IO.Path]::Combine('.vscode', 'init.ps1')
 
         # get environment variables from local.settings.json file
@@ -412,7 +412,7 @@ function Invoke-PySetup {
             }
 
             # *Delete python virtual environment.
-            delvenv {
+            remove {
                 if ($env:VIRTUAL_ENV) {
                     deactivate
                 }
@@ -552,13 +552,13 @@ function Invoke-PySetup {
             }
 
             # *Update pip, wheel and setuptools.
-            { $_ -in @('reqs', 'venv', 'update') } {
+            { $_ -in @('install', 'venv', 'update') } {
                 Write-Host "`e[95mupdate pip, wheel and setuptools`e[0m"
                 python3 -m pip install -U pip wheel setuptools
             }
 
             # *Install requirements.
-            { $_ -in @('reqs', 'venv') } {
+            { $_ -in @('install', 'venv') } {
                 if (Test-Path $req.name) {
                     # get modules from requirements files
                     $modules = $req_files | ForEach-Object { Get-Content $_ }
