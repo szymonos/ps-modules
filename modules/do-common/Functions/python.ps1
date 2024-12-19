@@ -378,7 +378,8 @@ function Invoke-PySetup {
             value = "black`nflake8`nipykernel`nnotebook`npydocstyle`npylint`npypath-magic`n"
         }
         $localSettings = [IO.Path]::Combine($AppPath, 'local.settings.json')
-        $activateScript = [IO.Path]::Combine($VENV_DIR, ($IsWindows ? 'Scripts' : 'bin'), 'Activate.ps1')
+        $activateDir = [IO.Path]::Combine($VENV_DIR, ($IsWindows ? 'Scripts' : 'bin'))
+        $activateScript = (Get-ChildItem -Path $activateDir -Filter 'activate.ps1').FullName
         $venvCreated = Test-Path $activateScript
         $initScript = [IO.Path]::Combine('.vscode', 'init.ps1')
 
