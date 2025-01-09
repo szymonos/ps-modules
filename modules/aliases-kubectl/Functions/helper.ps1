@@ -301,8 +301,10 @@ function Set-KubectlLocal {
 
     clean {
         # add executable bit to the kubectl binary
-        if (-not $IsWindows -and (Test-Path $kctlVer -PathType Leaf) -and ((Get-Item $kctlVer).UnixMode -ne '-rwxr-xr-x')) {
-            chmod +x $kctlVer
+        if ($serverVersion) {
+            if (-not $IsWindows -and (Test-Path $kctlVer -PathType Leaf) -and ((Get-Item $kctlVer).UnixMode -ne '-rwxr-xr-x')) {
+                chmod +x $kctlVer
+            }
         }
 
         # check if the symbolic link points to the existing file and remove otherwise
