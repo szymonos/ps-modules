@@ -60,7 +60,7 @@ function Get-LogContext {
         # get the caller script name
         $callerScript = $Caller.ScriptName ? (Split-Path -Path $Caller.ScriptName -Leaf) : $Caller.Location
         # get the invocation and function line numbers
-        if ($ErrorStackTrace) {
+        if ($PSBoundParameters.ErrorStackTrace) {
             # get the line numbers from the error stack trace
             $stackSplit = $ErrorStackTrace.Split("`n")
             if ($callerFunction -like '<ScriptBlock>*') {
@@ -185,7 +185,6 @@ function Show-LogContext {
         [ValidateSet('INFO', 'ERROR', 'WARNING', 'VERBOSE', 'DEBUG')]
         [string]$Level = 'INFO',
 
-        [ValidateScript({ $Level -eq 'ERROR' }, ErrorMessage = 'ErrorStackTrace is allowed for ERROR messages only.')]
         [string]$ErrorStackTrace
     )
 
@@ -197,8 +196,12 @@ function Show-LogContext {
         $callerParam = @{
             Caller = (Get-PSCallStack)[1]
         }
-        if ($PSBoundParameters.ErrorStackTrace -match '\sline\s(\d+)') {
-            $callerParam.ErrorStackTrace = $PSBoundParameters.ErrorStackTrace
+        if ($PSBoundParameters.ErrorStackTrace) {
+            if ($PSBoundParameters.Level -ne 'ERROR') {
+                $PSBoundParameters.Remove('ErrorStackTrace') | Out-Null
+            } elseif ($ErrorStackTrace -match '\sline\s(\d+)') {
+                $callerParam.ErrorStackTrace = $ErrorStackTrace
+            }
         }
         $ctx = Get-LogContext @callerParam
 
@@ -254,7 +257,6 @@ function Write-LogContext {
         [ValidateSet('INFO', 'ERROR', 'WARNING', 'VERBOSE', 'DEBUG')]
         [string]$Level = 'INFO',
 
-        [ValidateScript({ $Level -eq 'ERROR' }, ErrorMessage = 'ErrorStackTrace is allowed for ERROR messages only.')]
         [string]$ErrorStackTrace,
 
         [ValidateScript({ $_ -match '\.log$' }, ErrorMessage = 'Specified file should have .log extension.')]
@@ -276,8 +278,12 @@ function Write-LogContext {
         $callerParam = @{
             Caller = (Get-PSCallStack)[1]
         }
-        if ($PSBoundParameters.ErrorStackTrace -match '\sline\s(\d+)') {
-            $callerParam.ErrorStackTrace = $PSBoundParameters.ErrorStackTrace
+        if ($PSBoundParameters.ErrorStackTrace) {
+            if ($PSBoundParameters.Level -ne 'ERROR') {
+                $PSBoundParameters.Remove('ErrorStackTrace') | Out-Null
+            } elseif ($ErrorStackTrace -match '\sline\s(\d+)') {
+                $callerParam.ErrorStackTrace = $ErrorStackTrace
+            }
         }
         $ctx = Get-LogContext @callerParam
         # *determine Debug/Verbose preference
