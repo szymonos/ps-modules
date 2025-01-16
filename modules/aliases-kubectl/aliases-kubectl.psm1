@@ -22,6 +22,7 @@ $exportModuleMemberParams = @{
         'Remove-KubectlContext'
         'Get-KubectlSecretDecodedData'
         'Set-KubectlContextCurrentNamespace'
+        'Set-KubensContextCurrentNamespace'
         'Connect-KubernetesContainer'
         'Debug-KubernetesPod'
         'Get-KubectlPodContainers'
