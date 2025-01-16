@@ -87,6 +87,20 @@ function Set-KubectlContextCurrentNamespace {
     }
 }
 
+<#
+.SYNOPSIS
+Set kubernetes current namespace context using kubens cli.
+#>
+function Set-KubensContextCurrentNamespace {
+    [CmdletBinding()]
+    param (
+        [ArgumentCompleter({ ArgK8sGetNamespaces @args })]
+        [string]$Namespace
+    )
+
+    Invoke-Expression "kubens$($Namespace ? " $Namespace" : '')"
+}
+
 
 <#
 .SYNOPSIS
@@ -543,8 +557,12 @@ New-Alias -Name kc -Value Set-KubectlContext
 New-Alias -Name kcrmctx -Value Remove-KubectlContext
 New-Alias -Name kgsecd -Value Get-KubectlSecretDecodedData
 New-Alias -Name kcsctxcns -Value Set-KubectlContextCurrentNamespace
-New-Alias -Name kn -Value Set-KubectlContextCurrentNamespace
 New-Alias -Name kex -Value Connect-KubernetesContainer
 New-Alias -Name kdbg -Value Debug-KubernetesPod
 New-Alias -Name klo -Value Get-KubectlPodLogs
+if (Test-Path '/usr/bin/kubens' -PathType Leaf) {
+    New-Alias -Name kn -Value Set-KubensContextCurrentNamespace
+} else {
+    New-Alias -Name kn -Value Set-KubectlContextCurrentNamespace
+}
 #endregion
