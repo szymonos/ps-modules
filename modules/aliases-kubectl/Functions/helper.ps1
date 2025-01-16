@@ -54,6 +54,9 @@ function Get-KubectlServerVersion {
 <#
 .SYNOPSIS
 Set kubernetes current namespace context.
+
+.PARAMETER Namespace
+Kubernetes namespace name to set the namespace current context to.
 #>
 function Set-KubectlContextCurrentNamespace {
     [CmdletBinding()]
@@ -90,6 +93,24 @@ function Set-KubectlContextCurrentNamespace {
 
 <#
 .SYNOPSIS
+Set kubernetes current namespace context using kubens cli.
+
+.PARAMETER Namespace
+Kubernetes namespace name to set the current namespace context to.
+#>
+function Set-KubensContextCurrentNamespace {
+    [CmdletBinding()]
+    param (
+        [ArgumentCompleter({ ArgK8sGetNamespaces @args })]
+        [string]$Namespace
+    )
+
+    Invoke-Expression "kubens$($Namespace ? " $Namespace" : '')"
+}
+
+
+<#
+.SYNOPSIS
 Decode and print kubernetes secret data
 #>
 function Get-KubectlSecretDecodedData {
@@ -106,6 +127,11 @@ function Get-KubectlSecretDecodedData {
 <#
 .SYNOPSIS
 Change kubernetes context and sets the corresponding kubectl client version.
+
+.PARAMETER Context
+Kubernetes cluster context name to be set.
+.PARAMETER Cluster
+Kubernetes cluster name for the context to be set.
 #>
 function Set-KubectlContext {
     [CmdletBinding(DefaultParameterSetName = 'context')]
@@ -545,8 +571,12 @@ New-Alias -Name kc -Value Set-KubectlContext
 New-Alias -Name kcrmctx -Value Remove-KubectlContext
 New-Alias -Name kgsecd -Value Get-KubectlSecretDecodedData
 New-Alias -Name kcsctxcns -Value Set-KubectlContextCurrentNamespace
-New-Alias -Name kn -Value Set-KubectlContextCurrentNamespace
 New-Alias -Name kex -Value Connect-KubernetesContainer
 New-Alias -Name kdbg -Value Debug-KubernetesPod
 New-Alias -Name klo -Value Get-KubectlPodLogs
+if (Test-Path '/usr/bin/kubens' -PathType Leaf) {
+    New-Alias -Name kn -Value Set-KubensContextCurrentNamespace
+} else {
+    New-Alias -Name kn -Value Set-KubectlContextCurrentNamespace
+}
 #endregion

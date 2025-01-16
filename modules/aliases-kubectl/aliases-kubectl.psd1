@@ -12,7 +12,7 @@
     RootModule           = 'aliases-kubectl.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '0.8.7'
+    ModuleVersion        = '0.9.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -87,6 +87,7 @@
         'Remove-KubectlContext'
         'Get-KubectlSecretDecodedData'
         'Set-KubectlContextCurrentNamespace'
+        'Set-KubensContextCurrentNamespace'
         'Connect-KubernetesContainer'
         'Debug-KubernetesPod'
         'Get-KubectlPodContainers'
