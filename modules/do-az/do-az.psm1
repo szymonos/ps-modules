@@ -13,6 +13,7 @@ $exportModuleMemberParams = @{
         'Get-AzCtx'
         'Get-AzResourceTypeApiVersions'
         'Get-MsoToken'
+        'Set-AzKeyVaultAccessPolicyApi'
         'Get-KeyVaultCertificate'
         'Get-KeyVaultSecret'
         'Get-VirtualNetwork'

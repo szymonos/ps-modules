@@ -398,6 +398,94 @@ function Get-MsoToken {
 
 <#
 .SYNOPSIS
+Set Azure KeyVault access policy using Azure REST API request
+
+.PARAMETER VaultId
+Resource id of the Azure KeyVault
+.PARAMETER VaultName
+Azure KeyVault name.
+.PARAMETER Operation
+Operation to perform. Available options: add, replace, remove.
+.PARAMETER ObjectId
+ObjectId of the policy asignee, e.g. user, group, service principal.
+It will assign policy to the current user if not specified
+.PARAMETER PermissionsToKeys
+List of Keys permissions.
+.PARAMETER PermissionsToSecrets
+List of Secrets permissions.
+.PARAMETER PermissionsToCertificates
+List of Certificates permissions.
+.PARAMETER ApiVersion
+KeyVault API version.
+#>
+function Set-AzKeyVaultAccessPolicyApi {
+    [CmdletBinding(DefaultParameterSetName = 'ById')]
+    param (
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'ById')]
+        [string]$VaultId,
+
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'ByName')]
+        [string]$VaultName,
+
+        [ValidateSet('add', 'remove', 'replace')]
+        [string]$Operation = 'add',
+
+        [guid]$ObjectId,
+
+        [string[]]$PermissionsToKeys,
+
+        [string[]]$PermissionsToSecrets,
+
+        [string[]]$PermissionsToCertificates,
+
+        [string]$ApiVersion = '2022-07-01'
+    )
+
+    # get VaultId for the API request if name provided
+    if ($VaultName) {
+        $VaultId = (Get-AzGraphResourceByName -ResourceName $VaultName -ResourceType 'microsoft.keyvault/vaults').id
+        if (-not $VaultId) {
+            Write-Warning "Key-Vault not found ($VaultName)."
+            exit 1
+        }
+    }
+
+    # get current user object id if non provided, to perform the access policy operation on
+    $ctx = Get-AzContext
+    if (-not $ObjectId) {
+        $ObjectId = Invoke-CommandRetry {
+            Get-AzADUser -UserPrincipalName $ctx.Account.Id | Select-Object -ExpandProperty Id
+        }
+    }
+
+    # build KeyVault API request parameters
+    $apiParams = @{
+        Method     = 'Put'
+        Path       = "$($VaultId)/accessPolicies/$Operation"
+        ApiVersion = $ApiVersion
+        Body       = @{
+            properties = @{
+                accessPolicies = @(
+                    @{
+                        tenantId    = $ctx.Tenant.Id
+                        objectId    = $ObjectId
+                        permissions = @{
+                            keys         = $PermissionsToKeys ?? @()
+                            secrets      = $PermissionsToSecrets ?? @()
+                            certificates = $PermissionsToCertificates ?? @()
+                        }
+                    }
+                )
+            }
+        }
+    }
+    # run the KeyVault API request
+    Invoke-AzApiRequest @apiParams
+}
+
+
+<#
+.SYNOPSIS
 Gets a certificate from a key vault as X509Certificate2Collection.
 
 .PARAMETER VaultName
@@ -436,7 +524,6 @@ function Get-KeyVaultCertificate {
                         Operation            = 'add'
                         VaultId              = $kv.id
                         PermissionsToSecrets = @('get')
-                        Verbose              = $false
                     }
                     $kvPolicy = Set-AzKeyVaultAccessPolicyApi @paramPolicy
                 } else {
@@ -444,25 +531,32 @@ function Get-KeyVaultCertificate {
                     Start-Sleep 1
                 }
             } catch {
-                Write-Error $_
+                Write-Warning $_
+                $noAccess = $true
+                return
             }
-        }
-
-        if (-not $secret) {
-            Write-Warning "No certificate named '$Name' found in the key vault."
-            exit 1
-        } elseif ($secret.ContentType -ne 'application/x-pkcs12') {
-            Write-Warning "Secret '$Name' is not a certificate."
-            exit 1
         }
     }
 
     process {
         # instantiate X509Certificate2Collection to store the certificate chain
         $certs = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2Collection
-        # import the certificate chain from the secret
-        $secretValue = $secret.SecretValue | ConvertFrom-SecureString -AsPlainText
-        $certs.Import([Convert]::FromBase64String($secretValue))
+
+        if (-not $secret) {
+            Write-Warning "No certificate named `"$Name`" found in the `"$VaultName`" key-vault."
+            $certs = $null
+            return
+        } elseif ($secret.ContentType -ne 'application/x-pkcs12') {
+            Write-Warning "Secret `"$Name`" is not a certificate."
+            $certs = $null
+            return
+        } elseif ($noAccess) {
+            return
+        } else {
+            # import the certificate chain from the secret
+            $secretValue = $secret.SecretValue | ConvertFrom-SecureString -AsPlainText
+            $certs.Import([Convert]::FromBase64String($secretValue))
+        }
     }
 
     end {
