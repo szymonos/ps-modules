@@ -314,6 +314,8 @@ Switch, whether to show extended certificate properties.
 Switch, whether to show non-null certificate properties.
 .PARAMETER All
 Switch, whether to show all certificate properties.
+.PARAMETER OpenSSL
+Use OpenSSL to retrieve certificate chain.
 #>
 function Show-Certificate {
     [CmdletBinding(DefaultParameterSetName = 'Compact')]
@@ -332,7 +334,9 @@ function Show-Certificate {
 
         [switch]$Strip,
 
-        [switch]$All
+        [switch]$All,
+
+        [switch]$OpenSSL
     )
 
     begin {
@@ -367,11 +371,11 @@ function Show-Certificate {
     process {
         switch ($PsCmdlet.ParameterSetName) {
             FromUri {
-                $cert = try {
-                    Get-Certificate @PSBoundParameters | Add-CertificateProperties
-                } catch {
-                    Write-Verbose 'Switching to OpenSSL for intercepting the certificate chain.'
+                $cert = if ($PSBoundParameters.OpenSSL) {
+                    $PSBoundParameters.Remove('OpenSSL') | Out-Null
                     Get-CertificateOpenSSL @PSBoundParameters | Add-CertificateProperties
+                } else {
+                    Get-Certificate @PSBoundParameters | Add-CertificateProperties
                 }
             }
             FromPipeline {
@@ -399,6 +403,8 @@ Switch, whether to show extended certificate properties.
 Switch, whether to show non-null certificate properties.
 .PARAMETER All
 Switch, whether to show all certificate properties.
+.PARAMETER OpenSSL
+Use OpenSSL to retrieve certificate chain.
 #>
 function Show-CertificateChain {
     [CmdletBinding(DefaultParameterSetName = 'Compact')]
@@ -414,7 +420,9 @@ function Show-CertificateChain {
         [switch]$Strip,
 
         [Parameter(Mandatory, ParameterSetName = 'All')]
-        [switch]$All
+        [switch]$All,
+
+        [switch]$OpenSSL
     )
 
     begin {
