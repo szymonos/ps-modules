@@ -496,80 +496,118 @@ Specifies the name of the secret to get.
 Specifies the secret version.
 #>
 function Get-KeyVaultCertificate {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'list')]
     param (
-        [Parameter(Mandatory)]
-        [string]$Name,
-
-        [Parameter(Mandatory)]
         [string]$VaultName,
 
-        [string]$Version
+        [Parameter(Mandatory, ParameterSetName = 'get')]
+        [string]$Name,
+
+        [Parameter(ParameterSetName = 'get')]
+        [switch]$IncludeVersions,
+
+        [Parameter(ParameterSetName = 'get')]
+        [string]$Version,
+
+        [Parameter(ParameterSetName = 'get')]
+        [switch]$ShowCertificate
     )
 
     begin {
-        # reassign PSBoundParameters
-        $param = $PSBoundParameters
+        # rewrite PSBoundParameters to internal variable
+        $param = @{}
+        $PSBoundParameters.GetEnumerator() | ForEach-Object { $param[$_.Key] = $_.Value }
         $param.Add('ErrorAction', 'Stop')
+        if ($PSBoundParameters.ShowCertificate) {
+            $param.Remove('ShowCertificate') | Out-Null
+            if ($PSBoundParameters.IncludeVersions) {
+                Write-Warning 'IncludeVersions parameter is not supported with ShowCertificate.'
+                $param.Remove('IncludeVersions') | Out-Null
+            }
+        }
         # go into loop trying to get the KeyVault secret
         for ($i = 0; $i -lt 5; $i++) {
             try {
-                $secret = Invoke-CommandRetry { Get-AzKeyVaultSecret @param }
-            } catch [Microsoft.Azure.KeyVault.Models.KeyVaultErrorException] {
-                if (-not $kvPolicy) {
-                    # assign KeyVault policy to get secrets
-                    Write-Verbose 'Assigning policy on the key vault.'
-                    $kv = Get-AzGraphResourceByName -ResourceName $VaultName -ResourceType 'microsoft.keyvault/vaults'
-                    $paramPolicy = @{
-                        Operation            = 'add'
-                        VaultId              = $kv.id
-                        PermissionsToSecrets = @('get')
-                    }
-                    $kvPolicy = Set-AzKeyVaultAccessPolicyApi @paramPolicy
+                $certificate = if ($PSBoundParameters.ShowCertificate) {
+                    Invoke-CommandRetry { Get-AzKeyVaultSecret @param }
                 } else {
-                    Write-Verbose 'Sleep 1 second to apply the policy.'
-                    Start-Sleep 1
+                    Invoke-CommandRetry { Get-AzKeyVaultCertificate @param }
+                }
+            } catch [Microsoft.Azure.KeyVault.Models.KeyVaultErrorException] {
+                if ($_.Exception.Message -match 'does not have .+ permission') {
+                    if (-not $local:kvPolicy) {
+                        # assign KeyVault policy to get secrets
+                        $kv = Get-AzGraphResourceByName -ResourceName $VaultName -ResourceType 'microsoft.keyvault/vaults'
+                        Write-Verbose "Assigning `"$($PSCmdlet.ParameterSetName)`" $($ShowCertificate ? 'secrets' : 'certificates') policy on the key vault."
+                        $paramPolicy = @{
+                            Operation = 'add'
+                            VaultId   = $kv.id
+                            Verbose   = $PSBoundParameters.Verbose ? $true : $false
+                        }
+                        if ($ShowCertificate) {
+                            $paramPolicy.PermissionsToSecrets = $PSCmdlet.ParameterSetName
+                        } else {
+                            $paramPolicy.PermissionsToCertificates = $PSCmdlet.ParameterSetName
+                        }
+                        $local:kvPolicy = Set-AzKeyVaultAccessPolicyApi @paramPolicy
+                    } else {
+                        Write-Verbose 'Sleep 1 second to apply the policy.'
+                        Start-Sleep 1
+                    }
+                } else {
+                    Write-Error $_
+                    $noAccess = $true
+                    break
                 }
             } catch {
-                Write-Warning $_
+                Write-Error $_
                 $noAccess = $true
-                return
+                break
             }
         }
     }
 
     process {
-        # instantiate X509Certificate2Collection to store the certificate chain
-        $certs = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2Collection
-
-        if (-not $secret) {
+        if (-not $certificate) {
             Write-Warning "No certificate named `"$Name`" found in the `"$VaultName`" key-vault."
-            $certs = $null
-            return
-        } elseif ($secret.ContentType -ne 'application/x-pkcs12') {
-            Write-Warning "Secret `"$Name`" is not a certificate."
-            $certs = $null
             return
         } elseif ($noAccess) {
             return
+        }
+        if ($ShowCertificate) {
+            $certificate.ContentType
+            if ($certificate.ContentType -notin @('application/x-pkcs12', 'application/x-pem-file')) {
+                Write-Warning "Secret `"$Name`" is not a certificate."
+                return
+            } else {
+                # decode certificates
+                $secretValue = $certificate.SecretValue | ConvertFrom-SecureString -AsPlainText
+                switch ($certificate.ContentType) {
+                    'application/x-pkcs12' {
+                        # instantiate X509Certificate2Collection to store the certificate chain
+                        $certs = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2Collection
+                        $certs.Import([Convert]::FromBase64String($secretValue))
+                    }
+                    'application/x-pem-file' {
+                        $certs = $secretValue | ConvertFrom-PEM
+                    }
+                }
+            }
         } else {
-            # import the certificate chain from the secret
-            $secretValue = $secret.SecretValue | ConvertFrom-SecureString -AsPlainText
-            $certs.Import([Convert]::FromBase64String($secretValue))
+            $certs = $certificate
         }
     }
 
     end {
-        return $certs
+        return $local:certs
     }
 
     clean {
         # remove assigned access policy
-        if ($kvPolicy) {
-            Write-Verbose 'Removing policy from the key vault.'
+        if ($local:kvPolicy) {
+            Write-Verbose "Removing $($PSCmdlet.ParameterSetName -eq 'get' ? 'secrets' : 'certificates') policy from the key vault."
             $paramPolicy.Operation = 'remove'
             Set-AzKeyVaultAccessPolicyApi @paramPolicy | Out-Null
-            Remove-Variable kvPolicy
         }
     }
 }
@@ -587,57 +625,74 @@ Specifies the name of the secret to get.
 When set, the cmdlet will convert secret in secure string to the decrypted plaintext string as output.
 #>
 function Get-KeyVaultSecret {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'list')]
     param (
         [Parameter(Mandatory)]
         [string]$VaultName,
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory, ParameterSetName = 'get')]
         [string]$Name,
 
-        [switch]$AsPlainText
+        [Parameter(ParameterSetName = 'get')]
+        [switch]$AsPlainText,
+
+        [Parameter(ParameterSetName = 'get')]
+        [switch]$IncludeVersions,
+
+        [Parameter(ParameterSetName = 'get')]
+        [string]$Version
     )
 
     begin {
         # rewrite PSBoundParameters to internal variable
         $param = $PSBoundParameters
+        $param.Add('ErrorAction', 'Stop')
     }
 
     process {
         # go into loop trying to get the KeyVault secret
         for ($i = 0; $i -lt 5; $i++) {
             try {
-                Invoke-CommandRetry { Get-AzKeyVaultSecret @param -ErrorAction Stop }
+                $secret = Invoke-CommandRetry { Get-AzKeyVaultSecret @param }
                 break
             } catch [Microsoft.Azure.KeyVault.Models.KeyVaultErrorException] {
-                if (-not $kvPolicy) {
-                    # assign KeyVault policy to get secrets
-                    Write-Verbose 'Assigning policy on the key vault.'
-                    $kv = Get-AzGraphResourceByName -ResourceName $VaultName -ResourceType 'microsoft.keyvault/vaults'
-                    $paramPolicy = @{
-                        Operation            = 'add'
-                        VaultId              = $kv.id
-                        PermissionsToSecrets = @('get')
-                        Verbose              = $false
+                if ($_.Exception.Message -match 'does not have .+ permission') {
+                    if (-not $local:kvPolicy) {
+                        # assign KeyVault policy to get secrets
+                        $kv = Get-AzGraphResourceByName -ResourceName $VaultName -ResourceType 'microsoft.keyvault/vaults'
+                        Write-Verbose "Assigning `"$($PSCmdlet.ParameterSetName)`" secrets policy on the key vault."
+                        $paramPolicy = @{
+                            Operation            = 'add'
+                            VaultId              = $kv.id
+                            PermissionsToSecrets = $PSCmdlet.ParameterSetName
+                            Verbose              = $PSBoundParameters.Verbose ? $true : $false
+                        }
+                        $local:kvPolicy = Set-AzKeyVaultAccessPolicyApi @paramPolicy
+                    } else {
+                        Write-Verbose 'Sleep 1 second to apply the policy.'
+                        Start-Sleep 1
                     }
-                    $kvPolicy = Set-AzKeyVaultAccessPolicyApi @paramPolicy
                 } else {
-                    Write-Verbose 'Sleep 1 second to apply the policy.'
-                    Start-Sleep 1
+                    Write-Error $_
+                    break
                 }
             } catch {
                 Write-Error $_
+                break
             }
         }
     }
 
+    end {
+        return $local:secret
+    }
+
     clean {
         # remove assigned access policy
-        if ($kvPolicy) {
-            Write-Verbose 'Removing policy from the key vault.'
+        if ($local:kvPolicy) {
+            Write-Verbose 'Removing secrets policy from the key vault.'
             $paramPolicy.Operation = 'remove'
             Set-AzKeyVaultAccessPolicyApi @paramPolicy | Out-Null
-            Remove-Variable kvPolicy
         }
     }
 }
