@@ -16,6 +16,7 @@ $exportModuleMemberParams = @{
         'Set-AzKeyVaultAccessPolicyApi'
         'Get-KeyVaultCertificate'
         'Get-KeyVaultSecret'
+        'Set-KeyVaultSecret'
         'Get-VirtualNetwork'
         'Get-PrivateEndpoint'
         'Set-SubscriptionMenu'
