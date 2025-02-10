@@ -4,7 +4,7 @@
     RootModule           = 'do-az.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.18.2'
+    ModuleVersion        = '1.19.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -46,6 +46,7 @@
         'Set-AzKeyVaultAccessPolicyApi'
         'Get-KeyVaultCertificate'
         'Get-KeyVaultSecret'
+        'Set-KeyVaultSecret'
         'Get-VirtualNetwork'
         'Get-PrivateEndpoint'
         'Set-SubscriptionMenu'
