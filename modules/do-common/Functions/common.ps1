@@ -609,14 +609,21 @@ Scripts extension filter.
 List of file relative or full paths to be excluded from processing.
 .PARAMETER FolderFromBase
 Save example script in the folder of the base script.
+.PARAMETER Force
+Force ovewriting target file if exists.
+.PARAMETER WriteOutput
+Write output to the success [1] stream instead of the information [6] one.
 
 .EXAMPLE
 # :save example scripts from scripts in the current folder
 Invoke-ExampleScriptSave
+Invoke-ExampleScriptSave -Force
 Invoke-ExampleScriptSave -FolderFromBase
 # :save example script from scripts in the specified path
-$Path = 'folder'
+$Path = 'path_to_script_or_folder'
 Invoke-ExampleScriptSave $Path
+Invoke-ExampleScriptSave $Path -Force
+Invoke-ExampleScriptSave $Path -WriteOutput
 Invoke-ExampleScriptSave $Path -FolderFromBase
 #>
 function Invoke-ExampleScriptSave {
@@ -633,7 +640,11 @@ function Invoke-ExampleScriptSave {
         [ValidateNotNullOrEmpty()]
         [string[]]$Exclude = '.',
 
-        [switch]$FolderFromBase
+        [switch]$FolderFromBase,
+
+        [switch]$Force,
+
+        [switch]$WriteOutput
     )
 
     begin {
@@ -642,7 +653,7 @@ function Invoke-ExampleScriptSave {
             $_.Extension -in $ExtensionFilter -and $_.FullName -notin (Resolve-Path $Exclude -ErrorAction SilentlyContinue).Path
         }
         # instantiate generic list to store example script(s) name(s)
-        $lst = [Collections.Generic.List[string]]::new()
+        $lst = [Collections.Generic.List[hashtable]]::new()
         if ($scripts) {
             # get git root
             $gitRoot = git rev-parse --show-toplevel
@@ -651,7 +662,7 @@ function Invoke-ExampleScriptSave {
                 [IO.File]::AppendAllLines("$gitRoot/.gitignore", [string[]]'/console/')
             }
             # determine and create example folder to put example scripts in
-            $exampleDir = if ($FolderFromBase) {
+            $exampleDir = if ($PSBoundParameters.FolderFromBase) {
                 [IO.Path]::Combine($gitRoot, 'console', $scripts[0].Directory.Name)
             } else {
                 [IO.Path]::Combine($gitRoot, 'console')
@@ -692,7 +703,8 @@ function Invoke-ExampleScriptSave {
                 }
                 # calculate example file path
                 $fileName = $script.Extension -eq '.py' ? "$($script.BaseName)_py.ps1" : $script.Name
-                $exampleFile = [IO.Path]::Combine($exampleDir, $fileName)
+                # create hashtable that will store the example script path and information if it was saved
+                $lstItem = @{ path = [IO.Path]::Combine($exampleDir, $fileName) }
                 # build content string
                 $builder = [System.Text.StringBuilder]::new()
                 if ($synopsis -or $param) {
@@ -707,18 +719,32 @@ function Invoke-ExampleScriptSave {
                         $builder.AppendLine($_) | Out-Null
                     }
                 }
-                # save the example script
-                [IO.File]::WriteAllText($exampleFile, $builder.ToString())
-                # add example script path to the list
-                $lst.Add([IO.Path]::GetRelativePath($gitRoot, $exampleFile))
+                if (-not $PSBoundParameters.Force -and (Test-Path $lstItem.path)) {
+                    $lstItem.saved = $false
+                } else {
+                    # save the example script
+                    [IO.File]::WriteAllText($lstItem.path, $builder.ToString())
+                    $lstItem.saved = $true
+                }
+                # add item to the list
+                $lst.Add($lstItem)
             }
         }
     }
 
     end {
         # print list of saved file paths
-        foreach ($example in $lst) {
-            Write-Host $example
+        foreach ($item in $lst) {
+            if ($WriteOutput) {
+                return $item.path
+            } else {
+                $relPath = ($item.path).Replace($HOME, '~')
+                if ($item.saved) {
+                    Write-Host "`e[4;94m$relPath`e[0m"
+                } else {
+                    Write-Host "`e[4;96m$relPath`e[0m"
+                }
+            }
         }
     }
 }
