@@ -4,7 +4,7 @@
     RootModule           = 'do-common.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.3.7'
+    ModuleVersion        = '1.4.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -73,8 +73,11 @@
         'Invoke-DownloadFile'
         # python
         'Invoke-CertifiFixFromChain'
+        'Invoke-VenvActivate'
+        'Invoke-VenvDeactivate'
         'Invoke-CondaSetup'
         'Invoke-PySetup'
+        'Invoke-UvSetup'
     )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -97,8 +100,11 @@
         'idf'
         # python
         'fxcertpy'
+        'iva'
+        'ivd'
         'ics'
         'ips'
+        'ius'
     )
 
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.

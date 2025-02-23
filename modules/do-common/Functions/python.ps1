@@ -71,37 +71,40 @@ Set-Alias -Name fxcertpy -Value Invoke-CertifiFixFromChain
 Manage conda environments.
 .PARAMETER Option
 Select script action.
-.PARAMETER CondaFile
+.PARAMETER YamlFile
 Specify conda file to use.
 #>
 function Invoke-CondaSetup {
     [CmdletBinding()]
     param (
         [Parameter(Position = 0)]
+        [ArgumentCompletions('activate', 'clean', 'create', 'deactivate', 'envs', 'fix', 'info', 'list', 'remove', 'setup', 'update')]
         [string]$Option,
 
         [Alias('f')]
         [ValidateNotNullorEmpty()]
-        [string]$YamlFile = 'conda.yaml',
+        [string]$YamlFile = './conda.yaml',
 
         [switch]$CertificateFix
     )
 
     dynamicparam {
-        if (@('activate', 'create', 'remove') -match "^$Option" -and -not $PSBoundParameters.CondaFile) {
+        if (@('activate', 'create', 'remove') -match "^$Option" -and -not $PSBoundParameters.YamlFile) {
             $paramDict = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
 
             $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
-            $attributeCollection.Add([Management.Automation.ParameterAttribute]@{ Position = 1 })
+            $attributeCollection.Add([System.Management.Automation.ParameterAttribute]@{ Position = 1 })
+            $argCompleter = [ScriptBlock]::Create({ (Get-CondaEnvironment).Name })
+            $attributeCollection.Add([System.Management.Automation.ArgumentCompleterAttribute]::new($argCompleter))
             $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new(
                 'Environment', [string], $attributeCollection
             )
             $paramDict.Add('Environment', $dynParam)
 
-            if ('create' -match "^$Option") {
+            if ('create' -match "^$Option" -and $Option.Length -ge 2) {
                 # dependencies dynamic parameter
                 $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
-                $attributeCollection.Add([Management.Automation.ParameterAttribute]@{ Position = 2 })
+                $attributeCollection.Add([System.Management.Automation.ParameterAttribute]@{ Position = 2 })
                 $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new(
                     'Dependencies', [string[]], $attributeCollection
                 )
@@ -151,7 +154,7 @@ function Invoke-CondaSetup {
         if (-not $Option) {
             [Console]::WriteLine(
                 [string]::Join("`n",
-                    "Invoke-CondaSetup cmdlet manages conda environments.`n",
+                    "Invoke-CondaSetup function manages conda environments.`n",
                     "usage: Invoke-CondaSetup [-Option] <string> [-YamlFile <String>] [-CertificateFix] [[-Environment] <string>] [[-Dependencies] <string[]>]`n",
                     'The following Options are available:',
                     "  `e[1;97mactivate`e[0m    Activate environment",
@@ -170,7 +173,19 @@ function Invoke-CondaSetup {
             return
         }
         # evaluate Option parameter abbreviations
-        $optSet = @('activate', 'clean', 'create', 'deactivate', 'envs', 'fix', 'info', 'list', 'remove', 'setup', 'update')
+        $optSet = @(
+            'activate'
+            'clean'
+            'create'
+            'deactivate'
+            'envs'
+            'fix'
+            'info'
+            'list'
+            'remove'
+            'setup'
+            'update'
+        )
         $opt = $optSet -match "^$Option"
         if ($opt.Count -eq 0) {
             Write-Warning "Option parameter name '$Option' is invalid. Valid Option values are:`n`t $($optSet -join ', ')"
@@ -181,21 +196,24 @@ function Invoke-CondaSetup {
         }
 
         # check for conda file
-        if ($opt -in @('activate', 'remove', 'setup')) {
-            if ($PSBoundParameters.Environment) {
-                $envName = $PSBoundParameters.Environment
-                $envExists = $true
-            } elseif (Test-Path $YamlFile) {
-                # get environment name
-                $envName = (Select-String -Pattern '^name: +(\S+)' -Path $YamlFile).Matches.Groups.Where({ $_.Name -eq '1' }).Value
-                $envExists = $envName -in (Get-CondaEnvironment).Name
-            } else {
-                Write-Warning "File `e[4m$YamlFile`e[24m not found"
-                break
-            }
-            if ($envName) {
-                # exit environment before proceeding
-                Exit-CondaEnvironment
+        if ($opt -in @('activate', 'envs', 'remove', 'setup')) {
+            $envs = Get-CondaEnvironment
+            if ($opt -in @('activate', 'remove', 'setup')) {
+                if ($PSBoundParameters.Environment) {
+                    $envName = $PSBoundParameters.Environment
+                    $envExists = $envName -in $envs.Name
+                } elseif (Test-Path $YamlFile -PathType Leaf) {
+                    # get environment name
+                    $envName = (Select-String -Pattern '^name: +(\S+)' -Path $YamlFile).Matches.Groups.Where({ $_.Name -eq '1' }).Value
+                    $envExists = $envName -in $envs.Name
+                } else {
+                    Write-Warning "File `e[4m$YamlFile`e[24m not found"
+                    break
+                }
+                if ($env:CONDA_DEFAULT_ENV) {
+                    # exit environment before proceeding
+                    Exit-CondaEnvironment
+                }
             }
         }
     }
@@ -213,13 +231,13 @@ function Invoke-CondaSetup {
                 } else {
                     Write-Host "`e[1;4m$envName`e[22;24m environment doesn't exist!"
                 }
-                continue
+                break
             }
 
             clean {
                 # *Clean conda
                 Invoke-Conda clean -y --all
-                continue
+                break
             }
 
             create {
@@ -232,13 +250,12 @@ function Invoke-CondaSetup {
             deactivate {
                 # *Clean conda
                 Exit-CondaEnvironment
-                continue
+                break
             }
 
             envs {
                 # *List environments
-                Invoke-Conda env list
-                continue
+                return $envs
             }
 
             info {
@@ -251,19 +268,13 @@ function Invoke-CondaSetup {
                         Write-Host $_
                     }
                 }
-                continue
+                break
             }
 
             list {
                 # *List packages
                 Invoke-Conda list
-                continue
-            }
-
-            fix {
-                # *Fix certificates
-                Invoke-CertifiFixFromChain
-                continue
+                break
             }
 
             remove {
@@ -276,28 +287,33 @@ function Invoke-CondaSetup {
                 } else {
                     Write-Host "`e[1;4m$envName`e[22;24m environment doesn't exist!"
                 }
-                continue
+                break
             }
 
             setup {
                 if ($envExists) {
-                    # *Create environment
-                    Write-Host "`nEnvironment `e[1;4m$envName`e[22;24m already exist. Updating..."
-                    Invoke-Conda env update --file $YamlFile --prune
-                    Enter-CondaEnvironment $envName
-                } else {
                     # *Update environment
                     Write-Host "Creating `e[1;4m$envName`e[22;24m environment."
                     Invoke-Conda env create --file $YamlFile
                     Enter-CondaEnvironment $envName
+                } else {
+                    # *Create environment
+                    Write-Host "`nEnvironment `e[1;4m$envName`e[22;24m already exist. Updating..."
+                    Invoke-Conda env update --file $YamlFile --prune
+                    Enter-CondaEnvironment $envName
                 }
-                continue
+            }
+
+            fix {
+                # *Fix certificates
+                Invoke-CertifiFixFromChain
+                break
             }
 
             update {
                 # *Update conda
                 Invoke-Conda update --name base --channel defaults conda --yes --update-all
-                continue
+                break
             }
 
         }
@@ -306,6 +322,72 @@ function Invoke-CondaSetup {
 
 Set-Alias -Name ics -Value Invoke-CondaSetup
 
+
+<#
+.SYNOPSIS
+Activate python virtual environment.
+
+.PARAMETER GetPath
+Return activate script path.
+#>
+function Invoke-VenvActivate {
+    [CmdletBinding()]
+    param (
+        [Parameter(Position = 0)]
+        [ValidateNotNullorEmpty()]
+        [ValidateScript({ Test-Path $_ -PathType Container }, ErrorMessage = "'{0}' is not a valid directory.")]
+        [string]$Path = '.',
+
+        [switch]$GetPath
+    )
+
+    Push-Location $Path -StackName 'Venv'
+    # calculate venv directory with activate scripts
+    $activateDir = [IO.Path]::Combine('.venv', ($IsWindows ? 'Scripts' : 'bin'))
+    # check if virtual environment exists
+    if (Test-Path $activateDir -PathType Container) {
+        # get activate script path
+        $activateScript = (Get-ChildItem -Path $activateDir -Filter 'activate.ps1').FullName
+        if ($activateScript) {
+            if ($GetPath) {
+                $activateScript
+            } else {
+                . $activateScript
+                return
+            }
+        } else {
+            Write-Warning "Activate script not found in $activateDir."
+        }
+    } elseif (-not $GetPath) {
+        Write-Host 'venv: environment not found'
+    }
+    Pop-Location -StackName 'Venv'
+}
+
+Set-Alias -Name iva -Value Invoke-VenvActivate
+
+
+<#
+.SYNOPSIS
+Deactivate python virtual environment.
+#>
+function Invoke-VenvDeactivate {
+    [CmdletBinding()]
+    param (
+        [switch]$Quiet
+    )
+
+    try {
+        Get-Item Function:deactivate -ErrorAction Stop | Out-Null
+        deactivate
+    } catch {
+        if (-not $Quiet) {
+            Write-Host 'venv: environment not activated'
+        }
+    }
+}
+
+Set-Alias -Name ivd -Value Invoke-VenvDeactivate
 
 <#
 .SYNOPSIS
@@ -319,6 +401,7 @@ function Invoke-PySetup {
     [CmdletBinding()]
     param (
         [Parameter(Position = 0)]
+        [ArgumentCompletions('clean', 'getenv', 'install', 'list', 'purge', 'remove', 'setenv', 'sshkey', 'ssltrust', 'update', 'venv')]
         [string]$Option,
 
         [Alias('p')]
@@ -330,12 +413,10 @@ function Invoke-PySetup {
         if (-not $Option) {
             [Console]::WriteLine(
                 [string]::Join("`n",
-                    "Invoke-PySetup cmdlet manages Python virtual environments.`n",
+                    "Invoke-PySetup function manages Python virtual environments.`n",
                     "usage: Invoke-PySetup [-Option] <string> [-AppPath <string>]`n",
                     'The following options are available:',
-                    "  `e[1;97mactivate`e[0m    Activate virtual environment",
                     "  `e[1;97mclean`e[0m       Delete all cache folders",
-                    "  `e[1;97mdeactivate`e[0m  Deactivate virtual environment",
                     "  `e[1;97mgetenv`e[0m      Get environment variables",
                     "  `e[1;97minstall`e[0m     Install requirements",
                     "  `e[1;97mlist`e[0m        List installed modules",
@@ -351,7 +432,19 @@ function Invoke-PySetup {
             return
         }
         # evaluate Option parameter abbreviations
-        $optSet = @('activate', 'clean', 'deactivate', 'getenv', 'install', 'list', 'purge', 'remove', 'setenv', 'sshkey', 'ssltrust', 'update', 'venv')
+        $optSet = @(
+            'clean'
+            'getenv'
+            'install'
+            'list'
+            'purge'
+            'remove'
+            'setenv'
+            'sshkey'
+            'ssltrust'
+            'update'
+            'venv'
+        )
         $opt = $optSet -match "^$Option"
         if ($opt.Count -eq 0) {
             Write-Warning "Option parameter name '$Option' is invalid. Valid Option values are:`n`t $($optSet -join ', ')"
@@ -372,16 +465,14 @@ function Invoke-PySetup {
             if (Test-Path $appReq) {
                 $req_files.Add($appReq)
             }
+            $localSettings = [IO.Path]::Combine($AppPath, 'local.settings.json')
         }
         $req = @{
             name  = $req_files[0]
-            value = "black`nflake8`nipykernel`nnotebook`npydocstyle`npylint`npypath-magic`n"
+            value = "ipykernel`nnotebook`npylint`npypath-magic`n"
         }
-        $localSettings = [IO.Path]::Combine($AppPath, 'local.settings.json')
-        $activateDir = [IO.Path]::Combine($VENV_DIR, ($IsWindows ? 'Scripts' : 'bin'))
-        $activateScript = (Test-Path $activateDir) ? (Get-ChildItem -Path $activateDir -Filter 'activate.ps1').FullName : $null
+        $activateScript = Invoke-VenvActivate -GetPath
         $venvCreated = $activateScript ? $true : $false
-        $initScript = [IO.Path]::Combine('.vscode', 'init.ps1')
 
         # get environment variables from local.settings.json file
         if ($opt -in @('setenv', 'getenv')) {
@@ -397,28 +488,17 @@ function Invoke-PySetup {
 
     process {
         switch ($opt) {
-            # *Activate virtual environment.
-            { $_ -in @('activate', 'update', 'venv') -and -not $env:VIRTUAL_ENV -and $venvCreated } {
-                & $activateScript
-                if ($opt -eq 'activate') {
-                    break
-                }
-            }
-
-            # *Deactivate virtual environment.
-            { $_ -eq 'deactivate' -and $env:VIRTUAL_ENV } {
-                deactivate
-                break
-            }
-
             # *Delete python virtual environment.
             remove {
-                if ($env:VIRTUAL_ENV) {
+                if (Get-ChildItem Function:deactivate -ErrorAction SilentlyContinue) {
+                    if ($PSBoundParameters.Verbose) { Write-Verbose 'deactivate' }
                     deactivate
                 }
                 if (Test-Path $VENV_DIR) {
                     Write-Host "`e[96mDelete virtual environment.`e[0m"
-                    Remove-Item $VENV_DIR -Recurse -Force
+                    $cmd = "Remove-Item $VENV_DIR -Recurse -Force"
+                    if ($PSBoundParameters.Verbose) { Write-Verbose $cmd }
+                    Invoke-Expression $cmd
                 } else {
                     Write-Host "`e[96mVirtual environment not exists.`e[0m"
                 }
@@ -428,13 +508,14 @@ function Invoke-PySetup {
             # *Delete all cache folders
             clean {
                 $dirs = Get-ChildItem -Directory -Exclude '.venv'
-                foreach ($d in $dirs) {
-                    if ($d.Name -match '_cache$|__pycache__') {
-                        Remove-Item $d -Recurse -Force
+                foreach ($dir in $dirs) {
+                    if ($dir.Name -match '_cache$|__pycache__') {
+                        $cmd = "Remove-Item '$dir' -Recurse -Force"
+                        if ($PSBoundParameters.Verbose) { Write-Verbose $cmd }
+                        Invoke-Expression $cmd
                     } else {
                         @('*_cache', '__pycache__') | ForEach-Object {
-                            [IO.Directory]::GetDirectories($d.FullName, $_, 1) | `
-                                Remove-Item -Recurse -Force
+                            [IO.Directory]::GetDirectories($dir.FullName, $_, 1) | Remove-Item -Recurse -Force
                         }
                     }
                 }
@@ -443,7 +524,10 @@ function Invoke-PySetup {
 
             # *Purge pip cache.
             purge {
-                pip cache purge
+                Write-Host "`e[96mDelete virtual environment.`e[0m"
+                $cmd = 'pip cache purge'
+                if ($PSBoundParameters.Verbose) { Write-Verbose $cmd }
+                Invoke-Expression $cmd
                 break
             }
 
@@ -510,21 +594,28 @@ function Invoke-PySetup {
             # *List installed modules.
             list {
                 python3 -m pip list --format=json | ConvertFrom-Json | Tee-Object -Variable modules | Format-Table
-                $pipPath = (python3 -m pip -V) -replace '^.*from |pip \(.*$'
+                $pipPath = (python3 -m pip -V) -replace '^.*from |pip \(.*$' -replace $HOME, '~'
                 Write-Host "`e[96m$(python3 -V) `e[0m|`e[96m $($modules.Count) modules installed in `e[1;34m$pipPath`e[0m"
                 break
+            }
+
+            # *Activate virtual environment.
+            { $_ -in @('update', 'venv') -and -not $env:VIRTUAL_ENV -and $venvCreated } {
+                if ($PSBoundParameters.Verbose) { Write-Verbose ". $($activateScript.Replace($PWD, ''))" }
+                . $activateScript
             }
 
             # *Setup python virtual environment.
             venv {
                 # create virtual environment
                 if ($null -eq $env:VIRTUAL_ENV) {
-                    Write-Host "`e[96mSet up Python environment.`e[0m"
-                    if (-not $venvCreated) {
+                    if ($venvCreated) {
+                        . $activateScript
+                    } else {
+                        Write-Host "`e[96mSet up Python environment.`e[0m"
                         python3 -m venv $VENV_DIR
+                        Invoke-VenvActivate
                     }
-                    # activate virtual environment
-                    & $activateScript
                 } else {
                     Write-Host "`e[96mVirtual environment already set.`e[0m"
                 }
@@ -536,18 +627,6 @@ function Invoke-PySetup {
                 if (-not (Test-Path $req.name)) {
                     Write-Host "`e[95madd `e[1;3mrequirements.txt`e[22;23m with dev modules`e[0m"
                     New-Item $req.name -Value $req.value | Out-Null
-                }
-                if (-not (Test-Path $initScript)) {
-                    Write-Host "`e[95mcreate `e[1;3minit.ps1`e[22;23m for virtual environment activation`e[0m"
-                    $initContent = (
-                        "#!/usr/bin/pwsh -nop`n#Requires -Version 7.0`n" +
-                        "`$activateScript = [IO.Path]::Combine('$VENV_DIR', (`$IsWindows ? 'Scripts' : 'bin'), 'Activate.ps1')`n" +
-                        "if (Test-Path `$activateScript) {`n`t& `$activateScript`n}`n"
-                    )
-                    New-Item -Path $initScript -Value $initContent -Force | Out-Null
-                    if ($IsLinux) {
-                        chmod +x $initScript
-                    }
                 }
             }
 
@@ -571,7 +650,7 @@ function Invoke-PySetup {
                     Remove-Item $reqs_temp
                 }
                 # add project path in virtual environment
-                if ($env:VIRTUAL_ENV -and 'pypath-magic' -in $modules) {
+                if ($AppPath -and $env:VIRTUAL_ENV -and 'pypath-magic' -in $modules) {
                     pypath add ([IO.Path]::Combine($PWD, $AppPath)) 2>$null
                     pypath add $PWD 2>$null
                 }
@@ -595,3 +674,237 @@ function Invoke-PySetup {
 }
 
 Set-Alias -Name ips -Value Invoke-PySetup
+
+
+<#
+.SYNOPSIS
+Manage uv environments.
+.PARAMETER Option
+Select script action.
+.PARAMETER PyProjectFile
+Specify pyproject.toml file to use.
+#>
+function Invoke-UvSetup {
+    [CmdletBinding()]
+    param (
+        [Parameter(Position = 0)]
+        [ArgumentCompletions('activate', 'clean', 'envs', 'fix', 'list', 'prune', 'remove', 'setup')]
+        [string]$Option,
+
+        [switch]$CertificateFix
+    )
+
+    dynamicparam {
+        if (@('activate', 'list', 'remove', 'setup') -match "^$Option" -and -not $PSBoundParameters.PyProjectFile) {
+            $paramDict = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
+
+            $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
+            $attributeCollection.Add([Management.Automation.ParameterAttribute]@{ Position = 1 })
+            $attributeCollection.Add([Management.Automation.ValidateScriptAttribute]::new(
+                    [ScriptBlock]::Create({ Test-Path $_ -PathType 'Container' })
+                ))
+            $attributeCollection.Add([Management.Automation.ArgumentCompleterAttribute]::new(
+                    [ScriptBlock]::Create({
+                            Get-ChildItem -Path '.' -Filter 'pyproject.toml' -File -Recurse | ForEach-Object {
+                                $_.Directory.FullName.Replace($PWD, '.')
+                            }
+                        })
+                ))
+            $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new(
+                'Environment', [string], $attributeCollection
+            )
+            $paramDict.Add('Environment', $dynParam)
+
+            return $paramDict
+        }
+    }
+
+    begin {
+        # check if uv is installed
+        $break = if ($IsLinux) {
+            if (Test-Path $HOME/.local/bin/uv) {
+                $false
+            } else {
+                Write-Warning 'uv not installed.'
+                $true
+            }
+        } else {
+            if (Get-Command 'uv' -ErrorAction SilentlyContinue) {
+                $false
+            } else {
+                Write-Warning 'uv not installed.'
+                $true
+            }
+        }
+        if ($break) { return }
+
+        if (-not $Option) {
+            [Console]::WriteLine(
+                [string]::Join("`n",
+                    "Invoke-UvSetup function manages uv environments.`n",
+                    "usage: Invoke-UvSetup [-Option] <string> [-PyProjectFile <String>] [-CertificateFix] [[-Environment] <string>] [[-Dependencies] <string[]>]`n",
+                    'The following Options are available:',
+                    "  `e[1;97mactivate`e[0m    Activate virtual environment",
+                    "  `e[1;97mclean`e[0m       Clear the cache",
+                    "  `e[1;97menvs`e[0m        Enumerate all pyproject.toml files from the current path",
+                    "  `e[1;97mfix`e[0m         Fix self-signed certificates",
+                    "  `e[1;97mlist`e[0m        List packages",
+                    "  `e[1;97mprune`e[0m       Prune all unreachable objects from the cache",
+                    "  `e[1;97mremove`e[0m      Remove virtual environment",
+                    "  `e[1;97msetup`e[0m       Create/upgrade environment from pyproject.toml`n"
+                )
+            )
+            return
+        }
+        # evaluate Option parameter abbreviations
+        $optSet = @(
+            'activate'
+            'clean'
+            'envs'
+            'fix'
+            'list'
+            'prune'
+            'remove'
+            'setup'
+        )
+        $opt = $optSet -match "^$Option"
+        if ($opt.Count -eq 0) {
+            Write-Warning "Option parameter name '$Option' is invalid. Valid Option values are:`n`t $($optSet -join ', ')"
+            break
+        } elseif ($opt.Count -gt 1) {
+            Write-Warning "Option parameter name '$Option' is ambiguous. Possible matches include: $($opt -join ', ')."
+            break
+        }
+
+        # constants
+        $VENV_DIR = '.venv'
+
+        if ($opt -in @('activate', 'fix', 'list', 'remove', 'setup')) {
+            # set location to the specified pyproject.toml location
+            Push-Location ($PSBoundParameters.Environment ?? '.') -StackName 'EnvDir'
+            # get activate script path
+            $activateScript = Invoke-VenvActivate -GetPath
+            $venvCreated = $activateScript ? $true : $false
+            $pyProject = (Test-Path './pyproject.toml') ? $true : $false
+        }
+        # deactivate virtual environment if already activated
+        if ($opt -in @('remove', 'setup') -and $env:VIRTUAL_ENV) {
+            Invoke-VenvDeactivate -Quiet
+        }
+    }
+
+    # *Execute option
+    process {
+        if ($CertificateFix -and $opt -eq 'setup') {
+            $opt = $opt + 'fix'
+        }
+        switch ($opt) {
+            clean {
+                # *Clean uv cache
+                $cmd = 'uv cache clean'
+                if ($PSBoundParameters.Verbose) { Write-Verbose $cmd }
+                Invoke-Expression $cmd
+                break
+            }
+
+            prune {
+                # *Clean uv cache
+                $cmd = 'uv cache prune'
+                if ($PSBoundParameters.Verbose) { Write-Verbose $cmd }
+                Invoke-Expression $cmd
+                break
+            }
+
+            envs {
+                # *List environments
+                $tomls = Get-ChildItem '.' -Filter 'pyproject.toml' -File -Recurse
+                foreach ($toml in $tomls) {
+                    # $toml = $tomls[0]
+                    $envName = (Select-String -Pattern '^name *= *"(\S+)"' -Path $toml).Matches.Groups.Where({ $_.Name -eq '1' }).Value
+                    [PSCustomObject]@{
+                        Name = $envName
+                        Path = $toml.DirectoryName.Replace($PWD, '.')
+                        Venv = (Invoke-VenvActivate -GetPath -Path $toml.DirectoryName) ? $true : $false
+                    }
+                }
+                break
+            }
+
+            # *Activate virtual environment.
+            { $_ -in @('activate', 'fix', 'list') } {
+                if ($venvCreated) {
+                    if ($PSBoundParameters.Verbose) { Write-Verbose ". $($activateScript.Replace($PWD, ''))" }
+                    . $activateScript
+                    if ($opt -eq 'activate') {
+                        break
+                    }
+                } else {
+                    Write-Host 'venv: environment not created.'
+                    Pop-Location -StackName 'EnvDir'
+                    break
+                }
+            }
+
+            list {
+                # *List packages
+                if ($PSBoundParameters.Verbose) { Write-Verbose 'uv pip list' }
+                uv pip list --format=json | ConvertFrom-Json | Tee-Object -Variable modules | Format-Table
+                if ($modules) {
+                    $moduleLocation = (uv pip show $modules[0].name | Select-String '(?<=Location: )\S+').Matches.Value
+                    $relPath = [IO.Path]::GetRelativePath($PWD, $moduleLocation)
+                    Write-Host "`e[96m$(python3 -V) `e[0m|`e[96m $($modules.Count) modules installed in `e[1;4;34m$relPath`e[0m"
+                } else {
+                    Write-Host 'No modules installed.'
+                }
+                break
+            }
+
+            remove {
+                # *Remove environment
+                if (Test-Path $VENV_DIR) {
+                    Write-Host 'Removing virtual environment.'
+                    $cmd = "Remove-Item $VENV_DIR -Recurse -Force"
+                    if ($PSBoundParameters.Verbose) { Write-Verbose $cmd }
+                    Invoke-Expression $cmd
+                } else {
+                    Write-Host "$VENV_DIR directory doesn't exist!"
+                }
+                Pop-Location -StackName 'EnvDir'
+                break
+            }
+
+            setup {
+                if ($pyProject) {
+                    if ($venvCreated) {
+                        # *Update environment
+                        Write-Host 'Environment already exist. Upgrading...'
+                        $cmd = 'uv sync --upgrade'
+                        if ($PSBoundParameters.Verbose) { Write-Verbose $cmd }
+                        Invoke-Expression $cmd
+                        Invoke-VenvActivate
+                    } else {
+                        # *Create environment
+                        Write-Host 'Creating virtual environment.'
+                        $cmd = 'uv sync'
+                        if ($PSBoundParameters.Verbose) { Write-Verbose $cmd }
+                        Invoke-Expression $cmd
+                        # activate environment
+                        Invoke-VenvActivate
+                    }
+                } else {
+                    Write-Warning "`e[4mpyproject.toml`e[24m file not found"
+                    Pop-Location -StackName 'EnvDir'
+                    break
+                }
+            }
+
+            fix {
+                # *Fix certificates
+                Invoke-CertifiFixFromChain
+                break
+            }
+        }
+    }
+}
+
+Set-Alias -Name ius -Value Invoke-UvSetup
