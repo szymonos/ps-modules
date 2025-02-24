@@ -469,7 +469,7 @@ function Invoke-PySetup {
         }
         $req = @{
             name  = $req_files[0]
-            value = "ipykernel`nnotebook`npylint`npypath-magic`n"
+            value = "ipykernel`nnotebook`npypath-magic`n"
         }
         $activateScript = Invoke-VenvActivate -GetPath
         $venvCreated = $activateScript ? $true : $false
@@ -695,25 +695,30 @@ function Invoke-UvSetup {
     )
 
     dynamicparam {
-        if (@('activate', 'list', 'remove', 'setup') -match "^$Option" -and -not $PSBoundParameters.PyProjectFile) {
+        if (@('setup') -match "^$Option") {
             $paramDict = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
 
             $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
             $attributeCollection.Add([Management.Automation.ParameterAttribute]@{ Position = 1 })
-            $attributeCollection.Add([Management.Automation.ValidateScriptAttribute]::new(
-                    [ScriptBlock]::Create({ Test-Path $_ -PathType 'Container' })
-                ))
             $attributeCollection.Add([Management.Automation.ArgumentCompleterAttribute]::new(
                     [ScriptBlock]::Create({
-                            Get-ChildItem -Path '.' -Filter 'pyproject.toml' -File -Recurse | ForEach-Object {
-                                $_.Directory.FullName.Replace($PWD, '.')
+                            [IO.Directory]::SetCurrentDirectory($PWD)
+                            [array]$extrasName = if ([System.IO.Path]::Exists('./pyproject.toml')) {
+                                $content = [System.IO.File]::ReadAllText('./pyproject.toml')
+                                $reExtras = '(?s)(?<=\[project\.optional-dependencies\]\n)(.*?)(?=\n\[)'
+                                $extras = [regex]::Matches($content, $reExtras).Value
+                                if ($extras) {
+                                    $reExtrasName = '\b\w+(?=\s*=\s*\[)'
+                                    [regex]::Matches($extras, $reExtrasName).Value
+                                }
                             }
+                            $extrasName ? (, 'all-extras' + $extrasName) : 'none'
                         })
                 ))
             $dynParam = [System.Management.Automation.RuntimeDefinedParameter]::new(
-                'Environment', [string], $attributeCollection
+                'Extras', [string], $attributeCollection
             )
-            $paramDict.Add('Environment', $dynParam)
+            $paramDict.Add('Extras', $dynParam)
 
             return $paramDict
         }
@@ -875,22 +880,23 @@ function Invoke-UvSetup {
 
             setup {
                 if ($pyProject) {
-                    if ($venvCreated) {
-                        # *Update environment
-                        Write-Host 'Environment already exist. Upgrading...'
-                        $cmd = 'uv sync --upgrade'
-                        if ($PSBoundParameters.Verbose) { Write-Verbose $cmd }
-                        Invoke-Expression $cmd
-                        Invoke-VenvActivate
-                    } else {
-                        # *Create environment
-                        Write-Host 'Creating virtual environment.'
-                        $cmd = 'uv sync'
-                        if ($PSBoundParameters.Verbose) { Write-Verbose $cmd }
-                        Invoke-Expression $cmd
-                        # activate environment
-                        Invoke-VenvActivate
+                    $cmd = 'uv sync'
+                    if ($PSBoundParameters.Extras) {
+                        if ($PSBoundParameters.Extras -eq 'all-extras') {
+                            $cmd += ' --all-extras'
+                        } elseif ($PSBoundParameters.Extras -ne 'none') {
+                            $cmd += " --extra $($PSBoundParameters.Extras)"
+                        }
                     }
+                    if ($venvCreated) {
+                        $cmd += ' --upgrade'
+                        Write-Host 'Environment already exist. Upgrading...'
+                    } else {
+                        Write-Host 'Creating virtual environment.'
+                    }
+                    if ($PSBoundParameters.Verbose) { Write-Verbose $cmd }
+                    Invoke-Expression $cmd
+                    Invoke-VenvActivate
                 } else {
                     Write-Warning "`e[4mpyproject.toml`e[24m file not found"
                     Pop-Location -StackName 'EnvDir'
