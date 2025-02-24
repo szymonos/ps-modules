@@ -50,8 +50,11 @@ $exportModuleMemberParams = @{
         'Invoke-DownloadFile'
         # python
         'Invoke-CertifiFixFromChain'
+        'Invoke-VenvActivate'
+        'Invoke-VenvDeactivate'
         'Invoke-CondaSetup'
         'Invoke-PySetup'
+        'Invoke-UvSetup'
     )
     Variable = @()
     Alias    = @(
@@ -67,8 +70,11 @@ $exportModuleMemberParams = @{
         'idf'
         # python
         'fxcertpy'
+        'iva'
+        'ivd'
         'ics'
         'ips'
+        'ius'
     )
 }
 
