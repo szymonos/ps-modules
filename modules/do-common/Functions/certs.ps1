@@ -256,28 +256,49 @@ function Get-CertificateOpenSSL {
     )
 
     begin {
-        # check if openssl is installed
+        # check if OpenSSL is installed
         if (-not (Get-Command openssl -CommandType Application -ErrorAction SilentlyContinue)) {
-            Write-Error 'Openssl not found. Script execution halted.'
+            Throw 'OpenSSL not found. Script execution halted.'
         }
-        # build openssl command
-        $cmd = "Out-Null | openssl s_client$($BuildChain ? ' -showcerts' : '') -connect ${Uri}:443"
+
+        # build the OpenSSL argument list
+        [System.Collections.Generic.List[string]]$cmdArgs = @('s_client')
+        $cmdArgs.Add('-connect')
+        $cmdArgs.Add("${Uri}:443")
+        $BuildChain ? $cmdArgs.Add('-showcerts') : $null
     }
 
     process {
-        # run openssl command
-        $chain = Invoke-Expression $cmd 2>$null
-        if (-not $chain) {
-            Write-Error "Name or service not known ($Uri)."
+        try {
+            # Use the call operator (&) to execute OpenSSL with arguments
+            $opensslOutput = Out-Null | & openssl @cmdArgs 2>$null
+        } catch {
+            Throw "Error executing OpenSSL: $_"
         }
-        # parse pem encoded certificates from openssl output
-        $pems = [regex]::Matches(
-            [string]::Join("`n", $chain.Replace("`r`n", "`n")),
-            '(?<=-{5}BEGIN CERTIFICATE-{5}\n)[\S\n]+(?=\n-{5}END CERTIFICATE-{5})'
-        ).Value
-        # convert PEM encoded certificates to X509 certificate objects
-        foreach ($pem in $pems) {
-            [Security.Cryptography.X509Certificates.X509Certificate2]::new([Convert]::FromBase64String($pem))
+
+        if (-not $opensslOutput) {
+            Throw "No output from OpenSSL. Possibly an unknown host: `"$Uri`"."
+        }
+
+        # Normalize the output: join array into one string and standardize line breaks
+        $outputText = ($opensslOutput -join "`n") -replace "`r`n", "`n"
+
+        # Define a regex pattern to match PEM encoded certificates
+        $pemPattern = '(?<=-----BEGIN CERTIFICATE-----\n)[\S\n]+?(?=\n-----END CERTIFICATE-----)'
+        $reMatches = [regex]::Matches($outputText, $pemPattern)
+
+        if ($reMatches.Count -eq 0) {
+            Throw "No certificates found in OpenSSL output for `"$Uri`"."
+        }
+
+        # Convert each PEM block to an X509Certificate2 object
+        foreach ($match in $reMatches) {
+            try {
+                $certBytes = [Convert]::FromBase64String($match.Value)
+                [Security.Cryptography.X509Certificates.X509Certificate2]::new($certBytes)
+            } catch {
+                Write-Warning 'Failed to convert a certificate block to X509Certificate2.'
+            }
         }
     }
 }

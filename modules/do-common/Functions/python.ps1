@@ -242,8 +242,16 @@ function Invoke-CondaSetup {
 
             create {
                 # *Create conda environment
-                $cmd = "Invoke-Conda create --name $($PSBoundParameters.Environment) --yes $($PSBoundParameters.Dependencies -join ' ')"
-                Invoke-Expression $cmd
+                # build conda arguments
+                [System.Collections.Generic.List[string]]$condaArgs = @('create')
+                $condaArgs.Add('--name')
+                $condaArgs.Add($PSBoundParameters.Environment)
+                $condaArgs.Add('--yes')
+                $PSBoundParameters.Dependencies.ForEach({ $condaArgs.Add($_) })
+                # create environment
+                if ($PSBoundParameters.Verbose) { Write-Verbose "conda $condaArgs" }
+                & Invoke-Conda @condaArgs
+                # activate environment
                 Enter-CondaEnvironment $PSBoundParameters.Environment
             }
 
@@ -283,7 +291,7 @@ function Invoke-CondaSetup {
                     Write-Host "Cannot remove `e[1;4mbase`e[22;24m environment!"
                 } elseif ($envExists) {
                     Write-Host "Removing `e[1;4m$envName`e[22;24m environment."
-                    Invoke-Conda env remove --name $envName
+                    Invoke-Conda env remove --name $envName --yes
                 } else {
                     Write-Host "`e[1;4m$envName`e[22;24m environment doesn't exist!"
                 }
@@ -291,17 +299,26 @@ function Invoke-CondaSetup {
             }
 
             setup {
+                # build conda arguments
+                [System.Collections.Generic.List[string]]$condaArgs = @('env')
+                # build conda arguments
                 if ($envExists) {
-                    # *Update environment
-                    Write-Host "Creating `e[1;4m$envName`e[22;24m environment."
-                    Invoke-Conda env create --file $YamlFile
-                    Enter-CondaEnvironment $envName
-                } else {
                     # *Create environment
                     Write-Host "`nEnvironment `e[1;4m$envName`e[22;24m already exist. Updating..."
-                    Invoke-Conda env update --file $YamlFile --prune
-                    Enter-CondaEnvironment $envName
+                    $condaArgs.Add('update')
+                    $condaArgs.Add('--prune')
+                } else {
+                    # *Update environment
+                    Write-Host "Creating `e[1;4m$envName`e[22;24m environment."
+                    $condaArgs.Add('create')
                 }
+                $condaArgs.Add('--file')
+                $condaArgs.Add($YamlFile)
+                if ($PSBoundParameters.Verbose) { Write-Verbose "conda $condaArgs" }
+                # run conda command
+                & Invoke-Conda @condaArgs
+                # activate environment
+                Enter-CondaEnvironment $envName
             }
 
             fix {
@@ -315,7 +332,6 @@ function Invoke-CondaSetup {
                 Invoke-Conda update --name base --channel defaults conda --yes --update-all
                 break
             }
-
         }
     }
 }
@@ -496,9 +512,7 @@ function Invoke-PySetup {
                 }
                 if (Test-Path $VENV_DIR) {
                     Write-Host "`e[96mDelete virtual environment.`e[0m"
-                    $cmd = "Remove-Item $VENV_DIR -Recurse -Force"
-                    if ($PSBoundParameters.Verbose) { Write-Verbose $cmd }
-                    Invoke-Expression $cmd
+                    Remove-Item $VENV_DIR -Recurse -Force
                 } else {
                     Write-Host "`e[96mVirtual environment not exists.`e[0m"
                 }
@@ -510,9 +524,7 @@ function Invoke-PySetup {
                 $dirs = Get-ChildItem -Directory -Exclude '.venv'
                 foreach ($dir in $dirs) {
                     if ($dir.Name -match '_cache$|__pycache__') {
-                        $cmd = "Remove-Item '$dir' -Recurse -Force"
-                        if ($PSBoundParameters.Verbose) { Write-Verbose $cmd }
-                        Invoke-Expression $cmd
+                        Remove-Item "$dir" -Recurse -Force
                     } else {
                         @('*_cache', '__pycache__') | ForEach-Object {
                             [IO.Directory]::GetDirectories($dir.FullName, $_, 1) | Remove-Item -Recurse -Force
@@ -525,9 +537,8 @@ function Invoke-PySetup {
             # *Purge pip cache.
             purge {
                 Write-Host "`e[96mDelete virtual environment.`e[0m"
-                $cmd = 'pip cache purge'
-                if ($PSBoundParameters.Verbose) { Write-Verbose $cmd }
-                Invoke-Expression $cmd
+                if ($PSBoundParameters.Verbose) { Write-Verbose 'pip cache purge' }
+                & pip cache purge
                 break
             }
 
@@ -806,17 +817,15 @@ function Invoke-UvSetup {
         switch ($opt) {
             clean {
                 # *Clean uv cache
-                $cmd = 'uv cache clean'
-                if ($PSBoundParameters.Verbose) { Write-Verbose $cmd }
-                Invoke-Expression $cmd
+                if ($PSBoundParameters.Verbose) { Write-Verbose 'uv cache clean' }
+                uv cache clean
                 break
             }
 
             prune {
                 # *Clean uv cache
-                $cmd = 'uv cache prune'
-                if ($PSBoundParameters.Verbose) { Write-Verbose $cmd }
-                Invoke-Expression $cmd
+                if ($PSBoundParameters.Verbose) { Write-Verbose 'uv cache prune' }
+                uv cache prune
                 break
             }
 
@@ -868,9 +877,8 @@ function Invoke-UvSetup {
                 # *Remove environment
                 if (Test-Path $VENV_DIR) {
                     Write-Host 'Removing virtual environment.'
-                    $cmd = "Remove-Item $VENV_DIR -Recurse -Force"
-                    if ($PSBoundParameters.Verbose) { Write-Verbose $cmd }
-                    Invoke-Expression $cmd
+                    if ($PSBoundParameters.Verbose) { Write-Verbose "Remove-Item $VENV_DIR -Recurse -Force" }
+                    Remove-Item $VENV_DIR -Recurse -Force
                 } else {
                     Write-Host "$VENV_DIR directory doesn't exist!"
                 }
@@ -880,22 +888,23 @@ function Invoke-UvSetup {
 
             setup {
                 if ($pyProject) {
-                    $cmd = 'uv sync'
-                    if ($PSBoundParameters.Extras) {
-                        if ($PSBoundParameters.Extras -eq 'all-extras') {
-                            $cmd += ' --all-extras'
-                        } elseif ($PSBoundParameters.Extras -ne 'none') {
-                            $cmd += " --extra $($PSBoundParameters.Extras)"
-                        }
-                    }
+                    [System.Collections.Generic.List[string]]$uvArgs = @('sync')
                     if ($venvCreated) {
-                        $cmd += ' --upgrade'
                         Write-Host 'Environment already exist. Upgrading...'
+                        $uvArgs.Add('--upgrade')
                     } else {
                         Write-Host 'Creating virtual environment.'
                     }
-                    if ($PSBoundParameters.Verbose) { Write-Verbose $cmd }
-                    Invoke-Expression $cmd
+                    if ($PSBoundParameters.Extras) {
+                        if ($PSBoundParameters.Extras -eq 'all-extras') {
+                            $uvArgs.Add('--all-extras')
+                        } elseif ($PSBoundParameters.Extras -ne 'none') {
+                            $uvArgs.Add('--extra')
+                            $uvArgs.Add($PSBoundParameters.Extras)
+                        }
+                    }
+                    if ($PSBoundParameters.Verbose) { Write-Verbose "uv $uvArgs" }
+                    & uv @uvArgs
                     Invoke-VenvActivate
                 } else {
                     Write-Warning "`e[4mpyproject.toml`e[24m file not found"
