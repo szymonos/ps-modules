@@ -206,7 +206,7 @@ function Get-AzGraphResourceGroup {
         # build filter
         if ($PSBoundParameters.ResourceId) {
             $filter = "id =~ '$ResourceId'"
-            $PSBoundParameters.TryAdd('SubscriptionId', ([AzResource]$PSBoundParameters.ResourceId).SubscriptionId) | Out-Null
+            $PSBoundParameters.TryAdd('SubscriptionId', ([AzGraphResourceGroup]$PSBoundParameters.ResourceId).SubscriptionId) | Out-Null
             $PSBoundParameters.TryAdd('PageSize', 10) | Out-Null
             $PSBoundParameters.Remove('ResourceId') | Out-Null
         } else {
