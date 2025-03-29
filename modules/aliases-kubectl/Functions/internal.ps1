@@ -51,9 +51,12 @@ function Invoke-WriteExecKubectl {
     }
 
     if (-not $PsBoundParameters.WhatIf) {
+        # write debug information
+        Write-Debug "Invoke-WriteExecKubectl.Command`n`e[22m$cmnd`n"
+        if ($PSBoundParameters.Xargs) {
+            Write-Debug "Invoke-WriteExecKubectl.Xargs`n`e[22m$Xargs`n"
+        }
         # execute command
-        Write-Debug "Invoke-WriteExecKubectl.Command: $cmnd"
-        Write-Debug "Invoke-WriteExecKubectl.Xargs: $Xargs"
         & kubectl @Command @Xargs
     }
 }
@@ -83,14 +86,15 @@ function Build-KubectlCommand {
 
         [string[]]$Xargs,
 
-        [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
 
-        [Parameter(ParameterSetName = 'quiet')]
         [switch]$Quiet
     )
 
     begin {
+        # write debug information
+        Write-Debug "Build-KubectlCommand.PSBoundParameters`n`e[22m$($PSBoundParameters.GetEnumerator().ForEach({ "$($_.Key): $($_.Value)" }) -join "`n")`n"
+
         # build command
         $cmnd = [System.Collections.Generic.List[string]]::new()
         $cmnd.AddRange([string[]]@($PSBoundParameters.Verb, "$($PSBoundParameters.Kind.ToLower())s"))
@@ -113,8 +117,9 @@ function Build-KubectlCommand {
     }
 
     process {
-        Write-Debug "Build-KubectlCommand.Command: $cmnd"
-        Write-Debug "Build-KubectlCommand.PSBoundParameters:`n$PSBoundParameters"
+        # write debug information
+        Write-Debug "Build-KubectlCommand.Command`n`e[22m$cmnd`n"
+        # execute command
         Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
     }
 }
