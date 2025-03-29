@@ -1,23 +1,23 @@
 <#
 .SYNOPSIS
-Write provided command with its arguments and then execute it.
-You can suppress writing the command by providing -Quiet as one of the arguments.
-You can suppress executing the command by providing -WhatIf as one of the arguments.
+Write provided kubectl with its arguments and then execute it.
+You can suppress writing the kubectl by providing -Quiet as one of the arguments.
+You can suppress executing the kubectl by providing -WhatIf as one of the arguments.
 
 .PARAMETER Command
-Command to be executed.
-.PARAMETER Arguments
-Command arguments to be passed to the provided command.
+kubectl command to be executed.
+.PARAMETER Xargs
+kubectl arguments to be passed to the provided command.
 .PARAMETER WhatIf
-Do not execute the command.
+Do not execute the kubectl.
 .PARAMETER Quiet
-Do not print the command string.
+Do not print the kubectl string.
 #>
-function Invoke-WriteExecCommand {
+function Invoke-WriteExecKubectl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
         [Parameter(Mandatory, Position = 0)]
-        [string]$Command,
+        [string[]]$Command,
 
         [Parameter(ValueFromRemainingArguments)]
         [string[]]$Xargs,
@@ -29,30 +29,35 @@ function Invoke-WriteExecCommand {
         [switch]$Quiet
     )
 
-    begin {
-        # build command
-        $sb = [System.Text.StringBuilder]::new($Command)
-        if ($PSBoundParameters.Xargs) {
-            $Xargs | ForEach-Object {
-                $arg = $_ -match '\s|@' ? "'$_'" : $_
-                $sb.Append(" $arg") | Out-Null
+    if (-not $PsBoundParameters.Quiet) {
+        # write command
+        $writeCmd = , 'kubectl' + $Command + $Xargs | ForEach-Object {
+            switch -Regex ($_) {
+                "'" {
+                    "`"$_`""
+                    break
+                }
+                '\s|"' {
+                    "'$_'"
+                    break
+                }
+                Default {
+                    $_
+                    break
+                }
             }
-        }
-        # get command string
-        $cmnd = $sb.ToString()
+        } | Join-String -Separator ' '
+        Write-Host $writeCmd -ForegroundColor Magenta
     }
 
-    process {
-        if (-not $PSBoundParameters.Quiet) {
-            # write command
-            Write-Host $cmnd -ForegroundColor Magenta
-        }
-        if (-not $PSBoundParameters.WhatIf) {
-            # execute command
-            return Invoke-Expression $cmnd
-        }
+    if (-not $PsBoundParameters.WhatIf) {
+        # execute command
+        Write-Debug "Invoke-WriteExecKubectl.Command: $cmnd"
+        Write-Debug "Invoke-WriteExecKubectl.Xargs: $Xargs"
+        & kubectl @Command @Xargs
     }
 }
+
 
 function Build-KubectlCommand {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -65,10 +70,15 @@ function Build-KubectlCommand {
         [ValidateSet('Pod', 'Service', 'Namespace')]
         [string[]]$Kind,
 
+        [Parameter(Mandatory, ParameterSetName = 'pod')]
         [string]$Pod,
 
+        [Parameter(Mandatory, ParameterSetName = 'service')]
         [string]$Service,
 
+        [Parameter(Mandatory, ParameterSetName = 'namespace')]
+        [Parameter(ParameterSetName = 'pod')]
+        [Parameter(ParameterSetName = 'service')]
         [string]$Namespace,
 
         [string[]]$Xargs,
@@ -82,30 +92,29 @@ function Build-KubectlCommand {
 
     begin {
         # build command
-        $cmnd = "kubectl $Verb $($Kind.ToLower())s"
-        $PSBoundParameters.Remove('Verb') | Out-Null
+        $cmnd = [System.Collections.Generic.List[string]]::new()
+        $cmnd.AddRange([string[]]@($PSBoundParameters.Verb, "$($PSBoundParameters.Kind.ToLower())s"))
+        @('Verb', 'Kind').ForEach({ $PSBoundParameters.Remove($_) | Out-Null })
 
         # build parameters
-        $params = [System.Collections.Generic.List[string]]::new()
         if ($PSBoundParameters.Pod) {
-            $params.Add($Pod)
+            $cmnd.Add($Pod)
             $PSBoundParameters.Remove('Pod') | Out-Null
         } elseif ($PSBoundParameters.Service) {
-            $params.Add($Service)
+            $cmnd.Add($Service)
             $PSBoundParameters.Remove('Service') | Out-Null
         }
         if ($PSBoundParameters.Namespace) {
             if ($Kind -ne 'Namespace') {
-                $params.Add('--namespace')
+                $cmnd.AddRange([string[]]@('--namespace', $Namespace))
             }
-            $params.Add($Namespace)
             $PSBoundParameters.Remove('Namespace') | Out-Null
         }
-        $PSBoundParameters.Remove('Kind') | Out-Null
-        $PSBoundParameters.Xargs = $params.ToArray() + $Xargs
     }
 
     process {
-        Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
+        Write-Debug "Build-KubectlCommand.Command: $cmnd"
+        Write-Debug "Build-KubectlCommand.PSBoundParameters:`n$PSBoundParameters"
+        Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
     }
 }

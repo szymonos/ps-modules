@@ -86,7 +86,8 @@ function Set-KubectlContextCurrentNamespace {
 
     process {
         # execute command
-        Invoke-WriteExecCommand -Command 'kubectl config set-context --current --namespace' -Xargs $namespace
+        $cmnd = @('config', 'set-context', '--current', '--namespace', $namespace)
+        Invoke-WriteExecKubectl -Command $cmnd
     }
 }
 
@@ -105,7 +106,14 @@ function Set-KubensContextCurrentNamespace {
         [string]$Namespace
     )
 
-    Invoke-Expression "kubens$($Namespace ? " $Namespace" : '')"
+    # build kubectl command string
+    [System.Collections.Generic.List[string]]$cmdArgs = @()
+    if ($PSBoundParameters.Namespace) {
+        $cmdArgs.Add($Namespace)
+    }
+
+    # execute kubens command
+    & kubens @cmdArgs
 }
 
 
@@ -167,7 +175,8 @@ function Set-KubectlContext {
     process {
         if ($ctx) {
             # execute command
-            Invoke-WriteExecCommand -Command 'kubectl config use-context' -Xargs $ctx
+            $cmnd = @('config', 'use-context', $ctx)
+            Invoke-WriteExecKubectl -Command $cmnd
             # set kubectl binary to server version
             Set-KubectlLocal
         } else {
@@ -394,38 +403,37 @@ function Connect-KubernetesContainer {
     )
 
     begin {
-        # build kubectl command string
-        $sb = [System.Text.StringBuilder]::new("kubectl exec --stdin --tty $($PSBoundParameters.Pod)")
+        # build kubectl command parameters
+        $cmnd = [System.Collections.Generic.List[string]]::new([string[]]@('exec', '--stdin', '--tty'))
+        $cmnd.Add($PSBoundParameters.Pod)
         if ($PSBoundParameters.Namespace) {
-            $sb.Append(" --namespace $($PSBoundParameters.Namespace)") | Out-Null
+            $cmnd.AddRange([string[]]@('--namespace', $Namespace))
         }
         if ($PSBoundParameters.Container) {
-            $sb.Append(" --container $($PSBoundParameters.Container)") | Out-Null
+            $cmnd.AddRange([string[]]@('--container', $Container))
         }
         # specify command to be used in the container
         switch ($PsCmdlet.ParameterSetName) {
             Shell {
                 if ($PSBoundParameters.bash) {
-                    $sb.Append(' -- bash') | Out-Null
+                    $cmnd.AddRange([string[]]@('--', 'bash'))
                 } elseif ($PSBoundParameters.python) {
-                    $sb.Append(' -- python') | Out-Null
+                    $cmnd.AddRange([string[]]@('--', 'python'))
                 } elseif ($PSBoundParameters.PowerShell) {
-                    $sb.Append(' -- pwsh') | Out-Null
+                    $cmnd.AddRange([string[]]@('--', 'pwsh'))
                 } else {
-                    $sb.Append(' -- sh') | Out-Null
+                    $cmnd.AddRange([string[]]@('--', 'sh'))
                 }
             }
             Command {
-                $sb.Append(" -- $Command") | Out-Null
+                $cmnd.AddRange([string[]]@('--', $Command))
             }
         }
-        # get the command string
-        $cmnd = $sb.ToString()
     }
 
     process {
         # execute command
-        Invoke-WriteExecCommand -Command $cmnd
+        Invoke-WriteExecKubectl -Command $cmnd
     }
 }
 
@@ -450,11 +458,11 @@ Specify to run PowerShell shell in the debug container.
 function Debug-KubernetesPod {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
-        [Parameter(Position = 0, Mandatory = $true)]
+        [Parameter(Mandatory, Position = 0)]
         [ArgumentCompleter({ ArgK8sGetPods @args })]
         [string]$Pod,
 
-        [Parameter(Position = 1)]
+        [Parameter(Mandatory, Position = 1)]
         [string]$Image,
 
         [ArgumentCompleter({ ArgK8sGetNamespaces @args })]
@@ -478,36 +486,34 @@ function Debug-KubernetesPod {
     )
 
     begin {
-        # build kubectl command string
-        $sb = [System.Text.StringBuilder]::new("kubectl debug $($PSBoundParameters.Pod) --stdin --tty")
+        # build kubectl command parameters
+        $cmnd = [System.Collections.Generic.List[string]]::new([string[]]@('debug', '--stdin', '--tty'))
+        $cmnd.AddRange([string[]]@($PSBoundParameters.Pod, "--image=$($PSBoundParameters.Image)"))
         if ($PSBoundParameters.Namespace) {
-            $sb.Append(" --namespace $($PSBoundParameters.Namespace)") | Out-Null
+            $cmnd.AddRange([string[]]@('--namespace', $Namespace))
         }
-        $sb.Append(" --image=$($PSBoundParameters.Image)") | Out-Null
         # specify command to be used in the container
         switch ($PsCmdlet.ParameterSetName) {
             Shell {
                 if ($PSBoundParameters.bash) {
-                    $sb.Append(' -- bash') | Out-Null
+                    $cmnd.AddRange([string[]]@('--', 'bash'))
                 } elseif ($PSBoundParameters.python) {
-                    $sb.Append(' -- python') | Out-Null
-                } elseif ($PSBoundParameters.pwsh) {
-                    $sb.Append(' -- pwsh') | Out-Null
-                } elseif ($PSBoundParameters.sh) {
-                    $sb.Append(' -- sh') | Out-Null
+                    $cmnd.AddRange([string[]]@('--', 'python'))
+                } elseif ($PSBoundParameters.PowerShell) {
+                    $cmnd.AddRange([string[]]@('--', 'pwsh'))
+                } else {
+                    $cmnd.AddRange([string[]]@('--', 'sh'))
                 }
             }
             Command {
-                $sb.Append(" -- $Command") | Out-Null
+                $cmnd.AddRange([string[]]@('--', $Command))
             }
         }
-        # get the command string
-        $cmnd = $sb.ToString()
     }
 
     process {
         # execute command
-        Invoke-WriteExecCommand -Command $cmnd
+        Invoke-WriteExecKubectl -Command $cmnd
     }
 }
 
@@ -541,21 +547,20 @@ function Get-KubectlPodLogs {
     )
 
     begin {
-        # build kubectl command string
-        $sb = [System.Text.StringBuilder]::new("kubectl logs -f $($PSBoundParameters.Pod)")
+        # build kubectl command parameters
+        $cmnd = [System.Collections.Generic.List[string]]::new([string[]]@('logs', '-f'))
+        $cmnd.Add($PSBoundParameters.Pod)
         if ($PSBoundParameters.Namespace) {
-            $sb.Append(" --namespace $($PSBoundParameters.Namespace)") | Out-Null
+            $cmnd.AddRange([string[]]@('--namespace', $Namespace))
         }
         if ($PSBoundParameters.Container) {
-            $sb.Append(" --container $($PSBoundParameters.Container)") | Out-Null
+            $cmnd.AddRange([string[]]@('--container', $Container))
         }
-        # get the command string
-        $cmnd = $sb.ToString()
     }
 
     process {
         # execute command
-        Invoke-WriteExecCommand -Command $cmnd
+        Invoke-WriteExecKubectl -Command $cmnd
     }
 }
 #endregion
