@@ -85,7 +85,7 @@ function kgpocntr {
     $param = @{
         Verb  = 'get'
         Kind  = 'Pod'
-        Xargs = @('--output', "jsonpath='{.spec.containers[*].name}'")
+        Xargs = @('--output', 'jsonpath={.spec.containers[*].name}')
     }
     return (Build-KubectlCommand @param @PSBoundParameters).Split()
 }
@@ -106,7 +106,8 @@ function ktop {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl top pods --use-protocol-buffers' @PSBoundParameters
+    $cmnd = @('kubectl', 'top', 'pods', '--use-protocol-buffers')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ktopcntr {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -121,6 +122,7 @@ function ktopcntr {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl top pods --use-protocol-buffers --containers' @PSBoundParameters
+    $cmnd = @('kubectl', 'top', 'pods', '--use-protocol-buffers', '--containers')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 #endregion

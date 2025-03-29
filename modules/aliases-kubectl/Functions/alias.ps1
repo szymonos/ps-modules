@@ -11,7 +11,8 @@ function kinf {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl cluster-info' @PSBoundParameters
+    $cmnd = @('cluster-info')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kav {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -26,7 +27,8 @@ function kav {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl api-versions' @PSBoundParameters
+    $cmnd = @('api-versions')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kcv {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -41,7 +43,7 @@ function kcv {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl config view' @PSBoundParameters
+    Invoke-WriteExecKubectl -Command @('config', 'view') @PSBoundParameters
 }
 function ksys {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -56,7 +58,8 @@ function ksys {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ka {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -71,7 +74,8 @@ function ka {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl apply --recursive -f' @PSBoundParameters
+    $cmnd = @('apply', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysa {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -86,7 +90,8 @@ function ksysa {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system apply --recursive -f' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'apply', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kak {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -101,7 +106,8 @@ function kak {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl apply -k' @PSBoundParameters
+    $cmnd = @('apply', '-k')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kk {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -116,7 +122,8 @@ function kk {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl kustomize' @PSBoundParameters
+    $cmnd = @('kustomize')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmk {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -131,7 +138,8 @@ function krmk {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete -k' @PSBoundParameters
+    $cmnd = @('delete', '-k')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kre {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -146,7 +154,8 @@ function kre {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl replace' @PSBoundParameters
+    $cmnd = @('replace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kre! {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -161,7 +170,8 @@ function kre! {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl replace --force' @PSBoundParameters
+    $cmnd = @('replace', '--force')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kref {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -176,7 +186,8 @@ function kref {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl replace -f' @PSBoundParameters
+    $cmnd = @('replace', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kref! {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -191,7 +202,8 @@ function kref! {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl replace --force -f' @PSBoundParameters
+    $cmnd = @('replace', '--force', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysex {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -206,7 +218,8 @@ function ksysex {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system exec -i -t' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'exec', '-i', '-t')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksyslo {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -221,7 +234,8 @@ function ksyslo {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system logs -f' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'logs', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksyslop {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -236,7 +250,8 @@ function ksyslop {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system logs -f -p' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'logs', '-f', '-p')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kp {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -251,7 +266,8 @@ function kp {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl proxy' @PSBoundParameters
+    $cmnd = @('proxy')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kpf {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -266,7 +282,8 @@ function kpf {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl port-forward' @PSBoundParameters
+    $cmnd = @('port-forward')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kg {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -281,7 +298,8 @@ function kg {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get' @PSBoundParameters
+    $cmnd = @('get')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysg {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -296,7 +314,8 @@ function ksysg {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kd {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -311,7 +330,8 @@ function kd {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe' @PSBoundParameters
+    $cmnd = @('describe')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysd {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -326,7 +346,8 @@ function ksysd {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system describe' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'describe')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krm {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -341,7 +362,8 @@ function krm {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete' @PSBoundParameters
+    $cmnd = @('delete')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrm {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -356,7 +378,8 @@ function ksysrm {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krun {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -371,7 +394,8 @@ function krun {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl run --rm --restart=Never --image-pull-policy=IfNotPresent -i -t' @PSBoundParameters
+    $cmnd = @('run', '--rm', '--restart=Never', '--image-pull-policy=IfNotPresent', '-i', '-t')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrun {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -386,7 +410,8 @@ function ksysrun {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system run --rm --restart=Never --image-pull-policy=IfNotPresent -i -t' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'run', '--rm', '--restart=Never', '--image-pull-policy=IfNotPresent', '-i', '-t')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpo {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -401,7 +426,8 @@ function ksysgpo {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysdpo {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -416,7 +442,8 @@ function ksysdpo {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system describe pods' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'describe', 'pods')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmpo {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -431,7 +458,8 @@ function krmpo {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete pods' @PSBoundParameters
+    $cmnd = @('delete', 'pods')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrmpo {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -446,7 +474,8 @@ function ksysrmpo {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete pods' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', 'pods')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdep {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -461,7 +490,8 @@ function kgdep {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment' @PSBoundParameters
+    $cmnd = @('get', 'deployment')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdep {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -476,7 +506,8 @@ function ksysgdep {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kddep {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -491,7 +522,8 @@ function kddep {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe deployment' @PSBoundParameters
+    $cmnd = @('describe', 'deployment')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysddep {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -506,7 +538,8 @@ function ksysddep {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system describe deployment' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'describe', 'deployment')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmdep {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -521,7 +554,8 @@ function krmdep {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete deployment' @PSBoundParameters
+    $cmnd = @('delete', 'deployment')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrmdep {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -536,7 +570,8 @@ function ksysrmdep {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete deployment' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', 'deployment')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvc {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -551,7 +586,8 @@ function kgsvc {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service' @PSBoundParameters
+    $cmnd = @('get', 'service')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsvc {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -566,7 +602,8 @@ function ksysgsvc {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get service' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'service')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdsvc {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -581,7 +618,8 @@ function kdsvc {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe service' @PSBoundParameters
+    $cmnd = @('describe', 'service')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysdsvc {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -596,7 +634,8 @@ function ksysdsvc {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system describe service' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'describe', 'service')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmsvc {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -611,7 +650,8 @@ function krmsvc {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete service' @PSBoundParameters
+    $cmnd = @('delete', 'service')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrmsvc {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -626,7 +666,8 @@ function ksysrmsvc {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete service' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', 'service')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kging {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -641,7 +682,8 @@ function kging {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress' @PSBoundParameters
+    $cmnd = @('get', 'ingress')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysging {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -656,7 +698,8 @@ function ksysging {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get ingress' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'ingress')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kding {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -671,7 +714,8 @@ function kding {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe ingress' @PSBoundParameters
+    $cmnd = @('describe', 'ingress')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysding {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -686,7 +730,8 @@ function ksysding {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system describe ingress' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'describe', 'ingress')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krming {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -701,7 +746,8 @@ function krming {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete ingress' @PSBoundParameters
+    $cmnd = @('delete', 'ingress')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrming {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -716,7 +762,8 @@ function ksysrming {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete ingress' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', 'ingress')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcm {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -731,7 +778,8 @@ function kgcm {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap' @PSBoundParameters
+    $cmnd = @('get', 'configmap')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgcm {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -746,7 +794,8 @@ function ksysgcm {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get configmap' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'configmap')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdcm {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -761,7 +810,8 @@ function kdcm {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe configmap' @PSBoundParameters
+    $cmnd = @('describe', 'configmap')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysdcm {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -776,7 +826,8 @@ function ksysdcm {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system describe configmap' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'describe', 'configmap')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmcm {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -791,7 +842,8 @@ function krmcm {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete configmap' @PSBoundParameters
+    $cmnd = @('delete', 'configmap')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrmcm {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -806,7 +858,8 @@ function ksysrmcm {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete configmap' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', 'configmap')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsec {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -821,7 +874,8 @@ function kgsec {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret' @PSBoundParameters
+    $cmnd = @('get', 'secret')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsec {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -836,7 +890,8 @@ function ksysgsec {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get secret' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'secret')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdsec {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -851,7 +906,8 @@ function kdsec {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe secret' @PSBoundParameters
+    $cmnd = @('describe', 'secret')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysdsec {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -866,7 +922,8 @@ function ksysdsec {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system describe secret' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'describe', 'secret')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmsec {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -881,7 +938,8 @@ function krmsec {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete secret' @PSBoundParameters
+    $cmnd = @('delete', 'secret')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrmsec {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -896,7 +954,8 @@ function ksysrmsec {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete secret' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', 'secret')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgno {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -911,7 +970,8 @@ function kgno {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get nodes' @PSBoundParameters
+    $cmnd = @('get', 'nodes')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdno {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -926,7 +986,8 @@ function kdno {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe nodes' @PSBoundParameters
+    $cmnd = @('describe', 'nodes')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgns {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -941,7 +1002,8 @@ function kgns {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces' @PSBoundParameters
+    $cmnd = @('get', 'namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdns {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -956,7 +1018,8 @@ function kdns {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe namespaces' @PSBoundParameters
+    $cmnd = @('describe', 'namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmns {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -971,7 +1034,8 @@ function krmns {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete namespaces' @PSBoundParameters
+    $cmnd = @('delete', 'namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -986,7 +1050,8 @@ function kgoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=yaml' @PSBoundParameters
+    $cmnd = @('get', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1001,7 +1066,8 @@ function ksysgoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get -o=yaml' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpooyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1016,7 +1082,8 @@ function kgpooyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'pods', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpooyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1031,7 +1098,8 @@ function ksysgpooyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods -o=yaml' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1046,7 +1114,8 @@ function kgdepoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1061,7 +1130,8 @@ function ksysgdepoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment -o=yaml' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1076,7 +1146,8 @@ function kgsvcoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'service', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsvcoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1091,7 +1162,8 @@ function ksysgsvcoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get service -o=yaml' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'service', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1106,7 +1178,8 @@ function kgingoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgingoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1121,7 +1194,8 @@ function ksysgingoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get ingress -o=yaml' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'ingress', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1136,7 +1210,8 @@ function kgcmoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgcmoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1151,7 +1226,8 @@ function ksysgcmoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get configmap -o=yaml' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'configmap', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1166,7 +1242,8 @@ function kgsecoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'secret', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsecoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1181,7 +1258,8 @@ function ksysgsecoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get secret -o=yaml' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'secret', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnooyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1196,7 +1274,8 @@ function kgnooyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get nodes -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'nodes', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1211,7 +1290,8 @@ function kgnsoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1226,7 +1306,8 @@ function kgowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=wide' @PSBoundParameters
+    $cmnd = @('get', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1241,7 +1322,8 @@ function ksysgowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1256,7 +1338,8 @@ function kgpoowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'pods', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpoowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1271,7 +1354,8 @@ function ksysgpoowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1286,7 +1370,8 @@ function kgdepowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1301,7 +1386,8 @@ function ksysgdepowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1316,7 +1402,8 @@ function kgsvcowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'service', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsvcowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1331,7 +1418,8 @@ function ksysgsvcowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get service -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'service', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1346,7 +1434,8 @@ function kgingowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgingowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1361,7 +1450,8 @@ function ksysgingowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get ingress -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'ingress', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1376,7 +1466,8 @@ function kgcmowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgcmowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1391,7 +1482,8 @@ function ksysgcmowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get configmap -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'configmap', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1406,7 +1498,8 @@ function kgsecowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'secret', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsecowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1421,7 +1514,8 @@ function ksysgsecowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get secret -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'secret', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnoowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1436,7 +1530,8 @@ function kgnoowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get nodes -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'nodes', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1451,7 +1546,8 @@ function kgnsowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1466,7 +1562,8 @@ function kgojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=json' @PSBoundParameters
+    $cmnd = @('get', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1481,7 +1578,8 @@ function ksysgojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get -o=json' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1496,7 +1594,8 @@ function kgpoojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods -o=json' @PSBoundParameters
+    $cmnd = @('get', 'pods', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpoojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1511,7 +1610,8 @@ function ksysgpoojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods -o=json' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1526,7 +1626,8 @@ function kgdepojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment -o=json' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1541,7 +1642,8 @@ function ksysgdepojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment -o=json' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1556,7 +1658,8 @@ function kgsvcojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service -o=json' @PSBoundParameters
+    $cmnd = @('get', 'service', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsvcojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1571,7 +1674,8 @@ function ksysgsvcojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get service -o=json' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'service', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1586,7 +1690,8 @@ function kgingojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress -o=json' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgingojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1601,7 +1706,8 @@ function ksysgingojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get ingress -o=json' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'ingress', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1616,7 +1722,8 @@ function kgcmojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap -o=json' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgcmojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1631,7 +1738,8 @@ function ksysgcmojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get configmap -o=json' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'configmap', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1646,7 +1754,8 @@ function kgsecojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret -o=json' @PSBoundParameters
+    $cmnd = @('get', 'secret', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsecojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1661,7 +1770,8 @@ function ksysgsecojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get secret -o=json' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'secret', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnoojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1676,7 +1786,8 @@ function kgnoojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get nodes -o=json' @PSBoundParameters
+    $cmnd = @('get', 'nodes', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1691,7 +1802,8 @@ function kgnsojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces -o=json' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1706,7 +1818,8 @@ function kgall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1721,7 +1834,8 @@ function kdall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe --all-namespaces' @PSBoundParameters
+    $cmnd = @('describe', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1736,7 +1850,8 @@ function kgpoall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdpoall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1751,7 +1866,8 @@ function kdpoall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe pods --all-namespaces' @PSBoundParameters
+    $cmnd = @('describe', 'pods', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1766,7 +1882,8 @@ function kgdepall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kddepall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1781,7 +1898,8 @@ function kddepall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe deployment --all-namespaces' @PSBoundParameters
+    $cmnd = @('describe', 'deployment', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1796,7 +1914,8 @@ function kgsvcall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'service', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdsvcall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1811,7 +1930,8 @@ function kdsvcall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe service --all-namespaces' @PSBoundParameters
+    $cmnd = @('describe', 'service', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1826,7 +1946,8 @@ function kgingall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdingall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1841,7 +1962,8 @@ function kdingall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe ingress --all-namespaces' @PSBoundParameters
+    $cmnd = @('describe', 'ingress', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1856,7 +1978,8 @@ function kgcmall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdcmall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1871,7 +1994,8 @@ function kdcmall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe configmap --all-namespaces' @PSBoundParameters
+    $cmnd = @('describe', 'configmap', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1886,7 +2010,8 @@ function kgsecall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdsecall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1901,7 +2026,8 @@ function kdsecall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe secret --all-namespaces' @PSBoundParameters
+    $cmnd = @('describe', 'secret', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1916,7 +2042,8 @@ function kgnsall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdnsall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1931,7 +2058,8 @@ function kdnsall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe namespaces --all-namespaces' @PSBoundParameters
+    $cmnd = @('describe', 'namespaces', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1946,7 +2074,8 @@ function kgsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels' @PSBoundParameters
+    $cmnd = @('get', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1961,7 +2090,8 @@ function ksysgsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --show-labels' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1976,7 +2106,8 @@ function kgposl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgposl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -1991,7 +2122,8 @@ function ksysgposl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --show-labels' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2006,7 +2138,8 @@ function kgdepsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2021,7 +2154,8 @@ function ksysgdepsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --show-labels' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2036,7 +2170,8 @@ function krmall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete --all' @PSBoundParameters
+    $cmnd = @('delete', '--all')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrmall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2051,7 +2186,8 @@ function ksysrmall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete --all' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', '--all')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmpoall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2066,7 +2202,8 @@ function krmpoall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete pods --all' @PSBoundParameters
+    $cmnd = @('delete', 'pods', '--all')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrmpoall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2081,7 +2218,8 @@ function ksysrmpoall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete pods --all' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', 'pods', '--all')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmdepall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2096,7 +2234,8 @@ function krmdepall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete deployment --all' @PSBoundParameters
+    $cmnd = @('delete', 'deployment', '--all')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrmdepall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2111,7 +2250,8 @@ function ksysrmdepall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete deployment --all' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', 'deployment', '--all')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmsvcall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2126,7 +2266,8 @@ function krmsvcall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete service --all' @PSBoundParameters
+    $cmnd = @('delete', 'service', '--all')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrmsvcall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2141,7 +2282,8 @@ function ksysrmsvcall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete service --all' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', 'service', '--all')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmingall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2156,7 +2298,8 @@ function krmingall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete ingress --all' @PSBoundParameters
+    $cmnd = @('delete', 'ingress', '--all')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrmingall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2171,7 +2314,8 @@ function ksysrmingall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete ingress --all' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', 'ingress', '--all')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmcmall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2186,7 +2330,8 @@ function krmcmall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete configmap --all' @PSBoundParameters
+    $cmnd = @('delete', 'configmap', '--all')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrmcmall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2201,7 +2346,8 @@ function ksysrmcmall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete configmap --all' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', 'configmap', '--all')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmsecall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2216,7 +2362,8 @@ function krmsecall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete secret --all' @PSBoundParameters
+    $cmnd = @('delete', 'secret', '--all')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrmsecall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2231,7 +2378,8 @@ function ksysrmsecall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete secret --all' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', 'secret', '--all')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmnsall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2246,7 +2394,8 @@ function krmnsall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete namespaces --all' @PSBoundParameters
+    $cmnd = @('delete', 'namespaces', '--all')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2261,7 +2410,8 @@ function kgw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch' @PSBoundParameters
+    $cmnd = @('get', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2276,7 +2426,8 @@ function ksysgw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --watch' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpow {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2291,7 +2442,8 @@ function kgpow {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpow {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2306,7 +2458,8 @@ function ksysgpow {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --watch' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2321,7 +2474,8 @@ function kgdepw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2336,7 +2490,8 @@ function ksysgdepw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --watch' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2351,7 +2506,8 @@ function kgsvcw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsvcw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2366,7 +2522,8 @@ function ksysgsvcw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get service --watch' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'service', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2381,7 +2538,8 @@ function kgingw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgingw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2396,7 +2554,8 @@ function ksysgingw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get ingress --watch' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'ingress', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2411,7 +2570,8 @@ function kgcmw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgcmw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2426,7 +2586,8 @@ function ksysgcmw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get configmap --watch' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'configmap', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2441,7 +2602,8 @@ function kgsecw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsecw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2456,7 +2618,8 @@ function ksysgsecw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get secret --watch' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'secret', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnow {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2471,7 +2634,8 @@ function kgnow {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get nodes --watch' @PSBoundParameters
+    $cmnd = @('get', 'nodes', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2486,7 +2650,8 @@ function kgnsw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --watch' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgoyamlall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2501,7 +2666,8 @@ function kgoyamlall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=yaml --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', '-o=yaml', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpooyamlall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2516,7 +2682,8 @@ function kgpooyamlall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods -o=yaml --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'pods', '-o=yaml', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepoyamlall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2531,7 +2698,8 @@ function kgdepoyamlall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment -o=yaml --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '-o=yaml', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcoyamlall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2546,7 +2714,8 @@ function kgsvcoyamlall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service -o=yaml --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'service', '-o=yaml', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingoyamlall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2561,7 +2730,8 @@ function kgingoyamlall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress -o=yaml --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '-o=yaml', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmoyamlall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2576,7 +2746,8 @@ function kgcmoyamlall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap -o=yaml --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '-o=yaml', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecoyamlall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2591,7 +2762,8 @@ function kgsecoyamlall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret -o=yaml --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'secret', '-o=yaml', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsoyamlall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2606,7 +2778,8 @@ function kgnsoyamlall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces -o=yaml --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '-o=yaml', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgalloyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2621,7 +2794,8 @@ function kgalloyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --all-namespaces -o=yaml' @PSBoundParameters
+    $cmnd = @('get', '--all-namespaces', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoalloyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2636,7 +2810,8 @@ function kgpoalloyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --all-namespaces -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--all-namespaces', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepalloyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2651,7 +2826,8 @@ function kgdepalloyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --all-namespaces -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--all-namespaces', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcalloyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2666,7 +2842,8 @@ function kgsvcalloyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --all-namespaces -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'service', '--all-namespaces', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingalloyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2681,7 +2858,8 @@ function kgingalloyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --all-namespaces -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--all-namespaces', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmalloyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2696,7 +2874,8 @@ function kgcmalloyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --all-namespaces -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--all-namespaces', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecalloyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2711,7 +2890,8 @@ function kgsecalloyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --all-namespaces -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--all-namespaces', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsalloyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2726,7 +2906,8 @@ function kgnsalloyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --all-namespaces -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--all-namespaces', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2741,7 +2922,8 @@ function kgwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2756,7 +2938,8 @@ function ksysgwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2771,7 +2954,8 @@ function kgpowoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpowoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2786,7 +2970,8 @@ function ksysgpowoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2801,7 +2986,8 @@ function kgdepwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2816,7 +3002,8 @@ function ksysgdepwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2831,7 +3018,8 @@ function kgsvcwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsvcwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2846,7 +3034,8 @@ function ksysgsvcwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get service --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'service', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2861,7 +3050,8 @@ function kgingwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgingwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2876,7 +3066,8 @@ function ksysgingwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get ingress --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'ingress', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2891,7 +3082,8 @@ function kgcmwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgcmwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2906,7 +3098,8 @@ function ksysgcmwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get configmap --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'configmap', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2921,7 +3114,8 @@ function kgsecwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsecwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2936,7 +3130,8 @@ function ksysgsecwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get secret --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'secret', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnowoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2951,7 +3146,8 @@ function kgnowoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get nodes --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'nodes', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnswoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2966,7 +3162,8 @@ function kgnswoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2981,7 +3178,8 @@ function kgowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2996,7 +3194,8 @@ function kgpoowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'pods', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3011,7 +3210,8 @@ function kgdepowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3026,7 +3226,8 @@ function kgsvcowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'service', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3041,7 +3242,8 @@ function kgingowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3056,7 +3258,8 @@ function kgcmowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3071,7 +3274,8 @@ function kgsecowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'secret', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3086,7 +3290,8 @@ function kgnsowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3101,7 +3306,8 @@ function kgallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3116,7 +3322,8 @@ function kgpoallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3131,7 +3338,8 @@ function kgdepallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3146,7 +3354,8 @@ function kgsvcallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'service', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3161,7 +3370,8 @@ function kgingallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3176,7 +3386,8 @@ function kgcmallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3191,7 +3402,8 @@ function kgsecallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3206,7 +3418,8 @@ function kgnsallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3221,7 +3434,8 @@ function kgowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('get', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3236,7 +3450,8 @@ function ksysgowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3251,7 +3466,8 @@ function kgpoowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'pods', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpoowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3266,7 +3482,8 @@ function ksysgpoowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3281,7 +3498,8 @@ function kgdepowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3296,7 +3514,8 @@ function ksysgdepowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3311,7 +3530,8 @@ function kgslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3326,7 +3546,8 @@ function ksysgslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposlowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3341,7 +3562,8 @@ function kgposlowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgposlowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3356,7 +3578,8 @@ function ksysgposlowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3371,7 +3594,8 @@ function kgdepslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3386,7 +3610,8 @@ function ksysgdepslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3401,7 +3626,8 @@ function kgwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3416,7 +3642,8 @@ function ksysgwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --watch -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3431,7 +3658,8 @@ function kgpowowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpowowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3446,7 +3674,8 @@ function ksysgpowowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --watch -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3461,7 +3690,8 @@ function kgdepwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3476,7 +3706,8 @@ function ksysgdepwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --watch -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3491,7 +3722,8 @@ function kgsvcwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsvcwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3506,7 +3738,8 @@ function ksysgsvcwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get service --watch -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'service', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3521,7 +3754,8 @@ function kgingwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgingwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3536,7 +3770,8 @@ function ksysgingwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get ingress --watch -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'ingress', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3551,7 +3786,8 @@ function kgcmwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgcmwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3566,7 +3802,8 @@ function ksysgcmwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get configmap --watch -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'configmap', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3581,7 +3818,8 @@ function kgsecwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsecwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3596,7 +3834,8 @@ function ksysgsecwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get secret --watch -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'secret', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnowowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3611,7 +3850,8 @@ function kgnowowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get nodes --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'nodes', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnswowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3626,7 +3866,8 @@ function kgnswowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgojsonall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3641,7 +3882,8 @@ function kgojsonall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=json --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', '-o=json', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoojsonall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3656,7 +3898,8 @@ function kgpoojsonall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods -o=json --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'pods', '-o=json', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepojsonall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3671,7 +3914,8 @@ function kgdepojsonall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment -o=json --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '-o=json', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcojsonall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3686,7 +3930,8 @@ function kgsvcojsonall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service -o=json --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'service', '-o=json', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingojsonall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3701,7 +3946,8 @@ function kgingojsonall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress -o=json --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '-o=json', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmojsonall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3716,7 +3962,8 @@ function kgcmojsonall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap -o=json --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '-o=json', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecojsonall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3731,7 +3978,8 @@ function kgsecojsonall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret -o=json --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'secret', '-o=json', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsojsonall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3746,7 +3994,8 @@ function kgnsojsonall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces -o=json --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '-o=json', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgallojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3761,7 +4010,8 @@ function kgallojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --all-namespaces -o=json' @PSBoundParameters
+    $cmnd = @('get', '--all-namespaces', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoallojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3776,7 +4026,8 @@ function kgpoallojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --all-namespaces -o=json' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--all-namespaces', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepallojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3791,7 +4042,8 @@ function kgdepallojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --all-namespaces -o=json' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--all-namespaces', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcallojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3806,7 +4058,8 @@ function kgsvcallojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --all-namespaces -o=json' @PSBoundParameters
+    $cmnd = @('get', 'service', '--all-namespaces', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingallojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3821,7 +4074,8 @@ function kgingallojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --all-namespaces -o=json' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--all-namespaces', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmallojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3836,7 +4090,8 @@ function kgcmallojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --all-namespaces -o=json' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--all-namespaces', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecallojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3851,7 +4106,8 @@ function kgsecallojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --all-namespaces -o=json' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--all-namespaces', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsallojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3866,7 +4122,8 @@ function kgnsallojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --all-namespaces -o=json' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--all-namespaces', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3881,7 +4138,8 @@ function kgwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=json' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3896,7 +4154,8 @@ function ksysgwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --watch -o=json' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3911,7 +4170,8 @@ function kgpowojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch -o=json' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpowojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3926,7 +4186,8 @@ function ksysgpowojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --watch -o=json' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3941,7 +4202,8 @@ function kgdepwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch -o=json' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3956,7 +4218,8 @@ function ksysgdepwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --watch -o=json' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3971,7 +4234,8 @@ function kgsvcwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch -o=json' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsvcwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -3986,7 +4250,8 @@ function ksysgsvcwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get service --watch -o=json' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'service', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4001,7 +4266,8 @@ function kgingwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch -o=json' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgingwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4016,7 +4282,8 @@ function ksysgingwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get ingress --watch -o=json' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'ingress', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4031,7 +4298,8 @@ function kgcmwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch -o=json' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgcmwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4046,7 +4314,8 @@ function ksysgcmwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get configmap --watch -o=json' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'configmap', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4061,7 +4330,8 @@ function kgsecwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch -o=json' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsecwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4076,7 +4346,8 @@ function ksysgsecwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get secret --watch -o=json' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'secret', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnowojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4091,7 +4362,8 @@ function kgnowojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get nodes --watch -o=json' @PSBoundParameters
+    $cmnd = @('get', 'nodes', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnswojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4106,7 +4378,8 @@ function kgnswojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --watch -o=json' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgallsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4121,7 +4394,8 @@ function kgallsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --all-namespaces --show-labels' @PSBoundParameters
+    $cmnd = @('get', '--all-namespaces', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoallsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4136,7 +4410,8 @@ function kgpoallsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --all-namespaces --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--all-namespaces', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepallsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4151,7 +4426,8 @@ function kgdepallsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --all-namespaces --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--all-namespaces', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4166,7 +4442,8 @@ function kgslall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposlall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4181,7 +4458,8 @@ function kgposlall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepslall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4196,7 +4474,8 @@ function kgdepslall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgallw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4211,7 +4490,8 @@ function kgallw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --all-namespaces --watch' @PSBoundParameters
+    $cmnd = @('get', '--all-namespaces', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoallw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4226,7 +4506,8 @@ function kgpoallw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --all-namespaces --watch' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--all-namespaces', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepallw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4241,7 +4522,8 @@ function kgdepallw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --all-namespaces --watch' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--all-namespaces', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcallw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4256,7 +4538,8 @@ function kgsvcallw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --all-namespaces --watch' @PSBoundParameters
+    $cmnd = @('get', 'service', '--all-namespaces', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingallw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4271,7 +4554,8 @@ function kgingallw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --all-namespaces --watch' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--all-namespaces', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmallw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4286,7 +4570,8 @@ function kgcmallw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --all-namespaces --watch' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--all-namespaces', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecallw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4301,7 +4586,8 @@ function kgsecallw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --all-namespaces --watch' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--all-namespaces', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsallw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4316,7 +4602,8 @@ function kgnsallw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --all-namespaces --watch' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--all-namespaces', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4331,7 +4618,8 @@ function kgwall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4346,7 +4634,8 @@ function kgpowall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4361,7 +4650,8 @@ function kgdepwall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcwall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4376,7 +4666,8 @@ function kgsvcwall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingwall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4391,7 +4682,8 @@ function kgingwall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmwall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4406,7 +4698,8 @@ function kgcmwall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecwall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4421,7 +4714,8 @@ function kgsecwall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnswall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4436,7 +4730,8 @@ function kgnswall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --watch --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--watch', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4451,7 +4746,8 @@ function kgslw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels --watch' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgslw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4466,7 +4762,8 @@ function ksysgslw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --show-labels --watch' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--show-labels', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposlw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4481,7 +4778,8 @@ function kgposlw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels --watch' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgposlw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4496,7 +4794,8 @@ function ksysgposlw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --show-labels --watch' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--show-labels', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepslw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4511,7 +4810,8 @@ function kgdepslw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels --watch' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepslw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4526,7 +4826,8 @@ function ksysgdepslw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --show-labels --watch' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--show-labels', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4541,7 +4842,8 @@ function kgwsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --show-labels' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgwsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4556,7 +4858,8 @@ function ksysgwsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --watch --show-labels' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--watch', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4571,7 +4874,8 @@ function kgpowsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpowsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4586,7 +4890,8 @@ function ksysgpowsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --watch --show-labels' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--watch', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4601,7 +4906,8 @@ function kgdepwsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepwsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4616,7 +4922,8 @@ function ksysgdepwsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --watch --show-labels' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--watch', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgallwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4631,7 +4938,8 @@ function kgallwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --all-namespaces --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('get', '--all-namespaces', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoallwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4646,7 +4954,8 @@ function kgpoallwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --all-namespaces --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--all-namespaces', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepallwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4661,7 +4970,8 @@ function kgdepallwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --all-namespaces --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--all-namespaces', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcallwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4676,7 +4986,8 @@ function kgsvcallwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --all-namespaces --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'service', '--all-namespaces', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingallwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4691,7 +5002,8 @@ function kgingallwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --all-namespaces --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--all-namespaces', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmallwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4706,7 +5018,8 @@ function kgcmallwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --all-namespaces --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--all-namespaces', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecallwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4721,7 +5034,8 @@ function kgsecallwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --all-namespaces --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--all-namespaces', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsallwoyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4736,7 +5050,8 @@ function kgnsallwoyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --all-namespaces --watch -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--all-namespaces', '--watch', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwoyamlall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4751,7 +5066,8 @@ function kgwoyamlall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=yaml --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=yaml', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowoyamlall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4766,7 +5082,8 @@ function kgpowoyamlall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch -o=yaml --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '-o=yaml', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwoyamlall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4781,7 +5098,8 @@ function kgdepwoyamlall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch -o=yaml --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '-o=yaml', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcwoyamlall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4796,7 +5114,8 @@ function kgsvcwoyamlall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch -o=yaml --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch', '-o=yaml', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingwoyamlall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4811,7 +5130,8 @@ function kgingwoyamlall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch -o=yaml --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch', '-o=yaml', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmwoyamlall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4826,7 +5146,8 @@ function kgcmwoyamlall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch -o=yaml --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch', '-o=yaml', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecwoyamlall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4841,7 +5162,8 @@ function kgsecwoyamlall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch -o=yaml --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch', '-o=yaml', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnswoyamlall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4856,7 +5178,8 @@ function kgnswoyamlall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --watch -o=yaml --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--watch', '-o=yaml', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwalloyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4871,7 +5194,8 @@ function kgwalloyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --all-namespaces -o=yaml' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--all-namespaces', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowalloyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4886,7 +5210,8 @@ function kgpowalloyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch --all-namespaces -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '--all-namespaces', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwalloyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4901,7 +5226,8 @@ function kgdepwalloyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch --all-namespaces -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '--all-namespaces', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcwalloyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4916,7 +5242,8 @@ function kgsvcwalloyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch --all-namespaces -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch', '--all-namespaces', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingwalloyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4931,7 +5258,8 @@ function kgingwalloyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch --all-namespaces -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch', '--all-namespaces', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmwalloyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4946,7 +5274,8 @@ function kgcmwalloyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch --all-namespaces -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch', '--all-namespaces', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecwalloyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4961,7 +5290,8 @@ function kgsecwalloyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch --all-namespaces -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch', '--all-namespaces', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnswalloyaml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4976,7 +5306,8 @@ function kgnswalloyaml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --watch --all-namespaces -o=yaml' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--watch', '--all-namespaces', '-o=yaml')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgowideallsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -4991,7 +5322,8 @@ function kgowideallsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=wide --all-namespaces --show-labels' @PSBoundParameters
+    $cmnd = @('get', '-o=wide', '--all-namespaces', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoowideallsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5006,7 +5338,8 @@ function kgpoowideallsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods -o=wide --all-namespaces --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'pods', '-o=wide', '--all-namespaces', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepowideallsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5021,7 +5354,8 @@ function kgdepowideallsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment -o=wide --all-namespaces --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '-o=wide', '--all-namespaces', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgowideslall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5036,7 +5370,8 @@ function kgowideslall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=wide --show-labels --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', '-o=wide', '--show-labels', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoowideslall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5051,7 +5386,8 @@ function kgpoowideslall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods -o=wide --show-labels --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'pods', '-o=wide', '--show-labels', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepowideslall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5066,7 +5402,8 @@ function kgdepowideslall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment -o=wide --show-labels --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '-o=wide', '--show-labels', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgallowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5081,7 +5418,8 @@ function kgallowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --all-namespaces -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('get', '--all-namespaces', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoallowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5096,7 +5434,8 @@ function kgpoallowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --all-namespaces -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--all-namespaces', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepallowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5111,7 +5450,8 @@ function kgdepallowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --all-namespaces -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--all-namespaces', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgallslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5126,7 +5466,8 @@ function kgallslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --all-namespaces --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('get', '--all-namespaces', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoallslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5141,7 +5482,8 @@ function kgpoallslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --all-namespaces --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--all-namespaces', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepallslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5156,7 +5498,8 @@ function kgdepallslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --all-namespaces --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--all-namespaces', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5171,7 +5514,8 @@ function kgslowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposlowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5186,7 +5530,8 @@ function kgposlowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepslowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5201,7 +5546,8 @@ function kgdepslowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5216,7 +5562,8 @@ function kgslallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposlallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5231,7 +5578,8 @@ function kgposlallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepslallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5246,7 +5594,8 @@ function kgdepslallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgallwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5261,7 +5610,8 @@ function kgallwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --all-namespaces --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', '--all-namespaces', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoallwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5276,7 +5626,8 @@ function kgpoallwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --all-namespaces --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--all-namespaces', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepallwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5291,7 +5642,8 @@ function kgdepallwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --all-namespaces --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--all-namespaces', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcallwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5306,7 +5658,8 @@ function kgsvcallwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --all-namespaces --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'service', '--all-namespaces', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingallwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5321,7 +5674,8 @@ function kgingallwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --all-namespaces --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--all-namespaces', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmallwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5336,7 +5690,8 @@ function kgcmallwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --all-namespaces --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--all-namespaces', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecallwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5351,7 +5706,8 @@ function kgsecallwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --all-namespaces --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--all-namespaces', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsallwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5366,7 +5722,8 @@ function kgnsallwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --all-namespaces --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--all-namespaces', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5381,7 +5738,8 @@ function kgwowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5396,7 +5754,8 @@ function kgpowowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5411,7 +5770,8 @@ function kgdepwowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcwowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5426,7 +5786,8 @@ function kgsvcwowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingwowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5441,7 +5802,8 @@ function kgingwowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmwowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5456,7 +5818,8 @@ function kgcmwowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecwowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5471,7 +5834,8 @@ function kgsecwowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnswowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5486,7 +5850,8 @@ function kgnswowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --watch -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--watch', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5501,7 +5866,8 @@ function kgwallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5516,7 +5882,8 @@ function kgpowallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5531,7 +5898,8 @@ function kgdepwallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcwallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5546,7 +5914,8 @@ function kgsvcwallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingwallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5561,7 +5930,8 @@ function kgingwallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmwallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5576,7 +5946,8 @@ function kgcmwallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecwallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5591,7 +5962,8 @@ function kgsecwallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnswallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5606,7 +5978,8 @@ function kgnswallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --watch --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--watch', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5621,7 +5994,8 @@ function kgslwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgslwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5636,7 +6010,8 @@ function ksysgslwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --show-labels --watch -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--show-labels', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposlwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5651,7 +6026,8 @@ function kgposlwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgposlwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5666,7 +6042,8 @@ function ksysgposlwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --show-labels --watch -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--show-labels', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepslwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5681,7 +6058,8 @@ function kgdepslwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepslwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5696,7 +6074,8 @@ function ksysgdepslwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --show-labels --watch -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--show-labels', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5711,7 +6090,8 @@ function kgwowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgwowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5726,7 +6106,8 @@ function ksysgwowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --watch -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--watch', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5741,7 +6122,8 @@ function kgpowowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpowowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5756,7 +6138,8 @@ function ksysgpowowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --watch -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--watch', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5771,7 +6154,8 @@ function kgdepwowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepwowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5786,7 +6170,8 @@ function ksysgdepwowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --watch -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--watch', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5801,7 +6186,8 @@ function kgwslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgwslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5816,7 +6202,8 @@ function ksysgwslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --watch --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--watch', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5831,7 +6218,8 @@ function kgpowslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpowslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5846,7 +6234,8 @@ function ksysgpowslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --watch --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--watch', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5861,7 +6250,8 @@ function kgdepwslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepwslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5876,7 +6266,8 @@ function ksysgdepwslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --watch --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--watch', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgallwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5891,7 +6282,8 @@ function kgallwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --all-namespaces --watch -o=json' @PSBoundParameters
+    $cmnd = @('get', '--all-namespaces', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoallwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5906,7 +6298,8 @@ function kgpoallwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --all-namespaces --watch -o=json' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--all-namespaces', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepallwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5921,7 +6314,8 @@ function kgdepallwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --all-namespaces --watch -o=json' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--all-namespaces', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcallwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5936,7 +6330,8 @@ function kgsvcallwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --all-namespaces --watch -o=json' @PSBoundParameters
+    $cmnd = @('get', 'service', '--all-namespaces', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingallwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5951,7 +6346,8 @@ function kgingallwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --all-namespaces --watch -o=json' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--all-namespaces', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmallwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5966,7 +6362,8 @@ function kgcmallwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --all-namespaces --watch -o=json' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--all-namespaces', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecallwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5981,7 +6378,8 @@ function kgsecallwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --all-namespaces --watch -o=json' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--all-namespaces', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsallwojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -5996,7 +6394,8 @@ function kgnsallwojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --all-namespaces --watch -o=json' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--all-namespaces', '--watch', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwojsonall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6011,7 +6410,8 @@ function kgwojsonall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=json --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=json', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowojsonall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6026,7 +6426,8 @@ function kgpowojsonall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch -o=json --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '-o=json', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwojsonall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6041,7 +6442,8 @@ function kgdepwojsonall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch -o=json --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '-o=json', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcwojsonall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6056,7 +6458,8 @@ function kgsvcwojsonall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch -o=json --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch', '-o=json', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingwojsonall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6071,7 +6474,8 @@ function kgingwojsonall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch -o=json --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch', '-o=json', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmwojsonall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6086,7 +6490,8 @@ function kgcmwojsonall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch -o=json --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch', '-o=json', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecwojsonall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6101,7 +6506,8 @@ function kgsecwojsonall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch -o=json --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch', '-o=json', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnswojsonall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6116,7 +6522,8 @@ function kgnswojsonall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --watch -o=json --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--watch', '-o=json', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwallojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6131,7 +6538,8 @@ function kgwallojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --all-namespaces -o=json' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--all-namespaces', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowallojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6146,7 +6554,8 @@ function kgpowallojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch --all-namespaces -o=json' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '--all-namespaces', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwallojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6161,7 +6570,8 @@ function kgdepwallojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch --all-namespaces -o=json' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '--all-namespaces', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcwallojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6176,7 +6586,8 @@ function kgsvcwallojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch --all-namespaces -o=json' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch', '--all-namespaces', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingwallojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6191,7 +6602,8 @@ function kgingwallojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch --all-namespaces -o=json' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch', '--all-namespaces', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmwallojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6206,7 +6618,8 @@ function kgcmwallojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch --all-namespaces -o=json' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch', '--all-namespaces', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecwallojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6221,7 +6634,8 @@ function kgsecwallojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch --all-namespaces -o=json' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch', '--all-namespaces', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnswallojson {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6236,7 +6650,8 @@ function kgnswallojson {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --watch --all-namespaces -o=json' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--watch', '--all-namespaces', '-o=json')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgallslw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6251,7 +6666,8 @@ function kgallslw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --all-namespaces --show-labels --watch' @PSBoundParameters
+    $cmnd = @('get', '--all-namespaces', '--show-labels', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoallslw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6266,7 +6682,8 @@ function kgpoallslw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --all-namespaces --show-labels --watch' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--all-namespaces', '--show-labels', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepallslw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6281,7 +6698,8 @@ function kgdepallslw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --all-namespaces --show-labels --watch' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--all-namespaces', '--show-labels', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgallwsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6296,7 +6714,8 @@ function kgallwsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --all-namespaces --watch --show-labels' @PSBoundParameters
+    $cmnd = @('get', '--all-namespaces', '--watch', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoallwsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6311,7 +6730,8 @@ function kgpoallwsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --all-namespaces --watch --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--all-namespaces', '--watch', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepallwsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6326,7 +6746,8 @@ function kgdepallwsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --all-namespaces --watch --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--all-namespaces', '--watch', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslallw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6341,7 +6762,8 @@ function kgslallw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels --all-namespaces --watch' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '--all-namespaces', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposlallw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6356,7 +6778,8 @@ function kgposlallw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels --all-namespaces --watch' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '--all-namespaces', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepslallw {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6371,7 +6794,8 @@ function kgdepslallw {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels --all-namespaces --watch' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '--all-namespaces', '--watch')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslwall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6386,7 +6810,8 @@ function kgslwall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels --watch --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '--watch', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposlwall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6401,7 +6826,8 @@ function kgposlwall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels --watch --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '--watch', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepslwall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6416,7 +6842,8 @@ function kgdepslwall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels --watch --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '--watch', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwallsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6431,7 +6858,8 @@ function kgwallsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --all-namespaces --show-labels' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--all-namespaces', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowallsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6446,7 +6874,8 @@ function kgpowallsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch --all-namespaces --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '--all-namespaces', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwallsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6461,7 +6890,8 @@ function kgdepwallsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch --all-namespaces --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '--all-namespaces', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwslall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6476,7 +6906,8 @@ function kgwslall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --show-labels --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--show-labels', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowslall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6491,7 +6922,8 @@ function kgpowslall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch --show-labels --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '--show-labels', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwslall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6506,7 +6938,8 @@ function kgdepwslall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch --show-labels --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '--show-labels', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgallslwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6521,7 +6954,8 @@ function kgallslwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --all-namespaces --show-labels --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', '--all-namespaces', '--show-labels', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoallslwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6536,7 +6970,8 @@ function kgpoallslwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --all-namespaces --show-labels --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--all-namespaces', '--show-labels', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepallslwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6551,7 +6986,8 @@ function kgdepallslwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --all-namespaces --show-labels --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--all-namespaces', '--show-labels', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgallwowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6566,7 +7002,8 @@ function kgallwowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --all-namespaces --watch -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('get', '--all-namespaces', '--watch', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoallwowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6581,7 +7018,8 @@ function kgpoallwowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --all-namespaces --watch -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--all-namespaces', '--watch', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepallwowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6596,7 +7034,8 @@ function kgdepallwowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --all-namespaces --watch -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--all-namespaces', '--watch', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgallwslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6611,7 +7050,8 @@ function kgallwslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --all-namespaces --watch --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('get', '--all-namespaces', '--watch', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoallwslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6626,7 +7066,8 @@ function kgpoallwslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --all-namespaces --watch --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--all-namespaces', '--watch', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepallwslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6641,7 +7082,8 @@ function kgdepallwslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --all-namespaces --watch --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--all-namespaces', '--watch', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslallwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6656,7 +7098,8 @@ function kgslallwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels --all-namespaces --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '--all-namespaces', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposlallwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6671,7 +7114,8 @@ function kgposlallwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels --all-namespaces --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '--all-namespaces', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepslallwowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6686,7 +7130,8 @@ function kgdepslallwowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels --all-namespaces --watch -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '--all-namespaces', '--watch', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslwowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6701,7 +7146,8 @@ function kgslwowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels --watch -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '--watch', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposlwowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6716,7 +7162,8 @@ function kgposlwowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels --watch -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '--watch', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepslwowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6731,7 +7178,8 @@ function kgdepslwowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels --watch -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '--watch', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslwallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6746,7 +7194,8 @@ function kgslwallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels --watch --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '--watch', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposlwallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6761,7 +7210,8 @@ function kgposlwallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels --watch --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '--watch', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepslwallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6776,7 +7226,8 @@ function kgdepslwallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels --watch --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '--watch', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwowideallsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6791,7 +7242,8 @@ function kgwowideallsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=wide --all-namespaces --show-labels' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=wide', '--all-namespaces', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowowideallsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6806,7 +7258,8 @@ function kgpowowideallsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch -o=wide --all-namespaces --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '-o=wide', '--all-namespaces', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwowideallsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6821,7 +7274,8 @@ function kgdepwowideallsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch -o=wide --all-namespaces --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '-o=wide', '--all-namespaces', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwowideslall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6836,7 +7290,8 @@ function kgwowideslall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=wide --show-labels --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=wide', '--show-labels', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowowideslall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6851,7 +7306,8 @@ function kgpowowideslall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch -o=wide --show-labels --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '-o=wide', '--show-labels', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwowideslall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6866,7 +7322,8 @@ function kgdepwowideslall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch -o=wide --show-labels --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '-o=wide', '--show-labels', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwallowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6881,7 +7338,8 @@ function kgwallowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --all-namespaces -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--all-namespaces', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowallowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6896,7 +7354,8 @@ function kgpowallowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch --all-namespaces -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '--all-namespaces', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwallowidesl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6911,7 +7370,8 @@ function kgdepwallowidesl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch --all-namespaces -o=wide --show-labels' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '--all-namespaces', '-o=wide', '--show-labels')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwallslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6926,7 +7386,8 @@ function kgwallslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --all-namespaces --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--all-namespaces', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowallslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6941,7 +7402,8 @@ function kgpowallslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch --all-namespaces --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '--all-namespaces', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwallslowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6956,7 +7418,8 @@ function kgdepwallslowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch --all-namespaces --show-labels -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '--all-namespaces', '--show-labels', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwslowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6971,7 +7434,8 @@ function kgwslowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --show-labels -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--show-labels', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowslowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -6986,7 +7450,8 @@ function kgpowslowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch --show-labels -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '--show-labels', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwslowideall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7001,7 +7466,8 @@ function kgdepwslowideall {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch --show-labels -o=wide --all-namespaces' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '--show-labels', '-o=wide', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwslallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7016,7 +7482,8 @@ function kgwslallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --show-labels --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--show-labels', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowslallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7031,7 +7498,8 @@ function kgpowslallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch --show-labels --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '--show-labels', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwslallowide {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7046,7 +7514,8 @@ function kgdepwslallowide {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch --show-labels --all-namespaces -o=wide' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '--show-labels', '--all-namespaces', '-o=wide')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgf {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7061,7 +7530,8 @@ function kgf {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --recursive -f' @PSBoundParameters
+    $cmnd = @('get', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdf {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7076,7 +7546,8 @@ function kdf {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe --recursive -f' @PSBoundParameters
+    $cmnd = @('describe', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmf {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7091,7 +7562,8 @@ function krmf {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete --recursive -f' @PSBoundParameters
+    $cmnd = @('delete', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgoyamlf {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7106,7 +7578,8 @@ function kgoyamlf {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=yaml --recursive -f' @PSBoundParameters
+    $cmnd = @('get', '-o=yaml', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgowidef {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7121,7 +7594,8 @@ function kgowidef {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=wide --recursive -f' @PSBoundParameters
+    $cmnd = @('get', '-o=wide', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgojsonf {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7136,7 +7610,8 @@ function kgojsonf {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=json --recursive -f' @PSBoundParameters
+    $cmnd = @('get', '-o=json', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslf {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7151,7 +7626,8 @@ function kgslf {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels --recursive -f' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwf {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7166,7 +7642,8 @@ function kgwf {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --recursive -f' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwoyamlf {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7181,7 +7658,8 @@ function kgwoyamlf {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=yaml --recursive -f' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=yaml', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgowideslf {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7196,7 +7674,8 @@ function kgowideslf {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=wide --show-labels --recursive -f' @PSBoundParameters
+    $cmnd = @('get', '-o=wide', '--show-labels', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslowidef {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7211,7 +7690,8 @@ function kgslowidef {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels -o=wide --recursive -f' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '-o=wide', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwowidef {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7226,7 +7706,8 @@ function kgwowidef {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=wide --recursive -f' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=wide', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwojsonf {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7241,7 +7722,8 @@ function kgwojsonf {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=json --recursive -f' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=json', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslwf {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7256,7 +7738,8 @@ function kgslwf {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels --watch --recursive -f' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '--watch', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwslf {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7271,7 +7754,8 @@ function kgwslf {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --show-labels --recursive -f' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--show-labels', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslwowidef {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7286,7 +7770,8 @@ function kgslwowidef {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels --watch -o=wide --recursive -f' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '--watch', '-o=wide', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwowideslf {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7301,7 +7786,8 @@ function kgwowideslf {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=wide --show-labels --recursive -f' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=wide', '--show-labels', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwslowidef {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7316,7 +7802,8 @@ function kgwslowidef {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --show-labels -o=wide --recursive -f' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--show-labels', '-o=wide', '--recursive', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7331,7 +7818,8 @@ function kgl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -l' @PSBoundParameters
+    $cmnd = @('get', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7346,7 +7834,8 @@ function ksysgl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7361,7 +7850,8 @@ function kdl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe -l' @PSBoundParameters
+    $cmnd = @('describe', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysdl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7376,7 +7866,8 @@ function ksysdl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system describe -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'describe', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7391,7 +7882,8 @@ function krml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete -l' @PSBoundParameters
+    $cmnd = @('delete', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7406,7 +7898,8 @@ function ksysrml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpol {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7421,7 +7914,8 @@ function kgpol {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods -l' @PSBoundParameters
+    $cmnd = @('get', 'pods', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpol {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7436,7 +7930,8 @@ function ksysgpol {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdpol {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7451,7 +7946,8 @@ function kdpol {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe pods -l' @PSBoundParameters
+    $cmnd = @('describe', 'pods', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysdpol {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7466,7 +7962,8 @@ function ksysdpol {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system describe pods -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'describe', 'pods', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmpol {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7481,7 +7978,8 @@ function krmpol {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete pods -l' @PSBoundParameters
+    $cmnd = @('delete', 'pods', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrmpol {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7496,7 +7994,8 @@ function ksysrmpol {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete pods -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', 'pods', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7511,7 +8010,8 @@ function kgdepl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment -l' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7526,7 +8026,8 @@ function ksysgdepl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kddepl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7541,7 +8042,8 @@ function kddepl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe deployment -l' @PSBoundParameters
+    $cmnd = @('describe', 'deployment', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysddepl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7556,7 +8058,8 @@ function ksysddepl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system describe deployment -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'describe', 'deployment', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmdepl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7571,7 +8074,8 @@ function krmdepl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete deployment -l' @PSBoundParameters
+    $cmnd = @('delete', 'deployment', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrmdepl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7586,7 +8090,8 @@ function ksysrmdepl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete deployment -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', 'deployment', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7601,7 +8106,8 @@ function kgsvcl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service -l' @PSBoundParameters
+    $cmnd = @('get', 'service', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsvcl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7616,7 +8122,8 @@ function ksysgsvcl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get service -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'service', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdsvcl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7631,7 +8138,8 @@ function kdsvcl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe service -l' @PSBoundParameters
+    $cmnd = @('describe', 'service', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysdsvcl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7646,7 +8154,8 @@ function ksysdsvcl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system describe service -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'describe', 'service', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmsvcl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7661,7 +8170,8 @@ function krmsvcl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete service -l' @PSBoundParameters
+    $cmnd = @('delete', 'service', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrmsvcl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7676,7 +8186,8 @@ function ksysrmsvcl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete service -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', 'service', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7691,7 +8202,8 @@ function kgingl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress -l' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgingl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7706,7 +8218,8 @@ function ksysgingl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get ingress -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'ingress', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdingl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7721,7 +8234,8 @@ function kdingl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe ingress -l' @PSBoundParameters
+    $cmnd = @('describe', 'ingress', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysdingl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7736,7 +8250,8 @@ function ksysdingl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system describe ingress -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'describe', 'ingress', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmingl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7751,7 +8266,8 @@ function krmingl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete ingress -l' @PSBoundParameters
+    $cmnd = @('delete', 'ingress', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrmingl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7766,7 +8282,8 @@ function ksysrmingl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete ingress -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', 'ingress', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7781,7 +8298,8 @@ function kgcml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap -l' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgcml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7796,7 +8314,8 @@ function ksysgcml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get configmap -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'configmap', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdcml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7811,7 +8330,8 @@ function kdcml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe configmap -l' @PSBoundParameters
+    $cmnd = @('describe', 'configmap', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysdcml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7826,7 +8346,8 @@ function ksysdcml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system describe configmap -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'describe', 'configmap', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmcml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7841,7 +8362,8 @@ function krmcml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete configmap -l' @PSBoundParameters
+    $cmnd = @('delete', 'configmap', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrmcml {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7856,7 +8378,8 @@ function ksysrmcml {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete configmap -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', 'configmap', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7871,7 +8394,8 @@ function kgsecl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret -l' @PSBoundParameters
+    $cmnd = @('get', 'secret', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsecl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7886,7 +8410,8 @@ function ksysgsecl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get secret -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'secret', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdsecl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7901,7 +8426,8 @@ function kdsecl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe secret -l' @PSBoundParameters
+    $cmnd = @('describe', 'secret', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysdsecl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7916,7 +8442,8 @@ function ksysdsecl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system describe secret -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'describe', 'secret', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmsecl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7931,7 +8458,8 @@ function krmsecl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete secret -l' @PSBoundParameters
+    $cmnd = @('delete', 'secret', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysrmsecl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7946,7 +8474,8 @@ function ksysrmsecl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system delete secret -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'delete', 'secret', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnol {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7961,7 +8490,8 @@ function kgnol {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get nodes -l' @PSBoundParameters
+    $cmnd = @('get', 'nodes', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdnol {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7976,7 +8506,8 @@ function kdnol {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe nodes -l' @PSBoundParameters
+    $cmnd = @('describe', 'nodes', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -7991,7 +8522,8 @@ function kgnsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces -l' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdnsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8006,7 +8538,8 @@ function kdnsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe namespaces -l' @PSBoundParameters
+    $cmnd = @('describe', 'namespaces', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmnsl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8021,7 +8554,8 @@ function krmnsl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete namespaces -l' @PSBoundParameters
+    $cmnd = @('delete', 'namespaces', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8036,7 +8570,8 @@ function kgoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=yaml -l' @PSBoundParameters
+    $cmnd = @('get', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8051,7 +8586,8 @@ function ksysgoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get -o=yaml -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpooyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8066,7 +8602,8 @@ function kgpooyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods -o=yaml -l' @PSBoundParameters
+    $cmnd = @('get', 'pods', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpooyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8081,7 +8618,8 @@ function ksysgpooyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods -o=yaml -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8096,7 +8634,8 @@ function kgdepoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment -o=yaml -l' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8111,7 +8650,8 @@ function ksysgdepoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment -o=yaml -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8126,7 +8666,8 @@ function kgsvcoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service -o=yaml -l' @PSBoundParameters
+    $cmnd = @('get', 'service', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsvcoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8141,7 +8682,8 @@ function ksysgsvcoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get service -o=yaml -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'service', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8156,7 +8698,8 @@ function kgingoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress -o=yaml -l' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgingoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8171,7 +8714,8 @@ function ksysgingoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get ingress -o=yaml -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'ingress', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8186,7 +8730,8 @@ function kgcmoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap -o=yaml -l' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgcmoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8201,7 +8746,8 @@ function ksysgcmoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get configmap -o=yaml -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'configmap', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8216,7 +8762,8 @@ function kgsecoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret -o=yaml -l' @PSBoundParameters
+    $cmnd = @('get', 'secret', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsecoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8231,7 +8778,8 @@ function ksysgsecoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get secret -o=yaml -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'secret', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnooyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8246,7 +8794,8 @@ function kgnooyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get nodes -o=yaml -l' @PSBoundParameters
+    $cmnd = @('get', 'nodes', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8261,7 +8810,8 @@ function kgnsoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces -o=yaml -l' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8276,7 +8826,8 @@ function kgowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8291,7 +8842,8 @@ function ksysgowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8306,7 +8858,8 @@ function kgpoowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'pods', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpoowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8321,7 +8874,8 @@ function ksysgpoowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8336,7 +8890,8 @@ function kgdepowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8351,7 +8906,8 @@ function ksysgdepowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8366,7 +8922,8 @@ function kgsvcowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'service', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsvcowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8381,7 +8938,8 @@ function ksysgsvcowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get service -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'service', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8396,7 +8954,8 @@ function kgingowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgingowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8411,7 +8970,8 @@ function ksysgingowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get ingress -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'ingress', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8426,7 +8986,8 @@ function kgcmowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgcmowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8441,7 +9002,8 @@ function ksysgcmowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get configmap -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'configmap', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8456,7 +9018,8 @@ function kgsecowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'secret', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsecowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8471,7 +9034,8 @@ function ksysgsecowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get secret -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'secret', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnoowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8486,7 +9050,8 @@ function kgnoowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get nodes -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'nodes', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8501,7 +9066,8 @@ function kgnsowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8516,7 +9082,8 @@ function kgojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=json -l' @PSBoundParameters
+    $cmnd = @('get', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8531,7 +9098,8 @@ function ksysgojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get -o=json -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8546,7 +9114,8 @@ function kgpoojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods -o=json -l' @PSBoundParameters
+    $cmnd = @('get', 'pods', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpoojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8561,7 +9130,8 @@ function ksysgpoojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods -o=json -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8576,7 +9146,8 @@ function kgdepojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment -o=json -l' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8591,7 +9162,8 @@ function ksysgdepojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment -o=json -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8606,7 +9178,8 @@ function kgsvcojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service -o=json -l' @PSBoundParameters
+    $cmnd = @('get', 'service', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsvcojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8621,7 +9194,8 @@ function ksysgsvcojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get service -o=json -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'service', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8636,7 +9210,8 @@ function kgingojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress -o=json -l' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgingojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8651,7 +9226,8 @@ function ksysgingojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get ingress -o=json -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'ingress', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8666,7 +9242,8 @@ function kgcmojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap -o=json -l' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgcmojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8681,7 +9258,8 @@ function ksysgcmojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get configmap -o=json -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'configmap', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8696,7 +9274,8 @@ function kgsecojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret -o=json -l' @PSBoundParameters
+    $cmnd = @('get', 'secret', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsecojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8711,7 +9290,8 @@ function ksysgsecojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get secret -o=json -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'secret', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnoojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8726,7 +9306,8 @@ function kgnoojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get nodes -o=json -l' @PSBoundParameters
+    $cmnd = @('get', 'nodes', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnsojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8741,7 +9322,8 @@ function kgnsojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces -o=json -l' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8756,7 +9338,8 @@ function kgsll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels -l' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8771,7 +9354,8 @@ function ksysgsll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --show-labels -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8786,7 +9370,8 @@ function kgposll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels -l' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgposll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8801,7 +9386,8 @@ function ksysgposll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --show-labels -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepsll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8816,7 +9402,8 @@ function kgdepsll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels -l' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepsll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8831,7 +9418,8 @@ function ksysgdepsll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --show-labels -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8846,7 +9434,8 @@ function kgwl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -l' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgwl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8861,7 +9450,8 @@ function ksysgwl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --watch -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8876,7 +9466,8 @@ function kgpowl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch -l' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpowl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8891,7 +9482,8 @@ function ksysgpowl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --watch -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8906,7 +9498,8 @@ function kgdepwl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch -l' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepwl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8921,7 +9514,8 @@ function ksysgdepwl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --watch -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcwl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8936,7 +9530,8 @@ function kgsvcwl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch -l' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsvcwl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8951,7 +9546,8 @@ function ksysgsvcwl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get service --watch -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'service', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingwl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8966,7 +9562,8 @@ function kgingwl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch -l' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgingwl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8981,7 +9578,8 @@ function ksysgingwl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get ingress --watch -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'ingress', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmwl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -8996,7 +9594,8 @@ function kgcmwl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch -l' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgcmwl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9011,7 +9610,8 @@ function ksysgcmwl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get configmap --watch -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'configmap', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecwl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9026,7 +9626,8 @@ function kgsecwl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch -l' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsecwl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9041,7 +9642,8 @@ function ksysgsecwl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get secret --watch -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'secret', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnowl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9056,7 +9658,8 @@ function kgnowl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get nodes --watch -l' @PSBoundParameters
+    $cmnd = @('get', 'nodes', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnswl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9071,7 +9674,8 @@ function kgnswl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --watch -l' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9086,7 +9690,8 @@ function kgwoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=yaml -l' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgwoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9101,7 +9706,8 @@ function ksysgwoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --watch -o=yaml -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--watch', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9116,7 +9722,8 @@ function kgpowoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch -o=yaml -l' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpowoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9131,7 +9738,8 @@ function ksysgpowoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --watch -o=yaml -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--watch', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9146,7 +9754,8 @@ function kgdepwoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch -o=yaml -l' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepwoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9161,7 +9770,8 @@ function ksysgdepwoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --watch -o=yaml -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--watch', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcwoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9176,7 +9786,8 @@ function kgsvcwoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch -o=yaml -l' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsvcwoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9191,7 +9802,8 @@ function ksysgsvcwoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get service --watch -o=yaml -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'service', '--watch', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingwoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9206,7 +9818,8 @@ function kgingwoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch -o=yaml -l' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgingwoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9221,7 +9834,8 @@ function ksysgingwoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get ingress --watch -o=yaml -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'ingress', '--watch', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmwoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9236,7 +9850,8 @@ function kgcmwoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch -o=yaml -l' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgcmwoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9251,7 +9866,8 @@ function ksysgcmwoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get configmap --watch -o=yaml -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'configmap', '--watch', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecwoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9266,7 +9882,8 @@ function kgsecwoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch -o=yaml -l' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsecwoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9281,7 +9898,8 @@ function ksysgsecwoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get secret --watch -o=yaml -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'secret', '--watch', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnowoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9296,7 +9914,8 @@ function kgnowoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get nodes --watch -o=yaml -l' @PSBoundParameters
+    $cmnd = @('get', 'nodes', '--watch', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnswoyamll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9311,7 +9930,8 @@ function kgnswoyamll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --watch -o=yaml -l' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--watch', '-o=yaml', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgowidesll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9326,7 +9946,8 @@ function kgowidesll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=wide --show-labels -l' @PSBoundParameters
+    $cmnd = @('get', '-o=wide', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgowidesll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9341,7 +9962,8 @@ function ksysgowidesll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get -o=wide --show-labels -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '-o=wide', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoowidesll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9356,7 +9978,8 @@ function kgpoowidesll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods -o=wide --show-labels -l' @PSBoundParameters
+    $cmnd = @('get', 'pods', '-o=wide', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpoowidesll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9371,7 +9994,8 @@ function ksysgpoowidesll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods -o=wide --show-labels -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '-o=wide', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepowidesll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9386,7 +10010,8 @@ function kgdepowidesll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment -o=wide --show-labels -l' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '-o=wide', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepowidesll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9401,7 +10026,8 @@ function ksysgdepowidesll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment -o=wide --show-labels -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '-o=wide', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9416,7 +10042,8 @@ function kgslowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgslowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9431,7 +10058,8 @@ function ksysgslowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --show-labels -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--show-labels', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposlowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9446,7 +10074,8 @@ function kgposlowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgposlowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9461,7 +10090,8 @@ function ksysgposlowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --show-labels -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--show-labels', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepslowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9476,7 +10106,8 @@ function kgdepslowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepslowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9491,7 +10122,8 @@ function ksysgdepslowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --show-labels -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--show-labels', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9506,7 +10138,8 @@ function kgwowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgwowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9521,7 +10154,8 @@ function ksysgwowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9536,7 +10170,8 @@ function kgpowowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpowowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9551,7 +10186,8 @@ function ksysgpowowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9566,7 +10202,8 @@ function kgdepwowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepwowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9581,7 +10218,8 @@ function ksysgdepwowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcwowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9596,7 +10234,8 @@ function kgsvcwowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsvcwowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9611,7 +10250,8 @@ function ksysgsvcwowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get service --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'service', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingwowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9626,7 +10266,8 @@ function kgingwowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgingwowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9641,7 +10282,8 @@ function ksysgingwowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get ingress --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'ingress', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmwowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9656,7 +10298,8 @@ function kgcmwowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgcmwowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9671,7 +10314,8 @@ function ksysgcmwowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get configmap --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'configmap', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecwowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9686,7 +10330,8 @@ function kgsecwowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsecwowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9701,7 +10346,8 @@ function ksysgsecwowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get secret --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'secret', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnowowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9716,7 +10362,8 @@ function kgnowowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get nodes --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'nodes', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnswowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9731,7 +10378,8 @@ function kgnswowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9746,7 +10394,8 @@ function kgwojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=json -l' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgwojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9761,7 +10410,8 @@ function ksysgwojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --watch -o=json -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--watch', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9776,7 +10426,8 @@ function kgpowojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch -o=json -l' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpowojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9791,7 +10442,8 @@ function ksysgpowojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --watch -o=json -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--watch', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9806,7 +10458,8 @@ function kgdepwojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch -o=json -l' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepwojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9821,7 +10474,8 @@ function ksysgdepwojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --watch -o=json -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--watch', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcwojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9836,7 +10490,8 @@ function kgsvcwojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch -o=json -l' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsvcwojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9851,7 +10506,8 @@ function ksysgsvcwojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get service --watch -o=json -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'service', '--watch', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingwojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9866,7 +10522,8 @@ function kgingwojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch -o=json -l' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgingwojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9881,7 +10538,8 @@ function ksysgingwojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get ingress --watch -o=json -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'ingress', '--watch', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmwojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9896,7 +10554,8 @@ function kgcmwojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch -o=json -l' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgcmwojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9911,7 +10570,8 @@ function ksysgcmwojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get configmap --watch -o=json -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'configmap', '--watch', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecwojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9926,7 +10586,8 @@ function kgsecwojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch -o=json -l' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgsecwojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9941,7 +10602,8 @@ function ksysgsecwojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get secret --watch -o=json -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'secret', '--watch', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnowojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9956,7 +10618,8 @@ function kgnowojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get nodes --watch -o=json -l' @PSBoundParameters
+    $cmnd = @('get', 'nodes', '--watch', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgnswojsonl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9971,7 +10634,8 @@ function kgnswojsonl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get namespaces --watch -o=json -l' @PSBoundParameters
+    $cmnd = @('get', 'namespaces', '--watch', '-o=json', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslwl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -9986,7 +10650,8 @@ function kgslwl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels --watch -l' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgslwl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10001,7 +10666,8 @@ function ksysgslwl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --show-labels --watch -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--show-labels', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposlwl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10016,7 +10682,8 @@ function kgposlwl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels --watch -l' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgposlwl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10031,7 +10698,8 @@ function ksysgposlwl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --show-labels --watch -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--show-labels', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepslwl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10046,7 +10714,8 @@ function kgdepslwl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels --watch -l' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepslwl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10061,7 +10730,8 @@ function ksysgdepslwl {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --show-labels --watch -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--show-labels', '--watch', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwsll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10076,7 +10746,8 @@ function kgwsll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --show-labels -l' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgwsll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10091,7 +10762,8 @@ function ksysgwsll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --watch --show-labels -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--watch', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowsll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10106,7 +10778,8 @@ function kgpowsll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch --show-labels -l' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpowsll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10121,7 +10794,8 @@ function ksysgpowsll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --watch --show-labels -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--watch', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwsll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10136,7 +10810,8 @@ function kgdepwsll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch --show-labels -l' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepwsll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10151,7 +10826,8 @@ function ksysgdepwsll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --watch --show-labels -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--watch', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslwowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10166,7 +10842,8 @@ function kgslwowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgslwowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10181,7 +10858,8 @@ function ksysgslwowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --show-labels --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--show-labels', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposlwowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10196,7 +10874,8 @@ function kgposlwowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgposlwowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10211,7 +10890,8 @@ function ksysgposlwowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --show-labels --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--show-labels', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepslwowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10226,7 +10906,8 @@ function kgdepslwowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepslwowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10241,7 +10922,8 @@ function ksysgdepslwowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --show-labels --watch -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--show-labels', '--watch', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwowidesll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10256,7 +10938,8 @@ function kgwowidesll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=wide --show-labels -l' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=wide', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgwowidesll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10271,7 +10954,8 @@ function ksysgwowidesll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --watch -o=wide --show-labels -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--watch', '-o=wide', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowowidesll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10286,7 +10970,8 @@ function kgpowowidesll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch -o=wide --show-labels -l' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '-o=wide', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpowowidesll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10301,7 +10986,8 @@ function ksysgpowowidesll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --watch -o=wide --show-labels -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--watch', '-o=wide', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwowidesll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10316,7 +11002,8 @@ function kgdepwowidesll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch -o=wide --show-labels -l' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '-o=wide', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepwowidesll {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10331,7 +11018,8 @@ function ksysgdepwowidesll {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --watch -o=wide --show-labels -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--watch', '-o=wide', '--show-labels', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwslowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10346,7 +11034,8 @@ function kgwslowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --show-labels -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--show-labels', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgwslowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10361,7 +11050,8 @@ function ksysgwslowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get --watch --show-labels -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', '--watch', '--show-labels', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowslowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10376,7 +11066,8 @@ function kgpowslowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch --show-labels -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '--show-labels', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgpowslowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10391,7 +11082,8 @@ function ksysgpowslowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get pods --watch --show-labels -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'pods', '--watch', '--show-labels', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwslowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10406,7 +11098,8 @@ function kgdepwslowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch --show-labels -o=wide -l' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '--show-labels', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ksysgdepwslowidel {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10421,7 +11114,8 @@ function ksysgdepwslowidel {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl --namespace=kube-system get deployment --watch --show-labels -o=wide -l' @PSBoundParameters
+    $cmnd = @('--namespace=kube-system', 'get', 'deployment', '--watch', '--show-labels', '-o=wide', '-l')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kpfn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10436,7 +11130,8 @@ function kpfn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl port-forward --namespace' @PSBoundParameters
+    $cmnd = @('port-forward', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10451,7 +11146,8 @@ function kgn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --namespace' @PSBoundParameters
+    $cmnd = @('get', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10466,7 +11162,8 @@ function kdn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe --namespace' @PSBoundParameters
+    $cmnd = @('describe', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10481,7 +11178,8 @@ function krmn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete --namespace' @PSBoundParameters
+    $cmnd = @('delete', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpon {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10496,7 +11194,8 @@ function kgpon {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --namespace' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdpon {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10511,7 +11210,8 @@ function kdpon {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe pods --namespace' @PSBoundParameters
+    $cmnd = @('describe', 'pods', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmpon {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10526,7 +11226,8 @@ function krmpon {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete pods --namespace' @PSBoundParameters
+    $cmnd = @('delete', 'pods', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10541,7 +11242,8 @@ function kgdepn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --namespace' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kddepn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10556,7 +11258,8 @@ function kddepn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe deployment --namespace' @PSBoundParameters
+    $cmnd = @('describe', 'deployment', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmdepn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10571,7 +11274,8 @@ function krmdepn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete deployment --namespace' @PSBoundParameters
+    $cmnd = @('delete', 'deployment', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10586,7 +11290,8 @@ function kgsvcn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --namespace' @PSBoundParameters
+    $cmnd = @('get', 'service', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdsvcn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10601,7 +11306,8 @@ function kdsvcn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe service --namespace' @PSBoundParameters
+    $cmnd = @('describe', 'service', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmsvcn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10616,7 +11322,8 @@ function krmsvcn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete service --namespace' @PSBoundParameters
+    $cmnd = @('delete', 'service', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10631,7 +11338,8 @@ function kgingn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --namespace' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdingn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10646,7 +11354,8 @@ function kdingn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe ingress --namespace' @PSBoundParameters
+    $cmnd = @('describe', 'ingress', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmingn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10661,7 +11370,8 @@ function krmingn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete ingress --namespace' @PSBoundParameters
+    $cmnd = @('delete', 'ingress', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10676,7 +11386,8 @@ function kgcmn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --namespace' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdcmn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10691,7 +11402,8 @@ function kdcmn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe configmap --namespace' @PSBoundParameters
+    $cmnd = @('describe', 'configmap', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmcmn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10706,7 +11418,8 @@ function krmcmn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete configmap --namespace' @PSBoundParameters
+    $cmnd = @('delete', 'configmap', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10721,7 +11434,8 @@ function kgsecn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --namespace' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kdsecn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10736,7 +11450,8 @@ function kdsecn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl describe secret --namespace' @PSBoundParameters
+    $cmnd = @('describe', 'secret', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmsecn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10751,7 +11466,8 @@ function krmsecn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl delete secret --namespace' @PSBoundParameters
+    $cmnd = @('delete', 'secret', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgoyamln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10766,7 +11482,8 @@ function kgoyamln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=yaml --namespace' @PSBoundParameters
+    $cmnd = @('get', '-o=yaml', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpooyamln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10781,7 +11498,8 @@ function kgpooyamln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods -o=yaml --namespace' @PSBoundParameters
+    $cmnd = @('get', 'pods', '-o=yaml', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepoyamln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10796,7 +11514,8 @@ function kgdepoyamln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment -o=yaml --namespace' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '-o=yaml', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcoyamln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10811,7 +11530,8 @@ function kgsvcoyamln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service -o=yaml --namespace' @PSBoundParameters
+    $cmnd = @('get', 'service', '-o=yaml', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingoyamln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10826,7 +11546,8 @@ function kgingoyamln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress -o=yaml --namespace' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '-o=yaml', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmoyamln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10841,7 +11562,8 @@ function kgcmoyamln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap -o=yaml --namespace' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '-o=yaml', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecoyamln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10856,7 +11578,8 @@ function kgsecoyamln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret -o=yaml --namespace' @PSBoundParameters
+    $cmnd = @('get', 'secret', '-o=yaml', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10871,7 +11594,8 @@ function kgowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10886,7 +11610,8 @@ function kgpoowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', 'pods', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10901,7 +11626,8 @@ function kgdepowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10916,7 +11642,8 @@ function kgsvcowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', 'service', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10931,7 +11658,8 @@ function kgingowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10946,7 +11674,8 @@ function kgcmowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10961,7 +11690,8 @@ function kgsecowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', 'secret', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgojsonn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10976,7 +11706,8 @@ function kgojsonn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=json --namespace' @PSBoundParameters
+    $cmnd = @('get', '-o=json', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoojsonn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -10991,7 +11722,8 @@ function kgpoojsonn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods -o=json --namespace' @PSBoundParameters
+    $cmnd = @('get', 'pods', '-o=json', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepojsonn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11006,7 +11738,8 @@ function kgdepojsonn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment -o=json --namespace' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '-o=json', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcojsonn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11021,7 +11754,8 @@ function kgsvcojsonn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service -o=json --namespace' @PSBoundParameters
+    $cmnd = @('get', 'service', '-o=json', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingojsonn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11036,7 +11770,8 @@ function kgingojsonn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress -o=json --namespace' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '-o=json', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmojsonn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11051,7 +11786,8 @@ function kgcmojsonn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap -o=json --namespace' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '-o=json', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecojsonn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11066,7 +11802,8 @@ function kgsecojsonn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret -o=json --namespace' @PSBoundParameters
+    $cmnd = @('get', 'secret', '-o=json', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11081,7 +11818,8 @@ function kgsln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels --namespace' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11096,7 +11834,8 @@ function kgposln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels --namespace' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepsln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11111,7 +11850,8 @@ function kgdepsln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels --namespace' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11126,7 +11866,8 @@ function kgwn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --namespace' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpown {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11141,7 +11882,8 @@ function kgpown {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch --namespace' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11156,7 +11898,8 @@ function kgdepwn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch --namespace' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcwn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11171,7 +11914,8 @@ function kgsvcwn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch --namespace' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingwn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11186,7 +11930,8 @@ function kgingwn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch --namespace' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmwn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11201,7 +11946,8 @@ function kgcmwn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch --namespace' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecwn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11216,7 +11962,8 @@ function kgsecwn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch --namespace' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwoyamln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11231,7 +11978,8 @@ function kgwoyamln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=yaml --namespace' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=yaml', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowoyamln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11246,7 +11994,8 @@ function kgpowoyamln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch -o=yaml --namespace' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '-o=yaml', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwoyamln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11261,7 +12010,8 @@ function kgdepwoyamln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch -o=yaml --namespace' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '-o=yaml', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcwoyamln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11276,7 +12026,8 @@ function kgsvcwoyamln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch -o=yaml --namespace' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch', '-o=yaml', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingwoyamln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11291,7 +12042,8 @@ function kgingwoyamln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch -o=yaml --namespace' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch', '-o=yaml', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmwoyamln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11306,7 +12058,8 @@ function kgcmwoyamln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch -o=yaml --namespace' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch', '-o=yaml', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecwoyamln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11321,7 +12074,8 @@ function kgsecwoyamln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch -o=yaml --namespace' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch', '-o=yaml', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgowidesln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11336,7 +12090,8 @@ function kgowidesln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get -o=wide --show-labels --namespace' @PSBoundParameters
+    $cmnd = @('get', '-o=wide', '--show-labels', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpoowidesln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11351,7 +12106,8 @@ function kgpoowidesln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods -o=wide --show-labels --namespace' @PSBoundParameters
+    $cmnd = @('get', 'pods', '-o=wide', '--show-labels', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepowidesln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11366,7 +12122,8 @@ function kgdepowidesln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment -o=wide --show-labels --namespace' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '-o=wide', '--show-labels', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11381,7 +12138,8 @@ function kgslowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposlowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11396,7 +12154,8 @@ function kgposlowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepslowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11411,7 +12170,8 @@ function kgdepslowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11426,7 +12186,8 @@ function kgwowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11441,7 +12202,8 @@ function kgpowowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11456,7 +12218,8 @@ function kgdepwowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcwowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11471,7 +12234,8 @@ function kgsvcwowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingwowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11486,7 +12250,8 @@ function kgingwowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmwowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11501,7 +12266,8 @@ function kgcmwowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecwowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11516,7 +12282,8 @@ function kgsecwowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwojsonn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11531,7 +12298,8 @@ function kgwojsonn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=json --namespace' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=json', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowojsonn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11546,7 +12314,8 @@ function kgpowojsonn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch -o=json --namespace' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '-o=json', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwojsonn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11561,7 +12330,8 @@ function kgdepwojsonn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch -o=json --namespace' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '-o=json', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsvcwojsonn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11576,7 +12346,8 @@ function kgsvcwojsonn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get service --watch -o=json --namespace' @PSBoundParameters
+    $cmnd = @('get', 'service', '--watch', '-o=json', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgingwojsonn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11591,7 +12362,8 @@ function kgingwojsonn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get ingress --watch -o=json --namespace' @PSBoundParameters
+    $cmnd = @('get', 'ingress', '--watch', '-o=json', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgcmwojsonn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11606,7 +12378,8 @@ function kgcmwojsonn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get configmap --watch -o=json --namespace' @PSBoundParameters
+    $cmnd = @('get', 'configmap', '--watch', '-o=json', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgsecwojsonn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11621,7 +12394,8 @@ function kgsecwojsonn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get secret --watch -o=json --namespace' @PSBoundParameters
+    $cmnd = @('get', 'secret', '--watch', '-o=json', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslwn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11636,7 +12410,8 @@ function kgslwn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels --watch --namespace' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '--watch', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposlwn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11651,7 +12426,8 @@ function kgposlwn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels --watch --namespace' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '--watch', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepslwn {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11666,7 +12442,8 @@ function kgdepslwn {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels --watch --namespace' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '--watch', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwsln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11681,7 +12458,8 @@ function kgwsln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --show-labels --namespace' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--show-labels', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowsln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11696,7 +12474,8 @@ function kgpowsln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch --show-labels --namespace' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '--show-labels', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwsln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11711,7 +12490,8 @@ function kgdepwsln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch --show-labels --namespace' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '--show-labels', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgslwowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11726,7 +12506,8 @@ function kgslwowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --show-labels --watch -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', '--show-labels', '--watch', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgposlwowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11741,7 +12522,8 @@ function kgposlwowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --show-labels --watch -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--show-labels', '--watch', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepslwowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11756,7 +12538,8 @@ function kgdepslwowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --show-labels --watch -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--show-labels', '--watch', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwowidesln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11771,7 +12554,8 @@ function kgwowidesln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch -o=wide --show-labels --namespace' @PSBoundParameters
+    $cmnd = @('get', '--watch', '-o=wide', '--show-labels', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowowidesln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11786,7 +12570,8 @@ function kgpowowidesln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch -o=wide --show-labels --namespace' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '-o=wide', '--show-labels', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwowidesln {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11801,7 +12586,8 @@ function kgdepwowidesln {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch -o=wide --show-labels --namespace' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '-o=wide', '--show-labels', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgwslowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11816,7 +12602,8 @@ function kgwslowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get --watch --show-labels -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', '--watch', '--show-labels', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgpowslowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11831,7 +12618,8 @@ function kgpowslowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get pods --watch --show-labels -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', 'pods', '--watch', '--show-labels', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function kgdepwslowiden {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -11846,5 +12634,6 @@ function kgdepwslowiden {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'kubectl get deployment --watch --show-labels -o=wide --namespace' @PSBoundParameters
+    $cmnd = @('get', 'deployment', '--watch', '--show-labels', '-o=wide', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }

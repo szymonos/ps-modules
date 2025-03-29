@@ -11,15 +11,12 @@ function ArgK8sGetClusters {
         $fakeBoundParameters
     )
 
-    # build kubectl command string
-    $sb = [System.Text.StringBuilder]::new('kubectl config view')
-    # convert kubectl command results to object
-    $sb.Append(' --output json | ConvertFrom-Json') | Out-Null
-    # get command string
-    $cmnd = $sb.ToString()
-
     # get clusters
-    [string[]]$possibleValues = (Invoke-Expression $cmnd).clusters.name
+    $cmdArgs = @(
+        'config', 'view'
+        '--output', 'json'
+    )
+    [string[]]$possibleValues = (& kubectl @cmdArgs | ConvertFrom-Json).clusters.name
 
     # return matching clusters
     $possibleValues.Where({ $_ -like "$wordToComplete*" }).ForEach({ $_ })
@@ -39,15 +36,12 @@ function ArgK8sGetContexts {
         $fakeBoundParameters
     )
 
-    # build kubectl command string
-    $sb = [System.Text.StringBuilder]::new('kubectl config view')
-    # convert kubectl command results to object
-    $sb.Append(' --output json | ConvertFrom-Json') | Out-Null
-    # get command string
-    $cmnd = $sb.ToString()
-
     # get contexts
-    [string[]]$possibleValues = (Invoke-Expression $cmnd).contexts.name
+    $cmdArgs = @(
+        'config', 'view'
+        '--output', 'json'
+    )
+    [string[]]$possibleValues = (& kubectl @cmdArgs | ConvertFrom-Json).contexts.name
 
     # return matching contexts
     $possibleValues.Where({ $_ -like "$wordToComplete*" }).ForEach({ $_ })
@@ -67,15 +61,13 @@ function ArgK8sGetNamespaces {
         $fakeBoundParameters
     )
 
-    # build kubectl command string
-    $sb = [System.Text.StringBuilder]::new('kubectl get namespaces')
-    # convert kubectl command results to object
-    $sb.Append(' --output json | ConvertFrom-Json') | Out-Null
-    # get command string
-    $cmnd = $sb.ToString()
-
     # get namespaces
-    [string[]]$possibleValues = (Invoke-Expression $cmnd).items.Where({ $_.status.phase -eq 'Active' }).metadata.name
+    $cmdArgs = @(
+        'get', 'namespaces'
+        '--field-selector=status.phase=Active'
+        '--output', 'json'
+    )
+    [string[]]$possibleValues = (& kubectl @cmdArgs | ConvertFrom-Json).items.metadata.name
 
     # return matching namespaces
     $possibleValues.Where({ $_ -like "$wordToComplete*" }).ForEach({ $_ })
@@ -96,17 +88,14 @@ function ArgK8sGetPods {
     )
 
     # build kubectl command string
-    $sb = [System.Text.StringBuilder]::new('kubectl get pods')
+    $cmdArgs = [System.Collections.Generic.List[string]]::new()
+    $cmdArgs.AddRange([string[]]@('get', 'pods', '--field-selector=status.phase=Running'))
     if ($fakeBoundParameters.ContainsKey('Namespace')) {
-        $sb.Append(" --namespace $($fakeBoundParameters.Namespace)") | Out-Null
+        $cmdArgs.AddRange([string[]]@('--namespace', $fakeBoundParameters.Namespace))
     }
-    # convert kubectl command results to object
-    $sb.Append(' --output json | ConvertFrom-Json') | Out-Null
-    # get command string
-    $cmnd = $sb.ToString()
-
+    $cmdArgs.AddRange([string[]]@('--output', 'json'))
     # get pods
-    [string[]]$possibleValues = (Invoke-Expression $cmnd).items.Where({ $_.status.phase -eq 'Running' }).metadata.name
+    [string[]]$possibleValues = (& kubectl @cmdArgs | ConvertFrom-Json).items.metadata.name
 
     # return matching pods
     $possibleValues.Where({ $_ -like "$wordToComplete*" }).ForEach({ $_ })
@@ -128,17 +117,14 @@ function ArgK8sGetPodContainers {
 
     if ($fakeBoundParameters.ContainsKey('Pod')) {
         # build kubectl command string
-        $sb = [System.Text.StringBuilder]::new("kubectl get pods $($fakeBoundParameters.Pod)")
+        $cmdArgs = [System.Collections.Generic.List[string]]::new()
+        $cmdArgs.AddRange([string[]]@('get', 'pod', $fakeBoundParameters.Pod))
         if ($fakeBoundParameters.ContainsKey('Namespace')) {
-            $sb.Append(" --namespace $($fakeBoundParameters.Namespace)") | Out-Null
+            $cmdArgs.AddRange([string[]]@('--namespace', $fakeBoundParameters.Namespace))
         }
-        # convert kubectl command results to object
-        $sb.Append(' --output json | ConvertFrom-Json') | Out-Null
-        # get command string
-        $cmnd = $sb.ToString()
-
+        $cmdArgs.AddRange([string[]]@('--output', 'json'))
         # get pod containers
-        [string[]]$possibleValues = (Invoke-Expression $cmnd).spec.containers.name
+        [string[]]$possibleValues = (& kubectl @cmdArgs | ConvertFrom-Json).spec.containers.name
 
         # # return matching containers
         $possibleValues.Where({ $_ -like "$wordToComplete*" }).ForEach({ $_ })
