@@ -265,7 +265,9 @@ function Get-CertificateOpenSSL {
         [System.Collections.Generic.List[string]]$cmdArgs = @('s_client')
         $cmdArgs.Add('-connect')
         $cmdArgs.Add("${Uri}:443")
-        $BuildChain ? $cmdArgs.Add('-showcerts') : $null
+        if ($BuildChain) {
+            $cmdArgs.Add('-showcerts')
+        }
     }
 
     process {
