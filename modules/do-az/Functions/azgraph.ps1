@@ -327,6 +327,7 @@ function Get-AzGraphResource {
         [Alias('t')]
         [Parameter(Mandatory, ParameterSetName = 'Type')]
         [Parameter(Mandatory, ParameterSetName = 'GroupType')]
+        [Parameter(ParameterSetName = 'Group')]
         [Parameter(ParameterSetName = 'InSubscription')]
         [Parameter(ParameterSetName = 'InMngmtGroup')]
         [ValidateScript({ $_ -match '\w+\.\w+/\w+' }, ErrorMessage = "`e[4m{0}`e[24m is not valid type.")]
