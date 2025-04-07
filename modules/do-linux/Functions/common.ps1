@@ -109,7 +109,7 @@ function Invoke-ExecutableBitFix {
 
     # *adding executable bit in files with shebang
     (Get-ChildItem $Path -File -Recurse -Force).Where({
-            $_.DirectoryName -notmatch '/\.git\b' `
+            $_.DirectoryName -notmatch '/\.(git|venv)\b' `
                 -and ($_.Extension -in $ExtensionFilter -or -not $_.Extension) `
                 -and $_.UnixMode -notmatch '^-rwx' `
                 -and (Get-Content $_ -Head 1 | Select-String '^#!' -Quiet)
@@ -122,7 +122,7 @@ function Invoke-ExecutableBitFix {
 
     # *removing executable bit from files without shebang
         (Get-ChildItem $Path -File -Recurse -Force).Where({
-            $_.DirectoryName -notmatch '/\.git\b' `
+            $_.DirectoryName -notmatch '/\.(git|venv)\b' `
                 -and ($_.Extension -in $ExtensionFilter -or -not $_.Extension) `
                 -and $_.UnixMode -match '^-rwx' `
                 -and (Get-Content $_ -Head 1 | Select-String '^#!' -NotMatch -Quiet)
