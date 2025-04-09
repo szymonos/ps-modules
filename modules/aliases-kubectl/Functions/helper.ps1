@@ -462,11 +462,12 @@ function Debug-KubernetesPod {
         [ArgumentCompleter({ ArgK8sGetPods @args })]
         [string]$Pod,
 
-        [Parameter(Mandatory, Position = 1)]
-        [string]$Image,
-
+        [Parameter(Position = 1)]
         [ArgumentCompleter({ ArgK8sGetNamespaces @args })]
         [string]$Namespace,
+
+        [ValidateNotNullOrEmpty()]
+        [string]$Image = 'busybox',
 
         [Alias('cmd')]
         [Parameter(ParameterSetName = 'Command')]
@@ -488,7 +489,7 @@ function Debug-KubernetesPod {
     begin {
         # build kubectl command parameters
         $cmnd = [System.Collections.Generic.List[string]]::new([string[]]@('debug', '--stdin', '--tty'))
-        $cmnd.AddRange([string[]]@($PSBoundParameters.Pod, "--image=$($PSBoundParameters.Image)"))
+        $cmnd.AddRange([string[]]@($PSBoundParameters.Pod, "--image=$Image"))
         if ($PSBoundParameters.Namespace) {
             $cmnd.AddRange([string[]]@('--namespace', $Namespace))
         }
