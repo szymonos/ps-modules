@@ -675,7 +675,7 @@ function Invoke-ExampleScriptSave {
             $pattern = @{
                 '.ps1' = '(?s)(?<=\n\.EXAMPLE\n).*?(?=(\n#>|\n\.[A-Z]))'
                 '.sh'  = "(?s)(?<=\n: '\n).*?(?=\n'\n)"
-                '.py'  = '(?<=^(#.*?\n)?"""\n)((?!""")[\s\S])*(?=\n""")'
+                '.py'  = '(?<=^(#.*?\n)?"""\n)((?!""")[\s\S])*?(?=\n("""|# \:save))'
             }
         } else {
             return
