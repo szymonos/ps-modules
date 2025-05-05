@@ -106,7 +106,7 @@ function ktop {
         [switch]$Quiet
     )
 
-    $cmnd = @('kubectl', 'top', 'pods', '--use-protocol-buffers')
+    $cmnd = @('top', 'pods', '--use-protocol-buffers')
     Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function ktopcntr {
@@ -122,7 +122,7 @@ function ktopcntr {
         [switch]$Quiet
     )
 
-    $cmnd = @('kubectl', 'top', 'pods', '--use-protocol-buffers', '--containers')
+    $cmnd = @('top', 'pods', '--use-protocol-buffers', '--containers')
     Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 #endregion
