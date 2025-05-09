@@ -319,14 +319,12 @@ function Get-AzGraphResource {
 
         [Alias('g')]
         [Parameter(Mandatory, ParameterSetName = 'Group')]
-        [Parameter(Mandatory, ParameterSetName = 'GroupType')]
         [Parameter(ParameterSetName = 'InSubscription')]
         [Parameter(ParameterSetName = 'InMngmtGroup')]
         [string]$ResourceGroupName,
 
         [Alias('t')]
         [Parameter(Mandatory, ParameterSetName = 'Type')]
-        [Parameter(Mandatory, ParameterSetName = 'GroupType')]
         [Parameter(ParameterSetName = 'Group')]
         [Parameter(ParameterSetName = 'InSubscription')]
         [Parameter(ParameterSetName = 'InMngmtGroup')]
@@ -345,7 +343,6 @@ function Get-AzGraphResource {
         [Alias('c')]
         [Parameter(Mandatory, ParameterSetName = 'Condition')]
         [Parameter(ParameterSetName = 'Group')]
-        [Parameter(ParameterSetName = 'GroupType')]
         [Parameter(ParameterSetName = 'Type')]
         [Parameter(ParameterSetName = 'InSubscription')]
         [Parameter(ParameterSetName = 'InMngmtGroup')]
@@ -366,6 +363,7 @@ function Get-AzGraphResource {
     )
 
     begin {
+        Write-Debug "ParameterSetName: $($PSCmdlet.ParameterSetName)"
         # build filter
         if ($PSBoundParameters.ResourceId) {
             $filter = "id =~ '$ResourceId'"
