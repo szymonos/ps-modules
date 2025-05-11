@@ -699,14 +699,14 @@ function Invoke-UvSetup {
     [CmdletBinding()]
     param (
         [Parameter(Position = 0)]
-        [ArgumentCompletions('activate', 'clean', 'envs', 'fix', 'list', 'prune', 'remove', 'setup')]
+        [ArgumentCompletions('activate', 'bytecode', 'clean', 'envs', 'fix', 'list', 'prune', 'remove', 'setup')]
         [string]$Option,
 
         [switch]$CertificateFix
     )
 
     dynamicparam {
-        if (@('setup') -match "^$Option") {
+        if (@('bytecode', 'setup') -match "^$Option") {
             $paramDict = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
 
             $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
@@ -762,6 +762,7 @@ function Invoke-UvSetup {
                     'The following Options are available:',
                     "  `e[1;97mactivate`e[0m    Activate virtual environment",
                     "  `e[1;97mclean`e[0m       Clear the cache",
+                    "  `e[1;97mbytecode`e[0m    Update the project's environment with bytecode compilation",
                     "  `e[1;97menvs`e[0m        Enumerate all pyproject.toml files from the current path",
                     "  `e[1;97mfix`e[0m         Fix self-signed certificates",
                     "  `e[1;97mlist`e[0m        List packages",
@@ -775,6 +776,7 @@ function Invoke-UvSetup {
         # evaluate Option parameter abbreviations
         $optSet = @(
             'activate'
+            'bytecode'
             'clean'
             'envs'
             'fix'
@@ -795,7 +797,7 @@ function Invoke-UvSetup {
         # constants
         $VENV_DIR = '.venv'
 
-        if ($opt -in @('activate', 'fix', 'list', 'remove', 'setup')) {
+        if ($opt -in @('activate', 'bytecode', 'fix', 'list', 'remove', 'setup')) {
             # set location to the specified pyproject.toml location
             Push-Location ($PSBoundParameters.Environment ?? '.') -StackName 'EnvDir'
             # get activate script path
@@ -804,17 +806,17 @@ function Invoke-UvSetup {
             $pyProject = (Test-Path './pyproject.toml') ? $true : $false
         }
         # deactivate virtual environment if already activated
-        if ($opt -in @('remove', 'setup') -and $env:VIRTUAL_ENV) {
+        if ($opt -in @('bytecode', 'remove', 'setup') -and $env:VIRTUAL_ENV) {
             Invoke-VenvDeactivate -Quiet
         }
     }
 
     # *Execute option
     process {
-        if ($CertificateFix -and $opt -eq 'setup') {
+        if ($CertificateFix -and $opt -in @('bytecode', 'setup')) {
             $opt = $opt + 'fix'
         }
-        switch ($opt) {
+        switch -Regex ($opt) {
             clean {
                 # *Clean uv cache
                 if ($PSBoundParameters.Verbose) { Write-Verbose 'uv cache clean' }
@@ -886,7 +888,7 @@ function Invoke-UvSetup {
                 break
             }
 
-            setup {
+            'bytecode|setup' {
                 if ($pyProject) {
                     [System.Collections.Generic.List[string]]$uvArgs = @('sync')
                     if ($venvCreated) {
@@ -895,6 +897,7 @@ function Invoke-UvSetup {
                     } else {
                         Write-Host 'Creating virtual environment.'
                     }
+                    if ($opt -eq 'bytecode') { $uvArgs.Add('--compile-bytecode') }
                     if ($PSBoundParameters.Extras) {
                         if ($PSBoundParameters.Extras -eq 'all-extras') {
                             $uvArgs.Add('--all-extras')
