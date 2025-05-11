@@ -203,6 +203,19 @@ function Remove-KubectlContext {
 <#
 .SYNOPSIS
 Get list of available kubernetes contexts.
+
+.PARAMETER Table
+Switch whether to return the output in table format.
+.PARAMETER Json
+Switch whether to return the output in JSON format.
+.PARAMETER Object
+Switch whether to return the output as a PowerShell object.
+.PARAMETER Context
+Get kubernetes context details by context name.
+.PARAMETER Cluster
+Get kubernetes context details by cluster name.
+.PARAMETER Current
+The parameter to specify if the current context should be returned.
 #>
 function Get-KubectlContext {
     [CmdletBinding(DefaultParameterSetName = 'table')]
@@ -217,23 +230,35 @@ function Get-KubectlContext {
         [switch]$Object,
 
         [Alias('n')]
-        [Parameter(ParameterSetName = 'context')]
+        [Parameter(Mandatory, ParameterSetName = 'context')]
         [Parameter(ParameterSetName = 'table')]
         [Parameter(ParameterSetName = 'json')]
         [Parameter(ParameterSetName = 'object')]
         [string]$Context,
 
         [Alias('c')]
-        [Parameter(ParameterSetName = 'cluster')]
+        [Parameter(Mandatory, ParameterSetName = 'cluster')]
         [Parameter(ParameterSetName = 'table')]
         [Parameter(ParameterSetName = 'json')]
         [Parameter(ParameterSetName = 'object')]
-        [string]$Cluster
+        [string]$Cluster,
+
+        [Parameter(Mandatory, ParameterSetName = 'current')]
+        [Parameter(ParameterSetName = 'table')]
+        [Parameter(ParameterSetName = 'json')]
+        [Parameter(ParameterSetName = 'object')]
+        [switch]$Current
     )
 
     begin {
+        [System.Collections.Generic.List[string]]$cmdArgs = @()
         # get kubectl config
-        $config = kubectl config view --output json | ConvertFrom-Json
+        @('config', 'view', '--output', 'json').ForEach({ $cmdArgs.Add($_) })
+        if ($PSBoundParameters.Current) {
+            $cmdArgs.Add('--minify')
+        }
+        Write-Debug "kubectl $($cmdArgs -join ' ')"
+        $config = & kubectl @cmdArgs | ConvertFrom-Json
     }
 
     process {
