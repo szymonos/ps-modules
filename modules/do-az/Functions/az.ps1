@@ -1330,3 +1330,95 @@ function Invoke-AzApiRequest {
         }
     }
 }
+
+
+<#
+.SYNOPSIS
+Get AKS credentials and set context.
+
+.PARAMETER AksName
+Specifies the AKS cluster name.
+.PARAMETER ContextName
+Target context name.
+.PARAMETER LoginMethod
+Specifies the login method for kubelogin. Allowed values: devicecode, interactive, spn, ropc, msi, azurecli, azd, workloadidentity.
+
+.EXAMPLE
+$AksName = 'aks-aif-mt-qa-9ea1'
+$ContextName = 'aks-aif-mt-qa'
+$LoginMethod = 'azurecli'
+
+Get-AksCredential -a $AksName -c $ContextName -l $LoginMethod
+#>
+function Get-AksCredential {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory, Position = 0)]
+        [string]$AksName,
+
+        [string]$ContextName,
+
+        [Parameter(ParameterSetName = 'KubeLogin')]
+        [ValidateNotNullOrEmpty()]
+        [ArgumentCompletions('azurecli', 'azd', 'devicecode', 'interactive', 'msi', 'ropc', 'spn', 'workloadidentity')]
+        [string]$LoginMethod
+    )
+
+    begin {
+        $continue = try {
+            Get-Command kubectl -CommandType Application -ErrorAction Stop | Out-Null
+            $true
+        } catch {
+            Write-Warning 'kubetcl not found. Please install kubectl.'
+            $false
+            return
+        }
+
+        Write-Verbose 'getting kubectl contexts...'
+        $ctx = kubectl config view -ojson | ConvertFrom-Json
+        if ($ContextName -in $ctx.contexts.name) {
+            Write-Warning "Context already exists. Please remove it first ($ContextName)."
+            $continue = $false
+            return
+        } elseif ($AksName -in $ctx.clusters.name) {
+            Write-Warning "Cluster is already added to the kube config ($AksName)."
+            $continue = $false
+            return
+        }
+
+        # get AKS details
+        Write-Verbose 'getting AKS details...'
+        $prop = @{
+            ResourceName = $AKSName
+            ResourceType = 'microsoft.containerservice/managedclusters'
+        }
+        Get-AzGraphResourceByName @prop | Tee-Object -Variable aks
+
+        if (-not $aks) {
+            Write-Warning "AKS cluster not found ($AksName)."
+            $continue = $false
+            return
+        }
+    }
+
+    process {
+        if ($continue) {
+            $env:KUBECONFIG = "$HOME/.kube/config"
+            # get credentials to specified AKS cluster
+            Write-Verbose 'getting AKS credentials...'
+            Connect-AzContext -Subscription $aks.subscriptionId | Out-Null
+            Invoke-CommandRetry {
+                Import-AzAksCredential -Id $aks.id -Force -ConfigPath $env:KUBECONFIG -ErrorAction Stop
+            }
+
+            # rename context
+            if ($ContextName) {
+                kubectl config rename-context $AKSName $ContextName
+            }
+
+            if ($LoginMethod) {
+                kubelogin convert-kubeconfig -l $LoginMethod
+            }
+        }
+    }
+}

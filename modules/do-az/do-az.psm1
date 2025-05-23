@@ -21,6 +21,7 @@ $exportModuleMemberParams = @{
         'Get-PrivateEndpoint'
         'Set-SubscriptionMenu'
         'Invoke-AzApiRequest'
+        'Get-AksCredential'
         # azgraph
         'Invoke-AzGraph'
         'Get-AzGraphSubscription'

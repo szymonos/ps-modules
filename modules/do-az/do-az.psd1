@@ -4,7 +4,7 @@
     RootModule           = 'do-az.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.19.3'
+    ModuleVersion        = '1.20.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -51,6 +51,7 @@
         'Get-PrivateEndpoint'
         'Set-SubscriptionMenu'
         'Invoke-AzApiRequest'
+        'Get-AksCredential'
         # azgraph
         'Invoke-AzGraph'
         'Get-AzGraphSubscription'
