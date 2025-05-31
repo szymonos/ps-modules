@@ -29,10 +29,11 @@ $exportModuleMemberParams = @{
         'Get-KubectlPodLogs'
         # pods
         'kgpo'
-        'kdpo'
-        'ktop'
-        'ktopcntr'
         'kgpocntr'
+        'kdpo'
+        'ktno'
+        'ktpo'
+        'ktpocntr'
         # alias
         'kinf'
         'kav'

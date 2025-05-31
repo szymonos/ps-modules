@@ -12,7 +12,7 @@
     RootModule           = 'aliases-kubectl.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '0.10.3'
+    ModuleVersion        = '0.10.4'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -94,10 +94,11 @@
         'Get-KubectlPodLogs'
         # pods
         'kgpo'
-        'kdpo'
-        'ktop'
-        'ktopcntr'
         'kgpocntr'
+        'kdpo'
+        'ktno'
+        'ktpo'
+        'ktpocntr'
         # alias
         'kinf'
         'kav'
