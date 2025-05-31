@@ -93,7 +93,23 @@ function kgpocntr {
 
 
 #region alias functions
-function ktop {
+function ktno {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    $cmnd = @('top', 'nodes', '--use-protocol-buffers')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
+}
+function ktpo {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
         [Parameter(ValueFromRemainingArguments)]
@@ -109,7 +125,7 @@ function ktop {
     $cmnd = @('top', 'pods', '--use-protocol-buffers')
     Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
-function ktopcntr {
+function ktpocntr {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
         [Parameter(ValueFromRemainingArguments)]
