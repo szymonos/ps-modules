@@ -4,7 +4,7 @@
     RootModule           = 'do-common.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.4.5'
+    ModuleVersion        = '1.5.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -41,6 +41,7 @@
         'Get-RootCertificates'
         'Show-Certificate'
         'Show-CertificateChain'
+        'Show-ConvertedPem'
         # common
         'ConvertFrom-Base64'
         'ConvertTo-Base64'
@@ -88,6 +89,8 @@
 
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
     AliasesToExport      = @(
+        # certs
+        'pemdec'
         # common
         'alias'
         'egsave'
