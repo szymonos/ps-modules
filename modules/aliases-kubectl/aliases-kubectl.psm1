@@ -3,6 +3,7 @@
 . $PSScriptRoot/Functions/helper.ps1
 . $PSScriptRoot/Functions/internal.ps1
 . $PSScriptRoot/Functions/pods.ps1
+. $PSScriptRoot/Functions/secrets.ps1
 
 $exportModuleMemberParams = @{
     Function = @(
@@ -12,6 +13,7 @@ $exportModuleMemberParams = @{
         'ArgK8sGetNamespaces'
         'ArgK8sGetPods'
         'ArgK8sGetPodContainers'
+        'ArgK8sGetSecrets'
         # helper
         'Get-KubectlVersion'
         'Get-KubectlClientVersion'

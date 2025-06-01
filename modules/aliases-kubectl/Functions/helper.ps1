@@ -119,21 +119,6 @@ function Set-KubensContextCurrentNamespace {
 
 <#
 .SYNOPSIS
-Decode and print kubernetes secret data
-#>
-function Get-KubectlSecretDecodedData {
-    # convert secret to PSObject
-    $secretJson = kubectl get secret @args -o json | ConvertFrom-Json
-    # decode and write secret data
-    $secretJson.data.PSobject.Properties | ForEach-Object {
-        Write-Host "# $($_.Name)" -ForegroundColor DarkGreen
-        [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($_.Value)).Trim()
-    }
-}
-
-
-<#
-.SYNOPSIS
 Change kubernetes context and sets the corresponding kubectl client version.
 
 .PARAMETER Context
@@ -600,7 +585,6 @@ New-Alias -Name kcgctx -Value Get-KubectlContext
 New-Alias -Name kcuctx -Value Set-KubectlContext
 New-Alias -Name kc -Value Set-KubectlContext
 New-Alias -Name kcrmctx -Value Remove-KubectlContext
-New-Alias -Name kgsecd -Value Get-KubectlSecretDecodedData
 New-Alias -Name kcsctxcns -Value Set-KubectlContextCurrentNamespace
 New-Alias -Name kex -Value Connect-KubernetesContainer
 New-Alias -Name kdbg -Value Debug-KubernetesPod

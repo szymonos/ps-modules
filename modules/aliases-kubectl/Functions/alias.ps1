@@ -861,22 +861,6 @@ function ksysrmcm {
     $cmnd = @('--namespace=kube-system', 'delete', 'configmap')
     Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
-function kgsec {
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
-    param (
-        [Parameter(ValueFromRemainingArguments)]
-        [string[]]$Xargs,
-
-        [Parameter(ParameterSetName = 'whatif')]
-        [switch]$WhatIf,
-
-        [Parameter(ParameterSetName = 'quiet')]
-        [switch]$Quiet
-    )
-
-    $cmnd = @('get', 'secret')
-    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
-}
 function ksysgsec {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
