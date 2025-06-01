@@ -130,3 +130,31 @@ function ArgK8sGetPodContainers {
         $possibleValues.Where({ $_ -like "$wordToComplete*" }).ForEach({ $_ })
     }
 }
+
+
+<#
+.SYNOPSIS
+Get list of kubernetes secrets for the function ArgumentCompleter attribute.
+#>
+function ArgK8sGetSecrets {
+    param (
+        $commandName,
+        $parameterName,
+        $wordToComplete,
+        $commandAst,
+        $fakeBoundParameters
+    )
+
+    # build kubectl command string
+    $cmdArgs = [System.Collections.Generic.List[string]]::new()
+    $cmdArgs.AddRange([string[]]@('get', 'secrets'))
+    if ($fakeBoundParameters.ContainsKey('Namespace')) {
+        $cmdArgs.AddRange([string[]]@('--namespace', $fakeBoundParameters.Namespace))
+    }
+    $cmdArgs.AddRange([string[]]@('--output', 'json'))
+    # get pods
+    [string[]]$possibleValues = (& kubectl @cmdArgs | ConvertFrom-Json).items.metadata.name
+
+    # return matching pods
+    $possibleValues.Where({ $_ -like "$wordToComplete*" }).ForEach({ $_ })
+}

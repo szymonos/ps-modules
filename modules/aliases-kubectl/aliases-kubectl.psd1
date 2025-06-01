@@ -12,7 +12,7 @@
     RootModule           = 'aliases-kubectl.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '0.10.4'
+    ModuleVersion        = '0.11.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -77,6 +77,7 @@
         'ArgK8sGetNamespaces'
         'ArgK8sGetPods'
         'ArgK8sGetPodContainers'
+        'ArgK8sGetSecrets'
         # helper
         'Get-KubectlVersion'
         'Get-KubectlClientVersion'

@@ -7,11 +7,11 @@ You can suppress executing the kubectl by providing -WhatIf as one of the argume
 .PARAMETER Command
 kubectl command to be executed.
 .PARAMETER Xargs
-kubectl arguments to be passed to the provided command.
+Additional arguments to be passed to the kubectl command.
 .PARAMETER WhatIf
-Do not execute the kubectl.
+If specified, the command will not be executed, but only written to the console.
 .PARAMETER Quiet
-Do not print the kubectl string.
+If specified, the command will not be printed to the console.
 #>
 function Invoke-WriteExecKubectl {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -62,6 +62,31 @@ function Invoke-WriteExecKubectl {
 }
 
 
+<#
+.SYNOPSIS
+Build a kubectl command for specific kinds and o operations (verbs).
+.DESCRIPTION
+The command allows to create functions with autocompletion for specific kubectl operations.
+
+.PARAMETER Verb
+The kubectl operation to be performed. Valid values are 'get', 'describe', and 'delete'.
+.PARAMETER Kind
+The kind of kubernetes object to be operated on. Valid values are 'Pod', 'Service', 'Namespace', and 'Secret'.
+.PARAMETER Pod
+The name of the Pod to be operated on. Mandatory for 'Pod' kind.
+.PARAMETER Service
+The name of the Service to be operated on. Mandatory for 'Service' kind.
+.PARAMETER Secret
+The name of the Secret to be operated on. Mandatory for 'Secret' kind.
+.PARAMETER Namespace
+The namespace in which the operation should be performed. Optional parameter.
+.PARAMETER Xargs
+Additional arguments to be passed to the kubectl command.
+.PARAMETER WhatIf
+If specified, the command will not be executed, but only written to the console.
+.PARAMETER Quiet
+If specified, the command will not be printed to the console.
+#>
 function Build-KubectlCommand {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
@@ -70,7 +95,7 @@ function Build-KubectlCommand {
         [string[]]$Verb,
 
         [Parameter(Mandatory)]
-        [ValidateSet('Pod', 'Service', 'Namespace')]
+        [ValidateSet('Pod', 'Service', 'Namespace', 'Secret')]
         [string[]]$Kind,
 
         [Parameter(Mandatory, ParameterSetName = 'pod')]
@@ -79,9 +104,13 @@ function Build-KubectlCommand {
         [Parameter(Mandatory, ParameterSetName = 'service')]
         [string]$Service,
 
+        [Parameter(Mandatory, ParameterSetName = 'secret')]
+        [string]$Secret,
+
         [Parameter(Mandatory, ParameterSetName = 'namespace')]
         [Parameter(ParameterSetName = 'pod')]
         [Parameter(ParameterSetName = 'service')]
+        [Parameter(ParameterSetName = 'secret')]
         [string]$Namespace,
 
         [string[]]$Xargs,
@@ -107,6 +136,9 @@ function Build-KubectlCommand {
         } elseif ($PSBoundParameters.Service) {
             $cmnd.Add($Service)
             $PSBoundParameters.Remove('Service') | Out-Null
+        } elseif ($PSBoundParameters.Secret) {
+            $cmnd.Add($Secret)
+            $PSBoundParameters.Remove('Secret') | Out-Null
         }
         if ($PSBoundParameters.Namespace) {
             if ($Kind -ne 'Namespace') {
