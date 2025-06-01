@@ -456,3 +456,84 @@ function Show-CertificateChain {
         Show-Certificate @PSBoundParameters
     }
 }
+
+
+<#
+.SYNOPSIS
+Decode PEM certificate(s) and show their properties.
+
+.PARAMETER InputObject
+String with PEM encoded certificate(s).
+.PARAMETER Path
+Path to PEM encoded certificate file(s).
+.PARAMETER Extended
+Switch, whether to show extended certificate properties.
+.PARAMETER Strip
+Switch, whether to show non-null certificate properties.
+.PARAMETER All
+Switch, whether to show all certificate properties.
+.PARAMETER OpenSSL
+Use OpenSSL to retrieve certificate chain.
+#>
+function Show-ConvertedPem {
+    [OutputType([System.Security.Cryptography.X509Certificates.X509Certificate2[]])]
+    param (
+        # FromString sets
+        [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = 'FromString')]
+        [string]$InputObject,
+
+        # FromPath sets
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'FromPath')]
+        [ValidateScript({ Test-Path $_ -PathType 'Leaf' }, ErrorMessage = "'{0}' is not a valid file path.")]
+        [string]$Path,
+
+        # Extended switch for each set
+        [switch]$Extended,
+
+        # Strip switch for each set
+        [switch]$Strip,
+
+        # All switch for each set
+        [switch]$All,
+
+        [switch]$OpenSSL
+    )
+
+    begin {
+        # check that at most one of -Extended, -Strip, -All is specified
+        if ($PSBoundParameters.Keys.ForEach({ $_ -in @('Extended', 'Strip', 'All') }).Where(({ $_ })).Count -le 1) {
+            $x509Certs = [System.Collections.Generic.List[Security.Cryptography.X509Certificates.X509Certificate2]]::new()
+            $continue = $true
+        } else {
+            Write-Warning 'Only one of -Extended, -Strip, or -All parameters can be specified.'
+            $continue = $false
+            return
+        }
+    }
+
+    process {
+        if ($continue) {
+            if ($PSBoundParameters.Path) {
+                ConvertFrom-PEM -Path $PSBoundParameters.Path | ForEach-Object {
+                    $x509Certs.Add($_)
+                }
+            } elseif ($PSBoundParameters.InputObject) {
+                ConvertFrom-PEM -InputObject $PSBoundParameters.InputObject | ForEach-Object {
+                    $x509Certs.Add($_)
+                }
+            } else {
+                Throw 'Either InputObject or Path parameter must be specified.'
+            }
+        }
+    }
+
+    end {
+        if ($continue) {
+            # return the list of X509 certificates
+            @('InputObject', 'Path').ForEach({ $PSBoundParameters.Remove($_) | Out-Null })
+            $x509Certs | Show-Certificate @PSBoundParameters
+        }
+    }
+}
+
+Set-Alias -Name pemdec -Value Show-ConvertedPem

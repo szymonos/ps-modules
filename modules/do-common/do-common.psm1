@@ -18,6 +18,7 @@ $exportModuleMemberParams = @{
         'Get-RootCertificates'
         'Show-Certificate'
         'Show-CertificateChain'
+        'Show-ConvertedPem'
         # common
         'ConvertFrom-Base64'
         'ConvertTo-Base64'
@@ -58,6 +59,8 @@ $exportModuleMemberParams = @{
     )
     Variable = @()
     Alias    = @(
+        # certs
+        'pemdec'
         # common
         'alias'
         'egsave'
