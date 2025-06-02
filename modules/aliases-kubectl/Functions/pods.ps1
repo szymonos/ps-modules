@@ -3,7 +3,7 @@
 .SYNOPSIS
 Get kubernetes pod(s).
 
-.PARAMETER Pod
+.PARAMETER Name
 Name of the pod.
 .PARAMETER Namespace
 Specify namespace of the pod.
@@ -13,7 +13,7 @@ function kgpo {
     param (
         [Parameter(Position = 0)]
         [ArgumentCompleter({ ArgK8sGetPods @args })]
-        [string]$Pod,
+        [string]$Name,
 
         [ArgumentCompleter({ ArgK8sGetNamespaces @args })]
         [string]$Namespace,
@@ -41,7 +41,7 @@ function kdpo {
     param (
         [Parameter(Position = 0)]
         [ArgumentCompleter({ ArgK8sGetPods @args })]
-        [string]$Pod,
+        [string]$Name,
 
         [ArgumentCompleter({ ArgK8sGetNamespaces @args })]
         [string]$Namespace,
@@ -69,7 +69,7 @@ function kgpocntr {
     param (
         [Parameter(Position = 0, Mandatory)]
         [ArgumentCompleter({ ArgK8sGetPods @args })]
-        [string]$Pod,
+        [string]$Name,
 
         [ArgumentCompleter({ ArgK8sGetNamespaces @args })]
         [string]$Namespace,

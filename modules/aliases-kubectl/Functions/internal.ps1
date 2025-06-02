@@ -72,12 +72,8 @@ The command allows to create functions with autocompletion for specific kubectl 
 The kubectl operation to be performed. Valid values are 'get', 'describe', and 'delete'.
 .PARAMETER Kind
 The kind of kubernetes object to be operated on. Valid values are 'Pod', 'Service', 'Namespace', and 'Secret'.
-.PARAMETER Pod
-The name of the Pod to be operated on. Mandatory for 'Pod' kind.
-.PARAMETER Service
-The name of the Service to be operated on. Mandatory for 'Service' kind.
-.PARAMETER Secret
-The name of the Secret to be operated on. Mandatory for 'Secret' kind.
+.PARAMETER Name
+The name of the resource to be operated on. Optional parameter.
 .PARAMETER Namespace
 The namespace in which the operation should be performed. Optional parameter.
 .PARAMETER Xargs
@@ -98,19 +94,11 @@ function Build-KubectlCommand {
         [ValidateSet('Pod', 'Service', 'Namespace', 'Secret')]
         [string[]]$Kind,
 
-        [Parameter(Mandatory, ParameterSetName = 'pod')]
-        [string]$Pod,
+        [Parameter(Position = 0)]
+        [string]$Name,
 
-        [Parameter(Mandatory, ParameterSetName = 'service')]
-        [string]$Service,
-
-        [Parameter(Mandatory, ParameterSetName = 'secret')]
-        [string]$Secret,
-
-        [Parameter(Mandatory, ParameterSetName = 'namespace')]
-        [Parameter(ParameterSetName = 'pod')]
-        [Parameter(ParameterSetName = 'service')]
-        [Parameter(ParameterSetName = 'secret')]
+        [Parameter(ParameterSetName = 'namespace')]
+        [Parameter(ParameterSetName = 'Default')]
         [string]$Namespace,
 
         [string[]]$Xargs,
@@ -130,16 +118,11 @@ function Build-KubectlCommand {
         @('Verb', 'Kind').ForEach({ $PSBoundParameters.Remove($_) | Out-Null })
 
         # build parameters
-        if ($PSBoundParameters.Pod) {
-            $cmnd.Add($Pod)
-            $PSBoundParameters.Remove('Pod') | Out-Null
-        } elseif ($PSBoundParameters.Service) {
-            $cmnd.Add($Service)
-            $PSBoundParameters.Remove('Service') | Out-Null
-        } elseif ($PSBoundParameters.Secret) {
-            $cmnd.Add($Secret)
-            $PSBoundParameters.Remove('Secret') | Out-Null
+        if ($PSBoundParameters.Name) {
+            $cmnd.Add($Name)
+            $PSBoundParameters.Remove('Name') | Out-Null
         }
+
         if ($PSBoundParameters.Namespace) {
             if ($Kind -ne 'Namespace') {
                 $cmnd.AddRange([string[]]@('--namespace', $Namespace))

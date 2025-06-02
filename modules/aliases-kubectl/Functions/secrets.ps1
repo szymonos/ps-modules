@@ -3,7 +3,7 @@
 .SYNOPSIS
 Get kubernetes secret(s).
 
-.PARAMETER Secret
+.PARAMETER Name
 Name of the secret. Optional parameter. If not specified, all secrets in the namespace will be returned.
 .PARAMETER Namespace
 Specify namespace of the pod. Optional parameter.
@@ -19,7 +19,7 @@ function kgsec {
     param (
         [Parameter(Position = 0)]
         [ArgumentCompleter({ ArgK8sGetSecrets @args })]
-        [string]$Secret,
+        [string]$Name,
 
         [ArgumentCompleter({ ArgK8sGetNamespaces @args })]
         [string]$Namespace,
@@ -46,7 +46,7 @@ function kgsec {
 .SYNOPSIS
 Decode and print kubernetes secret data.
 
-.PARAMETER Secret
+.PARAMETER Name
 Name of the secret to be decoded. Mandatory parameter.
 .PARAMETER Namespace
 Specify namespace of the secret. Optional parameter.
@@ -62,7 +62,7 @@ function Get-KubectlSecretDecodedData {
     param (
         [Parameter(Mandatory, Position = 0)]
         [ArgumentCompleter({ ArgK8sGetSecrets @args })]
-        [string]$Secret,
+        [string]$Name,
 
         [ArgumentCompleter({ ArgK8sGetNamespaces @args })]
         [string]$Namespace,
