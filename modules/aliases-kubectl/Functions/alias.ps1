@@ -12621,3 +12621,19 @@ function kgdepwslowiden {
     $cmnd = @('get', 'deployment', '--watch', '--show-labels', '-o=wide', '--namespace')
     Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
+function ktno {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    $cmnd = @('top', 'nodes', '--use-protocol-buffers')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
+}

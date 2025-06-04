@@ -36,6 +36,7 @@ $exportModuleMemberParams = @{
         'ktno'
         'ktpo'
         'ktpocntr'
+        'kgporsrc'
         # alias
         'kinf'
         'kav'
@@ -92,6 +93,7 @@ $exportModuleMemberParams = @{
         'krmcm'
         'ksysrmcm'
         'kgsec'
+        'kgsecd'
         'ksysgsec'
         'kdsec'
         'ksysdsec'
@@ -837,7 +839,6 @@ $exportModuleMemberParams = @{
         'kc'
         'kcuctx'
         'kcrmctx'
-        'kgsecd'
         'kcsctxcns'
         'kn'
         'kex'

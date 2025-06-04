@@ -3,7 +3,7 @@
 .SYNOPSIS
 Get kubernetes secret(s).
 
-.PARAMETER Name
+.PARAMETER Resource
 Name of the secret. Optional parameter. If not specified, all secrets in the namespace will be returned.
 .PARAMETER Namespace
 Specify namespace of the pod. Optional parameter.
@@ -19,9 +19,11 @@ function kgsec {
     param (
         [Parameter(Position = 0)]
         [ArgumentCompleter({ ArgK8sGetSecrets @args })]
-        [string]$Name,
+        [ValidateNotNullOrEmpty()]
+        [string]$Resource,
 
         [ArgumentCompleter({ ArgK8sGetNamespaces @args })]
+        [ValidateNotNullOrEmpty()]
         [string]$Namespace,
 
         [Parameter(ValueFromRemainingArguments)]
@@ -36,35 +38,19 @@ function kgsec {
 
     $param = @{
         Verb = 'get'
-        Kind = 'Secret'
+        Kind = 'secrets'
     }
     return Build-KubectlCommand @param @PSBoundParameters
 }
-
-
-<#
-.SYNOPSIS
-Decode and print kubernetes secret data.
-
-.PARAMETER Name
-Name of the secret to be decoded. Mandatory parameter.
-.PARAMETER Namespace
-Specify namespace of the secret. Optional parameter.
-.PARAMETER Xargs
-Additional arguments to be passed to the kubectl command.
-.PARAMETER WhatIf
-If specified, the command will not be executed, but only written to the console.
-.PARAMETER Quiet
-If specified, the command will not be printed to the console.
-#>
-function Get-KubectlSecretDecodedData {
+function kgsecd {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
         [Parameter(Mandatory, Position = 0)]
         [ArgumentCompleter({ ArgK8sGetSecrets @args })]
-        [string]$Name,
+        [string]$Resource,
 
         [ArgumentCompleter({ ArgK8sGetNamespaces @args })]
+        [ValidateNotNullOrEmpty()]
         [string]$Namespace,
 
         [Parameter(ValueFromRemainingArguments)]
@@ -79,7 +65,7 @@ function Get-KubectlSecretDecodedData {
 
     $param = @{
         Verb  = 'get'
-        Kind  = 'Secret'
+        Kind  = 'secrets'
         Xargs = @('--output', 'json')
     }
     # convert secret to PSObject
@@ -90,5 +76,4 @@ function Get-KubectlSecretDecodedData {
         [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($_.Value)).Trim()
     }
 }
-New-Alias -Name kgsecd -Value Get-KubectlSecretDecodedData
 #endregion
