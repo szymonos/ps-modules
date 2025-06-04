@@ -12,7 +12,7 @@
     RootModule           = 'aliases-kubectl.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '0.11.1'
+    ModuleVersion        = '0.11.2'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -100,6 +100,7 @@
         'ktno'
         'ktpo'
         'ktpocntr'
+        'kgporsrc'
         # alias
         'kinf'
         'kav'
@@ -156,6 +157,7 @@
         'krmcm'
         'ksysrmcm'
         'kgsec'
+        'kgsecd'
         'ksysgsec'
         'kdsec'
         'ksysdsec'
@@ -908,7 +910,6 @@
         'kc'
         'kcuctx'
         'kcrmctx'
-        'kgsecd'
         'kcsctxcns'
         'kn'
         'kex'

@@ -84,21 +84,19 @@ If specified, the command will not be executed, but only written to the console.
 If specified, the command will not be printed to the console.
 #>
 function Build-KubectlCommand {
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
         [Parameter(Mandatory)]
-        [ValidateSet('get', 'describe', 'delete')]
-        [string[]]$Verb,
+        [ValidateNotNullOrEmpty()]
+        [string]$Verb,
 
         [Parameter(Mandatory)]
-        [ValidateSet('Pod', 'Service', 'Namespace', 'Secret')]
-        [string[]]$Kind,
+        [ValidateNotNullOrEmpty()]
+        [string]$Kind,
 
-        [Parameter(Position = 0)]
-        [string]$Name,
+        [ValidateNotNullOrEmpty()]
+        [string]$Resource,
 
-        [Parameter(ParameterSetName = 'namespace')]
-        [Parameter(ParameterSetName = 'Default')]
+        [ValidateNotNullOrEmpty()]
         [string]$Namespace,
 
         [string[]]$Xargs,
@@ -114,17 +112,17 @@ function Build-KubectlCommand {
 
         # build command
         $cmnd = [System.Collections.Generic.List[string]]::new()
-        $cmnd.AddRange([string[]]@($PSBoundParameters.Verb, "$($PSBoundParameters.Kind.ToLower())s"))
+        $cmnd.AddRange([string[]]@($PSBoundParameters.Verb.ToLower(), $PSBoundParameters.Kind.ToLower()))
         @('Verb', 'Kind').ForEach({ $PSBoundParameters.Remove($_) | Out-Null })
 
         # build parameters
-        if ($PSBoundParameters.Name) {
-            $cmnd.Add($Name)
-            $PSBoundParameters.Remove('Name') | Out-Null
+        if ($PSBoundParameters.Resource) {
+            $cmnd.Add($Resource)
+            $PSBoundParameters.Remove('Resource') | Out-Null
         }
 
         if ($PSBoundParameters.Namespace) {
-            if ($Kind -ne 'Namespace') {
+            if ($Kind -notin @('ns', 'namespace', 'namespaces')) {
                 $cmnd.AddRange([string[]]@('--namespace', $Namespace))
             }
             $PSBoundParameters.Remove('Namespace') | Out-Null
