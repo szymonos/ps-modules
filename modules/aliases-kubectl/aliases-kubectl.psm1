@@ -152,6 +152,7 @@ $exportModuleMemberParams = @{
         'ksysgsecojson'
         'kgnoojson'
         'kgnsojson'
+        'kga'
         'kgall'
         'kdall'
         'kgpoall'
