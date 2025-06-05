@@ -1789,6 +1789,22 @@ function kgnsojson {
     $cmnd = @('get', 'namespaces', '-o=json')
     Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
+function kga {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    $cmnd = @('get', 'all')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
+}
 function kgall {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
