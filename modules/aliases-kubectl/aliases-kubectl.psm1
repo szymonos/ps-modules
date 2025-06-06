@@ -43,6 +43,8 @@ $exportModuleMemberParams = @{
         'kcv'
         'ksys'
         'ka'
+        'kadryc'
+        'kadrys'
         'ksysa'
         'kak'
         'kk'
