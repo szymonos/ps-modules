@@ -77,6 +77,38 @@ function ka {
     $cmnd = @('apply', '--recursive', '-f')
     Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
+function kadryc {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    $cmnd = @('apply', '--recursive', '--dry-run=client', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
+}
+function kadrys {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    $cmnd = @('apply', '--recursive', '--dry-run=server', '-f')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
+}
 function ksysa {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
