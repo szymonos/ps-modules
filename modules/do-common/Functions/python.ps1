@@ -11,7 +11,12 @@ function Invoke-CertifiFixFromChain {
         $cacertPaths = [System.Collections.Generic.HashSet[string]]::new()
         # get certifi/cacert.pem file path
         foreach ($package in @('certifi', 'pip')) {
-            [string[]]$showFiles = pip show -f $package 2>$null
+            if (Get-Command 'uv' -CommandType Application -ErrorAction SilentlyContinue) {
+                [string[]]$showFiles = uv pip show -f $package 2>$null
+            }
+            if (-not $showFiles) {
+                [string[]]$showFiles = pip show -f $package 2>$null
+            }
             if ($location = ($showFiles | Select-String '(?<=^Location: ).+$').Matches.Value) {
                 if ($cacert = ($showFiles | Select-String '\S*\bcacert\.pem$').Matches.Value) {
                     $cacert.ForEach({ $cacertPaths.Add(([IO.Path]::Combine($location, $_))) | Out-Null })
