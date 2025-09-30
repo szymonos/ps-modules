@@ -4,7 +4,7 @@
     RootModule           = 'do-common.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.5.1'
+    ModuleVersion        = '1.6.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -45,6 +45,8 @@
         # common
         'ConvertFrom-Base64'
         'ConvertTo-Base64'
+        'ConvertFrom-Base64Url'
+        'ConvertFrom-JWT'
         'ConvertFrom-Cfg'
         'ConvertTo-Cfg'
         'ConvertTo-UTF8LF'

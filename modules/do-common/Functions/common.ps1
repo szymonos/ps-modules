@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Convert text from Base64 string.
+Convert text from base64 string.
 
 .PARAMETER InputObject
 Base64 encoded string to be converted.
@@ -14,18 +14,18 @@ function ConvertFrom-Base64 {
     )
 
     process {
-        $bytes = [System.Convert]::FromBase64String($InputObject)
-        [System.Text.Encoding]::UTF8.GetString($bytes)
+        return [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($InputObject))
     }
 }
 
 
 <#
 .SYNOPSIS
-Convert text to Base64 string.
+Convert text to base64 string.
 
 .PARAMETER InputObject
-Text to be converted to Base64 string.
+Text to be converted to base64 string.
+$InputObject = (Get-AzAccessToken -ResourceUrl 'https://cognitiveservices.azure.com').Token | ConvertFrom-SecureString -AsPlainText
 #>
 function ConvertTo-Base64 {
     [CmdletBinding()]
@@ -36,8 +36,81 @@ function ConvertTo-Base64 {
     )
 
     process {
-        $bytes = [System.Text.Encoding]::UTF8.GetBytes($InputObject)
-        [System.Convert]::ToBase64String($bytes)
+        return [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($InputObject))
+    }
+}
+
+
+<#
+.SYNOPSIS
+Convert text from base64url encoded string.
+
+.PARAMETER InputObject
+Base64url encoded string to be converted.
+#>
+function ConvertFrom-Base64Url {
+    [CmdletBinding()]
+    [OutputType([string])]
+    param (
+        [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
+        [string]$InputObject
+    )
+
+    process {
+        $base64 = $InputObject.Replace('-', '+').Replace('_', '/')
+        switch ($base64.Length % 4) {
+            2 { $base64 += '==' }
+            3 { $base64 += '=' }
+            0 { }
+            default { throw 'Invalid base64url string length' }
+        }
+        return [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($base64))
+    }
+}
+
+
+<#
+.SYNOPSIS
+Decode JWT token.
+
+.PARAMETER InputObject
+JWT token string to be converted.
+#>
+function ConvertFrom-JWT {
+    [CmdletBinding()]
+    [OutputType([string])]
+    param (
+        [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
+        [string]$InputObject
+    )
+
+    process {
+        # get JWT header and payload
+        $header, $payload = $InputObject.Split('.')[0..1].ForEach({
+                try { $_ | ConvertFrom-Base64Url | ConvertFrom-Json -AsHashtable } catch { @{} }
+            }
+        )
+
+        # convert iat, nbf, exp to DateTime
+        if ($payload.iat) {
+            $payload.iat = [DateTimeOffset]::FromUnixTimeSeconds($payload.iat).DateTime
+        }
+        if ($payload.nbf) {
+            $payload.nbf = [DateTimeOffset]::FromUnixTimeSeconds($payload.nbf).DateTime
+        }
+        if ($payload.exp) {
+            $payload.exp = [DateTimeOffset]::FromUnixTimeSeconds($payload.exp).DateTime
+        }
+
+        # merge header and payload into a single ordered dictionary
+        $merged = [ordered]@{}
+        $header.GetEnumerator().ForEach({ $merged[$_.Key] = $_.Value })
+        $payload.GetEnumerator().ForEach({ $merged[$_.Key] = $_.Value })
+    }
+
+    end {
+        # return merged JWT claims
+        return [PSCustomObject]$merged
     }
 }
 
@@ -535,7 +608,7 @@ function Format-Duration {
         { $_.TotalSeconds -ge 100 -and $_.TotalHours -le 1 } { $_.ToString('mm\:ss\.ff'); continue }
         { $_.TotalHours -ge 1 -and $_.TotalDays -le 1 } { $_.ToString('hh\:mm\:ss'); continue }
         { $_.TotalDays -ge 1 } { "$($_.Days * 24 + $_.Hours):$($_.ToString('mm\:ss'))"; continue }
-        Default { '0ms' }
+        default { '0ms' }
     }
 }
 
@@ -785,8 +858,8 @@ function New-Password {
         Numbers   = [Char[]]'0123456789'
         Symbols   = [Char[]]'!#%&*+-<>@^_|~'
     }
-    $TokenSets.Keys | Where-Object { $Complexity -Contains $_[0] } | ForEach-Object {
-        $TokenSet = $TokenSets.$_ | Where-Object { $Exclude -cNotContains $_ } | ForEach-Object { $_ }
+    $TokenSets.Keys | Where-Object { $Complexity -contains $_[0] } | ForEach-Object {
+        $TokenSet = $TokenSets.$_ | Where-Object { $Exclude -cnotcontains $_ } | ForEach-Object { $_ }
         if ($_[0] -cle 'Z') {
             $Chars += $TokenSet | Get-Random
         }

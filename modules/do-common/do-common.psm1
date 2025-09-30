@@ -22,6 +22,8 @@ $exportModuleMemberParams = @{
         # common
         'ConvertFrom-Base64'
         'ConvertTo-Base64'
+        'ConvertFrom-Base64Url'
+        'ConvertFrom-JWT'
         'ConvertFrom-Cfg'
         'ConvertTo-Cfg'
         'ConvertTo-UTF8LF'
