@@ -938,6 +938,21 @@ function gdca {
 
     Invoke-WriteExecCommand -Command 'git diff --cached' @PSBoundParameters
 }
+function gdno {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git diff --name-only' @PSBoundParameters
+}
 function gdt {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (

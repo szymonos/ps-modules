@@ -113,6 +113,7 @@ $exportModuleMemberParams = @{
         'gcps'
         'gd'
         'gdca'
+        'gdno'
         'gdt'
         'gdw'
         'gdct'
