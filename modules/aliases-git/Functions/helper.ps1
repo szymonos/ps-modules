@@ -437,6 +437,11 @@ function grbo {
     foreach ($cmnd in $commands) {
         Invoke-WriteExecCommand -Command $cmnd @PSBoundParameters
     }
+    # check if rebase was successful and push changes
+    $behind, $ahead = (git rev-list --count --left-right '@{u}...HEAD') -split "`t"
+    if ($? -and $behind -eq 0 -and $ahead -gt 0) {
+        Invoke-WriteExecCommand -Command "git push ${remote}" @PSBoundParameters
+    }
 }
 function gmb {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
