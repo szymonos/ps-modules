@@ -1180,7 +1180,7 @@ function gignored {
         [switch]$Quiet
     )
 
-    Invoke-WriteExecCommand -Command 'git ls-files -v | Select-String "^[a-z]" -CaseSensitive' -Parameters $args
+    Invoke-WriteExecCommand -Command 'git ls-files -v | Select-String "^[a-z]" -CaseSensitive' @PSBoundParameters
 }
 function glo {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
