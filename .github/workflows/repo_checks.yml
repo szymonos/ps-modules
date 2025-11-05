@@ -1,7 +1,7 @@
 name: Preflight Checks
 
 on:
-  pull_request_target:
+  pull_request:
     types: [edited, opened, reopened, synchronize]
 
   workflow_dispatch:
@@ -24,7 +24,7 @@ jobs:
 
       - name: Run pre-commit hooks on changed files
         run: |
-          if [ "${{ github.event_name }}" = "pull_request_target" ]; then
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
             printf "\033[1;34mRunning pre-commit hooks for pull request...\033[0m\n"
             prek run \
               --show-diff-on-failure --color=always \
