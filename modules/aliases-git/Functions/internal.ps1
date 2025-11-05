@@ -2,63 +2,100 @@
 .SYNOPSIS
 Get git log object.
 
-.PARAMETER All
-Switch whether to get commits from all branches.
-.PARAMETER Grep
-Specify regex expression to search in the commit subjects
-.PARAMETER Count
-Specify number of results to be returned
-
-.EXAMPLE
-Get-GitLogObject
-Get-GitLogObject -Count 10
-Get-GitLogObject -All -Grep '^feat.*aliases-git' -Verbose
+.PARAMETER Xargs
+Additional arguments to pass to the git log command.
 #>
 function Get-GitLogObject {
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    [CmdletBinding()]
     param (
-        [Parameter(Position = 0)]
-        [int]$Count,
-
-        [Parameter(ParameterSetName = 'Commits')]
         [switch]$All,
 
-        [Parameter(ParameterSetName = 'Tags')]
+        [switch]$Grep,
+
+        [switch]$Limit,
+
         [switch]$Tags,
 
-        [string]$Grep
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs
     )
 
     begin {
-        # initialize list with CSV header for the execution results
-        $csv = [System.Collections.Generic.List[string]]::new([string[]]"Commit`fDate`fSubject`fAuthor`fEmail`fRef")
-        # build format string array
-        $format = $(
-            ($Grep ? " --grep '$Grep' --perl-regexp --regexp-ignore-case" : ''),
-            ($All ? ' --all' : ($Tags ? ' --no-walk --tags="*"' : '')),
-            ($Count ? " -$Count" : '')
+        #region build arguments list
+        # build git log command arguments
+        $cmdArgs = [System.Collections.Generic.List[string]]::new(
+            [string[]]@(
+                '--reverse'
+                "--pretty=format:%h`f%ai`f%s`f%an`f%ae`f%D"
+            )
         )
-        # build git expression
-        $cmd = "git log{0}{1} --pretty=format:`"%h`f%ai`f%s`f%an`f%ae`f%D`"{2}" -f $format
-        # show the expression
-        Write-Verbose $cmd.Replace("`f", ' ')
+        # limit result to 30
+        if ($PSBoundParameters.Limit -and $PSBoundParameters.Xargs -notmatch '^(-?\d+)$') {
+            $cmdArgs.Add('-30')
+        }
+        # return commits from all branches
+        if ($PSBoundParameters.All) {
+            $cmdArgs.Add('--all')
+        }
+        # add additional grep filter parameters
+        if ($PSBoundParameters.Grep) {
+            $cmdArgs.AddRange(
+                [string[]]@(
+                    '--perl-regexp'
+                    '--regexp-ignore-case'
+                )
+            )
+        }
+        # return tags only
+        if ($PSBoundParameters.Tags) {
+            $cmdArgs.AddRange(
+                [string[]]@(
+                    '--tags=*'
+                    '--no-walk'
+                )
+            )
+        }
+        # parse Xargs for count specification
+        $parsedXargs = if ($PSBoundParameters.Xargs -match '^0$') {
+            $Xargs -notmatch '^0$'
+        } elseif ($PSBoundParameters.Xargs -match '^\d+$') {
+            $Xargs -replace '^\d+$', "-`$&"
+        } else {
+            $Xargs
+        }
+
+        if ($parsedXargs) {
+            $cmdArgs.AddRange([string[]]$parsedXargs)
+        }
+        #endregion
+
+        #region specify headers and output parameters
+        # specify CSV headers
+        $headers = @(
+            'Commit'
+            'Date'
+            'Subject'
+            'Author'
+            'Email'
+            'Ref'
+        )
+        # property selection
+        $prop = @(
+            'Commit'
+            @{ Name = 'DateUTC'; Expression = { [TimeZoneInfo]::ConvertTimeToUtc($_.Date).ToString('s').Replace('T', ' ') } }
+            'Subject'
+            'Author'
+            'Email'
+            'Ref'
+        )
+        #endregion
     }
 
     process {
-        # execute formatted expression
-        (Invoke-Expression $cmd).ForEach({ $csv.Add($_) })
-        if ($csv.Count -gt 1) {
-            # build properties for Select-Object
-            $prop = @(
-                'Commit'
-                @{ Name = 'DateUTC'; Expression = { [TimeZoneInfo]::ConvertTimeToUtc($_.Date).ToString('s').Replace('T', ' ') } }
-                'Subject'
-                'Author'
-                'Email'
-                'Ref'
-            )
-            $result = $csv | ConvertFrom-Csv -Delimiter "`f" | Select-Object -Property $prop
-        }
+        # show the expression
+        Write-Verbose "git log $cmdArgs".Replace("`f", ' ').Replace('%h', '"$h').Replace('%D', '$D"')
+        # run git log and convert output to objects
+        $result = git log @cmdArgs | ConvertFrom-Csv -Delimiter "`f" -Header $headers | Select-Object -Property $prop
     }
 
     end {
@@ -163,7 +200,7 @@ function Get-GitResolvedBranch {
                 m { $match.m; continue }
                 s { $match.s; continue }
                 t { $match.t; continue }
-                Default { @("(^|/)$BranchName$") }
+                default { @("(^|/)$BranchName$") }
             }
             # instantiate collections
             $matched = [System.Collections.Generic.List[string]]::new()

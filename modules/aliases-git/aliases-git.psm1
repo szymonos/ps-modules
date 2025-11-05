@@ -4,6 +4,7 @@ $ErrorActionPreference = 'Stop'
 . $PSScriptRoot/Functions/completers.ps1
 . $PSScriptRoot/Functions/helper.ps1
 . $PSScriptRoot/Functions/internal.ps1
+. $PSScriptRoot/Functions/log.ps1
 
 $exportModuleMemberParams = @{
     Function = @(
@@ -212,7 +213,9 @@ $exportModuleMemberParams = @{
     )
 
     Variable = @()
-    Alias    = @()
+    Alias    = @(
+        'gglobj'
+    )
 }
 
 Export-ModuleMember @exportModuleMemberParams
