@@ -4,7 +4,7 @@
     RootModule           = 'do-common.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.6.0'
+    ModuleVersion        = '1.7.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -56,6 +56,7 @@
         'Get-CmdletAlias'
         'Get-DotEnv'
         'Get-LogMessage'
+        'Get-PSReadLineHistory'
         'Format-Duration'
         'Invoke-CommandRetry'
         'Invoke-ExampleScriptSave'
@@ -97,6 +98,8 @@
         'alias'
         'egsave'
         'json'
+        'pshistory'
+        'ghi'
         # dotnet
         'swd'
         'sswd'
