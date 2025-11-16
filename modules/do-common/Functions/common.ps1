@@ -589,6 +589,26 @@ function Get-LogMessage {
 <#
 .SYNOPSIS
 Get PSReadLine history.
+
+.PARAMETER Pattern
+Regex pattern to filter history entries.
+.PARAMETER Last
+Number of last matching entries to return. Default is 30.
+.PARAMETER First
+Number of first matching entries to return.
+
+.EXAMPLE
+Get-PSReadLineHistory -Pattern 'Connect-Az.*' -Last 10
+# get last 10 PSReadLine history entries matching 'Connect-Az.*' pattern
+
+.EXAMPLE
+Get-PSReadLineHistory 'Connect-Az.*' 10
+# omit parameters as Pattern is mandatory and Last is default
+
+.EXAMPLE
+Get-PSReadLineHistory -Pattern 'git' -First 5
+# get first 5 PSReadLine history entries matching 'git' pattern
+
 #>
 function Get-PSReadLineHistory {
     [CmdletBinding(DefaultParameterSetName = 'last')]
