@@ -588,6 +588,51 @@ function Get-LogMessage {
 
 <#
 .SYNOPSIS
+Get PSReadLine history.
+#>
+function Get-PSReadLineHistory {
+    [CmdletBinding(DefaultParameterSetName = 'last')]
+    param (
+        [Parameter(Mandatory, ValueFromPipeline, Position = 0)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Pattern,
+
+        [Parameter(Position = 1, ParameterSetName = 'last')]
+        [int]$Last = 30,
+
+        [Parameter(ParameterSetName = 'first')]
+        [int]$First
+    )
+
+    begin {
+        # determine limit for the matching results
+        $limit = $First ? $First : $Last
+
+        # get PSReadLine history file path
+        $historyPath = (Get-PSReadLineOption).HistorySavePath
+
+        # read and optionally reverse history using LINQ for efficiency
+        if ($First) {
+            $history = [System.IO.File]::ReadLines($historyPath)
+        } else {
+            $history = [System.Linq.Enumerable]::Reverse(
+                [System.IO.File]::ReadLines($historyPath)
+            )
+        }
+    }
+
+    process {
+        # filter matches
+        $history | Where-Object { $_ -match $Pattern } | Select-Object -First $limit
+    }
+}
+
+Set-Alias -Name pshistory -Value Get-PSReadLineHistory
+Set-Alias -Name ghi -Value Get-PSReadLineHistory
+
+
+<#
+.SYNOPSIS
 Print timespan in human readable format.
 
 .PARAMETER TimeSpan

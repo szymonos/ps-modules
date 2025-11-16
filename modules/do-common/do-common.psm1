@@ -33,6 +33,7 @@ $exportModuleMemberParams = @{
         'Get-CmdletAlias'
         'Get-DotEnv'
         'Get-LogMessage'
+        'Get-PSReadLineHistory'
         'Format-Duration'
         'Invoke-CommandRetry'
         'Invoke-ExampleScriptSave'
@@ -67,6 +68,8 @@ $exportModuleMemberParams = @{
         'alias'
         'egsave'
         'json'
+        'pshistory'
+        'ghi'
         # dotnet
         'swd'
         'sswd'
