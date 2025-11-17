@@ -608,7 +608,6 @@ Get-PSReadLineHistory 'Connect-Az.*' 10
 .EXAMPLE
 Get-PSReadLineHistory -Pattern 'git' -First 5
 # get first 5 PSReadLine history entries matching 'git' pattern
-
 #>
 function Get-PSReadLineHistory {
     [CmdletBinding(DefaultParameterSetName = 'last')]
@@ -643,7 +642,7 @@ function Get-PSReadLineHistory {
 
     process {
         # filter matches
-        $history | Where-Object { $_ -match $Pattern } | Select-Object -First $limit
+        $history -match "(?<!^(Get-PSReadLineHistory|ghi|pshistory) )$Pattern" | Select-Object -First $limit
     }
 }
 
