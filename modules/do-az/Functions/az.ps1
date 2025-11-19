@@ -446,7 +446,7 @@ function Set-AzKeyVaultAccessPolicyApi {
         $VaultId = (Get-AzGraphResourceByName -ResourceName $VaultName -ResourceType 'microsoft.keyvault/vaults').id
         if (-not $VaultId) {
             Write-Warning "Key-Vault not found ($VaultName)."
-            exit 1
+            return
         }
     }
 
@@ -950,7 +950,7 @@ function Get-PrivateEndpoint {
                     $vnet = $vnet[$idx]
                 } elseif ($vnet.Count -eq 0) {
                     Show-LogContext "no virtual network found ($VirtualNetwork)" -Level ERROR
-                    exit 1
+                    return
                 }
 
                 if ($vnet) {
@@ -1492,101 +1492,105 @@ function Set-AksFederatedCredential {
             $wi = $wi[$idx]
         } elseif (-not $wi) {
             Show-LogContext "Workload identity service account in the namespace `"$Namespace`" not found." -Level WARNING
-            exit 0
+            return
         }
         Write-Host "`nSetting federated credential on the `e[96;1;4m$($wi.ClientName)`e[0m uami for `e[96;1;4m$($wi.ServiceAccount)`e[0m service account.`n"
     }
 
     process {
-        # get AKS detauls
-        $param = @{
-            ResourceName = kubectl config view --minify --output 'jsonpath={.clusters..name}'
-            ResourceType = 'microsoft.containerservice/managedclusters'
-        }
-        Show-LogContext 'getting AKS cluster details...'
-        $aks = Get-AzGraphResourceByName @param
-        if (-not $aks) {
-            Show-LogContext "AKS cluster not found ($($ctx.cluster))." -Level WARNING
-            return
-        }
-
-        if ($wi.Type -eq 'ManagedIdentity') {
+        if ($wi) {
+            # get AKS detauls
             $param = @{
-                Condition    = "properties.clientId == '$($wi.ClientId)'"
-                ResourceType = 'microsoft.managedidentity/userassignedidentities'
+                ResourceName = kubectl config view --minify --output 'jsonpath={.clusters..name}'
+                ResourceType = 'microsoft.containerservice/managedclusters'
             }
-            Show-LogContext 'getting user assigned managed identity details...'
-            $uami = Get-AzGraphResource @param
-            if ($uami) {
-                # check if the federated credential exists
-                $param = @{
-                    IdentityName      = $uami.name
-                    ResourceGroupName = $uami.resourceGroup
-                    SubscriptionId    = $uami.subscriptionId
-                    WarningAction     = 'SilentlyContinue'
-                    ErrorAction       = 'Stop'
-                }
-                Show-LogContext 'getting federated identity credential details...'
-                $fc = Invoke-CommandRetry {
-                    Get-AzFederatedIdentityCredential @param | Where-Object {
-                        $_.Issuer -eq $aks.properties.oidcIssuerProfile.issuerURL -and
-                        $_.Subject -eq "system:serviceaccount:${Namespace}:$($wi.ServiceAccount)"
-                    }
-                }
-            } else {
-                Show-LogContext "User assigned managed identity not found ($($wi.ClientName))." -Level WARNING
+            Show-LogContext 'getting AKS cluster details...'
+            $aks = Get-AzGraphResourceByName @param
+            if (-not $aks) {
+                Show-LogContext "AKS cluster not found ($($ctx.cluster))." -Level WARNING
                 return
             }
-        } elseif ($wi.Type -eq 'Application') {
-            $app = Invoke-CommandRetry {
-                Get-AzADApplication -ApplicationId $wi.ClientId -ErrorAction Stop
-            }
-            if ($app) {
+
+            if ($wi.Type -eq 'ManagedIdentity') {
                 $param = @{
-                    ApplicationObjectId = $app.Id
-                    WarningAction       = 'SilentlyContinue'
-                    ErrorAction         = 'Stop'
+                    Condition    = "properties.clientId == '$($wi.ClientId)'"
+                    ResourceType = 'microsoft.managedidentity/userassignedidentities'
                 }
-                $fc = Invoke-CommandRetry {
-                    Get-AzADAppFederatedCredential @param | Where-Object {
-                        $_.Issuer -eq $aks.properties.oidcIssuerProfile.issuerURL -and
-                        $_.Subject -eq "system:serviceaccount:${Namespace}:$($wi.ServiceAccount)"
+                Show-LogContext 'getting user assigned managed identity details...'
+                $uami = Get-AzGraphResource @param
+                if ($uami) {
+                    # check if the federated credential exists
+                    $param = @{
+                        IdentityName      = $uami.name
+                        ResourceGroupName = $uami.resourceGroup
+                        SubscriptionId    = $uami.subscriptionId
+                        WarningAction     = 'SilentlyContinue'
+                        ErrorAction       = 'Stop'
                     }
+                    Show-LogContext 'getting federated identity credential details...'
+                    $fc = Invoke-CommandRetry {
+                        Get-AzFederatedIdentityCredential @param | Where-Object {
+                            $_.Issuer -eq $aks.properties.oidcIssuerProfile.issuerURL -and
+                            $_.Subject -eq "system:serviceaccount:${Namespace}:$($wi.ServiceAccount)"
+                        }
+                    }
+                } else {
+                    Show-LogContext "User assigned managed identity not found ($($wi.ClientName))." -Level WARNING
+                    return
+                }
+            } elseif ($wi.Type -eq 'Application') {
+                $app = Invoke-CommandRetry {
+                    Get-AzADApplication -ApplicationId $wi.ClientId -ErrorAction Stop
+                }
+                if ($app) {
+                    $param = @{
+                        ApplicationObjectId = $app.Id
+                        WarningAction       = 'SilentlyContinue'
+                        ErrorAction         = 'Stop'
+                    }
+                    $fc = Invoke-CommandRetry {
+                        Get-AzADAppFederatedCredential @param | Where-Object {
+                            $_.Issuer -eq $aks.properties.oidcIssuerProfile.issuerURL -and
+                            $_.Subject -eq "system:serviceaccount:${Namespace}:$($wi.ServiceAccount)"
+                        }
+                    }
+                } else {
+                    Show-LogContext "Azure AD application not found for client ID ($($wi.ClientId))." -Level WARNING
+                    return
                 }
             } else {
-                Show-LogContext "Azure AD application not found for client ID ($($wi.ClientId))." -Level WARNING
+                Write-Warning 'Workload identity type is not supported. Only ManagedIdentity and Application types are supported.'
                 return
             }
-        } else {
-            Write-Warning 'Workload identity type is not supported. Only ManagedIdentity and Application types are supported.'
-            return
-        }
-        if ($fc) {
-            Show-LogContext 'Federated credential already exists for the service account.' -Level WARNING
-            return
-        }
-
-        # create federated credential
-        $fcName = "$($aks.name)-${Namespace}-$($wi.ServiceAccount)"
-        $param.Name = $fcName.Length -gt 120 ? $fcName.Substring(0, 120) : $fcName
-        $param.Issuer = $aks.properties.oidcIssuerProfile.issuerURL
-        $param.Subject = "system:serviceaccount:${Namespace}:$($wi.ServiceAccount)"
-        $param.Audience = 'api://AzureADTokenExchange'
-        Show-LogContext 'creating federated credential...'
-
-        $fc = if ($wi.Type -eq 'ManagedIdentity') {
-            Invoke-CommandRetry {
-                New-AzFederatedIdentityCredentials @param
+            if ($fc) {
+                Show-LogContext 'Federated credential already exists for the service account.' -Level WARNING
+                return
             }
-        } elseif ($wi.Type -eq 'Application') {
-            Invoke-CommandRetry {
-                New-AzADAppFederatedCredential @param
+
+            # create federated credential
+            $fcName = "$($aks.name)-${Namespace}-$($wi.ServiceAccount)"
+            $param.Name = $fcName.Length -gt 120 ? $fcName.Substring(0, 120) : $fcName
+            $param.Issuer = $aks.properties.oidcIssuerProfile.issuerURL
+            $param.Subject = "system:serviceaccount:${Namespace}:$($wi.ServiceAccount)"
+            $param.Audience = 'api://AzureADTokenExchange'
+            Show-LogContext 'creating federated credential...'
+
+            $fc = if ($wi.Type -eq 'ManagedIdentity') {
+                Invoke-CommandRetry {
+                    New-AzFederatedIdentityCredentials @param
+                }
+            } elseif ($wi.Type -eq 'Application') {
+                Invoke-CommandRetry {
+                    New-AzADAppFederatedCredential @param
+                }
             }
         }
     }
 
     end {
-        return $fc | Select-Object Name, ResourceGroupName, Subject, Issuer, Audience
+        if ($fc) {
+            return $fc | Select-Object Name, ResourceGroupName, Subject, Issuer, Audience
+        }
     }
 }
 
