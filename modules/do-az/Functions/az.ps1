@@ -1548,11 +1548,15 @@ function Set-AksFederatedCredential {
                         WarningAction       = 'SilentlyContinue'
                         ErrorAction         = 'Stop'
                     }
-                    $fc = Invoke-CommandRetry {
-                        Get-AzADAppFederatedCredential @param | Where-Object {
-                            $_.Issuer -eq $aks.properties.oidcIssuerProfile.issuerURL -and
-                            $_.Subject -eq "system:serviceaccount:${Namespace}:$($wi.ServiceAccount)"
+                    try {
+                        $fc = Invoke-CommandRetry {
+                            Get-AzADAppFederatedCredential @param | Where-Object {
+                                $_.Issuer -eq $aks.properties.oidcIssuerProfile.issuerURL -and
+                                $_.Subject -eq "system:serviceaccount:${Namespace}:$($wi.ServiceAccount)"
+                            }
                         }
+                    }catch {
+                        Show-LogContext $_
                     }
                 } else {
                     Show-LogContext "Azure AD application not found for client ID ($($wi.ClientId))." -Level WARNING

@@ -174,59 +174,78 @@ The message to log.
 .PARAMETER Level
 The level of the log message.
 .PARAMETER ErrorStackTrace
-The error stack trace.
+The error stack trace for ERROR level messages.
+The value can be obtained from $_.ScriptStackTrace property in the catch block.
+.PARAMETER FailOnError
+Switch, whether to throw an exception on ERROR level messages.
 #>
 function Show-LogContext {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'Message')]
         [string]$Message,
+
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'ErrorRecord')]
+        [System.Management.Automation.ErrorRecord]$ErrorRecord,
 
         [ValidateSet('INFO', 'ERROR', 'WARNING', 'VERBOSE', 'DEBUG')]
         [string]$Level = 'INFO',
 
-        [string]$ErrorStackTrace
+        [string]$ErrorStackTrace,
+
+        [switch]$FailOnError
     )
 
     begin {
-        # *capitalize the Type
-        $Level = $Level.ToUpper()
-
-        # *get the function caller context
-        $callerParam = @{
-            Caller = (Get-PSCallStack)[1]
+        # check if error record was passed
+        if ($PSCmdlet.ParameterSetName -eq 'ErrorRecord') {
+            $Level = 'ERROR'
+            $Message = "$ErrorRecord"
         }
-        if ($PSBoundParameters.ErrorStackTrace) {
-            if ($PSBoundParameters.Level -ne 'ERROR') {
-                $PSBoundParameters.Remove('ErrorStackTrace') | Out-Null
-            } elseif ($ErrorStackTrace -match '\sline\s(\d+)') {
-                $callerParam.ErrorStackTrace = $ErrorStackTrace
-            }
-        }
-        $ctx = Get-LogContext @callerParam
 
-        # *determine Debug/Verbose preference
-        $isVerbose = $ctx.isVerbose -or $VerbosePreference -ge 'Continue'
-        $isDebug = $ctx.isDebug -or $DebugPreference -ge 'Continue'
-        # calculate if the message should be logged
-        $showLog = if (($Level -eq 'VERBOSE' -and -not $isVerbose) -or ($Level -eq 'DEBUG' -and -not $isDebug)) {
-            $false
+        # *fail on error if specified
+        if ($Level -eq 'ERROR' -and $PSBoundParameters.FailOnError) {
+            throw $Message
         } else {
-            $true
+            # *capitalize the Type
+            $Level = $Level.ToUpper()
+            # *remove new lines from the message
+            $Message = $Message -replace "`r?`n", ' '
+
+            # *get the function caller context
+            $callerParam = @{
+                Caller = (Get-PSCallStack)[1]
+            }
+            if ($Level -eq 'ERROR') {
+                if ($PSCmdlet.ParameterSetName -eq 'ErrorRecord') {
+                    $callerParam.ErrorStackTrace = $ErrorRecord.ScriptStackTrace
+                } elseif ($PSBoundParameters.ErrorStackTrace -match '\sline\s(\d+)') {
+                    $callerParam.ErrorStackTrace = $PSBoundParameters.ErrorStackTrace
+                }
+            }
+            $ctx = Get-LogContext @callerParam
+
+            # *determine Debug/Verbose preference
+            $isVerbose = $ctx.isVerbose -or $VerbosePreference -ge 'Continue'
+            $isDebug = $ctx.isDebug -or $DebugPreference -ge 'Continue'
+            # calculate if the message should be generated
+            $ShowLog = if (($Level -eq 'VERBOSE' -and -not $isVerbose) -or ($Level -eq 'DEBUG' -and -not $isDebug)) {
+                $false
+            } else {
+                $true
+            }
         }
     }
 
     process {
-        if (-not $showLog) {
-            return
+        # calculate if the message should be generated
+        if ($ShowLog) {
+            $showLine = Get-LogLine -LogContext $ctx -Message $Message -Level $Level -LineType 'Show'
         }
-
-        # get the log line
-        $showLine = Get-LogLine -LogContext $ctx -Message $Message -Level $Level -LineType 'Show'
     }
 
     end {
-        if ($showLog) {
+        if ($ShowLog) {
             Write-Host $showLine
         }
     }
@@ -251,8 +270,11 @@ Switch, whether to show the log message in the console.
 function Write-LogContext {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'Message')]
         [string]$Message,
+
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'ErrorRecord')]
+        [System.Management.Automation.ErrorRecord]$ErrorRecord,
 
         [ValidateSet('INFO', 'ERROR', 'WARNING', 'VERBOSE', 'DEBUG')]
         [string]$Level = 'INFO',
@@ -262,37 +284,54 @@ function Write-LogContext {
         [ValidateScript({ $_ -match '\.log$' }, ErrorMessage = 'Specified file should have .log extension.')]
         [string]$Path,
 
-        [switch]$ShowLog
+        [switch]$ShowLog,
+
+        [switch]$FailOnError
     )
 
     begin {
-        # *capitalize the Type
-        $Level = $Level.ToUpper()
-
-        # *create the log file if it doesn't exist
-        if (-not (Test-Path $Path -PathType Leaf)) {
-            Set-LogFile -Path $Path | Out-Null
+        # check if error record was passed
+        if ($PSCmdlet.ParameterSetName -eq 'ErrorRecord') {
+            $Level = 'ERROR'
+            $Message = "$ErrorRecord"
         }
 
-        # *get the function caller context
-        $callerParam = @{
-            Caller = (Get-PSCallStack)[1]
-        }
-        if ($PSBoundParameters.ErrorStackTrace) {
-            if ($PSBoundParameters.Level -ne 'ERROR') {
-                $PSBoundParameters.Remove('ErrorStackTrace') | Out-Null
-            } elseif ($ErrorStackTrace -match '\sline\s(\d+)') {
-                $callerParam.ErrorStackTrace = $ErrorStackTrace
+
+        # *fail on error if specified
+        if ($Level -eq 'ERROR' -and $PSBoundParameters.FailOnError) {
+            throw $Message
+        } else {
+            # *capitalize the Type
+            $Level = $Level.ToUpper()
+            # *remove new lines from the message
+            $Message = $Message -replace "`r?`n", ' '
+
+            # *create the log file if it doesn't exist
+            if (-not (Test-Path $Path -PathType Leaf)) {
+                Set-LogFile -Path $Path | Out-Null
             }
-        }
-        $ctx = Get-LogContext @callerParam
-        # *determine Debug/Verbose preference
-        if ($ShowLog) {
-            $isVerbose = $ctx.isVerbose -or $VerbosePreference -ge 'Continue'
-            $isDebug = $ctx.isDebug -or $DebugPreference -ge 'Continue'
-            # calculate if the message should be displayed
-            if (($Level -eq 'VERBOSE' -and -not $isVerbose) -or ($Level -eq 'DEBUG' -and -not $isDebug)) {
-                $ShowLog = $false
+
+            # *get the function caller context
+            $callerParam = @{
+                Caller = (Get-PSCallStack)[1]
+            }
+            if ($Level -eq 'ERROR') {
+                if ($PSCmdlet.ParameterSetName -eq 'ErrorRecord') {
+                    $callerParam.ErrorStackTrace = $ErrorRecord.ScriptStackTrace
+                } elseif ($PSBoundParameters.ErrorStackTrace -match '\sline\s(\d+)') {
+                    $callerParam.ErrorStackTrace = $PSBoundParameters.ErrorStackTrace
+                }
+            }
+            $ctx = Get-LogContext @callerParam
+
+            # *determine Debug/Verbose preference
+            if ($ShowLog) {
+                $isVerbose = $ctx.isVerbose -or $VerbosePreference -ge 'Continue'
+                $isDebug = $ctx.isDebug -or $DebugPreference -ge 'Continue'
+                # calculate if the message should be displayed
+                if (($Level -eq 'VERBOSE' -and -not $isVerbose) -or ($Level -eq 'DEBUG' -and -not $isDebug)) {
+                    $ShowLog = $false
+                }
             }
         }
     }
