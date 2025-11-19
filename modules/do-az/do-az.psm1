@@ -37,7 +37,7 @@ $exportModuleMemberParams = @{
     Variable = @()
     Alias    = @(
         'ssm'
-        'setaksfc'
+        'setfcaks'
     )
 }
 

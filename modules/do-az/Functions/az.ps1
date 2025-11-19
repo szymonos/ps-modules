@@ -1428,6 +1428,9 @@ function Get-AksCredential {
 .SYNOPSIS
 Create federated credential for the service account in the current/specified AKS context.
 
+.PARAMETER Namespace
+Kubernetes namespace to set workload identity federated credential for.
+
 .EXAMPLE
 Set-AksFederatedCredential
 # create federated credential for the service account in the current namespace
@@ -1446,6 +1449,15 @@ function Set-AksFederatedCredential {
     )
 
     begin {
+        # check if kubectl is installed
+        try {
+            Get-Command kubectl -CommandType Application -ErrorAction Stop | Out-Null
+        } catch {
+            Show-LogContext $_
+            return
+        }
+
+        # get-current kubectl context
         $ctx = kubectl config view --minify --output 'jsonpath={.contexts..context}' | ConvertFrom-Json
         # get current namespace from the context
         if (-not $Namespace) {
@@ -1454,14 +1466,13 @@ function Set-AksFederatedCredential {
         Show-LogContext "Searching for workload identity service accounts in the `e[94;1;4m$($ctx.cluster)::$Namespace`e[0m context."
 
         # get list of service accounts in the specified namespace
-        $serviceAccounts = (kubectl get serviceaccounts -n "$Namespace" -o=json | ConvertFrom-Json).items.metadata.Where({
-                $_.labels.'azure.workload.identity/use' -eq 'true'
-            }
+        $serviceAccounts = (kubectl get serviceaccounts -n "$Namespace" -o=json | ConvertFrom-Json).items.Where(
+            { $_.metadata.labels.'azure.workload.identity/use' -eq 'true' }
         )
         # get service accounts configured for the workload identity
         Show-LogContext 'Getting Service Principals details.'
         $wi = foreach ($sa in $serviceAccounts) {
-            $clientId = $sa.annotations.'azure.workload.identity/client-id'
+            $clientId = $sa.metadata.annotations.'azure.workload.identity/client-id'
             if ($clientId) {
                 try {
                     $sp = Invoke-CommandRetry {
@@ -1469,8 +1480,8 @@ function Set-AksFederatedCredential {
                     }
                     if ($sp) {
                         [PSCustomObject]@{
-                            ServiceAccount = $sa.name
-                            Namespace      = $sa.namespace
+                            ServiceAccount = $sa.metadata.name
+                            Namespace      = $sa.metadata.namespace
                             ClientId       = $sp.AppId
                             ClientName     = $sp.DisplayName
                             Type           = $sp.ServicePrincipalType
@@ -1479,11 +1490,11 @@ function Set-AksFederatedCredential {
                         Show-LogContext "Service principal with client ID `"$clientId`" not found." -Level WARNING
                     }
                 } catch {
-                    Show-LogContext "Failed to get service principal for `e[4m$($sa.name)`e[24m serviceaccount." -Level ERROR -ErrorStackTrace $_.ScriptStackTrace
+                    Show-LogContext "Failed to get service principal for `e[4m$($sa.metadata.name)`e[24m serviceaccount." -Level ERROR -ErrorStackTrace $_.ScriptStackTrace
                     Write-Host "$_".Replace('. ', ".`n") -ForegroundColor Red
                 }
             } else {
-                Show-LogContext "Service account `"$($sa.name)`" doesn't have a client-id configured." -Level WARNING
+                Show-LogContext "Service account `"$($sa.metadata.name)`" doesn't have a client-id configured." -Level WARNING
             }
         }
         if ($wi.Count -gt 1) {
@@ -1532,7 +1543,7 @@ function Set-AksFederatedCredential {
                         $fc = Invoke-CommandRetry {
                             Get-AzFederatedIdentityCredential @param | Where-Object {
                                 $_.Issuer -eq $aks.properties.oidcIssuerProfile.issuerURL -and
-                                $_.Subject -eq "system:serviceaccount:${Namespace}:$($wi.ServiceAccount)"
+                                $_.Subject -eq "system:serviceaccount:$($wi.Namespace):$($wi.ServiceAccount)"
                             }
                         }
                     } catch {
@@ -1556,7 +1567,7 @@ function Set-AksFederatedCredential {
                         $fc = Invoke-CommandRetry {
                             Get-AzADAppFederatedCredential @param | Where-Object {
                                 $_.Issuer -eq $aks.properties.oidcIssuerProfile.issuerURL -and
-                                $_.Subject -eq "system:serviceaccount:${Namespace}:$($wi.ServiceAccount)"
+                                $_.Subject -eq "system:serviceaccount:$($wi.Namespace):$($wi.ServiceAccount)"
                             }
                         }
                     } catch {
@@ -1576,10 +1587,10 @@ function Set-AksFederatedCredential {
             }
 
             # create federated credential
-            $fcName = "$($aks.name)-${Namespace}-$($wi.ServiceAccount)"
+            $fcName = "$($aks.name)-$($wi.Namespace)-$($wi.ServiceAccount)"
             $param.Name = $fcName.Length -gt 120 ? $fcName.Substring(0, 120) : $fcName
             $param.Issuer = $aks.properties.oidcIssuerProfile.issuerURL
-            $param.Subject = "system:serviceaccount:${Namespace}:$($wi.ServiceAccount)"
+            $param.Subject = "system:serviceaccount:$($wi.Namespace):$($wi.ServiceAccount)"
             $param.Audience = 'api://AzureADTokenExchange'
             Show-LogContext 'creating federated credential...'
 
@@ -1607,4 +1618,4 @@ function Set-AksFederatedCredential {
     }
 }
 
-Set-Alias -Name setaksfc -Value Set-AksFederatedCredential
+Set-Alias -Name setfcaks -Value Set-AksFederatedCredential
