@@ -4,7 +4,7 @@
     RootModule           = 'do-az.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.20.0'
+    ModuleVersion        = '1.21.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -61,6 +61,8 @@
         'Get-AzGraphResourceByName'
         # completers
         'ArgAzGetSubscriptions'
+        # aks
+        'Set-AksFederatedCredential'
     )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -72,6 +74,7 @@
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
     AliasesToExport      = @(
         'ssm'
+        'setaksfc'
     )
 
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
