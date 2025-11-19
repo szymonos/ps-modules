@@ -1528,11 +1528,15 @@ function Set-AksFederatedCredential {
                         ErrorAction       = 'Stop'
                     }
                     Show-LogContext 'getting federated identity credential details...'
-                    $fc = Invoke-CommandRetry {
-                        Get-AzFederatedIdentityCredential @param | Where-Object {
-                            $_.Issuer -eq $aks.properties.oidcIssuerProfile.issuerURL -and
-                            $_.Subject -eq "system:serviceaccount:${Namespace}:$($wi.ServiceAccount)"
+                    try {
+                        $fc = Invoke-CommandRetry {
+                            Get-AzFederatedIdentityCredential @param | Where-Object {
+                                $_.Issuer -eq $aks.properties.oidcIssuerProfile.issuerURL -and
+                                $_.Subject -eq "system:serviceaccount:${Namespace}:$($wi.ServiceAccount)"
+                            }
                         }
+                    } catch {
+                        Show-LogContext "Error getting federated credential ($_)" -Level WARNING
                     }
                 } else {
                     Show-LogContext "User assigned managed identity not found ($($wi.ClientName))." -Level WARNING
@@ -1548,11 +1552,15 @@ function Set-AksFederatedCredential {
                         WarningAction       = 'SilentlyContinue'
                         ErrorAction         = 'Stop'
                     }
-                    $fc = Invoke-CommandRetry {
-                        Get-AzADAppFederatedCredential @param | Where-Object {
-                            $_.Issuer -eq $aks.properties.oidcIssuerProfile.issuerURL -and
-                            $_.Subject -eq "system:serviceaccount:${Namespace}:$($wi.ServiceAccount)"
+                    try {
+                        $fc = Invoke-CommandRetry {
+                            Get-AzADAppFederatedCredential @param | Where-Object {
+                                $_.Issuer -eq $aks.properties.oidcIssuerProfile.issuerURL -and
+                                $_.Subject -eq "system:serviceaccount:${Namespace}:$($wi.ServiceAccount)"
+                            }
                         }
+                    } catch {
+                        Show-LogContext "Error getting federated credential ($_)" -Level WARNING
                     }
                 } else {
                     Show-LogContext "Azure AD application not found for client ID ($($wi.ClientId))." -Level WARNING
@@ -1575,14 +1583,19 @@ function Set-AksFederatedCredential {
             $param.Audience = 'api://AzureADTokenExchange'
             Show-LogContext 'creating federated credential...'
 
-            $fc = if ($wi.Type -eq 'ManagedIdentity') {
-                Invoke-CommandRetry {
-                    New-AzFederatedIdentityCredentials @param
+            try {
+
+                $fc = if ($wi.Type -eq 'ManagedIdentity') {
+                    Invoke-CommandRetry {
+                        New-AzFederatedIdentityCredentials @param
+                    }
+                } elseif ($wi.Type -eq 'Application') {
+                    Invoke-CommandRetry {
+                        New-AzADAppFederatedCredential @param
+                    }
                 }
-            } elseif ($wi.Type -eq 'Application') {
-                Invoke-CommandRetry {
-                    New-AzADAppFederatedCredential @param
-                }
+            } catch {
+                Show-LogContext $_
             }
         }
     }
