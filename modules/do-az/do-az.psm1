@@ -31,10 +31,13 @@ $exportModuleMemberParams = @{
         'Get-AzGraphResourceByName'
         # completers
         'ArgAzGetSubscriptions'
+        # aks
+        'Set-AksFederatedCredential'
     )
     Variable = @()
     Alias    = @(
         'ssm'
+        'setaksfc'
     )
 }
 
