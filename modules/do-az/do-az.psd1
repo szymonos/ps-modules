@@ -4,7 +4,7 @@
     RootModule           = 'do-az.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.21.3'
+    ModuleVersion        = '1.22.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -63,6 +63,9 @@
         'ArgAzGetSubscriptions'
         # aks
         'Set-AksFederatedCredential'
+        # msgraph
+        'Invoke-MgApiRequest'
+        'Get-MgAppFederatedCredential'
     )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.

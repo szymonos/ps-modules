@@ -5,6 +5,7 @@ $ErrorActionPreference = 'Stop'
 . $PSScriptRoot/Functions/az.ps1
 . $PSScriptRoot/Functions/azgraph.ps1
 . $PSScriptRoot/Functions/completers.ps1
+. $PSScriptRoot/Functions/msgraph.ps1
 
 $exportModuleMemberParams = @{
     Function = @(
@@ -33,6 +34,9 @@ $exportModuleMemberParams = @{
         'ArgAzGetSubscriptions'
         # aks
         'Set-AksFederatedCredential'
+        # msgraph
+        'Invoke-MgApiRequest'
+        'Get-MgAppFederatedCredential'
     )
     Variable = @()
     Alias    = @(
