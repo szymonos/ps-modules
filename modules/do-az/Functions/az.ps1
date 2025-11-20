@@ -1560,12 +1560,13 @@ function Set-AksFederatedCredential {
                 if ($app) {
                     $param = @{
                         ApplicationObjectId = $app.Id
+                        ApiVersion          = 'beta'
                         WarningAction       = 'SilentlyContinue'
                         ErrorAction         = 'Stop'
                     }
                     try {
                         $fc = Invoke-CommandRetry {
-                            Get-AzADAppFederatedCredential @param | Where-Object {
+                            Get-MgAppFederatedCredential @param | Where-Object {
                                 $_.Issuer -eq $aks.properties.oidcIssuerProfile.issuerURL -and
                                 $_.Subject -eq "system:serviceaccount:$($wi.Namespace):$($wi.ServiceAccount)"
                             }
