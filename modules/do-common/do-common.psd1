@@ -4,7 +4,7 @@
     RootModule           = 'do-common.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.7.2'
+    ModuleVersion        = '1.8.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -42,6 +42,8 @@
         'Show-Certificate'
         'Show-CertificateChain'
         'Show-ConvertedPem'
+        # cli
+        'Invoke-DigColored'
         # common
         'ConvertFrom-Base64'
         'ConvertTo-Base64'
@@ -94,6 +96,8 @@
     AliasesToExport      = @(
         # certs
         'pemdec'
+        # cli
+        'digc'
         # common
         'alias'
         'egsave'

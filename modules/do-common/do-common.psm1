@@ -1,6 +1,7 @@
 $ErrorActionPreference = 'Stop'
 
 . $PSScriptRoot/Functions/certs.ps1
+. $PSScriptRoot/Functions/cli.ps1
 . $PSScriptRoot/Functions/common.ps1
 . $PSScriptRoot/Functions/dotnet.ps1
 . $PSScriptRoot/Functions/logs.ps1
@@ -19,6 +20,8 @@ $exportModuleMemberParams = @{
         'Show-Certificate'
         'Show-CertificateChain'
         'Show-ConvertedPem'
+        # cli
+        'Invoke-DigColored'
         # common
         'ConvertFrom-Base64'
         'ConvertTo-Base64'
@@ -64,6 +67,8 @@ $exportModuleMemberParams = @{
     Alias    = @(
         # certs
         'pemdec'
+        # cli
+        'digc'
         # common
         'alias'
         'egsave'
