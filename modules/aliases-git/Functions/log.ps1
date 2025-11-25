@@ -207,4 +207,14 @@ function ggrepca {
 
     gglogc $arguments -Grep -All
 }
+
+
+function glom {
+    Get-GitLogMessage
+}
+
+
+function glom1 {
+    Get-GitLogMessage -First
+}
 #endregion

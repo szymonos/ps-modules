@@ -30,6 +30,8 @@ $exportModuleMemberParams = @{
         # log
         'gglo'
         'ggloa'
+        'glom'
+        'glom1'
         # log colored
         'ggloc'
         'ggloca'

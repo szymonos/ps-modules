@@ -12,7 +12,7 @@
     RootModule           = 'aliases-git.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.19.0'
+    ModuleVersion        = '1.20.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -92,6 +92,8 @@
         # log
         'gglo'
         'ggloa'
+        'glom'
+        'glom1'
         # log colored
         'ggloc'
         'ggloca'
