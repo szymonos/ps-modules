@@ -106,6 +106,25 @@ function Get-GitLogObject {
 
 <#
 .SYNOPSIS
+Get last git commit message.
+
+.PARAMETER First
+Switch whether to return only the first line of the commit message.
+#>
+function Get-GitLogMessage ([switch]$First) {
+    # get the last commit message
+    $msg = (git log -1 --pretty=%B).ForEach({ "$_".Trim() }).Where({ $_ })
+
+    # return first line or full message
+    if ($PSBoundParameters.First) {
+        $msg | Select-Object -First 1
+    } else {
+        $msg -join ' '
+    }
+}
+
+<#
+.SYNOPSIS
 Write provided command with its arguments and then execute it.
 You can suppress writing the command by providing -Quiet as one of the arguments.
 You can suppress executing the command by providing -WhatIf as one of the arguments.
