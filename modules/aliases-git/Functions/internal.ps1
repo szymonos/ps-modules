@@ -209,14 +209,16 @@ function Get-GitResolvedBranch {
             [string]$BranchName = $BranchName -replace $remoteFilter
             $match = @{
                 d = @('^dev(|el|elop|elopment)$')
-                m = @('^ma(in|ster)$', '^prod(uction)?$')
-                s = @('^stag(e|ing)$')
+                m = @('^ma(in|ster)$')
+                p = @('^prod(uction)?$')
+                s = @('^st(g|age|aging)$')
                 t = @('^trunk$')
             }
             $branchMatch = switch ($BranchName) {
-                '' { $match.m + $match.d + $match.t; continue }
+                '' { $match.m + $match.p + $match.d + $match.t; continue }
                 d { $match.d; continue }
                 m { $match.m; continue }
+                p { $match.p; continue }
                 s { $match.s; continue }
                 t { $match.t; continue }
                 default { @("(^|/)$BranchName$") }
