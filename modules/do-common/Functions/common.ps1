@@ -612,8 +612,7 @@ Get-PSReadLineHistory -Pattern 'git' -First 5
 function Get-PSReadLineHistory {
     [CmdletBinding(DefaultParameterSetName = 'last')]
     param (
-        [Parameter(Mandatory, ValueFromPipeline, Position = 0)]
-        [ValidateNotNullOrEmpty()]
+        [Parameter(ValueFromPipeline, Position = 0)]
         [string]$Pattern,
 
         [Parameter(Position = 1, ParameterSetName = 'last')]
