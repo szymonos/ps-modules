@@ -69,6 +69,7 @@ function Invoke-CertifiFixFromChain {
 }
 
 Set-Alias -Name fxcertpy -Value Invoke-CertifiFixFromChain
+Set-Alias -Name fixcertpy -Value Invoke-CertifiFixFromChain
 
 
 <#
