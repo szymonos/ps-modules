@@ -82,6 +82,7 @@ $exportModuleMemberParams = @{
         # net
         'idf'
         # python
+        'fixcertpy'
         'fxcertpy'
         'iva'
         'ivd'
