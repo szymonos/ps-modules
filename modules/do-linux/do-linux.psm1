@@ -16,6 +16,7 @@ $exportModuleMemberParams = @{
         'gsi'
         '_'
         'sps'
+        'fixmod'
         'fxmod'
     )
 }

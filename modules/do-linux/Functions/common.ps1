@@ -121,7 +121,7 @@ function Invoke-ExecutableBitFix {
     )
 
     # *removing executable bit from files without shebang
-        (Get-ChildItem $Path -File -Recurse -Force).Where({
+    (Get-ChildItem $Path -File -Recurse -Force).Where({
             $_.DirectoryName -notmatch '/\.(git|venv)\b' `
                 -and ($_.Extension -in $ExtensionFilter -or -not $_.Extension) `
                 -and $_.UnixMode -match '^-rwx' `
@@ -134,4 +134,5 @@ function Invoke-ExecutableBitFix {
     )
 }
 
+Set-Alias -Name fixmod -Value Invoke-ExecutableBitFix
 Set-Alias -Name fxmod -Value Invoke-ExecutableBitFix
