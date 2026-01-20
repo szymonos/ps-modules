@@ -1560,13 +1560,12 @@ function Set-AksFederatedCredential {
                 if ($app) {
                     $param = @{
                         ApplicationObjectId = $app.Id
-                        ApiVersion          = 'beta'
                         WarningAction       = 'SilentlyContinue'
                         ErrorAction         = 'Stop'
                     }
                     try {
                         $fc = Invoke-CommandRetry {
-                            Get-MgAppFederatedCredential @param | Where-Object {
+                            Get-MgAppFederatedCredential @param -ApiVersion 'beta' | Where-Object {
                                 $_.Issuer -eq $aks.properties.oidcIssuerProfile.issuerURL -and
                                 $_.Subject -eq "system:serviceaccount:$($wi.Namespace):$($wi.ServiceAccount)"
                             }
@@ -1594,9 +1593,7 @@ function Set-AksFederatedCredential {
             $param.Subject = "system:serviceaccount:$($wi.Namespace):$($wi.ServiceAccount)"
             $param.Audience = 'api://AzureADTokenExchange'
             Show-LogContext 'creating federated credential...'
-
             try {
-
                 $fc = if ($wi.Type -eq 'ManagedIdentity') {
                     Invoke-CommandRetry {
                         New-AzFederatedIdentityCredentials @param
