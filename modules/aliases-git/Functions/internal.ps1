@@ -202,59 +202,49 @@ function Get-GitResolvedBranch {
         [string[]]$BranchName
     )
 
-    begin {
-        if (git rev-parse --is-inside-work-tree) {
-            # build remote names filter
-            $remoteFilter = [string]::Join('|', (git remote).ForEach({ "$_/?" }))
-            [string]$BranchName = $BranchName -replace $remoteFilter
-            $match = @{
-                d = @('^dev(|el|elop|elopment)$')
-                m = @('^ma(in|ster)$')
-                p = @('^prod(uction)?$')
-                s = @('^st(g|age|aging)$')
-                t = @('^trunk$')
-            }
-            $branchMatch = switch ($BranchName) {
-                '' { $match.m + $match.p + $match.d + $match.t; continue }
-                d { $match.d; continue }
-                m { $match.m; continue }
-                p { $match.p; continue }
-                s { $match.s; continue }
-                t { $match.t; continue }
-                default { @("(^|/)$BranchName$") }
-            }
-            # instantiate collections
-            $matched = [System.Collections.Generic.List[string]]::new()
-            $branches = [System.Collections.Generic.SortedSet[string]]::new()
-        } else {
+    if (git rev-parse --is-inside-work-tree) {
+        # build remote names filter
+        filter remoteFilter {
+            "$_".Trim() -replace [string]::Join('|', (git remote).ForEach({ "$_/?" })) | Where-Object { $_ }
+        }
+        [string]$BranchName = $BranchName | remoteFilter
+        $match = @{
+            d = @('^dev(|el|elop|elopment)$')
+            m = @('^ma(in|ster)$')
+            p = @('^prod(uction)?$')
+            s = @('^st(g|age|aging)$')
+            t = @('^trunk$')
+        }
+        $branchMatch = switch ($BranchName) {
+            '' { $match.m + $match.p + $match.s + $match.d + $match.t; continue }
+            d { $match.d; continue }
+            m { $match.m; continue }
+            p { $match.p; continue }
+            s { $match.s; continue }
+            t { $match.t; continue }
+            default { @("^$BranchName$") }
+        }
+        # instantiate collections
+        $matched = [System.Collections.Generic.List[string]]::new()
+    } else {
+        break
+    }
+
+    # get list of branches
+    $branches = git branch --all --format='%(refname:short)' | remoteFilter | Sort-Object -Unique
+    # match branches
+    $branchMatch.ForEach({ ($branches -match $_).ForEach({ $matched.Add($_) }) })
+
+    if ($matched.Count -eq 0) {
+        if ($BranchName) {
+            Write-Warning "Invalid reference: '$BranchName'. Valid reference values are: `e[0;1m$([string]::Join(', ', $branches))`e[0m"
             break
+        } else {
+            $matched = Get-GitCurrentBranch
         }
     }
 
-    process {
-        # get list of branches without remote name indicator
-        $allBranches = git branch --all --format='%(refname:short)'
-        ($allBranches -replace $remoteFilter).Where({ $_ }).ForEach({ $branches.Add($_) | Out-Null })
-        # get set of matching branches in specified order
-        $branchMatch.ForEach({
-                ($branches -match $_).ForEach({ $matched.Add($_) })
-            }
-        )
-
-        # return if no matching branches found
-        if ($matched.Count -eq 0) {
-            if ($BranchName) {
-                Write-Warning "Invalid reference: '$BranchName'. Valid reference values are: `e[0;1m$([string]::Join(', ', $branches))"
-                break
-            } else {
-                $matched.Add($(git branch --format='%(refname:short)'))
-            }
-        }
-    }
-
-    end {
-        return $matched | Select-Object -First 1
-    }
+    return $matched | Select-Object -First 1
 }
 
 
