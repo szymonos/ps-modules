@@ -329,7 +329,9 @@ function Get-MsoToken {
 
     begin {
         # calculate variables based on PSBoundParameters
-        if (-not $PSBoundParameters.ResourceUrl) {
+        if ($PSBoundParameters.ResourceUrl) {
+            $ResourceUrl = $ResourceUrl -replace '(/\.default)?/?$'
+        } else {
             $ResourceUrl = 'https://management.azure.com'
         }
         if ($PSBoundParameters.Credential) {
@@ -342,21 +344,20 @@ function Get-MsoToken {
         $token = if ($PsCmdlet.ParameterSetName -eq 'ByType') {
             # get token for the logged-in user by ResourceTypeName
             Invoke-CommandRetry {
-                # todo - remove WarningAction on Az 13.0.0 release
-                Get-AzAccessToken -ResourceTypeName $ResourceTypeName -AsSecureString -WarningAction SilentlyContinue
+                Get-AzAccessToken -ResourceTypeName $ResourceTypeName
             }
         } elseif ($ClientId) {
             # get token for the specified Url and Client
             $tenantId = (Get-AzContext).Tenant.Id
             $params = @{
-                Uri     = "https://login.microsoftonline.com/$tenantId/oauth2/token"
-                Method  = 'POST'
-                Headers = @{ 'Content-Type' = 'application/x-www-form-urlencoded' }
-                Body    = @{
-                    grant_type    = 'client_credentials'
+                Method      = 'Post'
+                Uri         = "https://login.microsoftonline.com/$tenantId/oauth2/v2.0/token"
+                ContentType = 'application/x-www-form-urlencoded'
+                Body        = @{
                     client_id     = $ClientId
                     client_secret = $ClientSecret
-                    resource      = $ResourceUrl
+                    grant_type    = 'client_credentials'
+                    scope         = [System.IO.Path]::Join($ResourceUrl, '.default')
                 }
             }
             $oauth2Token = Invoke-CommandRetry {
@@ -364,16 +365,15 @@ function Get-MsoToken {
             }
             [PSCustomObject]@{
                 Token     = $oauth2Token.access_token | ConvertTo-SecureString -AsPlainText
-                ExpiresOn = Get-Date -UnixTimeSeconds $oauth2Token.expires_on
+                ExpiresOn = [DateTime]::UtcNow.AddSeconds($oauth2Token.expires_in)
                 TenantId  = $tenantId
                 UserId    = $ClientId
-                Type      = 'Bearer'
+                Type      = $oauth2Token.token_type
             }
         } else {
             # get token for the logged-in user for the specified Url
             Invoke-CommandRetry {
-                # todo - remove WarningAction on Az 13.0.0 release
-                Get-AzAccessToken -ResourceUrl $ResourceUrl -AsSecureString -WarningAction SilentlyContinue
+                Get-AzAccessToken -ResourceUrl $ResourceUrl
             }
         }
 
