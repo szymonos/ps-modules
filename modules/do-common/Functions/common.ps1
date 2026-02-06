@@ -596,6 +596,8 @@ Regex pattern to filter history entries.
 Number of last matching entries to return. Default is 30.
 .PARAMETER First
 Number of first matching entries to return.
+.PARAMETER Unique
+Return sorted, unique matching entries.
 
 .EXAMPLE
 Get-PSReadLineHistory -Pattern 'Connect-Az.*' -Last 10
@@ -619,7 +621,9 @@ function Get-PSReadLineHistory {
         [int]$Last = 30,
 
         [Parameter(ParameterSetName = 'first')]
-        [int]$First
+        [int]$First,
+
+        [switch]$Unique
     )
 
     begin {
@@ -641,7 +645,15 @@ function Get-PSReadLineHistory {
 
     process {
         # filter matches
-        $history -match "(?<!^(Get-PSReadLineHistory|ghi|pshistory) )$Pattern" | Select-Object -First $limit
+        $results = $history -match "(?<!^(Get-PSReadLineHistory|ghi|pshistory) )$Pattern" | Select-Object -First $limit
+    }
+
+    end {
+        if ($PSBoundParameters.Unique) {
+            $results | Sort-Object -Unique
+        } else {
+            $results
+        }
     }
 }
 
