@@ -216,16 +216,17 @@ function Get-GitResolvedBranch {
             t = @('^trunk$')
         }
         $branchMatch = switch ($BranchName) {
-            '' { $match.m + $match.p + $match.s + $match.d + $match.t; continue }
-            d { $match.d; continue }
-            m { $match.m; continue }
-            p { $match.p; continue }
-            s { $match.s; continue }
-            t { $match.t; continue }
+            '' { $match.m + $match.p + $match.s + $match.d + $match.t; break }
+            d { $match.d; break }
+            m { $match.m; break }
+            p { $match.p; break }
+            s { $match.s; break }
+            t { $match.t; break }
             default { @("^$BranchName$") }
         }
+        Write-Verbose "BranchMatch: $($branchMatch -join ', ')"
         # instantiate collections
-        $matched = [System.Collections.Generic.List[string]]::new()
+        $matched = [System.Collections.Generic.HashSet[string]]::new()
     } else {
         break
     }
@@ -233,7 +234,10 @@ function Get-GitResolvedBranch {
     # get list of branches
     $branches = git branch --all --format='%(refname:short)' | remoteFilter | Sort-Object -Unique
     # match branches
-    $branchMatch.ForEach({ ($branches -match $_).ForEach({ $matched.Add($_) }) })
+    foreach ($match in $branchMatch) {
+        $branches.Where({ $_ -match $match }).ForEach({ $matched.Add($_) | Out-Null })
+    }
+    Write-Verbose "Matched branches: $($matched -join ', ')"
 
     if ($matched.Count -eq 0) {
         if ($BranchName) {
