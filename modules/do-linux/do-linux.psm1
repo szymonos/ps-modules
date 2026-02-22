@@ -1,6 +1,7 @@
 $ErrorActionPreference = 'Stop'
 
 . $PSScriptRoot/Functions/common.ps1
+. $PSScriptRoot/Functions/completers.ps1
 
 $exportModuleMemberParams = @{
     Function = @(
@@ -9,6 +10,8 @@ $exportModuleMemberParams = @{
         'Invoke-Sudo'
         'Invoke-SudoPS'
         'Invoke-ExecutableBitFix'
+        # completers
+        'Register-MakeCompleter'
     )
     Variable = @()
     Alias    = @(
