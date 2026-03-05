@@ -1789,6 +1789,23 @@ function grho {
         Write-Host 'fatal: Remote repository not set.'
     }
 }
+function grho! {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    grho @PSBoundParameters
+
+    git clean --force -d
+}
 function grs {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
