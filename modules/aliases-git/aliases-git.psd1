@@ -12,7 +12,7 @@
     RootModule           = 'aliases-git.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.21.2'
+    ModuleVersion        = '1.22.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -192,6 +192,36 @@
         'gge'
         'ggp'
         'ghh'
+        # :gh alias functions
+        # issue
+        'ghil'
+        'ghiv'
+        # pr
+        'ghprc'
+        'ghprcf'
+        'ghprco'
+        'ghprd'
+        'ghprl'
+        'ghprm'
+        'ghprmd'
+        'ghprr'
+        'ghprs'
+        'ghprurl'
+        'ghprv'
+        'ghprck'
+        # repo
+        'ghrv'
+        'ghrcl'
+        'ghrfk'
+        'ghrsy'
+        # run
+        'ghrnl'
+        'ghrnv'
+        'ghrnw'
+        'ghrnrr'
+        # status
+        'ghst'
+        # :alias functions (continued)
         'gignore'
         'gignored'
         'glo'
@@ -246,6 +276,7 @@
         'grr'
         'grrsrc'
         'grrstg'
+        'grrstga'
         'grt'
         'grta'
         'grtrm'
@@ -253,6 +284,8 @@
         'grtsu'
         'grtup'
         'grtupp'
+        'grturl'
+        'grturlb'
         'grtv'
         'gswc'
         'gswd'

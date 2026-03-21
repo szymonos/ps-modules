@@ -2,6 +2,7 @@ $ErrorActionPreference = 'Stop'
 
 . $PSScriptRoot/Functions/alias.ps1
 . $PSScriptRoot/Functions/completers.ps1
+. $PSScriptRoot/Functions/gh.ps1
 . $PSScriptRoot/Functions/helper.ps1
 . $PSScriptRoot/Functions/internal.ps1
 . $PSScriptRoot/Functions/log.ps1
@@ -130,6 +131,36 @@ $exportModuleMemberParams = @{
         'gge'
         'ggp'
         'ghh'
+        # :gh alias functions
+        # issue
+        'ghil'
+        'ghiv'
+        # pr
+        'ghprc'
+        'ghprcf'
+        'ghprco'
+        'ghprd'
+        'ghprl'
+        'ghprm'
+        'ghprmd'
+        'ghprr'
+        'ghprs'
+        'ghprurl'
+        'ghprv'
+        'ghprck'
+        # repo
+        'ghrv'
+        'ghrcl'
+        'ghrfk'
+        'ghrsy'
+        # run
+        'ghrnl'
+        'ghrnv'
+        'ghrnw'
+        'ghrnrr'
+        # status
+        'ghst'
+        # :alias functions (continued)
         'gignore'
         'gignored'
         'glo'
@@ -184,6 +215,7 @@ $exportModuleMemberParams = @{
         'grr'
         'grrsrc'
         'grrstg'
+        'grrstga'
         'grt'
         'grta'
         'grtrm'
@@ -191,6 +223,8 @@ $exportModuleMemberParams = @{
         'grtsu'
         'grtup'
         'grtupp'
+        'grturl'
+        'grturlb'
         'grtv'
         'gswc'
         'gswd'
