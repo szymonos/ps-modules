@@ -125,7 +125,7 @@ process {
             $installPath = [IO.Path]::Combine($dstModulePath, $manifest.Version)
             # create/cleanup destination directory
             if (-not $Force -and ($manifest.Version -eq (Get-Module $Module -ListAvailable).Version)) {
-                Write-Verbose "Current module version already installed in the $Scope scope ($Module v$($manifest.Version))."
+                Write-Host "Current module version already installed in the $Scope scope ($Module v$($manifest.Version))."
             } else {
                 # clean-up old module versions
                 if ($CleanUp -and (Test-Path $dstModulePath -PathType Container)) {
@@ -139,7 +139,7 @@ process {
                     $dstModuleManifest = [IO.Path]::Combine($installPath, "$Module.psd1")
                     [IO.File]::WriteAllText($dstModuleManifest, [IO.File]::ReadAllText($dstModuleManifest) -replace '(?s)RequiredModules.*?\)\n')
                 }
-                Write-Verbose "Module $Module v$($manifest.Version) installed in the $Scope scope."
+                Write-Host "Module $Module v$($manifest.Version) installed in the $Scope scope."
             }
             continue
         }
@@ -150,7 +150,7 @@ process {
                 New-Item -Path $srcModulePath -ItemType Directory | Out-Null
             }
             New-ModuleManifest -Path $srcModuleManifest
-            Write-Verbose "Created module manifest in $($srcModuleManifest.Replace($HOME, '~'))"
+            Write-Host "Created module manifest in $($srcModuleManifest.Replace($HOME, '~'))"
             continue
         }
 
@@ -158,13 +158,13 @@ process {
             # *delete modules
             $modules = Get-Module $Module -ListAvailable
             if ($modules) {
-                Write-Verbose "uninstalling module ($Module)"
+                Write-Host "uninstalling module ($Module)"
                 foreach ($mod in $modules) {
-                    Write-Verbose " - $($mod.Version)"
+                    Write-Host " - $($mod.Version)"
                     Remove-Item -Path $mod.ModuleBase -Force -Recurse -ErrorAction SilentlyContinue
                 }
             } else {
-                Write-Verbose "Module do not exists ($Module)."
+                Write-Host "Module do not exists ($Module)."
             }
             continue
         }
