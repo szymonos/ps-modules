@@ -321,37 +321,20 @@ function Remove-GitMergedBranches {
         [switch]$DeleteRemote
     )
 
-    begin {
-        # switch to dev/main branch
-        git switch $(Get-GitResolvedBranch) --quiet
-        # update remote
-        git remote update --prune
+    # remove local merged and gone branches
+    Remove-GitLocalBranches -Quiet
 
-        # build branch filters
+    # remove remote merged branches
+    if ($DeleteRemote) {
         $regex = '^(ma(in|ster)|(non)?prod(uction)?|dev(|el|elop|elopment)|qa|stag(e|ing)|trunk|docs)$'
-        filter localFilter { $_.Where({ $_ -notmatch $regex }) }
-        if ($DeleteRemote) {
-            [string[]]$remotes = git remote
-            $remoteFilter = $remotes.ForEach({ "^$_/" }) | Join-String -Separator '|'
-            $knownFilter = "($remoteFilter)($($regex.Replace('^', '')))"
-            filter remoteFilter { $_.Where({ $_ -match $remoteFilter -and $_ -notmatch $knownFilter }) }
-        }
-    }
-
-    process {
-        # remove local merged branches
-        [string[]]$mergedLocal = git branch --format='%(refname:short)' --merged | localFilter
-        foreach ($branch in $mergedLocal) {
-            git branch --delete $branch
-        }
-
-        # remove remote merged branches
-        if ($DeleteRemote) {
-            [string[]]$mergedRemote = git branch --remotes --format='%(refname:short)' --merged | remoteFilter
-            foreach ($remote in $remotes) {
-                $mergedRemote | Select-String "^$remote/(.*)" | ForEach-Object {
-                    git push --delete $remote $_.Matches.Groups[1].Value
-                }
+        [string[]]$remotes = git remote
+        $remoteFilter = $remotes.ForEach({ "^$_/" }) | Join-String -Separator '|'
+        $knownFilter = "($remoteFilter)($($regex.Replace('^', '')))"
+        filter remoteFilter { $_.Where({ $_ -match $remoteFilter -and $_ -notmatch $knownFilter }) }
+        [string[]]$mergedRemote = git branch --remotes --format='%(refname:short)' --merged | remoteFilter
+        foreach ($remote in $remotes) {
+            $mergedRemote | Select-String "^$remote/(.*)" | ForEach-Object {
+                git push --delete $remote $_.Matches.Groups[1].Value
             }
         }
     }
