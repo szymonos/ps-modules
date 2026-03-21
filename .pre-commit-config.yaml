@@ -15,6 +15,12 @@ repos:
         pass_filenames: false
         files: (README|docs/.+)\.md$
         stages: [pre-commit]
+      - id: align-tables
+        name: align markdown tables
+        entry: python3 -m src.hooks.align_tables
+        language: system
+        files: \.md$
+        exclude: /copilot-instructions\.md
       - id: gremlins-check
         name: Detect gremlins / unwanted Unicode characters
         entry: python3 -m src.hooks.gremlins

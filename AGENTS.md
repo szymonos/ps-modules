@@ -74,10 +74,10 @@ Pre-commit rejects Unicode characters like em dashes (U+2014), smart quotes, etc
 ### Table Alignment (MD060)
 
 The linter enforces **aligned** table style - every row's pipe characters must be at the exact same column
-as the header. Use the alignment script after editing tables:
+as the header. The `align-tables` pre-commit hook auto-fixes tables on commit. To run manually:
 
 ```bash
-python3 src/align_tables.py docs/**/*.md
+python3 -m src.hooks.align_tables docs/**/*.md
 ```
 
 ### Spelling
