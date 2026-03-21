@@ -15,7 +15,18 @@ jobs:
       - name: Fetch base branch
         run: git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
 
-      - name: Run pre-commit hooks
-        uses: j178/prek-action@v2
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
         with:
-          extra-args: --from-ref "origin/${{ github.event.pull_request.base.ref }}" --to-ref HEAD
+          version: "0.10.12"
+          activate-environment: "true"
+          enable-cache: "true"
+          cache-dependency-glob: "uv.lock"
+
+      - name: Sync uv virtual environment
+        run: |
+          uv sync --frozen --extra devel
+
+      - name: Run pre-commit hooks
+        run: |
+          prek run --show-diff-on-failure --color=always --from-ref origin/${{ github.event.pull_request.base.ref }} --to-ref HEAD
