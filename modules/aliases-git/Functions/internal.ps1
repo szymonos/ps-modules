@@ -280,16 +280,22 @@ function Remove-GitLocalBranches {
         git switch $(Get-GitResolvedBranch) --quiet
         # update remote
         git remote update --prune
+        # instantiate sorted set for branches to delete
+        $branches = [System.Collections.Generic.SortedSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+        $regex = '^(ma(in|ster)|(non)?prod(uction)?|dev(|el|elop|elopment)|qa|stag(e|ing)|trunk|docs)$'
+        filter branchFilter { $_.Where({ $_ -notmatch $regex }) }
     }
 
     process {
-        # get list of branches
-        $regex = '^ma(in|ster)$|^(non)?prod(uction)?$|^dev(|el|elop|elopment)$|^qa$|^stag(e|ing)$|^trunk$'
-        filter branchFilter { $_.Where({ $_ -notmatch $regex }) }
-        $merged = git branch --format='%(refname:short)' --merged | branchFilter
-        # delete branches
-        foreach ($branch in $merged) {
-            Invoke-WriteExecCommand -Command "git branch --delete $branch" @PSBoundParameters
+        # add merged branches
+        git branch --format='%(refname:short)' --merged | branchFilter | ForEach-Object { $branches.Add($_) | Out-Null }
+        # add branches with gone upstream (e.g. squash-merged PRs)
+        git branch --format='%(refname:short) %(upstream:track)' | ForEach-Object {
+            if ($_ -match '^(\S+)\s+\[gone\]$') { $Matches[1] }
+        } | branchFilter | ForEach-Object { $branches.Add($_) | Out-Null }
+        # delete merged and gone branches
+        foreach ($branch in $branches) {
+            Invoke-WriteExecCommand -Command "git branch -D $branch" @PSBoundParameters
         }
         if ($DeleteNoMerged) {
             $no_merged = git branch --format='%(refname:short)' --no-merged | branchFilter
@@ -322,7 +328,7 @@ function Remove-GitMergedBranches {
         git remote update --prune
 
         # build branch filters
-        $regex = '^ma(in|ster)$|^(non)?prod(uction)?$|^dev(|el|elop|elopment)$|^qa$|^stag(e|ing)$|^trunk$'
+        $regex = '^(ma(in|ster)|(non)?prod(uction)?|dev(|el|elop|elopment)|qa|stag(e|ing)|trunk|docs)$'
         filter localFilter { $_.Where({ $_ -notmatch $regex }) }
         if ($DeleteRemote) {
             [string[]]$remotes = git remote
