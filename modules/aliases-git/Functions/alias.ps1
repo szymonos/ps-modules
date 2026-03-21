@@ -1956,6 +1956,18 @@ function grrstg {
 
     Invoke-WriteExecCommand -Command 'git restore --staged' @PSBoundParameters
 }
+function grrstga {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    Invoke-WriteExecCommand -Command 'git restore --staged .' @PSBoundParameters
+}
 function grt {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
@@ -2089,6 +2101,14 @@ function grtv {
     )
 
     Invoke-WriteExecCommand -Command 'git remote --verbose' @PSBoundParameters
+}
+function grturl {
+    (git remote get-url origin) -replace '^git@(.+?):', 'https://$1/' -replace '\.git$'
+}
+function grturlb {
+    $url = (git remote get-url origin) -replace '^git@(.+?):', 'https://$1/' -replace '\.git$'
+    $branch = git branch --show-current
+    "$url/tree/$branch"
 }
 function gswc {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
