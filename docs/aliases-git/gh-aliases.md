@@ -31,12 +31,12 @@ Aliases for [GitHub CLI](https://cli.github.com/) commands from `Functions/gh.ps
 
 ## :octicons-repo-16: Repository
 
-| Alias   | Command          |
-| ------- | ---------------- |
-| `ghrcl` | `gh repo clone`  |
-| `ghrfk` | `gh repo fork`   |
-| `ghrsy` | `gh repo sync`   |
-| `ghrv`  | `gh repo view`   |
+| Alias   | Command         |
+| ------- | --------------- |
+| `ghrcl` | `gh repo clone` |
+| `ghrfk` | `gh repo fork`  |
+| `ghrsy` | `gh repo sync`  |
+| `ghrv`  | `gh repo view`  |
 
 ## :octicons-play-16: Run (GitHub Actions)
 
