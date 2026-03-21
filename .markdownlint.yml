@@ -1,0 +1,11 @@
+---
+# Base Markdownlint configuration
+default: true
+# Ignore rules
+MD013: # Line Length
+  line_length: 120
+  code_blocks: false
+  tables: false
+MD024: # Multiple headings with the same content
+  siblings_only: true
+MD046: false # Code block style

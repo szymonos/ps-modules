@@ -9,6 +9,9 @@
 /console/
 /logs/
 
+# mkdocs
+**/site/*
+
 # User-specific files
 *.rsuser
 *.suo

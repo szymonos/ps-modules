@@ -1,0 +1,72 @@
+site_name: ps-modules
+site_url: https://szymonos.github.io/ps-modules/
+site_description: >-
+  PowerShell modules for git aliases, kubectl aliases,
+  Azure, and common utilities.
+
+docs_dir: "docs/"
+
+plugins:
+  - search
+  - autorefs
+
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    scheme: slate
+    primary: indigo
+    accent: blue
+  features:
+    - navigation.indexes
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.magiclink
+  - toc:
+      permalink: "¤"
+
+repo_name: szymonos/ps-modules
+repo_url: https://github.com/szymonos/ps-modules
+
+nav:
+  - Home: index.md
+  - aliases-git:
+      - aliases-git/index.md
+      - Conventions: aliases-git/conventions.md
+      - Git Aliases: aliases-git/git-aliases.md
+      - GitHub CLI: aliases-git/gh-aliases.md
+      - Helpers: aliases-git/helpers.md
+      - Log Helpers: aliases-git/log.md
+      - Completers: aliases-git/completers.md
+  - aliases-kubectl:
+      - aliases-kubectl/index.md
+      - Conventions: aliases-kubectl/conventions.md
+      - Aliases: aliases-kubectl/aliases.md
+      - Helpers: aliases-kubectl/helpers.md
+      - Completers: aliases-kubectl/completers.md
+  - do-az:
+      - do-az/index.md
+      - Azure Core: do-az/azure.md
+      - Graph APIs: do-az/graph.md
+  - do-common:
+      - do-common/index.md
+      - Certificates: do-common/certs.md
+      - Common: do-common/common.md
+      - Logging: do-common/logging.md
+      - Networking: do-common/networking.md
+      - Python: do-common/python.md
+  - do-linux: do-linux/index.md
+  - do-win: do-win/index.md
+  - psm-windows: psm-windows/index.md

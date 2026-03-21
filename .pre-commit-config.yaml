@@ -1,11 +1,35 @@
 repos:
   - repo: local
     hooks:
+      - id: mkdocs-build
+        name: build mkdocs
+        entry: uv run --frozen mkdocs build --strict
+        language: system
+        pass_filenames: false
+        files: ^(docs/|mkdocs\.yml)
+        stages: [pre-commit]
+      - id: validate-docs-words
+        name: validate docs words
+        entry: python3 -m src.hooks.validate_docs_words
+        language: system
+        pass_filenames: false
+        files: (README|docs/.+)\.md$
+        stages: [pre-commit]
       - id: gremlins-check
         name: Detect gremlins / unwanted Unicode characters
-        entry: python3 -m tests.hooks.gremlins
+        entry: python3 -m src.hooks.gremlins
         language: system
         types: [text]
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.7
+    hooks:
+      - id: ruff-check
+        types_or: [python, pyi]
+        args: [--fix]
+        files: ^(src|tests)/
+      - id: ruff-format
+        types_or: [python, pyi]
+        files: ^(src|tests)/
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -15,3 +39,21 @@ repos:
       - id: mixed-line-ending
       - id: trailing-whitespace
         exclude: \.md$
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.21.0
+    hooks:
+      - id: markdownlint-cli2
+        files: \.md$
+        exclude: /copilot-instructions\.md
+  - repo: https://github.com/streetsidesoftware/cspell-cli
+    rev: v9.7.0
+    hooks:
+      - id: cspell
+        files: (README|docs/.+)\.md$
+      - id: cspell
+        name: check commit message spelling
+        args:
+          - --no-must-find-files
+          - --no-progress
+          - --no-summary
+        stages: [commit-msg]

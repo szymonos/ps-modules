@@ -1,0 +1,29 @@
+name: docs-to-gh-pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+
+  workflow_dispatch:
+
+jobs:
+  gh_deploy:
+    runs-on: ubuntu-slim
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.10.12"
+          enable-cache: "true"
+          cache-dependency-glob: "uv.lock"
+
+      - name: Deploy docs to GitHub Pages
+        run:
+          uv run mkdocs gh-deploy --force
