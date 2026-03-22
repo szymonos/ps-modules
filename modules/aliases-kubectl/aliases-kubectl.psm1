@@ -29,6 +29,7 @@ $exportModuleMemberParams = @{
         'Debug-KubernetesPod'
         'Get-KubectlPodContainers'
         'Get-KubectlPodLogs'
+        'Get-KubectlApiResourceShortNames'
         # pods
         'kgpo'
         'kgpocntr'
@@ -847,6 +848,7 @@ $exportModuleMemberParams = @{
         'kex'
         'kdbg'
         'klo'
+        'kapishorts'
     )
 }
 
