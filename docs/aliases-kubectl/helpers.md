@@ -36,6 +36,12 @@ decoding.
 | `Get-KubectlPodContainers`            | List pod containers |
 | `Get-KubectlPodLogs` (`klo`)          | Get pod logs        |
 
+## :material-api: API Resources
+
+| Function / Alias                                  | Description              |
+| ------------------------------------------------- | ------------------------ |
+| `Get-KubectlApiResourceShortNames` (`kapishorts`) | List resource shortnames |
+
 ## :material-lock-open: Secrets
 
 | Function                       | Description        |

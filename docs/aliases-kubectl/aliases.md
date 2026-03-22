@@ -44,13 +44,14 @@ See [Naming Conventions](conventions.md) for the composable pattern behind every
 
 ## :material-cog: Module Aliases
 
-| Alias  | Function                      |
-| ------ | ----------------------------- |
-| `kv`   | `Get-KubectlVersion`          |
-| `kvc`  | `Get-KubectlClientVersion`    |
-| `kvs`  | `Get-KubectlServerVersion`    |
-| `kc`   | `Set-KubectlContext`          |
-| `kn`   | `Set-KubectlContextCurrent..` |
-| `kex`  | `Connect-KubernetesContainer` |
-| `kdbg` | `Debug-KubernetesPod`         |
-| `klo`  | `Get-KubectlPodLogs`          |
+| Alias        | Function                           |
+| ------------ | ---------------------------------- |
+| `kv`         | `Get-KubectlVersion`               |
+| `kvc`        | `Get-KubectlClientVersion`         |
+| `kvs`        | `Get-KubectlServerVersion`         |
+| `kc`         | `Set-KubectlContext`               |
+| `kn`         | `Set-KubectlContextCurrent..`      |
+| `kex`        | `Connect-KubernetesContainer`      |
+| `kdbg`       | `Debug-KubernetesPod`              |
+| `klo`        | `Get-KubectlPodLogs`               |
+| `kapishorts` | `Get-KubectlApiResourceShortNames` |
