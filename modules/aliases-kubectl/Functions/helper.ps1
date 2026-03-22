@@ -574,6 +574,59 @@ function Get-KubectlPodLogs {
         Invoke-WriteExecKubectl -Command $cmnd
     }
 }
+
+
+function Get-KubectlApiResourceShortNames {
+    [CmdletBinding()]
+    param ()
+
+    begin {
+        Write-Debug 'Retrieving kubernetes API resources...'
+        $apiResources = kubectl api-resources
+        if (-not $?) {
+            throw 'Failed to retrieve kubernetes API resources.'
+        }
+        Write-Debug "kubectl api-resources returned $($apiResources.Length - 1) results."
+
+        # index columns
+        $idxName = $apiResources[0].IndexOf('NAME')
+        $idxShort = $apiResources[0].IndexOf('SHORTNAMES')
+        $idxAPI = $apiResources[0].IndexOf('APIVERSION')
+    }
+
+    process {
+        # parse API resources
+        # return as list of objects
+        $collection = [System.Collections.Generic.List[pscustomobject]]::new()
+        for ($i = 1; $i -lt $apiResources.Length; $i++) {
+            $apiResource = [PSCustomObject]@{
+                Name       = $apiResources[$i].Substring($idxName, $idxShort).TrimEnd()
+                ShortNames = $apiResources[$i].Substring($idxShort, $idxAPI - $idxShort).TrimEnd().Split(',')
+            }
+            if ($apiResource.ShortNames) {
+                $collection.Add($apiResource)
+            }
+        }
+    }
+
+    end {
+        $collection | Sort-Object -Property Name
+    }
+}
+
+<#
+.SYNOPSIS
+Get kubernetes short names for resources.
+#>
+function kapishortnames {
+    $apiResources = (Get-KubectlApiResources -AsObject).Where({ $_.ShortName })
+
+    $props = @(
+        @{ Name = 'Name'; Expression = { $_.Plural } }
+        @{ Name = 'ShortName'; Expression = { $_.ShortName -join ',' } }
+    )
+    $apiResources | Select-Object -Property $props | Sort-Object Name
+}
 #endregion
 
 
@@ -594,4 +647,5 @@ if (Test-Path '/usr/bin/kubens' -PathType Leaf) {
 } else {
     New-Alias -Name kn -Value Set-KubectlContextCurrentNamespace
 }
+New-Alias -Name kapishorts -Value Get-KubectlApiResourceShortNames
 #endregion
