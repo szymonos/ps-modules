@@ -1,4 +1,4 @@
-name: docs-to-gh-pages
+name: Deploy Docs to GitHub Pages
 
 on:
   push:
@@ -9,6 +9,9 @@ on:
       - 'mkdocs.yml'
 
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   gh_deploy:
