@@ -11213,6 +11213,38 @@ function krmn {
     $cmnd = @('delete', '--namespace')
     Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
+function kgponr {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    $cmnd = @('get', 'pods', '--field-selector=status.phase!=Running')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
+}
+function kgponrall {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    $cmnd = @('get', 'pods', '--field-selector=status.phase!=Running', '--all-namespaces')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
+}
 function kgpon {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
@@ -11243,6 +11275,22 @@ function kdpon {
     )
 
     $cmnd = @('describe', 'pods', '--namespace')
+    Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
+}
+function krmponr {
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs,
+
+        [Parameter(ParameterSetName = 'whatif')]
+        [switch]$WhatIf,
+
+        [Parameter(ParameterSetName = 'quiet')]
+        [switch]$Quiet
+    )
+
+    $cmnd = @('delete', 'pods', '--field-selector=status.phase!=Running')
     Invoke-WriteExecKubectl -Command $cmnd @PSBoundParameters
 }
 function krmpon {
