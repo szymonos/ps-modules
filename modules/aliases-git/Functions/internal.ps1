@@ -125,7 +125,7 @@ function Get-GitReflogObject {
         # build git reflog command arguments
         $cmdArgs = [System.Collections.Generic.List[string]]::new(
             [string[]]@(
-                "--format=%h`f%gd`f%ai`f%gs`f%an`f%ae"
+                "--format=%h`f%gd`f%ai`f%gs`f%an`f%ae`f%D"
             )
         )
         # limit result to 30
@@ -155,6 +155,7 @@ function Get-GitReflogObject {
             'Subject'
             'Author'
             'Email'
+            'Ref'
         )
         # property selection
         $prop = @(
@@ -164,15 +165,17 @@ function Get-GitReflogObject {
             'Subject'
             'Author'
             'Email'
+            'Ref'
         )
         #endregion
     }
 
     process {
         # show the expression
-        Write-Verbose "git reflog $cmdArgs".Replace("`f", ' ').Replace('%h', '"$h').Replace('%ae', '$ae"')
-        # run git reflog and convert output to objects
-        $result = git reflog @cmdArgs | ConvertFrom-Csv -Delimiter "`f" -Header $headers | Select-Object -Property $prop
+        Write-Verbose "git reflog $cmdArgs".Replace("`f", ' ').Replace('%h', '"$h').Replace('%D', '$D"')
+        # run git reflog and convert output to objects, reverse to show oldest first
+        [array]$result = git reflog @cmdArgs | ConvertFrom-Csv -Delimiter "`f" -Header $headers | Select-Object -Property $prop
+        [array]::Reverse($result)
     }
 
     end {

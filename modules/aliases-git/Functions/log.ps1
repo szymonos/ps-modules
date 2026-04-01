@@ -143,7 +143,7 @@ function grlogs {
         [string[]]$Xargs
     )
 
-    Get-GitReflogObject @PSBoundParameters | Select-Object Commit, Selector, DateUTC, Subject, Author
+    Get-GitReflogObject @PSBoundParameters | Select-Object Commit, Selector, DateUTC, Subject, Author, Ref
 }
 
 
@@ -174,6 +174,15 @@ function grlogc {
     )
 
     # build properties for Format-Table
+    $refCmd = {
+        $refs = switch -Regex ($_.Ref.Split(',').Trim().Where({ $_ -ne 'origin/HEAD' })) {
+            '^tag:' { "`e[1;93m$($_ -replace '^tag: ')`e[0m" }
+            '^origin/' { "`e[1;91m$_`e[0m" }
+            '^HEAD' { "`e[1;96mHEAD -> `e[92m$($_ -replace 'HEAD -> ')`e[0m" }
+            Default { "`e[1;92m$_`e[0m" }
+        }
+        $([string]::Join(', ', $refs))
+    }
     $prop = @(
         @{ Name = 'Commit'; Expression = { "`e[33m$($_.Commit)`e[0m" } }
         @{ Name = 'Selector'; Expression = { "`e[36m$($_.Selector)`e[0m" } }
@@ -181,6 +190,7 @@ function grlogc {
         @{ Name = 'Subject'; Expression = { $_.Subject.Substring(0, [Math]::Min(59, $_.Subject.Length)) } }
         @{ Name = 'Author'; Expression = { "`e[94;1m$($_.Author)`e[0m" } }
         @{ Name = 'Email'; Expression = { "`e[34;3m$($_.Email -match 'users.noreply.github.com' ? 'noreply@github.com' : $_.Email)`e[0m" } }
+        @{ Name = 'Ref'; Expression = $refCmd }
     )
 
     Get-GitReflogObject @PSBoundParameters | Format-Table -Property $prop -Wrap
