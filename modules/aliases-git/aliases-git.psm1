@@ -37,6 +37,10 @@ $exportModuleMemberParams = @{
         'ggloc'
         'ggloca'
         'gglot'
+        # reflog
+        'grlo'
+        # reflog colored
+        'grloc'
         # merge/rebase
         'gmg'
         'gmgo'
@@ -252,6 +256,7 @@ $exportModuleMemberParams = @{
     Variable = @()
     Alias    = @(
         'gglobj'
+        'grlobj'
     )
 }
 
