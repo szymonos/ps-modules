@@ -239,13 +239,15 @@ Core git command aliases from `Functions/alias.ps1`. Each function wraps a singl
 
 ## :material-book-open-page-variant: Reflog / Remove
 
-| Alias   | Command              |
-| ------- | -------------------- |
-| `grl`   | `git reflog`         |
-| `grmc`  | `git rm --cached`    |
-| `grm!`  | `git rm --force`     |
-| `grmrc` | `git rm -r --cached` |
-| `grmr!` | `git rm -r --force`  |
+| Alias   | Command                           |
+| ------- | --------------------------------- |
+| `grl`   | `git reflog`                      |
+| `grlo`  | reflog as objects ([log](log.md)) |
+| `grloc` | reflog colored ([log](log.md))    |
+| `grmc`  | `git rm --cached`                 |
+| `grm!`  | `git rm --force`                  |
+| `grmrc` | `git rm -r --cached`              |
+| `grmr!` | `git rm -r --force`               |
 
 ## :material-restore: Restore
 
