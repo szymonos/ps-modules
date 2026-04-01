@@ -106,6 +106,83 @@ function Get-GitLogObject {
 
 <#
 .SYNOPSIS
+Get git reflog object.
+
+.PARAMETER Xargs
+Additional arguments to pass to the git reflog command.
+#>
+function Get-GitReflogObject {
+    [CmdletBinding()]
+    param (
+        [switch]$Limit,
+
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs
+    )
+
+    begin {
+        #region build arguments list
+        # build git reflog command arguments
+        $cmdArgs = [System.Collections.Generic.List[string]]::new(
+            [string[]]@(
+                "--format=%h`f%gd`f%ai`f%gs`f%an`f%ae"
+            )
+        )
+        # limit result to 30
+        if ($PSBoundParameters.Limit -and $PSBoundParameters.Xargs -notmatch '^(-?\d+)$') {
+            $cmdArgs.Add('-30')
+        }
+        # parse Xargs for count specification
+        $parsedXargs = if ($PSBoundParameters.Xargs -match '^0$') {
+            $Xargs -notmatch '^0$'
+        } elseif ($PSBoundParameters.Xargs -match '^\d+$') {
+            $Xargs -replace '^\d+$', "-`$&"
+        } else {
+            $Xargs
+        }
+
+        if ($parsedXargs) {
+            $cmdArgs.AddRange([string[]]$parsedXargs)
+        }
+        #endregion
+
+        #region specify headers and output parameters
+        # specify CSV headers
+        $headers = @(
+            'Commit'
+            'Selector'
+            'Date'
+            'Subject'
+            'Author'
+            'Email'
+        )
+        # property selection
+        $prop = @(
+            'Commit'
+            'Selector'
+            @{ Name = 'DateUTC'; Expression = { [TimeZoneInfo]::ConvertTimeToUtc($_.Date).ToString('s').Replace('T', ' ') } }
+            'Subject'
+            'Author'
+            'Email'
+        )
+        #endregion
+    }
+
+    process {
+        # show the expression
+        Write-Verbose "git reflog $cmdArgs".Replace("`f", ' ').Replace('%h', '"$h').Replace('%ae', '$ae"')
+        # run git reflog and convert output to objects
+        $result = git reflog @cmdArgs | ConvertFrom-Csv -Delimiter "`f" -Header $headers | Select-Object -Property $prop
+    }
+
+    end {
+        return $result
+    }
+}
+
+
+<#
+.SYNOPSIS
 Get last git commit message.
 
 .PARAMETER First

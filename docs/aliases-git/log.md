@@ -1,7 +1,7 @@
-# :material-text-search: Log Helpers
+# :material-text-search: Log & Reflog Helpers
 
-Functions from `Functions/log.ps1` that return git log entries as PowerShell objects, enabling
-filtering, sorting, and pipeline operations on commit history.
+Functions from `Functions/log.ps1` that return git log/reflog entries as PowerShell objects,
+enabling filtering, sorting, and pipeline operations on commit history.
 
 ## :material-database: Log as Objects
 
@@ -24,6 +24,23 @@ filtering, sorting, and pipeline operations on commit history.
 | `ggloc`  | Git log objects colored        |
 | `ggloca` | Git log objects colored --all  |
 | `gglot`  | Git log objects colored --tags |
+
+## :material-history: Reflog as Objects
+
+| Alias  | Description                      | Analogous to |
+| ------ | -------------------------------- | ------------ |
+| `grlo` | Git reflog as PowerShell objects | `gglo`       |
+
+!!! example "Pipeline usage"
+    ```powershell
+    grlo | Where-Object { $_.Subject -match 'checkout' } | Select-Object -First 5
+    ```
+
+## :material-palette: Colored Reflog
+
+| Alias   | Description                | Analogous to |
+| ------- | -------------------------- | ------------ |
+| `grloc` | Git reflog objects colored | `ggloc`      |
 
 ## :material-magnify: Log Grep
 

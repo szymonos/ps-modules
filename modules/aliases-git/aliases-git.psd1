@@ -12,7 +12,7 @@
     RootModule           = 'aliases-git.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.22.0'
+    ModuleVersion        = '1.23.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Core')
@@ -98,6 +98,10 @@
         'ggloc'
         'ggloca'
         'gglot'
+        # reflog
+        'grlo'
+        # reflog colored
+        'grloc'
         # merge/rebase
         'gmg'
         'gmgo'
@@ -319,6 +323,7 @@
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
     AliasesToExport      = @(
         'gglobj'
+        'grlobj'
     )
 
     # DSC resources to export from this module

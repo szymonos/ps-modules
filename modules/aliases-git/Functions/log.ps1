@@ -1,5 +1,6 @@
 #region alias
 Set-Alias -Name gglobj -Value Get-GitLogObject -Scope Global
+Set-Alias -Name grlobj -Value Get-GitReflogObject -Scope Global
 #endregion
 
 
@@ -126,6 +127,76 @@ function gglot {
 }
 #endregion
 
+
+
+#region helper git reflog functions
+<#
+.SYNOPSIS
+Get-GitReflogObject function aliases.
+#>
+function grlogs {
+    [CmdletBinding()]
+    param (
+        [switch]$Limit,
+
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs
+    )
+
+    Get-GitReflogObject @PSBoundParameters | Select-Object Commit, Selector, DateUTC, Subject, Author
+}
+
+
+function grlo {
+    [CmdletBinding()]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs
+    )
+
+    grlogs @PSBoundParameters -Limit
+}
+#endregion
+
+
+#region helper git reflog colored functions
+<#
+.SYNOPSIS
+Get-GitReflogObject function colored aliases.
+#>
+function grlogc {
+    [CmdletBinding()]
+    param (
+        [switch]$Limit,
+
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs
+    )
+
+    # build properties for Format-Table
+    $prop = @(
+        @{ Name = 'Commit'; Expression = { "`e[33m$($_.Commit)`e[0m" } }
+        @{ Name = 'Selector'; Expression = { "`e[36m$($_.Selector)`e[0m" } }
+        @{ Name = 'DateUTC'; Expression = { "`e[32m$($_.DateUTC)`e[0m" } }
+        @{ Name = 'Subject'; Expression = { $_.Subject.Substring(0, [Math]::Min(59, $_.Subject.Length)) } }
+        @{ Name = 'Author'; Expression = { "`e[94;1m$($_.Author)`e[0m" } }
+        @{ Name = 'Email'; Expression = { "`e[34;3m$($_.Email -match 'users.noreply.github.com' ? 'noreply@github.com' : $_.Email)`e[0m" } }
+    )
+
+    Get-GitReflogObject @PSBoundParameters | Format-Table -Property $prop -Wrap
+}
+
+
+function grloc {
+    [CmdletBinding()]
+    param (
+        [Parameter(ValueFromRemainingArguments)]
+        [string[]]$Xargs
+    )
+
+    grlogc @PSBoundParameters -Limit
+}
+#endregion
 
 
 #region helper git grep functions
