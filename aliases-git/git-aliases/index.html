@@ -1,0 +1,2939 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="PowerShell modules for git aliases, kubectl aliases, Azure, and common utilities.">
+      
+      
+      
+        <link rel="canonical" href="https://szymonos.github.io/ps-modules/aliases-git/git-aliases/">
+      
+      
+        <link rel="prev" href="../conventions/">
+      
+      
+        <link rel="next" href="../gh-aliases/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Git Aliases - ps-modules</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#git-aliases" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ps-modules" class="md-header__button md-logo" aria-label="ps-modules" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ps-modules
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Git Aliases
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/szymonos/ps-modules" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    szymonos/ps-modules
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ps-modules" class="md-nav__button md-logo" aria-label="ps-modules" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ps-modules
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/szymonos/ps-modules" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    szymonos/ps-modules
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    aliases-git
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    aliases-git
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conventions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conventions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Git Aliases
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Git Aliases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#add" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blame" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Blame
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#branch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Branch
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bisect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bisect
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cherry-pick" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cherry-Pick
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checkout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checkout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#clone-clean" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Clone / Clean
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diff
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fetch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fetch
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#grep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Grep
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Help
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ignore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ignore
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Log
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#merge-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Merge Tool
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pull" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pull
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#push" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Push
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rebase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rebase
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reflog-remove" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reflog / Remove
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#restore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Restore
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remote" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remote
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#show-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Show / Status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stash
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#submodule-svn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Submodule / SVN
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#switch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Switch
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tag
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whatchanged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Whatchanged
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gh-aliases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../helpers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../log/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Log Helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../completers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Completers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../aliases-kubectl/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    aliases-kubectl
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    aliases-kubectl
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aliases-kubectl/conventions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conventions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aliases-kubectl/aliases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aliases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aliases-kubectl/helpers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aliases-kubectl/completers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Completers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../do-az/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    do-az
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    do-az
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../do-az/azure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Azure Core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../do-az/graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Graph APIs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../do-common/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    do-common
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    do-common
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../do-common/certs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Certificates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../do-common/common/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Common
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../do-common/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../do-common/networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Networking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../do-common/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../do-linux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    do-linux
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../do-win/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    do-win
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../psm-windows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    psm-windows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#add" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blame" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Blame
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#branch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Branch
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bisect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bisect
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cherry-pick" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cherry-Pick
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checkout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checkout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#clone-clean" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Clone / Clean
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diff
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fetch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fetch
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#grep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Grep
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Help
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ignore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ignore
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Log
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#merge-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Merge Tool
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pull" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pull
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#push" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Push
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rebase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rebase
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reflog-remove" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reflog / Remove
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#restore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Restore
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remote" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remote
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#show-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Show / Status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stash
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#submodule-svn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Submodule / SVN
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#switch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Switch
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tag
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whatchanged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Whatchanged
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="git-aliases"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> Git Aliases<a class="headerlink" href="#git-aliases" title="Permanent link">¤</a></h1>
+<p>Core git command aliases from <code>Functions/alias.ps1</code>. Each function wraps a single git command.</p>
+<h2 id="add"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg></span> Add<a class="headerlink" href="#add" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ga</code></td>
+<td><code>git add</code></td>
+</tr>
+<tr>
+<td><code>gaa</code></td>
+<td><code>git add --all</code></td>
+</tr>
+<tr>
+<td><code>gapa</code></td>
+<td><code>git add --patch</code></td>
+</tr>
+<tr>
+<td><code>gau</code></td>
+<td><code>git add --update</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="blame"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 12c2.5 0 4.5 2 4.5 4.5 0 .88-.25 1.71-.69 2.4l3.08 3.1L21 23.39l-3.12-3.07c-.69.43-1.51.68-2.38.68-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5m0 2a2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5 2.5 2.5 0 0 0-2.5-2.5M10 4a4 4 0 0 1 4 4c0 .91-.31 1.75-.82 2.43-.86.32-1.63.83-2.27 1.47L10 12a4 4 0 0 1-4-4 4 4 0 0 1 4-4M2 20v-2c0-2.12 3.31-3.86 7.5-4-.32.78-.5 1.62-.5 2.5 0 1.29.38 2.5 1 3.5z"/></svg></span> Blame<a class="headerlink" href="#blame" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gbl</code></td>
+<td><code>git blame -b -w</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="branch"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> Branch<a class="headerlink" href="#branch" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gb</code></td>
+<td><code>git branch</code></td>
+</tr>
+<tr>
+<td><code>gba</code></td>
+<td><code>git branch --all</code></td>
+</tr>
+<tr>
+<td><code>gbnm</code></td>
+<td><code>git branch --no-merged</code></td>
+</tr>
+<tr>
+<td><code>gbr</code></td>
+<td><code>git branch --remote</code></td>
+</tr>
+<tr>
+<td><code>gbsu</code></td>
+<td><code>git branch --set-upstream</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="bisect"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14 4 2.29 2.29-2.88 2.88 1.42 1.42 2.88-2.88L20 10V4M10 4H4v6l2.29-2.29 4.71 4.7V20h2v-8.41l-5.29-5.3"/></svg></span> Bisect<a class="headerlink" href="#bisect" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gbs</code></td>
+<td><code>git bisect</code></td>
+</tr>
+<tr>
+<td><code>gbsb</code></td>
+<td><code>git bisect bad</code></td>
+</tr>
+<tr>
+<td><code>gbsg</code></td>
+<td><code>git bisect good</code></td>
+</tr>
+<tr>
+<td><code>gbsr</code></td>
+<td><code>git bisect reset</code></td>
+</tr>
+<tr>
+<td><code>gbss</code></td>
+<td><code>git bisect start</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="commit"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"/></svg></span> Commit<a class="headerlink" href="#commit" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command / Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gcv</code></td>
+<td><code>git commit --verbose</code></td>
+</tr>
+<tr>
+<td><code>gc!</code></td>
+<td><code>git commit --verbose --amend</code></td>
+</tr>
+<tr>
+<td><code>gca</code></td>
+<td><code>git commit --verbose --all</code></td>
+</tr>
+<tr>
+<td><code>gcap</code></td>
+<td>commit all + push</td>
+</tr>
+<tr>
+<td><code>gac</code></td>
+<td>add all + commit</td>
+</tr>
+<tr>
+<td><code>gacp</code></td>
+<td>add all + commit + push</td>
+</tr>
+<tr>
+<td><code>gca!</code></td>
+<td><code>git commit --verbose --all --amend</code></td>
+</tr>
+<tr>
+<td><code>gac!</code></td>
+<td>add all + amend</td>
+</tr>
+<tr>
+<td><code>gcam</code></td>
+<td><code>git commit --all -m</code></td>
+</tr>
+<tr>
+<td><code>gcamp</code></td>
+<td>commit all -m + push</td>
+</tr>
+<tr>
+<td><code>gacm</code></td>
+<td>add all + commit -m</td>
+</tr>
+<tr>
+<td><code>gacmp</code></td>
+<td>add all + commit -m + push</td>
+</tr>
+<tr>
+<td><code>gcan!</code></td>
+<td>commit all --no-edit --amend</td>
+</tr>
+<tr>
+<td><code>gcanp!</code></td>
+<td>commit all --no-edit --amend + push!</td>
+</tr>
+<tr>
+<td><code>gacn!</code></td>
+<td>add all + amend --no-edit</td>
+</tr>
+<tr>
+<td><code>gacnp!</code></td>
+<td>add all + amend --no-edit + push!</td>
+</tr>
+<tr>
+<td><code>gcns!</code></td>
+<td>amend --signoff --no-edit</td>
+</tr>
+<tr>
+<td><code>gcans!</code></td>
+<td>commit all --signoff --no-edit amend</td>
+</tr>
+<tr>
+<td><code>gacns!</code></td>
+<td>add all + signoff --no-edit amend</td>
+</tr>
+<tr>
+<td><code>gcmsg</code></td>
+<td><code>git commit -m</code></td>
+</tr>
+<tr>
+<td><code>gcmsgp</code></td>
+<td>commit -m + push</td>
+</tr>
+<tr>
+<td><code>gcempty</code></td>
+<td><code>git commit --allow-empty -m</code></td>
+</tr>
+<tr>
+<td><code>gcn!</code></td>
+<td><code>git commit --no-edit --amend</code></td>
+</tr>
+<tr>
+<td><code>gcnp!</code></td>
+<td>amend --no-edit + push!</td>
+</tr>
+<tr>
+<td><code>gcsm</code></td>
+<td><code>git commit --signoff -m</code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Aliases ending with <code>!</code> use <code>--force-with-lease</code> for safe force-pushing.</p>
+</div>
+<h2 id="cherry-pick"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 13h-.5c-.7-1.3-1.2-3-1.7-4.7l.9.9c2.7 2.1 5.1 1.7 5.1 1.7s.7-3.8-2-5.8c-2.3-1.8-4.4-1.8-5-1.7-.1-.6-.1-1.1-.2-1.5l-1.4.1c0 3.2-2.7 9.1-3.6 11-2 .2-3.6 1.9-3.6 4 0 2.2 1.8 4 4 4 1.1 0 2-.4 2.7-1.1-.4-.9-.7-1.9-.7-2.9s.3-2 .7-2.9c-.4-.4-1-.7-1.5-.9.7-1.5 1.9-4.2 2.7-6.8.4 2.3 1.2 5 2.2 7.1-1.2.7-2.1 2-2.1 3.5 0 2.2 1.8 4 4 4s4-1.8 4-4-1.8-4-4-4m-8 2.5c-.8 0-1.5.7-1.5 1.5h-1c0-1.4 1.1-2.5 2.5-2.5zm8 0c-.8 0-1.5.7-1.5 1.5h-1c0-1.4 1.1-2.5 2.5-2.5z"/></svg></span> Cherry-Pick<a class="headerlink" href="#cherry-pick" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gcp</code></td>
+<td><code>git cherry-pick</code></td>
+</tr>
+<tr>
+<td><code>gcpa</code></td>
+<td><code>git cherry-pick --abort</code></td>
+</tr>
+<tr>
+<td><code>gcpc</code></td>
+<td><code>git cherry-pick --continue</code></td>
+</tr>
+<tr>
+<td><code>gcps</code></td>
+<td><code>git cherry-pick --signoff</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="checkout"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21 9-4-4v3h-7v2h7v3M7 11l-4 4 4 4v-3h7v-2H7z"/></svg></span> Checkout<a class="headerlink" href="#checkout" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gco</code></td>
+<td><code>git checkout</code></td>
+</tr>
+<tr>
+<td><code>gcount</code></td>
+<td><code>git shortlog -sn</code></td>
+</tr>
+<tr>
+<td><code>gcd</code></td>
+<td>cd to repo root</td>
+</tr>
+</tbody>
+</table>
+<h2 id="clone-clean"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 21H8V7h11m0-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2m-3-4H4a2 2 0 0 0-2 2v14h2V3h12z"/></svg></span> Clone / Clean<a class="headerlink" href="#clone-clean" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gcl</code></td>
+<td><code>git clone --recursive</code></td>
+</tr>
+<tr>
+<td><code>gclean</code></td>
+<td><code>git clean --force -d</code></td>
+</tr>
+<tr>
+<td><code>gclean!</code></td>
+<td>reset hard + clean</td>
+</tr>
+<tr>
+<td><code>gpristine</code></td>
+<td>reset hard + clean -x</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code>gclean!</code> and <code>gpristine</code> are destructive - they reset and clean the working tree.</p>
+</div>
+<h2 id="config"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97s-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1s.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64z"/></svg></span> Config<a class="headerlink" href="#config" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gcf</code></td>
+<td><code>git config</code></td>
+</tr>
+<tr>
+<td><code>gcfg</code></td>
+<td><code>git config --global</code></td>
+</tr>
+<tr>
+<td><code>gcfge</code></td>
+<td><code>git config --global --edit</code></td>
+</tr>
+<tr>
+<td><code>gcfgl</code></td>
+<td><code>git config --global --list</code></td>
+</tr>
+<tr>
+<td><code>gcfl</code></td>
+<td><code>git config --local</code></td>
+</tr>
+<tr>
+<td><code>gcfle</code></td>
+<td><code>git config --local --edit</code></td>
+</tr>
+<tr>
+<td><code>gcfll</code></td>
+<td><code>git config --local --list</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="diff"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 18H6v-2h4zm0-4H6v-2h4zm0-13v1H6c-1.11 0-2 .89-2 2v16a2 2 0 0 0 2 2h4v1h2V1zm10 7v12c0 1.11-.89 2-2 2h-4v-2h4v-9h-4V9h4.5L14 4.5V2zm-4 6h-2v-2h2zm0 4h-2v-2h2z"/></svg></span> Diff<a class="headerlink" href="#diff" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gd</code></td>
+<td><code>git diff</code></td>
+</tr>
+<tr>
+<td><code>gdca</code></td>
+<td><code>git diff --cached</code></td>
+</tr>
+<tr>
+<td><code>gdno</code></td>
+<td><code>git diff --name-only</code></td>
+</tr>
+<tr>
+<td><code>gdt</code></td>
+<td><code>git diff-tree</code></td>
+</tr>
+<tr>
+<td><code>gdw</code></td>
+<td><code>git diff --word-diff</code></td>
+</tr>
+<tr>
+<td><code>gdct</code></td>
+<td><code>git describe --tags</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="fetch"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 20h14v-2H5m14-9h-4V3H9v6H5l7 7z"/></svg></span> Fetch<a class="headerlink" href="#fetch" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gf</code></td>
+<td><code>git fetch</code></td>
+</tr>
+<tr>
+<td><code>gfa</code></td>
+<td><code>git fetch --all --prune</code></td>
+</tr>
+<tr>
+<td><code>gfa!</code></td>
+<td><code>git fetch --all --tags -p --force</code></td>
+</tr>
+<tr>
+<td><code>gfo</code></td>
+<td><code>git fetch origin</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="grep"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg></span> Grep<a class="headerlink" href="#grep" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gg</code></td>
+<td><code>git grep -i</code></td>
+</tr>
+<tr>
+<td><code>ggc</code></td>
+<td><code>git gc</code></td>
+</tr>
+<tr>
+<td><code>ggca</code></td>
+<td><code>git gc --aggressive</code></td>
+</tr>
+<tr>
+<td><code>gge</code></td>
+<td><code>git grep -i --extended-regexp</code></td>
+</tr>
+<tr>
+<td><code>ggp</code></td>
+<td><code>git grep -i --perl-regexp</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="help"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m15.07 11.25-.9.92C13.45 12.89 13 13.5 13 15h-2v-.5c0-1.11.45-2.11 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41a2 2 0 0 0-2-2 2 2 0 0 0-2 2H8a4 4 0 0 1 4-4 4 4 0 0 1 4 4 3.2 3.2 0 0 1-.93 2.25M13 19h-2v-2h2M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10c0-5.53-4.5-10-10-10"/></svg></span> Help<a class="headerlink" href="#help" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ghh</code></td>
+<td><code>git help</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="ignore"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11.83 9 15 12.16V12a3 3 0 0 0-3-3zm-4.3.8 1.55 1.55c-.05.21-.08.42-.08.65a3 3 0 0 0 3 3c.22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53a5 5 0 0 1-5-5c0-.79.2-1.53.53-2.2M2 4.27l2.28 2.28.45.45C3.08 8.3 1.78 10 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.43.42L19.73 22 21 20.73 3.27 3M12 7a5 5 0 0 1 5 5c0 .64-.13 1.26-.36 1.82l2.93 2.93c1.5-1.25 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-4 .7l2.17 2.15C10.74 7.13 11.35 7 12 7"/></svg></span> Ignore<a class="headerlink" href="#ignore" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gignore</code></td>
+<td><code>git update-index --assume-unchanged</code></td>
+</tr>
+<tr>
+<td><code>gignored</code></td>
+<td>list ignored files</td>
+</tr>
+<tr>
+<td><code>gunignore</code></td>
+<td><code>git update-index --no-assume-unchanged</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="log"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.5 8H12v5l4.28 2.54.72-1.21-3.5-2.08zM13 3a9 9 0 0 0-9 9H1l3.96 4.03L9 12H6a7 7 0 0 1 7-7 7 7 0 0 1 7 7 7 7 0 0 1-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.9 8.9 0 0 0 13 21a9 9 0 0 0 9-9 9 9 0 0 0-9-9"/></svg></span> Log<a class="headerlink" href="#log" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>glo</code></td>
+<td><code>git log --date=rfc</code></td>
+</tr>
+<tr>
+<td><code>gloa</code></td>
+<td><code>git log --date=rfc --all</code></td>
+</tr>
+<tr>
+<td><code>glog</code></td>
+<td><code>git log --date=rfc --graph</code></td>
+</tr>
+<tr>
+<td><code>gloga</code></td>
+<td>log graph --decorate --all</td>
+</tr>
+<tr>
+<td><code>glol</code></td>
+<td>log graph colored</td>
+</tr>
+<tr>
+<td><code>glola</code></td>
+<td>log graph colored --all</td>
+</tr>
+<tr>
+<td><code>glon</code></td>
+<td><code>git log --oneline --decorate</code></td>
+</tr>
+<tr>
+<td><code>glona</code></td>
+<td>log oneline --all</td>
+</tr>
+<tr>
+<td><code>glong</code></td>
+<td>log oneline --graph</td>
+</tr>
+<tr>
+<td><code>glonga</code></td>
+<td>log oneline --graph --all</td>
+</tr>
+<tr>
+<td><code>glont</code></td>
+<td>log oneline --tags</td>
+</tr>
+<tr>
+<td><code>glop</code></td>
+<td>log pretty formatted</td>
+</tr>
+<tr>
+<td><code>glopa</code></td>
+<td>log pretty formatted --all</td>
+</tr>
+<tr>
+<td><code>glos</code></td>
+<td><code>git log --date=rfc --stat</code></td>
+</tr>
+<tr>
+<td><code>glosa</code></td>
+<td>log stat --all</td>
+</tr>
+<tr>
+<td><code>glosp</code></td>
+<td>log stat --patch</td>
+</tr>
+<tr>
+<td><code>glospa</code></td>
+<td>log stat --patch --all</td>
+</tr>
+</tbody>
+</table>
+<h2 id="merge-tool"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m8 17 4-4h3.2c.4 1.2 1.5 2 2.8 2 1.7 0 3-1.3 3-3s-1.3-3-3-3c-1.3 0-2.4.8-2.8 2H12L8 7V3H3v5h3l4.2 4L6 16H3v5h5z"/></svg></span> Merge Tool<a class="headerlink" href="#merge-tool" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gmt</code></td>
+<td><code>git mergetool --no-prompt</code></td>
+</tr>
+<tr>
+<td><code>gmtvim</code></td>
+<td>mergetool with vimdiff</td>
+</tr>
+</tbody>
+</table>
+<h2 id="pull"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11 4h2v12l5.5-5.5 1.42 1.42L12 19.84l-7.92-7.92L5.5 10.5 11 16z"/></svg></span> Pull<a class="headerlink" href="#pull" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gpl</code></td>
+<td>pull origin + tags + prune</td>
+</tr>
+<tr>
+<td><code>gpl!</code></td>
+<td>pull origin --force</td>
+</tr>
+<tr>
+<td><code>gpull</code></td>
+<td><code>git pull</code></td>
+</tr>
+<tr>
+<td><code>gpullr</code></td>
+<td><code>git pull --rebase</code></td>
+</tr>
+<tr>
+<td><code>gpullra</code></td>
+<td>pull --rebase --autostash</td>
+</tr>
+<tr>
+<td><code>gpullrav</code></td>
+<td>pull rebase autostash verbose</td>
+</tr>
+<tr>
+<td><code>gpullrv</code></td>
+<td><code>git pull --rebase --verbose</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="push"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg></span> Push<a class="headerlink" href="#push" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gpush</code></td>
+<td><code>git push</code></td>
+</tr>
+<tr>
+<td><code>gpush!</code></td>
+<td><code>git push --force-with-lease</code></td>
+</tr>
+<tr>
+<td><code>gpushdr</code></td>
+<td><code>git push --dry-run</code></td>
+</tr>
+<tr>
+<td><code>gpushoat</code></td>
+<td>push origin --all + --tags</td>
+</tr>
+<tr>
+<td><code>gpushsup</code></td>
+<td>push --set-upstream origin</td>
+</tr>
+<tr>
+<td><code>gpusht</code></td>
+<td><code>git push --tags</code></td>
+</tr>
+<tr>
+<td><code>gpusht!</code></td>
+<td><code>git push --tags --force</code></td>
+</tr>
+<tr>
+<td><code>gpushv</code></td>
+<td><code>git push --verbose</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="rebase"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24A3.002 3.002 0 0 1 7 22c-1.66 0-3-1.34-3-3 0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5c0-1.66 1.34-3 3-3s3 1.34 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7c0-1.66 1.34-3 3-3s3 1.34 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1M7 4c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1m10 2c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1m1 8c1.1 0 2.1.4 2.8 1.2L22 14v4h-4l1.8-1.8c-.5-.4-1.1-.7-1.8-.7-1.4 0-2.5 1.1-2.5 2.5s1.1 2.5 2.5 2.5c.8 0 1.5-.4 2-1h1.7c-.6 1.5-2 2.5-3.7 2.5-2.2 0-4-1.8-4-4s1.8-4 4-4"/></svg></span> Rebase<a class="headerlink" href="#rebase" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>grb</code></td>
+<td>rebase (smart resolve)</td>
+</tr>
+<tr>
+<td><code>grbo</code></td>
+<td>fetch + rebase + push if clean</td>
+</tr>
+<tr>
+<td><code>grba</code></td>
+<td><code>git rebase --abort</code></td>
+</tr>
+<tr>
+<td><code>grbc</code></td>
+<td><code>git rebase --continue</code></td>
+</tr>
+<tr>
+<td><code>grbi</code></td>
+<td><code>git rebase --interactive</code></td>
+</tr>
+<tr>
+<td><code>grbs</code></td>
+<td><code>git rebase --skip</code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p><code>grb</code> and <code>grbo</code> are <a href="../helpers/#merge--rebase">helper functions</a>. <code>grbo</code> fetches, rebases,
+and pushes automatically if the rebase is clean.</p>
+</div>
+<h2 id="reset"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05 1-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8"/></svg></span> Reset<a class="headerlink" href="#reset" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gr</code></td>
+<td><code>git reset</code></td>
+</tr>
+<tr>
+<td><code>grh</code></td>
+<td><code>git reset --hard</code></td>
+</tr>
+<tr>
+<td><code>grho</code></td>
+<td>fetch + reset hard to remote</td>
+</tr>
+<tr>
+<td><code>grho!</code></td>
+<td>fetch + reset hard + clean</td>
+</tr>
+<tr>
+<td><code>grs</code></td>
+<td><code>git reset --soft</code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition danger">
+<p class="admonition-title">Danger</p>
+<p><code>grh</code>, <code>grho</code>, and <code>grho!</code> are destructive - they discard uncommitted changes.</p>
+</div>
+<h2 id="reflog-remove"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m19 2-5 4.5v11l5-4.5zM6.5 5C4.55 5 2.45 5.4 1 6.5v14.66c0 .25.25.5.5.5.1 0 .15-.07.25-.07 1.35-.65 3.3-1.09 4.75-1.09 1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.31 4.75 1.06.1.05.15.03.25.03.25 0 .5-.25.5-.5V6.5c-.6-.45-1.25-.75-2-1V19c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V6.5C10.55 5.4 8.45 5 6.5 5"/></svg></span> Reflog / Remove<a class="headerlink" href="#reflog-remove" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>grl</code></td>
+<td><code>git reflog</code></td>
+</tr>
+<tr>
+<td><code>grlo</code></td>
+<td>reflog as objects (<a href="../log/">log</a>)</td>
+</tr>
+<tr>
+<td><code>grloc</code></td>
+<td>reflog colored (<a href="../log/">log</a>)</td>
+</tr>
+<tr>
+<td><code>grmc</code></td>
+<td><code>git rm --cached</code></td>
+</tr>
+<tr>
+<td><code>grm!</code></td>
+<td><code>git rm --force</code></td>
+</tr>
+<tr>
+<td><code>grmrc</code></td>
+<td><code>git rm -r --cached</code></td>
+</tr>
+<tr>
+<td><code>grmr!</code></td>
+<td><code>git rm -r --force</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="restore"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 0 1 7-7 7 7 0 0 1 7 7 7 7 0 0 1-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.9 8.9 0 0 0 13 21a9 9 0 0 0 9-9 9 9 0 0 0-9-9"/></svg></span> Restore<a class="headerlink" href="#restore" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>grr</code></td>
+<td><code>git restore</code></td>
+</tr>
+<tr>
+<td><code>grrsrc</code></td>
+<td><code>git restore --source</code></td>
+</tr>
+<tr>
+<td><code>grrstg</code></td>
+<td><code>git restore --staged</code></td>
+</tr>
+<tr>
+<td><code>grrstga</code></td>
+<td><code>git restore --staged .</code></td>
+</tr>
+<tr>
+<td><code>grp</code></td>
+<td><code>git rev-parse</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="remote"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.9 17.39c-.26-.8-1.01-1.39-1.9-1.39h-1v-3a1 1 0 0 0-1-1H8v-2h2a1 1 0 0 0 1-1V7h2a2 2 0 0 0 2-2v-.41a7.984 7.984 0 0 1 2.9 12.8M11 19.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.22.21-1.79L9 15v1a2 2 0 0 0 2 2m1-16A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2"/></svg></span> Remote<a class="headerlink" href="#remote" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>grt</code></td>
+<td><code>git remote</code></td>
+</tr>
+<tr>
+<td><code>grta</code></td>
+<td><code>git remote add</code></td>
+</tr>
+<tr>
+<td><code>grtrm</code></td>
+<td><code>git remote remove</code></td>
+</tr>
+<tr>
+<td><code>grtrn</code></td>
+<td><code>git remote rename</code></td>
+</tr>
+<tr>
+<td><code>grtsu</code></td>
+<td><code>git remote set-url</code></td>
+</tr>
+<tr>
+<td><code>grtup</code></td>
+<td><code>git remote update</code></td>
+</tr>
+<tr>
+<td><code>grtupp</code></td>
+<td><code>git remote update --pr.</code></td>
+</tr>
+<tr>
+<td><code>grturl</code></td>
+<td>Remote HTTPS URL</td>
+</tr>
+<tr>
+<td><code>grturlb</code></td>
+<td>Remote HTTPS URL on branch</td>
+</tr>
+<tr>
+<td><code>grtv</code></td>
+<td><code>git remote --verbose</code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">Quick repo URL</p>
+<p><code>grturl</code> prints the remote URL, <code>grturlb</code> includes the current branch -
+Ctrl+click to open in the browser.</p>
+</div>
+<h2 id="show-status"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 9h-2V7h2m0 10h-2v-6h2m-1-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2"/></svg></span> Show / Status<a class="headerlink" href="#show-status" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gsps</code></td>
+<td><code>git show --pretty=short</code></td>
+</tr>
+<tr>
+<td><code>gst</code></td>
+<td><code>git status</code></td>
+</tr>
+<tr>
+<td><code>gstb</code></td>
+<td><code>git status --short --branch</code></td>
+</tr>
+<tr>
+<td><code>gsts</code></td>
+<td><code>git status --short</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="stash"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m5.12 5 .81-1h12l.94 1M12 17.5 6.5 12H10v-2h4v2h3.5zm8.54-12.27-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6 3 6.5V19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.5c0-.5-.17-.93-.46-1.27"/></svg></span> Stash<a class="headerlink" href="#stash" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gsta</code></td>
+<td><code>git stash push</code></td>
+</tr>
+<tr>
+<td><code>gstaa</code></td>
+<td><code>git stash push -a</code></td>
+</tr>
+<tr>
+<td><code>gstac</code></td>
+<td><code>git stash clear</code></td>
+</tr>
+<tr>
+<td><code>gstal</code></td>
+<td><code>git stash list</code></td>
+</tr>
+<tr>
+<td><code>gstap</code></td>
+<td><code>git stash pop</code></td>
+</tr>
+<tr>
+<td><code>gstaap</code></td>
+<td><code>git stash apply</code></td>
+</tr>
+<tr>
+<td><code>gstad</code></td>
+<td><code>git stash drop</code></td>
+</tr>
+<tr>
+<td><code>gstas</code></td>
+<td><code>git stash show</code></td>
+</tr>
+<tr>
+<td><code>gstast</code></td>
+<td><code>git stash show -t</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="submodule-svn"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24A3.002 3.002 0 0 1 7 22c-1.66 0-3-1.34-3-3 0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5c0-1.66 1.34-3 3-3s3 1.34 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7c0-1.66 1.34-3 3-3s3 1.34 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1M7 4c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1m10 2c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1m0 8v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg></span> Submodule / SVN<a class="headerlink" href="#submodule-svn" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gsmi</code></td>
+<td><code>git submodule init</code></td>
+</tr>
+<tr>
+<td><code>gsmu</code></td>
+<td><code>git submodule update</code></td>
+</tr>
+<tr>
+<td><code>gsvnd</code></td>
+<td><code>git svn dcommit</code></td>
+</tr>
+<tr>
+<td><code>gsvnr</code></td>
+<td><code>git svn rebase</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="switch"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 10v3h6v5H8v3l-6-5.5zm14-1.5L16 3v3h-6v5h6v3z"/></svg></span> Switch<a class="headerlink" href="#switch" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gsw</code></td>
+<td>switch (smart resolve)</td>
+</tr>
+<tr>
+<td><code>gsw!</code></td>
+<td>switch --force</td>
+</tr>
+<tr>
+<td><code>gswc</code></td>
+<td><code>git switch --create</code></td>
+</tr>
+<tr>
+<td><code>gswd</code></td>
+<td><code>git switch --detach</code></td>
+</tr>
+<tr>
+<td><code>gswo</code></td>
+<td><code>git switch --orphan</code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p><code>gsw</code> and <code>gsw!</code> are <a href="../helpers/#switch">helper functions</a> that resolve the target branch
+based on branch prefix, falling back to the default branch if nothing is provided.</p>
+</div>
+<h2 id="tag"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5.5 7A1.5 1.5 0 0 1 4 5.5 1.5 1.5 0 0 1 5.5 4 1.5 1.5 0 0 1 7 5.5 1.5 1.5 0 0 1 5.5 7m15.91 4.58-9-9C12.05 2.22 11.55 2 11 2H4c-1.11 0-2 .89-2 2v7c0 .55.22 1.05.59 1.41l8.99 9c.37.36.87.59 1.42.59s1.05-.23 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.56-.23-1.06-.59-1.42"/></svg></span> Tag<a class="headerlink" href="#tag" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gt</code></td>
+<td><code>git tag --sort=-v:refn.</code></td>
+</tr>
+<tr>
+<td><code>gts</code></td>
+<td><code>git tag --sign</code></td>
+</tr>
+<tr>
+<td><code>gtr</code></td>
+<td>tag list formatted</td>
+</tr>
+</tbody>
+</table>
+<h2 id="whatchanged"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.5 8H12v5l4.28 2.54.72-1.21-3.5-2.08zM13 3a9 9 0 0 0-9 9H1l3.96 4.03L9 12H6a7 7 0 0 1 7-7 7 7 0 0 1 7 7 7 7 0 0 1-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.9 8.9 0 0 0 13 21a9 9 0 0 0 9-9 9 9 0 0 0-9-9"/></svg></span> Whatchanged<a class="headerlink" href="#whatchanged" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gwch</code></td>
+<td><code>git whatchanged -p</code></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.indexes", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
