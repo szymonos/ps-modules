@@ -1177,6 +1177,8 @@ Azure ARM access token.
 Filter specified for the API request.
 .PARAMETER Select
 Select specific fields in the API request.
+.PARAMETER Query
+Additional query parameters for the API request.
 .PARAMETER Method
 Request method. Allowed values: Get, Patch, Post, Put, Delete. Default: Get.
 .PARAMETER Body
@@ -1205,6 +1207,8 @@ function Invoke-AzApiRequest {
         [string]$Filter,
 
         [string[]]$Select,
+
+        [string]$Query,
 
         [ValidateSet('Get', 'Patch', 'Post', 'Put', 'Delete')]
         [string]$Method = 'Get',
@@ -1262,14 +1266,20 @@ function Invoke-AzApiRequest {
         }
 
         # build Query
-        $sb = [System.Text.StringBuilder]::new()
+        $qryParts = [System.Collections.Generic.List[string]]::new()
         if ($ApiVersion) {
-            $sb.Append("?api-version=$ApiVersion") | Out-Null
+            $qryParts.Add("api-version=$ApiVersion")
+        }
+        if ($PSBoundParameters.Filter) {
+            $qryParts.Add("`$filter=$([System.Uri]::EscapeDataString($Filter))")
+        }
+        if ($PSBoundParameters.Select) {
+            $qryParts.Add("`$select=$([System.Uri]::EscapeDataString($Select -join ','))")
         }
         if ($PSBoundParameters.Query) {
-            $sb.Append("&$($Query.Replace(' ', '%20'))") | Out-Null
+            $qryParts.Add($Query.Replace(' ', '%20'))
         }
-        $qry = $sb.ToString()
+        $qry = if ($qryParts.Count) { "?$($qryParts -join '&')" } else { '' }
 
         # initialize collection to store the response
         $responseList = [System.Collections.Generic.List[PSCustomObject]]::new()
@@ -1301,9 +1311,9 @@ function Invoke-AzApiRequest {
                 $null
             }
             # add response to response list
-            if ($response.value) {
+            if ($null -ne $response.value) {
                 $response.value.ForEach({ $responseList.Add($_) })
-            } else {
+            } elseif ($response) {
                 $response.ForEach({ $responseList.Add($_) })
             }
             # check pagination
