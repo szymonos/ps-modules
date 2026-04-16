@@ -114,7 +114,12 @@ process {
                 $manifest = Test-ModuleManifest $srcModuleManifest -ErrorAction SilentlyContinue
                 foreach ($mod in $manifest.RequiredModules.Name) {
                     if (-not (Get-Module -ListAvailable $mod)) {
-                        Install-PSResource $mod -WarningAction SilentlyContinue
+                        $localModManifest = [IO.Path]::Combine('modules', $mod, "$mod.psd1")
+                        if (Test-Path $localModManifest) {
+                            & $PSCommandPath $mod -CleanUp:$CleanUp
+                        } else {
+                            Install-PSResource $mod -WarningAction SilentlyContinue
+                        }
                     }
                 }
             } catch {
