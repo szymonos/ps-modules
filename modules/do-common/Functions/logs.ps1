@@ -11,7 +11,7 @@ function Set-LogFile {
     [CmdletBinding()]
     [OutputType([string])]
     param (
-        [ValidateScript({ $_ -match '\.log$|' }, ErrorMessage = 'Specified file should have .log extension.')]
+        [ValidateScript({ $_ -match '\.log$' }, ErrorMessage = 'Specified file should have .log extension.')]
         [string]$Path = "logs/$(Get-Date -Format 'yyyyMMddTHHmmss').log",
 
         [switch]$Append
@@ -19,6 +19,10 @@ function Set-LogFile {
 
     # *ensure that the log file exists
     if (-not (Test-Path $Path -PathType Leaf)) {
+        $parent = Split-Path $Path -Parent
+        if ($parent -and -not (Test-Path $parent -PathType Container)) {
+            New-Item -Path $parent -ItemType Directory -Force -ErrorAction Stop | Out-Null
+        }
         New-Item -Path $Path -ItemType File -Force -ErrorAction Stop | Out-Null
     } elseif (-not $Append) {
         # clean the existing logfile if it exists
@@ -145,19 +149,19 @@ function Get-LogLine {
 
             # build the log line to show
             [string]::Join('|',
-                "`e[32m$($ctx.TimeStamp.ToString('yyyy-MM-dd HH:mm:ss'))`e[0m",
+                "`e[32m$($LogContext.TimeStamp.ToString('yyyy-MM-dd HH:mm:ss'))`e[0m",
                 "${lvlColor}${Level}`e[0m",
-                "`e[90m$($ctx.Invocation)`e[0m",
-                "`e[90m$($ctx.Function)`e[0m: $Message"
+                "`e[90m$($LogContext.Invocation)`e[0m",
+                "`e[90m$($LogContext.Function)`e[0m: $Message"
             )
         }
         Write {
             # build the log line to write
             [string]::Join('|',
-                $ctx.TimeStamp.ToString('yyyy-MM-dd HH:mm:ss.fff'),
+                $LogContext.TimeStamp.ToString('yyyy-MM-dd HH:mm:ss.fff'),
                 $Level,
-                $ctx.Invocation,
-                $ctx.Function,
+                $LogContext.Invocation,
+                $LogContext.Function,
                 $Message
             )
         }

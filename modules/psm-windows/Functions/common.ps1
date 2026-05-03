@@ -107,7 +107,7 @@ Wraps the string value of each pipeline object in single quotes.
 Wraps the string value of each pipeline object in double-quotes.
 #>
 function Join-Str {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'None')]
     [OutputType([string])]
     param (
         [Parameter(Mandatory, ValueFromPipeline = $true)]
