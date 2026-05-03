@@ -344,10 +344,10 @@
             # Tags = @()
 
             # A URL to the license for this module.
-            LicenseUri = 'https://github.com/szymonos/devops-scripts/modules/LICENSE'
+            LicenseUri = 'https://github.com/szymonos/ps-modules/blob/main/LICENSE'
 
             # A URL to the main website for this project.
-            ProjectUri = 'https://github.com/szymonos/devops-scripts/modules/aliases-git'
+            ProjectUri = 'https://github.com/szymonos/ps-modules'
 
             # A URL to an icon representing this module.
             # IconUri = ''
