@@ -176,10 +176,107 @@ function ConvertTo-PEM {
 
 <#
 .SYNOPSIS
+Split a Uri into its hostname and port components.
+
+.DESCRIPTION
+Accepts a bare hostname ('example.com'), a host:port pair ('example.com:8443')
+or a full Uri ('https://example.com:8443/path') and returns the hostname and
+port. A port embedded in the Uri takes precedence over the Port parameter.
+
+.PARAMETER Uri
+Uri, hostname or host:port string to parse.
+.PARAMETER Port
+Fallback port used when no port is embedded in the Uri.
+#>
+function Split-UriHostPort {
+    [CmdletBinding()]
+    [OutputType([System.Object[]])]
+    param (
+        [Parameter(Mandatory, Position = 0)]
+        [string]$Uri,
+
+        [Parameter(Position = 1)]
+        [ValidateRange(1, 65535)]
+        [int]$Port = 443
+    )
+
+    # strip scheme, then path/query/fragment, then userinfo to leave the authority component
+    $authority = (($Uri -replace '^[a-zA-Z][\w+.-]*://') -split '[/?#]', 2)[0].Split('@')[-1]
+
+    if ($authority -match '^\[(?<host>.+)\](?::(?<port>\d+))?$') {
+        # bracketed IPv6 literal, optionally with a port
+        $hostname = $Matches.host
+        if ($Matches.port) { $Port = [int]$Matches.port }
+    } elseif ($authority -match '^(?<host>[^:]+):(?<port>\d+)$') {
+        # host:port
+        $hostname = $Matches.host
+        $Port = [int]$Matches.port
+    } elseif ($authority -match '^[^:]+:[^:]*$') {
+        # single colon but a non-numeric/empty port - fail fast instead of mis-parsing as a hostname
+        throw "Invalid port in Uri '$Uri'. Expected 'host:<number>'."
+    } else {
+        # bare hostname or bare (unbracketed) IPv6 literal
+        $hostname = $authority
+    }
+
+    return $hostname, $Port
+}
+
+
+<#
+.SYNOPSIS
+Build a concise ErrorRecord for certificate retrieval failures.
+
+.DESCRIPTION
+Unwraps nested .NET exceptions (e.g. the SocketException behind a
+"Exception calling ..." wrapper) so the reported message states the actual
+cause and prefixes it with the target host:port.
+
+.PARAMETER Exception
+Exception thrown while connecting or performing the TLS handshake.
+.PARAMETER Target
+Target 'host:port' the certificate was requested from.
+#>
+function New-CertificateError {
+    [CmdletBinding()]
+    [OutputType([System.Management.Automation.ErrorRecord])]
+    param (
+        [Parameter(Mandatory, Position = 0)]
+        [System.Exception]$Exception,
+
+        [Parameter(Mandatory, Position = 1)]
+        [string]$Target
+    )
+
+    # drill down to the innermost exception for the root-cause message
+    $inner = $Exception
+    while ($inner.InnerException) {
+        $inner = $inner.InnerException
+    }
+    # pick the error category based on the underlying exception type
+    $category = $inner -is [System.Net.Sockets.SocketException] `
+        ? [System.Management.Automation.ErrorCategory]::ConnectionError
+        : [System.Management.Automation.ErrorCategory]::NotSpecified
+
+    return [System.Management.Automation.ErrorRecord]::new(
+        [System.Exception]::new("Failed to get certificate from '$Target'. $($inner.Message)", $Exception),
+        'CertificateRetrievalError',
+        $category,
+        $Target
+    )
+}
+
+
+<#
+.SYNOPSIS
 Get certificate(s) from specified Uri.
 
 .PARAMETER Uri
-Uri used for intercepting certificate.
+Uri used for intercepting certificate. The port can be appended to the host
+(e.g. 'example.com:8443'), analogous to `openssl s_client -connect host:port`.
+.PARAMETER Port
+Port used for the TLS connection. Defaults to 443 and is overridden by a port
+embedded in the Uri.
 .PARAMETER BuildChain
 Switch whether to build full certificate chain.
 .PARAMETER IgnoreValidation
@@ -192,35 +289,51 @@ function Get-Certificate {
         [Parameter(Mandatory, Position = 0)]
         [string]$Uri,
 
+        [Parameter(Position = 1)]
+        [ValidateRange(1, 65535)]
+        [int]$Port = 443,
+
         [switch]$BuildChain,
 
         [switch]$IgnoreValidation
     )
 
     begin {
-        $tcpClient = [System.Net.Sockets.TcpClient]::new($Uri, 443)
-        if ($BuildChain) {
-            $chain = [System.Security.Cryptography.X509Certificates.X509Chain]::new()
-        }
-        if ($IgnoreValidation) {
-            $sslStream = [System.Net.Security.SslStream]::new($tcpClient.GetStream(), $false, { $true })
-            if ($BuildChain) {
-                $chain.ChainPolicy.VerificationFlags = [System.Security.Cryptography.X509Certificates.X509VerificationFlags]::AllFlags
-            }
-        } else {
-            $sslStream = [System.Net.Security.SslStream]::new($tcpClient.GetStream())
+        # parse hostname and port from the Uri ('host', 'host:port' or 'scheme://host:port/path')
+        try {
+            $hostname, $Port = Split-UriHostPort -Uri $Uri -Port $Port
+        } catch {
+            $PSCmdlet.ThrowTerminatingError((New-CertificateError -Exception $_.Exception -Target $Uri))
         }
     }
 
     process {
+        $tcpClient = $sslStream = $null
         try {
-            $sslStream.AuthenticateAsClient($Uri)
+            # open the TCP connection to the target host and port
+            $tcpClient = [System.Net.Sockets.TcpClient]::new($hostname, $Port)
+
+            # perform the TLS handshake to intercept the presented certificate
+            if ($IgnoreValidation) {
+                $sslStream = [System.Net.Security.SslStream]::new($tcpClient.GetStream(), $false, { $true })
+            } else {
+                $sslStream = [System.Net.Security.SslStream]::new($tcpClient.GetStream())
+            }
+            $sslStream.AuthenticateAsClient($hostname)
             $certificate = $sslStream.RemoteCertificate
+        } catch {
+            # surface a concise, categorized error instead of the raw .NET exception
+            $PSCmdlet.ThrowTerminatingError((New-CertificateError -Exception $_.Exception -Target "${hostname}:${Port}"))
         } finally {
-            $sslStream.Close()
+            if ($sslStream) { $sslStream.Dispose() }
+            if ($tcpClient) { $tcpClient.Dispose() }
         }
 
         if ($BuildChain) {
+            $chain = [System.Security.Cryptography.X509Certificates.X509Chain]::new()
+            if ($IgnoreValidation) {
+                $chain.ChainPolicy.VerificationFlags = [System.Security.Cryptography.X509Certificates.X509VerificationFlags]::AllFlags
+            }
             $isChainValid = $chain.Build($certificate)
             if ($isChainValid) {
                 $certificate = $chain.ChainElements.Certificate
@@ -241,7 +354,11 @@ function Get-Certificate {
 Get certificate(s) from specified Uri using OpenSSL application.
 
 .PARAMETER Uri
-Uri used for intercepting certificate.
+Uri used for intercepting certificate. The port can be appended to the host
+(e.g. 'example.com:8443'), analogous to `openssl s_client -connect host:port`.
+.PARAMETER Port
+Port used for the TLS connection. Defaults to 443 and is overridden by a port
+embedded in the Uri.
 .PARAMETER BuildChain
 Switch whether to build full certificate chain.
 #>
@@ -252,19 +369,41 @@ function Get-CertificateOpenSSL {
         [Parameter(Mandatory, Position = 0)]
         [string]$Uri,
 
+        [Parameter(Position = 1)]
+        [ValidateRange(1, 65535)]
+        [int]$Port = 443,
+
         [switch]$BuildChain
     )
 
     begin {
         # check if OpenSSL is installed
         if (-not (Get-Command openssl -CommandType Application -ErrorAction SilentlyContinue)) {
-            Throw 'OpenSSL not found. Script execution halted.'
+            $er = [System.Management.Automation.ErrorRecord]::new(
+                [System.Exception]::new('OpenSSL not found. Install OpenSSL or omit the -OpenSSL switch.'),
+                'OpenSSLNotFound',
+                [System.Management.Automation.ErrorCategory]::NotInstalled,
+                'openssl'
+            )
+            $PSCmdlet.ThrowTerminatingError($er)
         }
+
+        # parse hostname and port from the Uri ('host', 'host:port' or 'scheme://host:port/path')
+        try {
+            $hostname, $Port = Split-UriHostPort -Uri $Uri -Port $Port
+        } catch {
+            $PSCmdlet.ThrowTerminatingError((New-CertificateError -Exception $_.Exception -Target $Uri))
+        }
+
+        # bracket IPv6 literals (a bare colon in the host) for OpenSSL's host:port syntax
+        $connectHost = $hostname.Contains(':') ? "[$hostname]" : $hostname
 
         # build the OpenSSL argument list
         [System.Collections.Generic.List[string]]$cmdArgs = @('s_client')
         $cmdArgs.Add('-connect')
-        $cmdArgs.Add("${Uri}:443")
+        $cmdArgs.Add("${connectHost}:${Port}")
+        $cmdArgs.Add('-servername')
+        $cmdArgs.Add($hostname)
         if ($BuildChain) {
             $cmdArgs.Add('-showcerts')
         }
@@ -275,11 +414,17 @@ function Get-CertificateOpenSSL {
             # Use the call operator (&) to execute OpenSSL with arguments
             $opensslOutput = Out-Null | & openssl @cmdArgs 2>$null
         } catch {
-            Throw "Error executing OpenSSL: $_"
+            $PSCmdlet.ThrowTerminatingError((New-CertificateError -Exception $_.Exception -Target "${hostname}:${Port}"))
         }
 
         if (-not $opensslOutput) {
-            Throw "No output from OpenSSL. Possibly an unknown host: `"$Uri`"."
+            $er = [System.Management.Automation.ErrorRecord]::new(
+                [System.Exception]::new("Failed to get certificate from '${hostname}:${Port}'. No output from OpenSSL, possibly an unknown host."),
+                'CertificateRetrievalError',
+                [System.Management.Automation.ErrorCategory]::ConnectionError,
+                "${hostname}:${Port}"
+            )
+            $PSCmdlet.ThrowTerminatingError($er)
         }
 
         # Normalize the output: join array into one string and standardize line breaks
@@ -290,7 +435,13 @@ function Get-CertificateOpenSSL {
         $reMatches = [regex]::Matches($outputText, $pemPattern)
 
         if ($reMatches.Count -eq 0) {
-            Throw "No certificates found in OpenSSL output for `"$Uri`"."
+            $er = [System.Management.Automation.ErrorRecord]::new(
+                [System.Exception]::new("Failed to get certificate from '${hostname}:${Port}'. No certificates found in OpenSSL output."),
+                'CertificateRetrievalError',
+                [System.Management.Automation.ErrorCategory]::InvalidResult,
+                "${hostname}:${Port}"
+            )
+            $PSCmdlet.ThrowTerminatingError($er)
         }
 
         # Convert each PEM block to an X509Certificate2 object
@@ -326,7 +477,11 @@ function Get-RootCertificates {
 Show certificate chain for a specified Uri.
 
 .PARAMETER Uri
-Uri used for intercepting certificate chain.
+Uri used for intercepting certificate chain. The port can be appended to the
+host (e.g. 'example.com:8443'), analogous to `openssl s_client -connect host:port`.
+.PARAMETER Port
+Port used for the TLS connection. Defaults to 443 and is overridden by a port
+embedded in the Uri.
 .PARAMETER InputObject
 Object from pipeline to show certificate properties.
 .PARAMETER BuildChain
@@ -346,6 +501,10 @@ function Show-Certificate {
     param (
         [Parameter(Mandatory, Position = 0, ParameterSetName = 'FromUri')]
         [string]$Uri,
+
+        [Parameter(Position = 1, ParameterSetName = 'FromUri')]
+        [ValidateRange(1, 65535)]
+        [int]$Port = 443,
 
         [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = 'FromPipeline')]
         [System.Security.Cryptography.X509Certificates.X509Certificate2[]]$InputObject,
@@ -394,11 +553,16 @@ function Show-Certificate {
     process {
         switch ($PsCmdlet.ParameterSetName) {
             FromUri {
-                $cert = if ($PSBoundParameters.OpenSSL) {
-                    $PSBoundParameters.Remove('OpenSSL') | Out-Null
-                    Get-CertificateOpenSSL @PSBoundParameters | Add-CertificateProperties
-                } else {
-                    Get-Certificate @PSBoundParameters | Add-CertificateProperties
+                try {
+                    $cert = if ($PSBoundParameters.OpenSSL) {
+                        $PSBoundParameters.Remove('OpenSSL') | Out-Null
+                        Get-CertificateOpenSSL @PSBoundParameters | Add-CertificateProperties
+                    } else {
+                        Get-Certificate @PSBoundParameters | Add-CertificateProperties
+                    }
+                } catch {
+                    # re-throw the concise error from Get-Certificate without the wrapper's call-site noise
+                    $PSCmdlet.ThrowTerminatingError($_)
                 }
             }
             FromPipeline {
@@ -419,7 +583,11 @@ function Show-Certificate {
 Show certificate chain for a specified Uri.
 
 .PARAMETER Uri
-Uri used for intercepting certificate chain.
+Uri used for intercepting certificate chain. The port can be appended to the
+host (e.g. 'example.com:8443'), analogous to `openssl s_client -connect host:port`.
+.PARAMETER Port
+Port used for the TLS connection. Defaults to 443 and is overridden by a port
+embedded in the Uri.
 .PARAMETER Extended
 Switch, whether to show extended certificate properties.
 .PARAMETER Strip
@@ -435,6 +603,10 @@ function Show-CertificateChain {
     param (
         [Parameter(Mandatory, Position = 0)]
         [string]$Uri,
+
+        [Parameter(Position = 1)]
+        [ValidateRange(1, 65535)]
+        [int]$Port = 443,
 
         [Parameter(Mandatory, ParameterSetName = 'Extended')]
         [switch]$Extended,
@@ -453,7 +625,12 @@ function Show-CertificateChain {
     }
 
     process {
-        Show-Certificate @PSBoundParameters
+        try {
+            Show-Certificate @PSBoundParameters
+        } catch {
+            # re-throw the concise error without the wrapper's call-site noise
+            $PSCmdlet.ThrowTerminatingError($_)
+        }
     }
 }
 
