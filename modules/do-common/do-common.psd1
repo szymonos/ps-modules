@@ -42,6 +42,7 @@
         'Show-Certificate'
         'Show-CertificateChain'
         'Show-ConvertedPem'
+        'Split-UriHostPort'
         # cli
         'Invoke-DigColored'
         # common

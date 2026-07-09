@@ -3,6 +3,19 @@ SHELL := /bin/bash
 # Default target
 .DEFAULT_GOAL := help
 
+# MITM proxy support: use native TLS (OpenSSL) in prek to trust system CA certificates
+export PREK_NATIVE_TLS := 1
+# silence the deprecated `mkdocs.utils.warning_filter` access from mkdocs-roamlinks-plugin (unmaintained since 2023; fix is upstream-only)
+export PYTHONWARNINGS := ignore::DeprecationWarning:mkdocs.utils
+# Stage all changes, run prek, then restore the original index.
+# Auto-fixes from hooks land in the working tree; snapshotting the index file
+# (not just a path list) preserves the exact prior staging, partial hunks included.
+define PREK_RUN
+idx=$$(git rev-parse --git-path index); bak=$$(mktemp); cp -p "$$idx" "$$bak"; \
+git add --all && uv run --frozen --extra devel prek run $(HOOK) $(1); rc=$$?; \
+mv "$$bak" "$$idx"; exit $$rc
+endef
+
 .PHONY: help
 help: ## Show this help message
 	@printf 'Usage: make [target]\n\n'
@@ -20,19 +33,19 @@ upgrade: ## Upgrade all dependencies and pre-commit hooks
 	uv run prek autoupdate
 
 .PHONY: lint lint-diff lint-all
-lint: ## Lint and format code for changed files
+lint: ## Run pre-commit hooks for changed files (HOOK=id to run one hook)
 	@printf "🧭 Running pre-commit hooks for changed files...\n\n"
-	git add --all && uv run --frozen --extra devel prek run
-lint-diff: ## Run pre-commit hooks for files changed in this diff
+	@$(call PREK_RUN)
+lint-diff: ## Run pre-commit hooks for files changed in this diff (HOOK=id to run one hook)
 	@printf "🧭 Running pre-commit hooks for files changed in this diff...\n\n"
 	@if [ "$$(git branch --show-current)" = "main" ]; then \
 		printf "⚠️  You are on the main branch. Skipping lint-diff.\n"; \
 	else \
-		uv run --frozen --extra devel prek run --from-ref main --to-ref HEAD; \
+		$(call PREK_RUN,--from-ref main --to-ref HEAD); \
 	fi
-lint-all: ## Lint and format all files using pre-commit hooks
-	@printf "🧭 Running pre-commit hooks...\n"
-	uv run --frozen --extra devel prek run --all-files
+lint-all: ## Run pre-commit hooks for all files (HOOK=id to run one hook)
+	@printf "🧭 Running pre-commit hooks for all files...\n\n"
+	@$(call PREK_RUN,--all-files)
 
 .PHONY: install-git-aliases install-git-aliases-force
 install-git-aliases: ## install aliases-git module

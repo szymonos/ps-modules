@@ -14,8 +14,18 @@ objects, and managing root certificates.
 | `Show-Certificate`          |          | Show cert chain for URI   |
 | `Show-CertificateChain`     |          | Show full cert chain      |
 | `Show-ConvertedPem`         | `pemdec` | Decode and display PEM    |
+| `Split-UriHostPort`         |          | Parse host and port       |
 
 !!! example "Inspect a certificate chain"
     ```powershell
     Show-Certificate -Uri 'https://github.com'
+    ```
+
+!!! example "Inspect a certificate on a non-default port"
+    ```powershell
+    # port appended to the host, like `openssl s_client -connect host:port`
+    Show-Certificate -Uri 'example.com:8443' -BuildChain
+
+    # or passed explicitly with -Port
+    Show-Certificate -Uri 'example.com' -Port 8443 -BuildChain
     ```

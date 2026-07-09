@@ -1,112 +1,43 @@
-# AGENTS.md
+# ps-modules
 
-## Tooling
+Cross-platform PowerShell modules, plus the MkDocs site and Python tooling that document and
+lint them.
 
-- **Primary interface**: `make` (Makefile) - run `make` to see available targets
-- **Package manager**: `uv` (not pip/poetry) - see <https://docs.astral.sh/uv/llms.txt>
-- **Linting**: `make lint` runs pre-commit hooks via `prek` (not pre-commit).
-  Hooks are configured in `.pre-commit-config.yaml` and include: `ruff` (Python),
-  `markdownlint-cli2` (Markdown), `cspell` (spelling), `mkdocs build --strict`,
-  gremlins check, and docs word validation. Do not run these tools individually.
-- **Docs**: `mkdocs` with Material theme (`make mkdocs-serve` to preview)
+## Compound knowledge
 
-## IMPORTANT: Always Validate Changes
+Two knowledge layers beyond this file. Read on demand, not upfront:
 
-After every code or documentation change, run `make lint` and fix all failures before proceeding.
-Do not skip this step. Do not assume changes are correct without running lint.
+| Layer                                    | When to read                                               | What it answers        |
+| ---------------------------------------- | ---------------------------------------------------------- | ---------------------- |
+| [`ARCHITECTURE.md`](ARCHITECTURE.md)     | Modifying module structure, hooks, skills, build pipeline  | How things connect     |
+| [`design/lessons.md`](design/lessons.md) | Fixing bugs, repeating a mistake, touching hooks or skills | What went wrong before |
 
-## Project Structure
+Skip both for content-only edits to existing docs, typo fixes, and conversational questions.
 
-```text
-modules/<name>/
-  <name>.psd1          # manifest (FunctionsToExport, AliasesToExport)
-  <name>.psm1          # root module (dot-sources, Export-ModuleMember)
-  Functions/*.ps1      # function files
-docs/
-  <module>/            # each module has its own folder
-    index.md           # module overview
-    *.md               # subpages (aliases, helpers, completers, etc.)
-src/
-  align_tables.py      # markdown table alignment script
-  hooks/               # pre-commit hook scripts
-pyproject.toml         # Python deps (mkdocs, etc.) managed by uv
-```
+## Common commands
 
-## Adding a New Alias Function
-
-Three files must be updated in sync:
-
-1. **`Functions/<file>.ps1`** - add the function
-2. **`<module>.psm1`** - add to export list + dot-source if new file
-3. **`<module>.psd1`** - add to `FunctionsToExport`
-
-### Alias Function Pattern
-
-All alias functions use `Invoke-WriteExecCommand` (defined in `Functions/internal.ps1`).
-It prints the command in magenta then executes it via `Invoke-Expression`.
-
-```powershell
-function gexample {
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
-    param (
-        [Parameter(ValueFromRemainingArguments)]
-        [string[]]$Xargs,
-
-        [Parameter(ParameterSetName = 'whatif')]
-        [switch]$WhatIf,
-
-        [Parameter(ParameterSetName = 'quiet')]
-        [switch]$Quiet
-    )
-
-    Invoke-WriteExecCommand -Command 'git example' @PSBoundParameters
-}
-```
-
-Omit `$Xargs` param only when the command takes no extra arguments (e.g. `git restore --staged .`).
-
-## Markdown Rules
-
-### Gremlins
-
-Pre-commit rejects Unicode characters like em dashes (U+2014), smart quotes, etc. Use plain ASCII only.
-
-### Table Alignment (MD060)
-
-The linter enforces **aligned** table style - every row's pipe characters must be at the exact same column
-as the header. The `align-tables` pre-commit hook auto-fixes tables on commit. To run manually:
+**IMPORTANT**: Always run `make lint` after every code or docs change and fix all failures
+before reporting done. Do not run the underlying tools individually.
 
 ```bash
-python3 -m src.hooks.align_tables docs/**/*.md
+make                  # list available targets
+make lint             # run pre-commit hooks on changed files (run after every change)
+make lint-diff        # run hooks on files changed since main (use after /prepare-pr Phase 2)
+make lint-all         # run hooks on the entire repo
+make lint HOOK=<id>   # run a single hook by ID (e.g. make lint HOOK=gremlins-check)
+make mkdocs-build     # build the site with --strict; zero warnings required for docs changes
+make mkdocs-serve     # preview the site locally with live reload
 ```
 
-### Spelling
+## Golden rules
 
-Custom words go in `project-words.txt` (lowercase, sorted). The `validate-docs-words` pre-commit
-hook removes unused words automatically. Do NOT create alternative markdownlint config files -
-modify `.markdownlint.yml` only.
-
-### Markdownlint Config
-
-`.markdownlint.yml` settings:
-
-- MD013: line length 120, code blocks and tables exempt
-- MD024: siblings_only
-- MD046: disabled
-
-## mkdocs
-
-- Config: `mkdocs.yml`, deps in `pyproject.toml` (managed by `uv`)
-- Deploy: `.github/workflows/gh-pages.yml` uses `uv run mkdocs gh-deploy --force`
-- Doc filenames use hyphens (`aliases-git/` not `aliases_git/`)
-- Each module gets its own folder under `docs/`; small modules use a single `index.md`,
-  larger modules split into multiple pages by function group
-
-### mkdocs Features
-
-Docs use Material for MkDocs with these extensions:
-
-- **Emojis** in titles: `:material-git:`, `:octicons-mark-github-16:`, etc.
-- **Admonitions**: `!!! note`, `!!! tip`, `!!! warning`, `!!! danger`, `!!! example`, `!!! info`
-- **Collapsible blocks**: `??? info "Title"` (content must be indented 4 spaces)
-- Tables inside admonitions/collapsible blocks need blank line after the opener and 4-space indentation
+- **Modules**: adding/renaming/removing a public function or alias must update all three of
+  `Functions/<file>.ps1`, `<module>.psm1` (export list + dot-source), and `<module>.psd1`
+  (`FunctionsToExport`/`AliasesToExport`). See ARCHITECTURE.md section 2.
+- **Package manager**: `uv` (not pip/poetry). Pre-commit runner: `prek`.
+- **Markdown**: ASCII only (the `gremlins-check` hook rejects em dashes, smart quotes, NBSP).
+  Tables are auto-aligned by the `align-tables` hook. Config lives in `.markdownlint.yml` -
+  do not add alternative config files.
+- **Commits**: Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`, `test:`,
+  `refactor:`); scope docs commits (`docs(do-common)`). Never `git add .` / `git add -A`
+  during consolidation; force-push only with `--force-with-lease`.
