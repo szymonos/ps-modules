@@ -16,3 +16,32 @@ for absolute URIs and reserve manual parsing for bare `host` / `host:port` input
 the code strip every component the docstring claims it strips.
 
 ---
+
+## L-002 - 2026-07-13 - directory-move-artifact-audit
+
+**Source:** PR #269, branch `rfr/agentic`
+
+When relocating a directory (e.g. `src/hooks/` → `hooks/`), the file move is only half the change. Every place
+that named the *old* location as a string - regex scopes in `.pre-commit-config.yaml` (`files: ^(src|tests)/`),
+path-prefix maps in config TOML (`[architecture_sections]` in `.claude/prepare-pr.toml`), Python module dotted
+paths in hook entries (`python3 -m src.hooks.foo`), documentation snippets showing repo layout - has to move
+too, or coverage silently disappears. `git mv` only refactors the tracked files; it doesn't touch string
+references to the old path elsewhere in the tree. Before committing a move, `git grep '<old-prefix>'` across
+config, docs, and scripts and reconcile every hit; treat any survivor as a bug the CI won't catch (because the
+tools it configures just silently match nothing).
+
+---
+
+## L-003 - 2026-07-13 - hook-policy-doc-sync
+
+**Source:** PR #269, branch `rfr/agentic`
+
+When a lint or pre-commit hook relaxes or tightens its policy (e.g. `gremlins.py` allowing EM DASH / NBSP /
+ellipsis / middle dot in `.md`/`.html`/`.htm` files), update the *human-facing* description of that policy in
+the same commit. The hook's own docstring is not enough - contributor-facing docs (`AGENTS.md`,
+`REVIEW-BRIEF.md`, `ARCHITECTURE.md`) and code-review guidance are what agents and reviewers actually read, so
+stale claims like "ASCII-only" cause needless rework and misdirected review findings. Pattern: before landing
+a hook-behavior change, `git grep -l '<policy-summary-keyword>'` (e.g. "ASCII only", "rejects em dashes")
+across the repo and reconcile each hit.
+
+---

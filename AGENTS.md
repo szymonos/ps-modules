@@ -14,6 +14,13 @@ Two knowledge layers beyond this file. Read on demand, not upfront:
 
 Skip both for content-only edits to existing docs, typo fixes, and conversational questions.
 
+> **Module changes are versioned.** Any edit under `modules/<name>/` must bump
+> `ModuleVersion` in `<name>.psd1` in the **same, module-only** commit, with
+> message `<prefix>: <name> vX.Y.Z` (e.g. `feat: do-common v1.9.0`,
+> `refactor: aliases-git v1.23.1`). Files that only *use* the module do not
+> trigger a bump. See [`ARCHITECTURE.md`](ARCHITECTURE.md) §2c for the SemVer
+> rule and the "bump only against released code" gotcha.
+
 ## Common commands
 
 **IMPORTANT**: Always run `make lint` after every code or docs change and fix all failures
@@ -34,8 +41,13 @@ make mkdocs-serve     # preview the site locally with live reload
 - **Modules**: adding/renaming/removing a public function or alias must update all three of
   `Functions/<file>.ps1`, `<module>.psm1` (export list + dot-source), and `<module>.psd1`
   (`FunctionsToExport`/`AliasesToExport`). See ARCHITECTURE.md section 2.
+- **Module versioning**: every edit under `modules/<name>/` bumps `ModuleVersion` in
+  `<name>.psd1` in the same module-only commit, using `<prefix>: <name> vX.Y.Z`. See
+  ARCHITECTURE.md §2c.
 - **Package manager**: `uv` (not pip/poetry). Pre-commit runner: `prek`.
-- **Markdown**: ASCII only (the `gremlins-check` hook rejects em dashes, smart quotes, NBSP).
+- **Markdown**: mostly ASCII (the `gremlins-check` hook auto-fixes smart quotes and most invisibles;
+  it allows EM DASH, NBSP, HORIZONTAL ELLIPSIS, and MIDDLE DOT in `.md`/`.html`/`.htm` since those
+  serve legitimate typographic purposes). Plain code and prose outside markup are ASCII-only.
   Tables are auto-aligned by the `align-tables` hook. Config lives in `.markdownlint.yml` -
   do not add alternative config files.
 - **Commits**: Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`, `test:`,
