@@ -73,8 +73,10 @@ public function usually needs a matching docs edit; a diff that changes exports 
 These are deliberate. Flagging them is noise:
 
 - **`prek` instead of `pre-commit`** - `prek` is the pre-commit runner used in this project (via `make lint`).
-- **ASCII-only punctuation (hyphens, not em/en dashes; straight quotes)** - enforced by `src/hooks/gremlins.py`,
-  which rejects em dashes, smart quotes, non-breaking spaces, etc. Plain `-` in prose is correct, not a typo.
+- **Mostly-ASCII punctuation (hyphens, straight quotes)** - enforced by `hooks/gremlins.py`, which auto-fixes
+  smart quotes and most invisibles. Markup files (`.md`/`.html`/`.htm`) get a relaxed pass: EM DASH, NBSP,
+  HORIZONTAL ELLIPSIS, and MIDDLE DOT are allowed there. Everywhere else (code, config, prose in non-markup),
+  plain `-` and straight quotes are correct, not a typo.
 - **`validate_docs_words.py` rewriting `project-words.txt`** - the hook intentionally prunes unused words and
   writes back a sorted, lowercased, deduplicated list. Mutating that file is the hook's job, not a bug.
 - **Aligned Markdown tables** - the `align-tables` hook (MD060) auto-formats tables so every row's pipes share a
