@@ -18,13 +18,12 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v7
         with:
-          version: "0.10.12"
           enable-cache: "true"
           cache-dependency-glob: "uv.lock"
 
       - name: Sync uv virtual environment
         run: |
-          uv sync --frozen
+          uv sync --frozen --no-dev
 
       - name: Run pre-commit hooks
         uses: j178/prek-action@v2
