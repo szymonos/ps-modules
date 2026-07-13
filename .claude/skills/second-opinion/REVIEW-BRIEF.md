@@ -17,7 +17,7 @@ in one repo:
    `do-az` (Azure: subscriptions, Key Vault, AKS, Resource Graph, MS Graph),
    `do-common` (cross-platform, dependency-free: encoding, certs, Python venvs, shell helpers, networking),
    `do-linux`, `do-win` (OS-specific utilities), `psm-windows`.
-2. **Python pre-commit hooks** (`src/hooks/`) - `align_tables.py`, `gremlins.py`, `validate_docs_words.py`.
+2. **Python pre-commit hooks** (`hooks/`) - `align_tables.py`, `gremlins.py`, `validate_docs_words.py`.
 3. **Agent skills** (`.claude/skills/`) - Claude Code slash commands with bundled Python/bash helper scripts.
 4. **Docs** (`docs/`) - one folder per module, published as a static site via `mkdocs-material`
    (`mkdocs build --strict`).
@@ -61,7 +61,7 @@ public function usually needs a matching docs edit; a diff that changes exports 
    (see `Functions/internal.ps1`), which prints the command then runs it. Check that `-WhatIf`/`-Quiet` parameter
    sets are wired correctly and `[Parameter(ValueFromRemainingArguments)]$Xargs` is present unless the command
    takes no extra args.
-4. **Python correctness** - logic errors in `src/hooks/` and `.claude/skills/*/scripts/`. Type safety, edge cases,
+4. **Python correctness** - logic errors in `hooks/` and `.claude/skills/*/scripts/`. Type safety, edge cases,
    unchecked returns, subprocess error handling, regex bugs, unintended file mutation.
 5. **Skill design** - `SKILL.md` instructions that contradict each other, reference non-existent files/commands,
    use wrong phase numbers, or create circular skill dependencies.
@@ -73,8 +73,10 @@ public function usually needs a matching docs edit; a diff that changes exports 
 These are deliberate. Flagging them is noise:
 
 - **`prek` instead of `pre-commit`** - `prek` is the pre-commit runner used in this project (via `make lint`).
-- **ASCII-only punctuation (hyphens, not em/en dashes; straight quotes)** - enforced by `src/hooks/gremlins.py`,
-  which rejects em dashes, smart quotes, non-breaking spaces, etc. Plain `-` in prose is correct, not a typo.
+- **Mostly-ASCII punctuation (hyphens, straight quotes)** - enforced by `hooks/gremlins.py`, which auto-fixes
+  smart quotes and most invisibles. Markup files (`.md`/`.html`/`.htm`) get a relaxed pass: EM DASH, NBSP,
+  HORIZONTAL ELLIPSIS, and MIDDLE DOT are allowed there. Everywhere else (code, config, prose in non-markup),
+  plain `-` and straight quotes are correct, not a typo.
 - **`validate_docs_words.py` rewriting `project-words.txt`** - the hook intentionally prunes unused words and
   writes back a sorted, lowercased, deduplicated list. Mutating that file is the hook's job, not a bug.
 - **Aligned Markdown tables** - the `align-tables` hook (MD060) auto-formats tables so every row's pipes share a
