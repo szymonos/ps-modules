@@ -18,7 +18,7 @@ from pathlib import Path
 
 def main() -> None:
     """Validate docs words against docs content."""
-    root = Path(__file__).resolve().parent.parent.parent
+    root = Path(__file__).resolve().parent.parent
     print(f"Project root: {root}")
     words_path = root / "project-words.txt"
 
