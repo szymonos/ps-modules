@@ -3,6 +3,13 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# local settings
+settings.local.json
+/.claude/rules/openwolf.md
+/.claude/settings.json
+/.wolf
+/CLAUDE.md
+
 # personal
 /.private/
 /.tmp/
