@@ -1,0 +1,24 @@
+# prepare-pr per-repo config
+#
+# Consumed by .claude/skills/prepare-pr/scripts/extract_signals.py. Keeps the
+# skill's script portable: repo-specific layout lives here, not in the script.
+# Absent/partial config degrades to a safe no-op (the ARCHITECTURE staleness
+# check simply finds nothing). See ARCHITECTURE.md and the skill's SKILL.md.
+
+# Doc scanned for staleness by the `architecture` subcommand (Phase 1.5c).
+architecture_doc = "ARCHITECTURE.md"
+
+# Where extracted operational lessons are written (Phase 1.5b).
+lessons_path = "design/lessons.md"
+
+# Maps ARCHITECTURE.md section identifier -> path prefixes that, when touched by
+# the branch diff, mark that section potentially stale. Keys are the section IDs
+# the skill references (e.g. `build_pipeline`, shown parenthesized in the doc
+# heading `## 4. Build and docs pipeline (build_pipeline)`), not the literal
+# heading text.
+[architecture_sections]
+powershell_module = ["modules/", "module_manage.ps1"]
+docs_site         = ["docs/", "mkdocs.yml"]
+hook_inventory    = ["hooks/", ".pre-commit-config.yaml"]
+skills_catalog    = [".claude/skills/"]
+build_pipeline    = ["pyproject.toml", "Makefile", "uv.lock"]
