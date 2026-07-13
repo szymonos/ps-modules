@@ -7,13 +7,13 @@ SHELL := /bin/bash
 export PREK_NATIVE_TLS := 1
 # silence the deprecated `mkdocs.utils.warning_filter` access from mkdocs-roamlinks-plugin (unmaintained since 2023; fix is upstream-only)
 export PYTHONWARNINGS := ignore::DeprecationWarning:mkdocs.utils
-# Stage all changes, run prek, then restore the original index.
-# Auto-fixes from hooks land in the working tree; snapshotting the index file
-# (not just a path list) preserves the exact prior staging, partial hunks included.
+# Run prek over the whole working tree without touching the user's staging:
+# stage into a disposable scratch index (GIT_INDEX_FILE) so the real index is
+# never modified. Auto-fixes land in the working tree for review.
 define PREK_RUN
-idx=$$(git rev-parse --git-path index); bak=$$(mktemp); cp -p "$$idx" "$$bak"; \
-git add --all && uv run --frozen --extra devel prek run $(HOOK) $(1); rc=$$?; \
-mv "$$bak" "$$idx"; exit $$rc
+export GIT_INDEX_FILE="$$(git rev-parse --git-path index).prek"; \
+trap 'rm -f "$$GIT_INDEX_FILE" "$$GIT_INDEX_FILE.lock"' EXIT; \
+git read-tree HEAD && git add --all && uv run --frozen prek run $(HOOK) $(1)
 endef
 
 .PHONY: help
@@ -25,11 +25,11 @@ help: ## Show this help message
 .PHONY: install upgrade
 install: ## Install all dependencies and pre-commit hooks
 	@printf "📦 Installing all dependencies...\n\n"
-	uv sync --all-extras --frozen
+	uv sync --all-groups --frozen
 	uv run prek install --overwrite
 upgrade: ## Upgrade all dependencies and pre-commit hooks
 	@printf "🔁 Upgrading dependencies...\n\n"
-	uv sync --all-extras --upgrade --compile-bytecode
+	uv sync --all-groups --upgrade --compile-bytecode
 	uv run prek autoupdate
 
 .PHONY: lint lint-diff lint-all

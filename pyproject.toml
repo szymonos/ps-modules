@@ -4,8 +4,8 @@ version = "1.0.0"
 requires-python = "~=3.14.0"
 dependencies = ["mkdocs-autorefs~=1.4.0", "mkdocs-techdocs-core~=1.6.0"]
 
-[project.optional-dependencies]
-devel = ["prek"]
+[dependency-groups]
+dev = ["prek"]
 
 [tool.ruff]
 line-length = 88
