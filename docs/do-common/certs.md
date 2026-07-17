@@ -24,8 +24,8 @@ objects, and managing root certificates.
 !!! example "Inspect a certificate on a non-default port"
     ```powershell
     # port appended to the host, like `openssl s_client -connect host:port`
-    Show-Certificate -Uri 'example.com:8443' -BuildChain
+    Show-Certificate -Uri 'example.com:8443' -PresentedChain
 
     # or passed explicitly with -Port
-    Show-Certificate -Uri 'example.com' -Port 8443 -BuildChain
+    Show-Certificate -Uri 'example.com' -Port 8443 -PresentedChain
     ```

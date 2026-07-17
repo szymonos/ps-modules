@@ -45,3 +45,15 @@ a hook-behavior change, `git grep -l '<policy-summary-keyword>'` (e.g. "ASCII on
 across the repo and reconcile each hit.
 
 ---
+
+## L-004 - 2026-07-17 - module-api-rename-doc-sync
+
+**Source:** PR #270, branch `fix/do-common`
+
+When renaming or removing a public parameter (or any exported surface) of a versioned module, `git grep` the
+old name across `docs/`, `README.md`, and example snippets in the same change and reconcile every hit -
+`FunctionsToExport`/`AliasesToExport` and the manifest bump only track the *code* surface, so published usage
+examples silently drift and ship copy-pasteable commands that fail against the new API. Pattern: before
+finalizing a `-OldParam` -> `-NewParam` rename, `git grep -n 'OldParam'` and fix docs, then let the
+heterogeneous reviewer confirm (this lesson exists because `/second-opinion` caught exactly this drift after
+the code review missed it).
