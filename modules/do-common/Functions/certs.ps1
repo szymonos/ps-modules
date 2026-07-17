@@ -277,10 +277,16 @@ Uri used for intercepting certificate. The port can be appended to the host
 .PARAMETER Port
 Port used for the TLS connection. Defaults to 443 and is overridden by a port
 embedded in the Uri.
-.PARAMETER BuildChain
-Switch whether to build full certificate chain.
-.PARAMETER IgnoreValidation
-Ignore validation errors for getting certificate/building chain.
+.PARAMETER PresentedChain
+Return the full certificate chain presented by the endpoint during the TLS
+handshake (leaf first), instead of just the leaf certificate. The chain is
+captured from the handshake itself, so it works even for endpoints with a
+broken/untrusted chain or behind an inspecting proxy.
+
+.NOTES
+The certificate presented during the handshake is always accepted, regardless of
+its validity, so inspecting expired/self-signed/untrusted certificates never
+throws. Only connection and transport failures raise an error.
 #>
 function Get-Certificate {
     [CmdletBinding()]
@@ -293,9 +299,7 @@ function Get-Certificate {
         [ValidateRange(1, 65535)]
         [int]$Port = 443,
 
-        [switch]$BuildChain,
-
-        [switch]$IgnoreValidation
+        [switch]$PresentedChain
     )
 
     begin {
@@ -308,19 +312,36 @@ function Get-Certificate {
     }
 
     process {
+        # list to capture the presented chain from the handshake callback; the certs
+        # are deep-copied (via RawData) so they survive disposal of the SslStream
+        $presented = [System.Collections.Generic.List[System.Security.Cryptography.X509Certificates.X509Certificate2]]::new()
+        $validationCallback = {
+            param ($senderObj, $cert, $chain, $sslPolicyErrors)
+            # reset so a repeated callback invocation replaces rather than duplicates
+            $presented.Clear()
+            # $chain can be null in some handshake edge cases; guard before enumerating
+            if ($chain) {
+                foreach ($element in $chain.ChainElements) {
+                    $presented.Add([System.Security.Cryptography.X509Certificates.X509Certificate2]::new($element.Certificate.RawData))
+                }
+            }
+            # always accept - this function inspects certificates, it does not validate trust
+            return $true
+        }
+
         $tcpClient = $sslStream = $null
         try {
             # open the TCP connection to the target host and port
             $tcpClient = [System.Net.Sockets.TcpClient]::new($hostname, $Port)
 
-            # perform the TLS handshake to intercept the presented certificate
-            if ($IgnoreValidation) {
-                $sslStream = [System.Net.Security.SslStream]::new($tcpClient.GetStream(), $false, { $true })
-            } else {
-                $sslStream = [System.Net.Security.SslStream]::new($tcpClient.GetStream())
-            }
+            # perform the TLS handshake, accepting any certificate so even invalid
+            # certs can be inspected; the callback captures the full presented chain
+            $sslStream = [System.Net.Security.SslStream]::new($tcpClient.GetStream(), $false, $validationCallback)
             $sslStream.AuthenticateAsClient($hostname)
-            $certificate = $sslStream.RemoteCertificate
+            # RemoteCertificate is typed X509Certificate; use GetRawCertData() (base
+            # method) and deep-copy so the leaf survives disposal of the SslStream
+            $rawLeaf = $sslStream.RemoteCertificate.GetRawCertData()
+            $leaf = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($rawLeaf)
         } catch {
             # surface a concise, categorized error instead of the raw .NET exception
             $PSCmdlet.ThrowTerminatingError((New-CertificateError -Exception $_.Exception -Target "${hostname}:${Port}"))
@@ -329,18 +350,9 @@ function Get-Certificate {
             if ($tcpClient) { $tcpClient.Dispose() }
         }
 
-        if ($BuildChain) {
-            $chain = [System.Security.Cryptography.X509Certificates.X509Chain]::new()
-            if ($IgnoreValidation) {
-                $chain.ChainPolicy.VerificationFlags = [System.Security.Cryptography.X509Certificates.X509VerificationFlags]::AllFlags
-            }
-            $isChainValid = $chain.Build($certificate)
-            if ($isChainValid) {
-                $certificate = $chain.ChainElements.Certificate
-            } else {
-                Write-Warning 'SSL certificate chain validation failed.'
-            }
-        }
+        # return the presented chain (leaf first), or just the leaf certificate;
+        # fall back to the leaf if the callback couldn't populate the chain
+        $certificate = ($PresentedChain -and $presented.Count) ? $presented.ToArray() : $leaf
     }
 
     end {
@@ -359,8 +371,10 @@ Uri used for intercepting certificate. The port can be appended to the host
 .PARAMETER Port
 Port used for the TLS connection. Defaults to 443 and is overridden by a port
 embedded in the Uri.
-.PARAMETER BuildChain
-Switch whether to build full certificate chain.
+.PARAMETER PresentedChain
+Return the full certificate chain presented by the endpoint (leaf first), instead
+of just the leaf certificate. Uses `openssl s_client -showcerts`, so the returned
+certificates are the exact bytes the endpoint sent on the wire.
 #>
 function Get-CertificateOpenSSL {
     [CmdletBinding()]
@@ -373,7 +387,7 @@ function Get-CertificateOpenSSL {
         [ValidateRange(1, 65535)]
         [int]$Port = 443,
 
-        [switch]$BuildChain
+        [switch]$PresentedChain
     )
 
     begin {
@@ -404,7 +418,7 @@ function Get-CertificateOpenSSL {
         $cmdArgs.Add("${connectHost}:${Port}")
         $cmdArgs.Add('-servername')
         $cmdArgs.Add($hostname)
-        if ($BuildChain) {
+        if ($PresentedChain) {
             $cmdArgs.Add('-showcerts')
         }
     }
@@ -468,6 +482,12 @@ function Get-RootCertificates {
         $sysId = (Select-String '(?<=^ID.+)(alpine|arch|fedora|debian|ubuntu|opensuse)' -List /etc/os-release).Matches.Value
         $certPath = $sysId -eq 'opensuse' ? '/etc/ssl/ca-bundle.pem' : '/etc/ssl/certs/ca-certificates.crt'
         ConvertFrom-PEM -Path $certPath
+    } elseif ($IsMacOS) {
+        # read trusted roots from the system keychain (includes MDM-pushed roots)
+        $pem = security find-certificate -a -p /System/Library/Keychains/SystemRootCertificates.keychain /Library/Keychains/System.keychain 2>$null
+        if ($pem) {
+            ConvertFrom-PEM -InputObject ([string]::Join("`n", $pem))
+        }
     }
 }
 
@@ -484,8 +504,9 @@ Port used for the TLS connection. Defaults to 443 and is overridden by a port
 embedded in the Uri.
 .PARAMETER InputObject
 Object from pipeline to show certificate properties.
-.PARAMETER BuildChain
-Build chain for certificate obtained from Uri.
+.PARAMETER PresentedChain
+Show the full certificate chain presented by the endpoint, instead of just the
+leaf certificate.
 .PARAMETER Extended
 Switch, whether to show extended certificate properties.
 .PARAMETER Strip
@@ -510,7 +531,7 @@ function Show-Certificate {
         [System.Security.Cryptography.X509Certificates.X509Certificate2[]]$InputObject,
 
         [Parameter(ParameterSetName = 'FromUri')]
-        [switch]$BuildChain,
+        [switch]$PresentedChain,
 
         [switch]$Extended,
 
@@ -522,8 +543,6 @@ function Show-Certificate {
     )
 
     begin {
-        $WarningPreference = 'Stop'
-
         # build properties for Show-Object function
         $showCertProp = if ($All) {
             @{ }
@@ -621,7 +640,7 @@ function Show-CertificateChain {
     )
 
     begin {
-        $PSBoundParameters.Add('BuildChain', $true)
+        $PSBoundParameters.Add('PresentedChain', $true)
     }
 
     process {
