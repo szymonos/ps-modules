@@ -26,7 +26,7 @@ $Module = 'aliases-git'
 $Module = 'aliases-kubectl'
 $Module = 'do-az'
 $Module = 'do-common'
-$Module = 'do-linux'
+$Module = 'do-unix'
 $Module = 'do-win'
 # *install
 ./module_manage.ps1 $Module -CleanUp -Verbose
