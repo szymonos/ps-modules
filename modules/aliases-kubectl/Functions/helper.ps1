@@ -303,8 +303,6 @@ function Set-KubectlLocal {
         $LOCAL_BIN = [IO.Path]::Combine($HOME, '.local', 'bin')
         $KUBECTL_LOCAL = [IO.Path]::Combine($LOCAL_BIN, $KUBECTL)
         $KUBECTL_DIR = [IO.Path]::Combine($HOME, '.local', 'share', 'kubectl')
-        # initialize retry variable for kubectl download loop
-        $RETRY_COUNT = 0
     }
 
     process {
@@ -331,10 +329,8 @@ function Set-KubectlLocal {
                 } elseif ($IsMacOS) {
                     'darwin/arm64'
                 }
-                do {
-                    [Net.WebClient]::new().DownloadFile("https://dl.k8s.io/release/${serverVersion}/bin/$dlSysArch/$KUBECTL", $kctlVer)
-                    $RETRY_COUNT++
-                } until ((Test-Path $kctlVer -PathType Leaf) -or $RETRY_COUNT -ge 2)
+                # download, verify and place the binary atomically
+                Invoke-KubectlDownload -Version $serverVersion -SysArch $dlSysArch -Destination $kctlVer -BinaryName $KUBECTL | Out-Null
             }
 
             # replace existing ~/.local/bin/kubectl symbolic link
