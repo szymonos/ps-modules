@@ -118,7 +118,7 @@ process {
                         if (Test-Path $localModManifest) {
                             & $PSCommandPath $mod -CleanUp:$CleanUp
                         } else {
-                            Install-PSResource $mod -WarningAction SilentlyContinue
+                            Install-PSResource $mod -TrustRepository -WarningAction SilentlyContinue
                         }
                     }
                 }
