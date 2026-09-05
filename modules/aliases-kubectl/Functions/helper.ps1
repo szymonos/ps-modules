@@ -576,9 +576,77 @@ function Get-KubectlApiResourceShortNames {
     [CmdletBinding()]
     param ()
 
+    $props = @(
+        @{ Name = 'Name'; Expression = { $_.Plural } }
+        @{ Name = 'ShortName'; Expression = { $_.ShortName -join ',' } }
+    )
+    (Get-KubectlApiResources -Object).Where({ $_.ShortName }) `
+    | Select-Object -Property $props `
+    | Sort-Object Name
+}
+
+
+<#
+.SYNOPSIS
+Get list of available kubernetes API resources.
+
+.PARAMETER Table
+Switch whether to return the output in table format.
+.PARAMETER Json
+Switch whether to return the output in JSON format.
+.PARAMETER Object
+Switch whether to return the output as a PowerShell object.
+.PARAMETER Name
+Get API resource details by plural resource name.
+.PARAMETER Kind
+Get API resource details by resource kind.
+.PARAMETER ApiGroup
+Limit the results to the specified API group.
+.PARAMETER Namespaced
+Limit the results to namespaced (or, with -Namespaced:$false, cluster-scoped) resources.
+#>
+function Get-KubectlApiResources {
+    [CmdletBinding(DefaultParameterSetName = 'table')]
+    param (
+        [Parameter(ParameterSetName = 'table')]
+        [switch]$Table,
+
+        [Parameter(ParameterSetName = 'json')]
+        [switch]$Json,
+
+        [Parameter(ParameterSetName = 'object')]
+        [switch]$Object,
+
+        [Alias('n')]
+        [Parameter(Mandatory, ParameterSetName = 'name')]
+        [Parameter(ParameterSetName = 'table')]
+        [Parameter(ParameterSetName = 'json')]
+        [Parameter(ParameterSetName = 'object')]
+        [string]$Name,
+
+        [Alias('k')]
+        [Parameter(Mandatory, ParameterSetName = 'kind')]
+        [Parameter(ParameterSetName = 'table')]
+        [Parameter(ParameterSetName = 'json')]
+        [Parameter(ParameterSetName = 'object')]
+        [string]$Kind,
+
+        [Alias('g')]
+        [string]$ApiGroup,
+
+        [switch]$Namespaced
+    )
+
     begin {
-        Write-Debug 'Retrieving kubernetes API resources...'
-        $apiResources = kubectl api-resources
+        [System.Collections.Generic.List[string]]$cmdArgs = @('api-resources')
+        if ($PSBoundParameters.ApiGroup) {
+            $cmdArgs.Add("--api-group=$ApiGroup")
+        }
+        if ($PSBoundParameters.ContainsKey('Namespaced')) {
+            $cmdArgs.Add("--namespaced=$($Namespaced.ToString().ToLower())")
+        }
+        Write-Debug "kubectl $($cmdArgs -join ' ')"
+        $apiResources = & kubectl @cmdArgs
         if (-not $?) {
             throw 'Failed to retrieve kubernetes API resources.'
         }
@@ -588,40 +656,54 @@ function Get-KubectlApiResourceShortNames {
         $idxName = $apiResources[0].IndexOf('NAME')
         $idxShort = $apiResources[0].IndexOf('SHORTNAMES')
         $idxAPI = $apiResources[0].IndexOf('APIVERSION')
+        $idxNamespaced = $apiResources[0].IndexOf('NAMESPACED')
+        $idxKind = $apiResources[0].IndexOf('KIND')
     }
 
     process {
         # parse API resources
         # return as list of objects
-        $collection = [System.Collections.Generic.List[pscustomobject]]::new()
-        for ($i = 1; $i -lt $apiResources.Length; $i++) {
-            $apiResource = [PSCustomObject]@{
-                Name       = $apiResources[$i].Substring($idxName, $idxShort).TrimEnd()
-                ShortNames = $apiResources[$i].Substring($idxShort, $idxAPI - $idxShort).TrimEnd().Split(',')
+        $resources = for ($i = 1; $i -lt $apiResources.Length; $i++) {
+            $row = $apiResources[$i].PadRight($idxKind)
+            [PSCustomObject]@{
+                Plural     = $row.Substring($idxName, $idxShort - $idxName).TrimEnd()
+                ShortName  = $(
+                    $shortNames = $row.Substring($idxShort, $idxAPI - $idxShort).TrimEnd()
+                    $shortNames ? $shortNames.Split(',') : $null
+                )
+                ApiVersion = $row.Substring($idxAPI, $idxNamespaced - $idxAPI).TrimEnd()
+                Namespaced = [bool]::Parse($row.Substring($idxNamespaced, $idxKind - $idxNamespaced).TrimEnd())
+                Kind       = $row.Substring($idxKind).TrimEnd()
             }
-            if ($apiResource.ShortNames) {
-                $collection.Add($apiResource)
-            }
+        }
+
+        # filter results
+        if ($PSBoundParameters.Name) {
+            $resources = $resources.Where({ $_.Plural -eq $Name })
+        } elseif ($PSBoundParameters.Kind) {
+            $resources = $resources.Where({ $_.Kind -eq $Kind })
         }
     }
 
     end {
-        $collection | Sort-Object -Property Name
+        $resources = $resources | Sort-Object -Property Plural
+        # return output
+        switch ($PsCmdlet.ParameterSetName) {
+            json {
+                if (Get-Command jq -CommandType Application -ErrorAction SilentlyContinue) {
+                    $resources | ConvertTo-Json | jq
+                } else {
+                    $resources | ConvertTo-Json
+                }
+            }
+            object {
+                $resources
+            }
+            default {
+                $resources | Format-Table
+            }
+        }
     }
-}
-
-<#
-.SYNOPSIS
-Get kubernetes short names for resources.
-#>
-function kapishortnames {
-    $apiResources = (Get-KubectlApiResources -AsObject).Where({ $_.ShortName })
-
-    $props = @(
-        @{ Name = 'Name'; Expression = { $_.Plural } }
-        @{ Name = 'ShortName'; Expression = { $_.ShortName -join ',' } }
-    )
-    $apiResources | Select-Object -Property $props | Sort-Object Name
 }
 #endregion
 
@@ -643,5 +725,6 @@ if (Test-Path '/usr/bin/kubens' -PathType Leaf) {
 } else {
     New-Alias -Name kn -Value Set-KubectlContextCurrentNamespace
 }
+New-Alias -Name kapi -Value Get-KubectlApiResources
 New-Alias -Name kapishorts -Value Get-KubectlApiResourceShortNames
 #endregion

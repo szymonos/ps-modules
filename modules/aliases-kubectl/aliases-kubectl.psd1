@@ -12,7 +12,7 @@
     RootModule           = 'aliases-kubectl.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '0.13.1'
+    ModuleVersion        = '0.14.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -93,6 +93,7 @@
         'Debug-KubernetesPod'
         'Get-KubectlPodContainers'
         'Get-KubectlPodLogs'
+        'Get-KubectlApiResources'
         'Get-KubectlApiResourceShortNames'
         # pods
         'kgpo'
@@ -922,6 +923,7 @@
         'kex'
         'kdbg'
         'klo'
+        'kapi'
         'kapishorts'
     )
 
