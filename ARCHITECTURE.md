@@ -6,11 +6,12 @@ structure, hooks, the build pipeline, or the docs layout. For day-to-day rules s
 [`AGENTS.md`](AGENTS.md); for mistakes made before, see [`design/lessons.md`](design/lessons.md).
 
 The section identifiers below (`powershell_module`, `docs_site`, `hook_inventory`,
-`skills_catalog`, `build_pipeline`) are the contract the `/prepare-pr` skill's
-staleness checker keys off. The section→path map lives in
-[`.claude/prepare-pr.toml`](.claude/prepare-pr.toml) (`[architecture_sections]`),
-read by `extract_signals.py architecture`. Keep these headings, that config, and
-the referenced paths in sync when you edit them.
+`skills_catalog`, `build_pipeline`) are anchors for a reviewer - human or agent - to
+jump straight to the area a change touches; no tooling parses them. The `/prepare-pr`
+skill (installed globally, symlinked into `~/.claude/skills/`, carrying no repo-local
+config) reviews this file against a branch's changed files at its plan gate and edits
+whatever section the branch invalidated. Keep the headings and the paths they name in
+sync when you edit them.
 
 ## 1. Repository layout
 
@@ -212,35 +213,44 @@ messages).
 
 ## 6. Agent skills (`skills_catalog`)
 
-Skills live in `.claude/skills/` as Claude Code slash commands, each with a
-bundled Python helper script (run via `uv run --frozen python` or `python3`).
+Skills are **global**, not repo-local: they live in `~/.claude/skills/` (symlinked
+from a separate skills repository), so the same skill works unmodified across every
+project. This repository carries no `.claude/skills/` directory and no skill config
+file - a skill that needs repo facts (commit convention, lint command, architecture
+doc) derives them from the live repo at run time instead of reading a per-repo TOML.
 
-| Skill               | Bundled script               | Purpose                                                               |
-| ------------------- | ---------------------------- | --------------------------------------------------------------------- |
-| `second-opinion`    | `scripts/review_brief.py`    | Heterogeneous-model review via GitHub Copilot CLI (GPT)               |
-| `address-pr-review` | `scripts/pr_review.py`       | Drive server-side Copilot PR review to a clean state                  |
-| `prepare-pr`        | `scripts/extract_signals.py` | Consolidate WIP commits by prefix, lint, push, and create/update a PR |
+| Skill               | Bundled script(s)                                        | Purpose                                                                                                        |
+| ------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `second-opinion`    | `scripts/review_brief.py`                                | Heterogeneous-model review via the GitHub Copilot CLI (GPT)                                                    |
+| `address-pr-review` | `scripts/pr_review.py`                                   | Standalone: drive a server-side Copilot PR review to a clean state                                             |
+| `prepare-pr`        | `scripts/prepare_pr.py`, vendored `scripts/pr_review.py` | Deterministic PR pipeline (consolidate, lint, push, create/update the PR) with an optional Copilot review coda |
 
 ### 6a. Interaction
 
+`prepare-pr` is a headless driver that stops at two gates for the agent to decide what
+machine judgment can't: the commit/PR plan, then a final eyeball before pushing.
+
 ```text
-/prepare-pr
-  ├─ Phase 1.5  → /second-opinion (Copilot CLI, pre-reset)
-  ├─ Phase 1.5b → extract learnings from WIP history → design/lessons.md
-  ├─ Phase 1.5c → review ARCHITECTURE.md for staleness
-  ├─ Phase 2    → soft-reset + recommit by prefix
-  ├─ Phase 3    → make lint-diff
-  ├─ Phase 4    → push + PR
-  └─ Phase 4.5  → /address-pr-review (gh CLI, post-push)
+prepare_pr.py start
+  └─ headless: env check, trunk sync, safety guards, lint, detect conventions
+  └─ GATE plan   → agent authors plan.json (commit groups, PR title/body)
+prepare_pr.py resume
+  └─ headless: soft-reset, recut commits, lint
+  └─ GATE push   → agent eyeballs commits and PR body
+prepare_pr.py resume
+  └─ headless: push, PR create-or-update
+     ── optional coda, only with --copilot-review ──
+     pr_review.py trigger/wait → agent triages comments → resolve → recut → push
 ```
 
-Coupling is one-directional: `prepare-pr` knows about the review skills; the review
-skills are self-contained.
+`address-pr-review` and `second-opinion` are self-contained and run standalone;
+`prepare-pr` is the only one that knows about the others - it vendors its own copy of
+`pr_review.py` for the coda rather than depending on the `address-pr-review` skill.
 
 ### 6b. Portability
 
-Skills are copied between repos. `prepare-pr`'s staleness checker is
-config-driven: the section→path map lives in
-[`.claude/prepare-pr.toml`](.claude/prepare-pr.toml) (`[architecture_sections]`),
-not in the script. When porting `prepare-pr` to another repo, retune those
-prefixes to that repo's layout - see the top of this file for the section names.
+Because skills live outside this repository, porting one means nothing here - there
+is no config to retune. `prepare-pr` derives every repo-specific fact (commit
+convention, PR-title convention, lint command, merge strategy, architecture doc) from
+the live repo at run time and hands it to the agent in one payload; it never reads a
+config file.
