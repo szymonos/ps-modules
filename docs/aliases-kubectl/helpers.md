@@ -40,6 +40,7 @@ decoding.
 
 | Function / Alias                                  | Description              |
 | ------------------------------------------------- | ------------------------ |
+| `Get-KubectlApiResources` (`kapi`)                | List API resources       |
 | `Get-KubectlApiResourceShortNames` (`kapishorts`) | List resource shortnames |
 
 ## :material-lock-open: Secrets
