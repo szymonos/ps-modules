@@ -350,11 +350,15 @@ If DeleteNoMerged parameter is not specified, all local merged branches will be 
 
 .PARAMETER DeleteNoMerged
 Switch whether to delete non merged branches.
+.PARAMETER NoFetch
+Switch whether to skip updating the remote, for callers that have already fetched.
 #>
 function Remove-GitLocalBranches {
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
         [switch]$DeleteNoMerged,
+
+        [switch]$NoFetch,
 
         [Parameter(ParameterSetName = 'whatif')]
         [switch]$WhatIf,
@@ -364,12 +368,15 @@ function Remove-GitLocalBranches {
     )
 
     begin {
-        # remove DeleteNoMerged from PSBoundParameters
+        # remove DeleteNoMerged and NoFetch from PSBoundParameters
         $PSBoundParameters.Remove('DeleteNoMerged') | Out-Null
+        $PSBoundParameters.Remove('NoFetch') | Out-Null
         # switch to dev/main branch
         git switch $(Get-GitResolvedBranch) --quiet
         # update remote
-        git remote update --prune
+        if (-not $NoFetch) {
+            git remote update --prune
+        }
         # instantiate sorted set for branches to delete
         $branches = [System.Collections.Generic.SortedSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
         $regex = '^(ma(in|ster)|(non)?prod(uction)?|dev(|el|elop|elopment)|qa|stag(e|ing)|trunk|docs)$'
@@ -405,14 +412,18 @@ Delete merged branches.
 
 .PARAMETER DeleteRemote
 Switch whether to delete remote merged branches.
+.PARAMETER NoFetch
+Switch whether to skip updating the remote, for callers that have already fetched.
 #>
 function Remove-GitMergedBranches {
     param (
-        [switch]$DeleteRemote
+        [switch]$DeleteRemote,
+
+        [switch]$NoFetch
     )
 
     # remove local merged and gone branches
-    Remove-GitLocalBranches -Quiet
+    Remove-GitLocalBranches -Quiet -NoFetch:$NoFetch
 
     # remove remote merged branches
     if ($DeleteRemote) {

@@ -403,7 +403,8 @@ function grunrefresh {
             if ($switch -ne "Your branch is up to date with '$remote/$defaultBranch'.") {
                 Invoke-WriteExecCommand -Command "git merge ${remote}/${defaultBranch}"
             }
-            Remove-GitMergedBranches
+            # skip fetching, since the repository was already fetched above
+            Remove-GitMergedBranches -NoFetch
         }
     }
     # run git repository command
