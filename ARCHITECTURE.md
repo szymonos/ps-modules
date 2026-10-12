@@ -144,6 +144,14 @@ function gexample {
 Omit the `$Xargs` param only when the command takes no extra arguments (e.g.
 `git restore --staged .`).
 
+`aliases-kubectl` aliases call `Invoke-WriteExecKubectl` with the kubectl arguments as a
+constant array (`$cmnd = @('get', 'deployment')`), and `aliases-kubectl.psm1` lists them in
+`$aliasFunctions` instead of the main `Function` export list. That list both exports them
+and registers `ArgK8sKubectlComplete` on their `$Xargs`, which tab-completes through
+`kubectl __complete`. A new alias in `Functions/alias.ps1` therefore goes in
+`$aliasFunctions` and in the manifest's `FunctionsToExport` (§ 2b), and its arguments must
+stay a constant array, since the completer reads them from the function body.
+
 ### 2e. Managing modules
 
 `module_manage.ps1` installs, removes, and scaffolds modules; the Makefile wraps common

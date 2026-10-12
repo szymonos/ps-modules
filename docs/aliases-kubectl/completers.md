@@ -87,3 +87,16 @@ Returns secret names from the current namespace. Namespace-aware - respects the
 | ---------------- | ------------------ | ------ |
 | `kgsec`          | Get secrets        | secret |
 | `kgsecd`         | Decode secret data | secret |
+
+## :material-auto-fix: ArgK8sKubectlComplete
+
+Completes the arguments of every alias function from `Functions/alias.ps1` using kubectl's
+own completion (`kubectl __complete`), so `kgdep <Tab>` lists deployments, `kgpo --namespace <Tab>`
+lists namespaces, and `kcv --<Tab>` lists flags - whatever plain `kubectl` would complete.
+Registered for all alias functions when the module loads; it is not exported.
+
+!!! note "Short flags"
+
+    PowerShell parses single-dash words such as `-n` or `-o` as its own parameters, so
+    completion after them falls back to file paths. Use the long form (`--namespace`, `--output`)
+    to get completion.
