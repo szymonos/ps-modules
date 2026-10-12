@@ -14,6 +14,8 @@ convention, plus helper functions for context management, pod operations, and se
 
 - **Composable pattern** - 7 verb prefixes x 8 resource suffixes x output modifiers
   generate the full alias set from a handful of rules.
+- **Tab completion everywhere** - every alias completes resource names, namespaces,
+  and flags through kubectl's built-in completion.
 - **Context & namespace switching** - `kcuctx` / `kcsctxcns` with tab-completed
   cluster names, contexts, and namespaces.
 - **Pod operations** - `kex` to exec into a container, `kdbg` to debug a pod,
@@ -28,4 +30,4 @@ convention, plus helper functions for context management, pod operations, and se
 - :material-format-letter-case: [Naming Conventions](conventions.md) - composable alias pattern explained
 - :material-format-list-bulleted: [Aliases](aliases.md) - core operations, resource aliases, and module aliases
 - :material-tools: [Helpers](helpers.md) - version management, context switching, pod operations, secrets
-- :material-tab: [Completers](completers.md) - tab-completion for clusters, contexts, pods, namespaces, secrets
+- :material-tab: [Completers](completers.md) - tab-completion for clusters, contexts, pods, namespaces, secrets, and all aliases

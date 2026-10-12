@@ -35,6 +35,8 @@ guess any alias without looking it up - e.g. `kgpoallw` = `kubectl get pods --al
 
 - **Composable pattern** - 7 verb prefixes x 8 resource suffixes x output modifiers
   generate the full alias set from a handful of rules.
+- **Tab completion everywhere** - every alias completes resource names, namespaces,
+  and flags through kubectl's built-in completion.
 - **Context & namespace switching** - `kcuctx` / `kcsctxcns` with tab-completed
   cluster names, contexts, and namespaces.
 - **Pod operations** - `kex` to exec into a container, `kdbg` to debug a pod,
