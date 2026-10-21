@@ -12,11 +12,11 @@ You are reviewing a code diff. Read this brief first, then the diff, then any fi
 A collection of cross-platform PowerShell modules, plus the tooling that packages and documents them. Four concerns
 in one repo:
 
-1. **PowerShell modules** (`modules/<name>/`) - the primary content. Seven modules:
+1. **PowerShell modules** (`modules/<name>/`) - the primary content. Eight modules:
    `aliases-git`, `aliases-kubectl` (composable `git`/`gh` and `kubectl` alias functions),
    `do-az` (Azure: subscriptions, Key Vault, AKS, Resource Graph, MS Graph),
    `do-common` (cross-platform, dependency-free: encoding, certs, Python venvs, shell helpers, networking),
-   `do-linux`, `do-win` (OS-specific utilities), `psm-windows`.
+   `do-linux`, `do-unix` (Linux and macOS), `do-win` (OS-specific utilities), `psm-windows`.
 2. **Python pre-commit hooks** (`hooks/`) - `align_tables.py`, `gremlins.py`, `validate_docs_words.py`.
 3. **Agent skills** (`.claude/skills/`) - Claude Code slash commands with bundled Python/bash helper scripts.
 4. **Docs** (`docs/`) - one folder per module, published as a static site via `mkdocs-material`
@@ -67,6 +67,19 @@ public function usually needs a matching docs edit; a diff that changes exports 
    use wrong phase numbers, or create circular skill dependencies.
 6. **Docs & Markdown** - broken tables (mismatched columns), unclosed fenced code blocks, heading hierarchy
    violations, and content that breaks `mkdocs build --strict` (bad relative links, missing nav targets).
+
+## Premium review triggers
+
+A diff touching any of these is reviewed with the premium model. They run code as root, handle credentials or
+TLS trust, or delete files on the user's machine.
+
+- `modules/do-linux/Functions/common.ps1`
+- `modules/do-unix/Functions/common.ps1`
+- `modules/do-common/Functions/certs.ps1`
+- `modules/do-az/Functions/az.ps1`
+- `modules/aliases-kubectl/Functions/secrets.ps1`
+- `module_manage.ps1`
+- `.claude/skills/second-opinion/scripts/*`
 
 ## Known patterns - do NOT flag
 

@@ -221,11 +221,13 @@ messages).
 
 ## 6. Agent skills (`skills_catalog`)
 
-Skills are **global**, not repo-local: they live in `~/.claude/skills/` (symlinked
-from a separate skills repository), so the same skill works unmodified across every
-project. This repository carries no `.claude/skills/` directory and no skill config
-file - a skill that needs repo facts (commit convention, lint command, architecture
-doc) derives them from the live repo at run time instead of reading a per-repo TOML.
+Skills are mostly **global**: they live in `~/.claude/skills/` (symlinked from a
+separate skills repository), so the same skill works unmodified across every project.
+The exception is `second-opinion`, copied into `.claude/skills/` because its
+`REVIEW-BRIEF.md` is curated per repo (focus areas, do-not-flag patterns, and the
+"Premium review triggers" globs that pick the premium reviewer model). There is no
+skill config file - a skill that needs other repo facts (commit convention, lint
+command, architecture doc) derives them from the live repo at run time.
 
 | Skill               | Bundled script(s)                                        | Purpose                                                                                                        |
 | ------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
