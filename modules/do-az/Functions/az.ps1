@@ -1417,8 +1417,23 @@ function Get-AksCredential {
             # get credentials to specified AKS cluster
             Write-Verbose 'getting AKS credentials...'
             Connect-AzContext -Subscription $aks.subscriptionId | Out-Null
-            Invoke-CommandRetry {
-                Import-AzAksCredential -Id $aks.id -Force -ConfigPath $env:KUBECONFIG -ErrorAction Stop
+            try {
+                Invoke-CommandRetry {
+                    Import-AzAksCredential -Id $aks.id -Force -ConfigPath $env:KUBECONFIG -ErrorAction Stop
+                } -ErrorAction Stop
+            } catch {
+                if ($_.Exception.Message -match 'Forbidden') {
+                    $account = (Get-AzContext).Account.Id
+                    $PSCmdlet.ThrowTerminatingError(
+                        [System.Management.Automation.ErrorRecord]::new(
+                            [System.UnauthorizedAccessException]::new("Account '$account' lacks the 'Azure Kubernetes Service Cluster User Role' on the '$AksName' cluster."),
+                            'AksCredentialForbidden',
+                            [System.Management.Automation.ErrorCategory]::PermissionDenied,
+                            $AksName
+                        )
+                    )
+                }
+                throw
             }
 
             # rename context
