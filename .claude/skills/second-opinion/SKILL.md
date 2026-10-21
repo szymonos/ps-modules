@@ -1,25 +1,28 @@
 ---
 name: second-opinion
-description: Heterogeneous-model code review of the current branch's changes. Invokes GitHub Copilot CLI with gpt-5.3-codex to review git diff since merge-base with the repo's trunk branch (or user-specified commit). Reads .claude/skills/second-opinion/REVIEW-BRIEF.md for focused project context. Returns structured findings that Claude reads, summarizes, and acts on. Use when the user types `/second-opinion`, asks for a second opinion on a branch, wants GPT to review the work, or wants an independent review before pushing.
+argument-hint: "[COMMIT] [model ID]"
+description: Heterogeneous-model code review of the current branch's changes. Invokes GitHub Copilot CLI with gpt-6-luna (gpt-6-sol for security-sensitive or very large diffs) to review git diff since merge-base with the repo's trunk branch (or user-specified commit). Reads .claude/skills/second-opinion/REVIEW-BRIEF.md for focused project context. Returns structured findings that Claude reads, summarizes, and acts on. Use when the user types `/second-opinion`, asks for a second opinion on a branch, wants GPT to review the work, or wants an independent review before pushing.
 disable-model-invocation: false
 ---
 
 # Second opinion
 
-Heterogeneous-model author-time review of the current branch. Runs **GitHub Copilot CLI** (`copilot`) with a GPT-family model (default `gpt-5.3-codex`) against the diff since `git merge-base "$TRUNK_REF" HEAD`, where `$TRUNK_REF` is a resolvable git ref for the repo's default branch - either a local branch (`main`) or a remote-tracking ref (`origin/main`), resolved in Phase 1. The reviewer returns structured findings; Claude reads them and acts.
+<!-- skillkit: no-command summarize (the agent summarises the findings) -->
 
-The bias-control mechanism is **the process boundary itself**. Copilot runs as a separate binary, with a separate model family, returning only text. Claude (the implementer) cannot influence Copilot's review; Copilot cannot edit code. Tool restriction inside Copilot is unnecessary - the architecture enforces the separation.
+Heterogeneous-model author-time review of the current branch. Runs **GitHub Copilot CLI** (`copilot`) with a GPT-family model (`gpt-6-luna`, or `gpt-6-sol` for a sensitive or large diff - see Model override) against the diff since the merge-base with the repo's default branch, resolved in Phase 1. The reviewer returns structured findings; Claude reads them and acts.
+
+The bias-control mechanism is **the process boundary itself**. Copilot runs as a separate binary, with a separate model family, returning only text. Claude (the implementer) cannot influence Copilot's review, and Claude acts only on the findings Copilot returns. Each pass also runs in its own throwaway clone, so a pass cannot touch your checkout either.
 
 ## When to use
 
-- `/second-opinion` - review current branch vs. `git merge-base "$TRUNK_REF" HEAD` (trunk autodetected in Phase 1; works for both local and remote-only checkouts)
+- `/second-opinion` - review the current branch against its merge-base with the trunk (autodetected in Phase 1)
 - `/second-opinion <commit>` - review since an arbitrary commit hash
-- `/second-opinion --model <id>` - use a different Copilot model
+- `/second-opinion model <id>` - use a different Copilot model, such as `gpt-6-sol`
 - "Get a second opinion before I push" / "have GPT review this" - same as `/second-opinion`
 
 ## Prerequisites
 
-`copilot` CLI installed and authenticated. Verify with `command -v copilot >/dev/null && copilot --version`. If missing, surface to the user: install via `https://gh.io/copilot-install` and run `copilot login`. Updates via `copilot update`.
+`copilot` CLI installed and authenticated. `run` looks on `PATH`, then for the copy VS Code Server installs outside it, and exits 4 only when neither exists. Only then tell the user to install via `https://gh.io/copilot-install` and run `copilot login`. Updates via `copilot update`.
 
 ## Workflow
 
@@ -28,97 +31,69 @@ The bias-control mechanism is **the process boundary itself**. Copilot runs as a
 Run the bundled check script to verify `REVIEW-BRIEF.md` targets this repo:
 
 ```bash
-uv run --frozen python <skill-path>/scripts/review_brief.py check
+scripts/review_brief.py check
 ```
 
-Returns JSON with `match`, `brief_repo`, `current_repo`, `needs_update`.
+Returns JSON with `match`, `brief_repo`, `current_repo`, `needs_update`, `premium_triggers`, `brief_path` and `write_to`. `brief_path` is the brief `run` hands Copilot in Phase 1: the repo's own when it has one, else the one bundled with the skill. **Write a rewritten brief to `write_to`**, the repo's own path - never to `brief_path` when it is the bundled copy, which every other repo shares. `write_to` is `null` when a link on the way to it - `.claude/skills`, the skill directory or the brief itself - leads out of the repo; then there is no safe place to write, so use the existing brief and tell the user.
 
-- **Match** → proceed to Phase 1.
-- **Mismatch or missing `repo:` tag** → run discovery and offer a one-time rewrite:
+- **Match**, or `needs_update: false` because `gh` could not name the repo -> proceed to Phase 1. When `premium_triggers` is 0, the brief predates model escalation, so only a diff over 1200 code lines can pick `gpt-6-sol`. First offer, via `AskUserQuestion`, to add a "Premium review triggers" section (see the bullet below) to `write_to`, with globs drawn from the repo's security-sensitive paths.
+- **Mismatch or missing `repo:` tag** -> run discovery and offer a one-time rewrite:
 
   ```bash
-  uv run --frozen python <skill-path>/scripts/review_brief.py discover
+  scripts/review_brief.py discover
   ```
 
   The discovery output includes detected stacks, context from `CLAUDE.md`/`AGENTS.md`/`README.md`, and the existing brief content. Use this context to rewrite `REVIEW-BRIEF.md` with:
   - Updated `repo:` frontmatter tag matching the current repo
   - Project description derived from the discovered context
   - Focus areas appropriate for the detected tech stack
+  - A "Premium review triggers" section: one ``- `glob` `` bullet per security-sensitive path (code run as root, TLS trust, credentials, anything that deletes user files or writes shared state)
   - Empty "Known patterns - do NOT flag" section (compounding loop will fill it)
   - Same output format and bias-control rules (these are repo-agnostic)
 
-  Present the rewrite to the user via `AskUserQuestion` ("Update REVIEW-BRIEF.md for this repo?"). On approval, write the file. On decline, proceed with the existing brief (it may produce noisy or irrelevant findings).
+  Present the rewrite to the user via `AskUserQuestion` ("Update REVIEW-BRIEF.md for this repo?"). On approval, write it to `write_to`. On decline, proceed with the existing brief (it may produce noisy or irrelevant findings).
 
 This phase runs once per repo. After the brief is updated, `check` returns `match: true` on all subsequent runs.
 
-### Phase 1 - resolve the diff base
+### Phase 1 - run the review
 
-This skill is portable across repos that use `main`, `master`, `trunk`, `prod`, etc. - never assume `main`. Resolve `$TRUNK_REF` to a git ref that's guaranteed to exist locally (a local branch OR a remote-tracking ref - many CI environments only have the trunk at `refs/remotes/origin/<name>`), then merge-base against it:
-
-```bash
-# Detect the trunk name (zero-network first, then fallbacks)
-TRUNK_NAME=""
-ref="$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null)" && TRUNK_NAME="${ref#origin/}"
-[ -n "$TRUNK_NAME" ] || TRUNK_NAME="$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name 2>/dev/null)"
-[ -n "$TRUNK_NAME" ] || for c in main master trunk prod; do
-  git show-ref --verify --quiet "refs/heads/$c" && TRUNK_NAME="$c" && break
-  git show-ref --verify --quiet "refs/remotes/origin/$c" && TRUNK_NAME="$c" && break
-done
-[ -n "$TRUNK_NAME" ] || { echo "Could not resolve trunk; run: git remote set-head origin -a" >&2; exit 1; }
-
-# Resolve to a usable git ref (prefer local branch, fall back to remote)
-if git show-ref --verify --quiet "refs/heads/$TRUNK_NAME"; then
-  TRUNK_REF="$TRUNK_NAME"
-elif git show-ref --verify --quiet "refs/remotes/origin/$TRUNK_NAME"; then
-  TRUNK_REF="origin/$TRUNK_NAME"
-else
-  echo "Trunk '$TRUNK_NAME' has no local or remote ref; run: git fetch origin $TRUNK_NAME" >&2; exit 1
-fi
-
-# Default: merge-base with trunk
-base="$(git merge-base "$TRUNK_REF" HEAD)"
-
-# Alternative: a user-specified commit from skill args overrides the default.
-# Uncomment and substitute when the caller passed an explicit base ref:
-# base="<user-arg>"
-```
-
-Each fallback is gated on the previous one having actually produced a value - **never collapse the `symbolic-ref` step into a `git symbolic-ref ... | sed ...` pipeline**, because `sed` always exits 0 even when the upstream `git symbolic-ref` failed, so the `||` chain wouldn't trigger. The block always re-resolves `TRUNK_REF` from scratch every time it runs - it does not check for or respect a pre-existing `$TRUNK_REF` in the environment. If a caller has already resolved trunk, the re-resolution returns the same value (so re-running is safe and produces no surprises), but it does *run* every time; it's not skipped.
-
-If `base == HEAD`, exit early: "Nothing to review - branch is at parity with the base." Don't invoke Copilot.
-
-**Caller contract: review scope is committed state only.** Uncommitted working-tree changes are invisible to `git diff <base>..HEAD` and therefore invisible to the reviewer. Callers that need to review uncommitted work (a branch with WIP in the working tree but no commits ahead of the base) must create a throwaway WIP commit *before* invoking this skill, then dispose of it after via their own flow (e.g., `git reset --soft <base>`). This skill will not silently degrade by reviewing the working tree - the process boundary that gives Copilot its bias-control also means it only sees what `git` shows it.
-
-### Phase 2 - invoke Copilot
-
-Single Bash call. The prompt tells Copilot to read the brief, run `git diff` itself, and produce findings in the brief's specified format:
+This skill is portable across repos that use `main`, `master`, `trunk`, `prod`, etc. - never assume `main`. One command resolves the base, runs three Copilot passes in parallel and merges their findings:
 
 ```bash
-copilot -p "Read .claude/skills/second-opinion/REVIEW-BRIEF.md, then review the current branch's changes since <base>. Run: git diff <base>..HEAD to see all changes. Read referenced files for context as needed. Output findings using the format and severities specified in the brief." \
-  -s \
-  --model gpt-5.3-codex \
-  --no-custom-instructions \
-  --allow-all-tools
+scripts/review_brief.py run                          # since the merge-base with the trunk
+scripts/review_brief.py run <commit>                 # the caller passed an explicit base
+scripts/review_brief.py run --model gpt-6-sol        # see Model override
+scripts/review_brief.py run v1.4.0 --intent notes.md --files src/a.py src/b.py --timeout 540
 ```
 
-Flag rationale:
+- **`--intent FILE-OR-TEXT`** - the author's stated intent, such as a CHANGELOG section. A path that exists is read as a file. Every pass gets it as context for telling deliberate behaviour from accidental, never as a list of findings to suppress.
+- **`--files PATH ...`** - review only these paths, for a rerun scoped to what changed since the last review.
+- **`--timeout SECONDS`** - the limit for each pass, default 1200. Passes run at once, so the whole run takes about that long at worst. Set it below any timeout the caller itself runs under.
+
+The passes are lenses on the same diff. **`logic`** hunts defects inside the changed lines. **`inputs`** feeds the changed code wrong types, empty, zero, negative and aliased paths, and checks for tracebacks, false "clean" results, wrong exit codes and non-atomic writes. **`impact`** hunts what the change breaks outside the diff: callers and tests of a changed signature, docs, SKILL.md files and tables that now disagree with the code, missing timeouts. One general pass reliably finds the first kind and rarely the other two, which a server-side PR review then catches one push at a time. Each lens costs one model call and they run concurrently, so wall time is one review.
+
+It prints JSON: the base (`trunk`, `trunk_ref`, `base`, `head`, `commits`, `diffstat`), then `uncommitted`, `model` (with `model_reasons` and `code_lines` when `run` chose it), `brief`, `raw` - `{lens: temp file}` holding each pass's full output - and `findings`: `[{id, severity, file, line, description, suggestion, lens}, ...]` with `count`. Lenses overlap, so the list can name one defect twice. **Consolidate findings that share a root cause** before presenting them, and keep apart those that merely sit near each other. The trunk comes from `origin/HEAD`, then GitHub's default branch, then `main`/`master`/`trunk`/`prod`, and resolves to a local branch or, in a CI checkout that only has the remote, to `origin/<name>`.
+
+- **Exit 3** - nothing past the base, committed or not, or nothing under `--files` (`reason` says so). Copilot was not called. Stop: "Nothing to review - branch is at parity with the base."
+- **Exit 4** - no Copilot CLI anywhere. Copilot was not called, and `skipped` carries the install hint. Tell the user; a caller such as a release driver can treat it as a skipped layer rather than a failure.
+- **Exit 1** - `error` says what stopped the review (base unresolvable, no brief, every pass failed or hung) and the fix; `stderr` carries Copilot's own message. Surface it; don't retry automatically.
+- **Exit 0** - if `failed` is present, one lens did not finish: say which, and that its half of the review is missing. If `unparsed` is present, `{lens: [heading, ...]}` names finding headings that broke the brief's format: read that pass's `raw` file for them rather than dropping them. If `count` is 0, announce "No findings." and exit. Otherwise act on `findings` below.
+
+`scripts/review_brief.py base [<commit>]` prints the base part alone, for callers that only need it. `scripts/review_brief.py parse <file>` re-parses one pass's saved output, such as `raw["impact"]`.
+
+**Uncommitted work is reviewed too, with no WIP commit.** When the tree is dirty, `run` snapshots it - staged, unstaged and untracked files, honouring `.gitignore` - into a commit object built through a scratch index. No branch, index or file moves, so there is nothing to undo. `head` is then that snapshot, `uncommitted` is `true`, and Copilot diffs `<base>..<head>` while reading the same files from the working tree. `commits` still counts only real commits.
+
+#### The Copilot call `run` makes
+
+Each pass's prompt tells Copilot to read the brief, run `git diff <base>..<head>` itself, apply its lens, re-read the code behind each finding and drop what it cannot confirm, then answer in the brief's format. All use these flags:
 
 - **`-s`** (silent) - strips UI chrome, leaves only the agent's response on stdout. Critical for parsing.
-- **`--no-custom-instructions`** - skips `AGENTS.md` and `.claude/skills/` auto-loading. The curated `REVIEW-BRIEF.md` is the only context Copilot needs. Loading everything would burn attention budget on irrelevant context.
-- **`--allow-all-tools`** - required for non-interactive `-p` mode. Safe here: Copilot's output is text-only back to Claude; any edits Copilot might attempt happen in its process, not Claude's. Even if Copilot wrote a file, Claude would not act on it - Claude only acts on the findings text.
-- **`--model gpt-5.3-codex`** - default. Override via skill arg (see model override below).
+- **`--no-custom-instructions`** - skips `AGENTS.md` auto-loading. The curated `REVIEW-BRIEF.md` is the only context Copilot needs. Loading everything would burn attention budget on irrelevant context.
+- **`--excluded-tools skill`** - `--no-custom-instructions` does not hide `.claude/skills/`. Without this flag a pass can invoke this very skill, which starts a nested review on whatever model that copy defaults to: three passes replaying an old commit each launched one on `gpt-5.3-codex`, at 20-27 AI Credits apiece against 2-3 for the pass itself.
+- **`--allow-all-tools`** - required for non-interactive `-p` mode, and not a sandbox: a pass can write, delete and run code. That is why each pass runs in its own throwaway clone (`git clone --shared`, no `origin` remote), checked out at the reviewed `head`, with its copy of the brief kept beside the clone rather than in it. A clone rather than a linked worktree, because a worktree shares refs, the stash and config with your checkout. Nothing a pass does - files, `git tag`, `git stash`, config - reaches your checkout or races another pass. The clone holds only tracked and snapshotted files, so gitignored local state such as `.venv` is absent there. **The clone isolates files and git state, not credentials or network**: a pass inherits your environment and can read credential files in your home directory. The `inputs` lens is told to run code only when it stays inside its clone, with no network, credentials or live-write flags, and to reason from the source otherwise. That is an instruction to the reviewer, not a boundary, and no generic one exists: credentials live in files as often as in variables, and Copilot itself needs the network.
+- **`--model`** - the model `run` chose, or the one passed with `--model`. See Model override.
 
-If Copilot exits non-zero, capture the error and surface to the user. Don't retry automatically.
-
-### Phase 3 - parse and act on findings
-
-Save Copilot's raw output to a temp file and parse it with the bundled script:
-
-```bash
-uv run --frozen python <skill-path>/scripts/review_brief.py parse /tmp/copilot-review.md
-```
-
-Returns JSON: `{"findings": [{id, severity, file, line, description, suggestion}, ...], "count": N}`. If count is 0, announce "No findings." and exit.
+### Phase 2 - act on findings
 
 #### Output handling
 
@@ -129,16 +104,16 @@ Two modes, selected by the caller via context (the skill itself doesn't need to 
 1. Present a summary table to the user:
 
    ```text
-   ## Copilot review (gpt-5.3-codex) - 3 findings
+   ## Copilot review (gpt-6-luna) - 3 findings
 
-   | ID | Severity | Location | Summary |
-   |----|----------|----------|---------|
-   | F-001 | bug | src/main.py:142 | <one-line> |
-   | F-002 | warning | lib/utils.sh:88 | <one-line> |
-   | F-003 | nit | docs/index.md:23 | <one-line> |
+   | ID | Severity | Lens | Location | Summary |
+   |----|----------|------|----------|---------|
+   | F-001 | bug | logic | src/main.py:142 | <one-line> |
+   | F-002 | warning | inputs | lib/utils.sh:88 | <one-line> |
+   | F-003 | nit | impact | docs/index.md:23 | <one-line> |
    ```
 
-2. Ask via `AskUserQuestion` which to act on. For ≤4 findings, use one question with multiSelect options (`F-001`, `F-002`, ...). For more, present in chunks of 4 or ask "fix all bugs, triage warnings/nits?" first.
+2. Ask via `AskUserQuestion` which to act on. For 4 or fewer findings, use one question with multiSelect options (`F-001`, `F-002`, ...). For more, present in chunks of 4 or ask "fix all bugs, triage warnings/nits?" first.
 3. For each finding the user wants fixed: Claude reads the relevant file, formulates a fix from Copilot's `Suggestion`, applies it via `Edit`. **Do not copy Copilot's patch verbatim** - Copilot suggests direction; Claude writes the actual edit using its own knowledge of the codebase.
 4. After edits, run `make lint` to validate.
 
@@ -156,38 +131,41 @@ The caller selects automated mode by passing findings context (e.g., "act on fin
 
 ## Model override
 
-Pass `--model <id>` in the skill args. Claude extracts it and substitutes for `gpt-5.3-codex` in the Copilot invocation.
+Without `--model`, `run` picks one of two models and says why in `model_reasons`. State the choice in one line before presenting findings ("Reviewed with gpt-6-sol: touches trigger paths: ...").
 
-Currently available Copilot models (May 2026 - list with `copilot -p "list available models"`):
+| Model ID     | Tier     | When                                                                                                                   |
+| ------------ | -------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `gpt-6-luna` | standard | **Default** - 1.2-2.5 AI Credits per pass, 5-6 per three-pass review                                                   |
+| `gpt-6-sol`  | premium  | ~20x luna. Picked when the diff touches a "Premium review triggers" glob in the brief, or changes over 1200 code lines |
 
-| Model ID          | Tier       | Notes                                                                                                                              |
-| ----------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `gpt-5.3-codex`   | standard   | **Default** - code-focused, balanced cost                                                                                          |
-| `gpt-5.2-codex`   | standard   | Older codex; use only if 5.3 unavailable                                                                                           |
-| `gpt-5.5`         | premium    | Heavier; use for complex / security-sensitive diffs                                                                                |
-| `gpt-5.4`         | standard   | General-purpose; less code-specialized than codex variants                                                                         |
-| `gpt-5-mini`      | fast/cheap | Quick triage; expect more noise / missed nuance                                                                                    |
-| `claude-opus-4-7` | premium    | **NOT heterogeneous** - same family as Claude (the implementer); only useful if you specifically want a same-family second context |
+The user types `/second-opinion model <id>` to choose instead. Pass it on as `scripts/review_brief.py run --model <id>`.
+Any other model Copilot offers is accepted on request (list them with `copilot -p "list available models"`). Avoid Claude models: they share a family with the implementer, which defeats the point of a heterogeneous review.
+
+Credit figures are measured on 200- to 1,100-line diffs; one AI Credit is $0.006. `-s` hides the usage line - read `totalNanoAiu` (10^9 per credit) from the `session.shutdown` event in `~/.copilot/session-state/<id>/events.jsonl`.
+
+On a planted-bug comparison (2026-09-24) luna and sol found the same bugs with no false positives; sol added one minor documentation finding across two runs. Neither caught a bug that needed outside knowledge, so a stronger reviewer does not replace the challenge step.
 
 ## Anti-patterns
 
 - **Running `/second-opinion` repeatedly on the same diff.** Wastes Copilot API tokens. If the first run missed something, evolve `REVIEW-BRIEF.md` (add a focus area), don't re-run.
-- **Dropping `--no-custom-instructions`.** Copilot would auto-load `AGENTS.md` and every file under `.claude/skills/`. That's hundreds of lines of context unrelated to the actual diff review.
-- **Piping the full diff into the `-p` argument.** Copilot's shell access lets it run `git diff` itself - piping risks shell-escape issues and prompt-size limits. Let Copilot run the command.
+- **Treating a clean run as a substitute for the PR review.** The `inputs` and `impact` lenses move those checks earlier, but a server-side review still sees the PR as merged. Run it once at the end; a finding it makes that this skill missed belongs in the brief.
+- **Dropping `--no-custom-instructions`.** Copilot would auto-load `AGENTS.md` - hundreds of lines of context unrelated to the actual diff review.
+- **Dropping `--excluded-tools skill`.** A pass can then call `/second-opinion` itself and launch a nested review on another model, billed on top.
+- **Calling `copilot` by hand instead of `run`.** `run` is the one place the prompt, the flags, the timeout and the parse agree. A hand-built call drifts from all four - and piping the diff into `-p` risks shell-escape issues and prompt-size limits.
 - **Copying Copilot's patch verbatim.** Copilot's `Suggestion` is a direction; Claude writes the actual edit. Verbatim copies skip Claude's knowledge of the codebase's idiomatic patterns and accepted decisions.
 - **Adding `Co-Authored-By: Copilot` to fix commits.** Fixes derived from Copilot's review are Claude's edits informed by Copilot's review - same as a human reviewer's comment. No tooling attribution needed.
 - **Running `/second-opinion` after a destructive history rewrite (soft-reset).** Review-driven fixes after a soft-reset need a second reset cycle to re-cut clean commits. Run the review *before* any history rewrite so fixes land in the WIP state and get consolidated for free.
 
 ## Example invocations
 
-- `/second-opinion` - review against `git merge-base "$TRUNK_REF" HEAD` (trunk autodetected in Phase 1; works for both local and remote-only checkouts)
+- `/second-opinion` - review against the merge-base with the trunk (autodetected in Phase 1)
 - `/second-opinion abc1234` - review against an arbitrary commit
-- `/second-opinion --model gpt-5.5` - use a heavier model for a security-sensitive branch
+- `/second-opinion model gpt-6-sol` - use the premium model for a security-sensitive branch
 - "Get a second opinion before I push" - same as `/second-opinion`
 
 ## Compounding loop
 
 `REVIEW-BRIEF.md` is **git-tracked** so it compounds across runs. Two triggers update it:
 
-1. **Copilot keeps flagging an intentional pattern** → add it to the "do NOT flag" section.
-2. **Copilot misses a class of bug repeatedly** → add the relevant focus area or paired-file mapping.
+1. **Copilot keeps flagging an intentional pattern** -> add it to the "do NOT flag" section.
+2. **Copilot misses a class of bug repeatedly** -> add the relevant focus area or paired-file mapping.
