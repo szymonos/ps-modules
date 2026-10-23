@@ -390,8 +390,29 @@ function Remove-GitLocalBranches {
         git branch --format='%(refname:short) %(upstream:track)' | ForEach-Object {
             if ($_ -match '^(\S+)\s+\[gone\]$') { $Matches[1] }
         } | branchFilter | ForEach-Object { $branches.Add($_) | Out-Null }
+        # map branches to the worktrees they are checked out in
+        $worktrees = @{}
+        git worktree list --porcelain | ForEach-Object {
+            if ($_ -match '^worktree (.+)$') { $path = $Matches[1] }
+            elseif ($_ -match '^branch refs/heads/(.+)$') { $worktrees[$Matches[1]] = $path }
+        }
         # delete merged and gone branches
         foreach ($branch in $branches) {
+            if ($worktrees[$branch]) {
+                # keep worktrees of branches never pushed, e.g. new ones cut from the trunk
+                if (-not (git config "branch.$branch.merge")) { continue }
+                if ($PSBoundParameters.WhatIf) {
+                    Invoke-WriteExecCommand -Command "git worktree remove '$($worktrees[$branch])'" -WhatIf
+                } else {
+                    # without --force, git refuses to remove worktrees with uncommitted changes
+                    git worktree remove $worktrees[$branch] 2>$null
+                    if ($LASTEXITCODE) {
+                        Write-Host "Kept worktree $($worktrees[$branch]) (uncommitted changes or locked)" -ForegroundColor DarkGray
+                        continue
+                    }
+                    Write-Host "Removed worktree $($worktrees[$branch])" -ForegroundColor DarkYellow
+                }
+            }
             Invoke-WriteExecCommand -Command "git branch -D $branch" @PSBoundParameters
         }
         if ($DeleteNoMerged) {
@@ -449,12 +470,16 @@ Function runs only for repositories with remote set.
 
 .PARAMETER Command
 Script block of commands to execute.
+.PARAMETER Fetch
+Switch whether to fetch all repositories in parallel before executing the commands.
 #>
 function Invoke-GitRepoCommand {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory, Position = 0, HelpMessage = 'The command to be invoked.')]
-        [scriptblock]$Command
+        [scriptblock]$Command,
+
+        [switch]$Fetch
     )
 
     Push-Location
@@ -469,6 +494,16 @@ function Invoke-GitRepoCommand {
     } else {
         Get-ChildItem -Directory | ForEach-Object {
             (git -C $_.FullName remote 2>$null) ? $dirs.Add($_) : $null
+        }
+    }
+
+    # fetch repositories in parallel, since fetching is network-bound and dominates the run time
+    if ($Fetch) {
+        $dirs | ForEach-Object -ThrottleLimit 16 -Parallel {
+            $out = git -C $_.FullName fetch --all --tags --prune --prune-tags --force --quiet 2>&1
+            if ($LASTEXITCODE) {
+                Write-Warning "$($_.Name): $($out -join "`n")"
+            }
         }
     }
 

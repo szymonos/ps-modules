@@ -396,19 +396,18 @@ function grunrefresh {
         $remote = @(git remote)[0]
 
         # run git commands
-        git fetch --all --tags --prune --prune-tags --force
         $switch = Invoke-WriteExecCommand -Command "git switch $defaultBranch"
         # run commands if switched branch successfully
         if ($?) {
             if ($switch -ne "Your branch is up to date with '$remote/$defaultBranch'.") {
                 Invoke-WriteExecCommand -Command "git merge ${remote}/${defaultBranch}"
             }
-            # skip fetching, since the repository was already fetched above
+            # skip fetching, since Invoke-GitRepoCommand already fetched the repository
             Remove-GitMergedBranches -NoFetch
         }
     }
     # run git repository command
-    Invoke-GitRepoCommand -Command $cmd
+    Invoke-GitRepoCommand -Command $cmd -Fetch
 }
 
 

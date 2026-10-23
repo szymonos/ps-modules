@@ -219,3 +219,5 @@ venv
 vimdiff
 whatchanged
 winget
+worktree
+worktrees
