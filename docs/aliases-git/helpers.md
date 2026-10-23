@@ -19,6 +19,8 @@ interactive workflows like branch resolution and remote syncing.
 
 !!! warning
     `gbdo!` and `gbdm!` also delete remote branches - use with caution.
+    `gbdl`, `gbdm` and `grunrefresh` also remove the clean worktree of a deleted branch
+    that was pushed; worktrees with uncommitted changes and never-pushed branches are kept.
 
 ## :material-merge: Merge / Rebase
 
