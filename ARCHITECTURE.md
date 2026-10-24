@@ -23,8 +23,9 @@ modules/<name>/                PowerShell modules (one subfolder per module)
 docs/                          MkDocs site source (one subfolder per module + index.md)
   <module>/                    index.md overview, plus subpages for larger modules
 hooks/                         custom pre-commit hook scripts (Python)
+tests/                         Pester tests (Invoke-Pester ./tests)
 design/lessons.md              operational lessons compounded by /prepare-pr
-.claude/skills/                agent skills (Claude Code slash commands)
+.claude/REVIEW-BRIEF.md        project context for the global /second-opinion skill
 module_manage.ps1              install / remove / scaffold modules
 Makefile                       primary entry point (make = help)
 pyproject.toml + uv.lock       Python deps (mkdocs, ruff, prek) managed by uv
@@ -221,12 +222,12 @@ messages).
 
 ## 6. Agent skills (`skills_catalog`)
 
-Skills are mostly **global**: they live in `~/.claude/skills/` (symlinked from a
+Skills are **global**: they live in `~/.claude/skills/` (symlinked from a
 separate skills repository), so the same skill works unmodified across every project.
-The exception is `second-opinion`, copied into `.claude/skills/` because its
-`REVIEW-BRIEF.md` is curated per repo (focus areas, do-not-flag patterns, and the
-"Premium review triggers" globs that pick the premium reviewer model). There is no
-skill config file - a skill that needs other repo facts (commit convention, lint
+The only per-repo piece is `.claude/REVIEW-BRIEF.md`, the project context
+`second-opinion` reads (focus areas, do-not-flag patterns, and the "Premium review
+triggers" globs that pick the premium reviewer model); the skill itself supplies the
+output format and bias-control rules. There is no skill config file - a skill that needs other repo facts (commit convention, lint
 command, architecture doc) derives them from the live repo at run time.
 
 | Skill               | Bundled script(s)                                        | Purpose                                                                                                        |

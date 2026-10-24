@@ -371,36 +371,52 @@ function Remove-GitLocalBranches {
         # remove DeleteNoMerged and NoFetch from PSBoundParameters
         $PSBoundParameters.Remove('DeleteNoMerged') | Out-Null
         $PSBoundParameters.Remove('NoFetch') | Out-Null
-        # switch to dev/main branch
+        # set locally, so a caller's $skip cannot leak in through dynamic scoping
+        $skip = $false
+        # switch to dev/main branch, a failed switch leaves --merged comparing against the feature HEAD
         git switch $(Get-GitResolvedBranch) --quiet
+        if ($LASTEXITCODE) {
+            Write-Warning 'Cannot switch to the base branch, skipped branch cleanup.'
+            $skip = $true
+            return
+        }
         # update remote
         if (-not $NoFetch) {
             git remote update --prune
         }
-        # instantiate sorted set for branches to delete
-        $branches = [System.Collections.Generic.SortedSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+        # instantiate sorted set for branches to delete, git branch names are case-sensitive
+        $branches = [System.Collections.Generic.SortedSet[string]]::new([System.StringComparer]::Ordinal)
+        $gone = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
         $regex = '^(ma(in|ster)|(non)?prod(uction)?|dev(|el|elop|elopment)|qa|stag(e|ing)|trunk|docs)$'
         filter branchFilter { $_.Where({ $_ -notmatch $regex }) }
     }
 
     process {
+        if ($skip) { return }
         # add merged branches
         git branch --format='%(refname:short)' --merged | branchFilter | ForEach-Object { $branches.Add($_) | Out-Null }
         # add branches with gone upstream (e.g. squash-merged PRs)
         git branch --format='%(refname:short) %(upstream:track)' | ForEach-Object {
             if ($_ -match '^(\S+)\s+\[gone\]$') { $Matches[1] }
-        } | branchFilter | ForEach-Object { $branches.Add($_) | Out-Null }
-        # map branches to the worktrees they are checked out in
-        $worktrees = @{}
-        git worktree list --porcelain | ForEach-Object {
-            if ($_ -match '^worktree (.+)$') { $path = $Matches[1] }
+        } | branchFilter | ForEach-Object { $branches.Add($_) | Out-Null; $gone.Add($_) | Out-Null }
+        # map branches to the worktrees they are checked out in, -z keeps unusual paths unquoted and whole
+        # rejoin, PowerShell splits native output on newlines inside a path
+        $current = (git rev-parse --show-toplevel) -join "`n"
+        $worktrees = [System.Collections.Generic.Dictionary[string, string]]::new([System.StringComparer]::Ordinal)
+        ((git worktree list --porcelain -z) -join "`n").Split("`0") | ForEach-Object {
+            if ($_ -match '(?s)^worktree (.+)$') { $path = $Matches[1] }
             elseif ($_ -match '^branch refs/heads/(.+)$') { $worktrees[$Matches[1]] = $path }
         }
         # delete merged and gone branches
         foreach ($branch in $branches) {
-            if ($worktrees[$branch]) {
-                # keep worktrees of branches never pushed, e.g. new ones cut from the trunk
-                if (-not (git config "branch.$branch.merge")) { continue }
+            if ($worktrees.ContainsKey($branch)) {
+                # remove only worktrees of gone branches
+                if (-not $gone.Contains($branch)) { continue }
+                # never the one cleanup runs from, git removes it without complaint
+                # ignore case, so a case-insensitive filesystem cannot hide a match; a false match only keeps a worktree
+                if ([string]::Equals($worktrees[$branch], $current, [System.StringComparison]::OrdinalIgnoreCase)) { continue }
+                # keep worktrees tracking a branch of another name, e.g. new ones cut from origin/main
+                if (-not [string]::Equals((git config "branch.$branch.merge"), "refs/heads/$branch", [System.StringComparison]::Ordinal)) { continue }
                 if ($PSBoundParameters.WhatIf) {
                     Invoke-WriteExecCommand -Command "git worktree remove '$($worktrees[$branch])'" -WhatIf
                 } else {
@@ -499,21 +515,47 @@ function Invoke-GitRepoCommand {
 
     # fetch repositories in parallel, since fetching is network-bound and dominates the run time
     if ($Fetch) {
-        $dirs | ForEach-Object -ThrottleLimit 16 -Parallel {
-            $out = git -C $_.FullName fetch --all --tags --prune --prune-tags --force --quiet 2>&1
-            if ($LASTEXITCODE) {
-                Write-Warning "$($_.Name): $($out -join "`n")"
-            }
+        # fetch each repository once, sibling directories can be worktrees sharing its refs
+        # a directory whose common dir cannot be resolved is fetched on its own
+        # keys compare ordinally, Group-Object would merge paths that differ only in Unicode normalization
+        $repos = [System.Collections.Generic.Dictionary[string, System.Collections.Generic.List[System.IO.DirectoryInfo]]]::new([System.StringComparer]::Ordinal)
+        foreach ($dir in $dirs) {
+            $commonDir = (git -C $dir.FullName rev-parse --git-common-dir 2>$null) -join "`n"
+            $key = $LASTEXITCODE ? $dir.FullName : [System.IO.Path]::GetFullPath($commonDir, $dir.FullName)
+            if (-not $repos.ContainsKey($key)) { $repos[$key] = [System.Collections.Generic.List[System.IO.DirectoryInfo]]::new() }
+            $repos[$key].Add($dir)
+        }
+        $fetched = [System.Collections.Generic.HashSet[string]]::new()
+        # ponytail: one time limit for the whole batch, a hung fetch skips repositories still queued behind it
+        try {
+            $repos.Values | ForEach-Object -ThrottleLimit 16 -TimeoutSeconds 300 -Parallel {
+                $out = git -C $_[0].FullName -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=60 `
+                    fetch --all --tags --prune --prune-tags --force --quiet 2>&1
+                if ($LASTEXITCODE) {
+                    Write-Warning "$($_[0].Name): $($out -join "`n")"
+                } else {
+                    $_.FullName
+                }
+            } | ForEach-Object { $fetched.Add($_) | Out-Null }
+        } catch {
+            Write-Warning 'Fetching timed out.'
         }
     }
 
     # iterate over all git repos with remote set
     foreach ($dir in $dirs) {
-        Set-Location $dir
+        # skip worktrees removed by the cleanup of a sibling directory
+        if (-not (Test-Path -LiteralPath $dir.FullName)) { continue }
+        Set-Location -LiteralPath $dir.FullName
         # set line separator for printing the following results
         $follow = $dir -eq $dirs[0] ? '' : "`n"
         if ($dirs.Count -gt 1) {
             Write-Host "$follow$($dir.Name)" -ForegroundColor Cyan
+        }
+        # skip commands that would act on stale refs
+        if ($Fetch -and -not $fetched.Contains($dir.FullName)) {
+            Write-Warning "$($dir.Name): fetch failed or timed out, skipped."
+            continue
         }
         # execute commands
         Invoke-Command -ScriptBlock $Command
