@@ -397,8 +397,8 @@ function grunrefresh {
 
         # run git commands
         $switch = Invoke-WriteExecCommand -Command "git switch $defaultBranch"
-        # run commands if switched branch successfully
-        if ($?) {
+        # run commands if switched branch successfully, $? stays true after a failed native call in a function
+        if (-not $LASTEXITCODE) {
             if ($switch -ne "Your branch is up to date with '$remote/$defaultBranch'.") {
                 Invoke-WriteExecCommand -Command "git merge ${remote}/${defaultBranch}"
             }
